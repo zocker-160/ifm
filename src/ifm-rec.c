@@ -24,18 +24,28 @@ taskfuncs rec_taskfuncs = {
     NULL
 };
 
+/* Internal functions */
+static void putline(char *str);
+
 /* Task functions */
 void
 rec_task_entry(vhash *task)
 {
-    char *cmd;
+    vscalar *elt;
+    vlist *cmds;
 
-    cmd = vh_sgetref(task, "DESC");
-    if (vh_exists(task, "CMD"))
-        cmd = vh_sgetref(task, "CMD");
+    if ((cmds = vh_pget(task, "CMD")) != NULL) {
+        vl_foreach(elt, cmds)
+            putline(vs_sgetref(elt));
+    } else {
+        putline(vh_sgetref(task, "DESC"));
+    }
+}
 
-    while (*cmd != '\0')
-        putchar(toupper(*cmd++));
-
+static void
+putline(char *str)
+{
+    while (*str != '\0')
+        putchar(toupper(*str++));
     putchar('\n');
 }

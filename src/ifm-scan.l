@@ -139,6 +139,7 @@ WHITE		[ \t\f]*
 "sw"		{ return SOUTHWEST; }
 "tag"		{ return TAG; }
 "task"		{ return TASK; }
+"times"         { return TIMES; }
 "title"		{ return TITLE; }
 "to"		{ return TO; }
 "u"		{ return UP; }

@@ -87,6 +87,7 @@ text_task_entry(vhash *task)
     static int count = 0;
     int type, score;
     vscalar *elt;
+    vlist *cmds;
     vhash *item;
     char *str;
 
@@ -104,8 +105,8 @@ text_task_entry(vhash *task)
         if (!moved)
             printf("\n");
         printf("%s", vh_sgetref(task, "DESC"));
-        if (vh_exists(task, "CMD"))
-            printf(" (%s)", vh_sgetref(task, "CMD"));
+        if ((cmds = vh_pget(task, "CMD")) != NULL)
+            printf(" (%s)", vl_join(cmds, ". "));
         printf("\n");
         travel++;
         moved++;

@@ -43,8 +43,8 @@ void
 connect_rooms(void)
 {
     vhash *room, *link, *join, *reach, *from, *to, *item;
+    vlist *rlist, *cmdfrom, *cmdto;
     int oneway, len, goflag, dir;
-    vlist *rlist;
     vscalar *elt;
     char *cmd;
 
@@ -71,15 +71,18 @@ connect_rooms(void)
         rlist = vh_pget(from, "REACH");
         reach = vh_create();
 
-        cmd = vh_sgetref(link, "TO_CMD");
+        cmd = NULL;
         goflag = vh_iget(link, "GO");
         dir = vh_iget(link, "TO_DIR");
-
-        if (cmd == NULL && goflag)
-            cmd = dirinfo[goflag].sname;
-        if (cmd == NULL)
-            cmd = dirinfo[dir].sname;
-        vh_sstore(reach, "CMD", cmd);
+        if ((cmdto = vh_pget(link, "TO_CMD")) != NULL) {
+            vh_pstore(reach, "CMD", cmdto);
+        } else {
+            if (goflag)
+                cmd = dirinfo[goflag].sname;
+            if (cmd == NULL)
+                cmd = dirinfo[dir].sname;
+            add_attr(reach, "CMD", cmd);
+        }
 
         vh_pstore(reach, "FROM", from);
         vh_pstore(reach, "TO", to);
@@ -108,17 +111,20 @@ connect_rooms(void)
             rlist = vh_pget(to, "REACH");
             reach = vh_create();
 
-            cmd = vh_sgetref(link, "FROM_CMD");
-            if (cmd == NULL)
-                cmd = vh_sgetref(link, "TO_CMD");
+            cmd = NULL;
             goflag = dirinfo[goflag].odir;
             dir = vh_iget(link, "FROM_DIR");
-
-            if (cmd == NULL && goflag)
-                cmd = dirinfo[goflag].sname;
-            if (cmd == NULL)
-                cmd = dirinfo[dir].sname;
-            vh_sstore(reach, "CMD", cmd);
+            if ((cmdfrom = vh_pget(link, "FROM_CMD")) != NULL) {
+                vh_pstore(reach, "CMD", cmdfrom);
+            } else if (cmdto != NULL) {
+                vh_pstore(reach, "CMD", cmdto);
+            } else {
+                if (goflag)
+                    cmd = dirinfo[goflag].sname;
+                if (cmd == NULL)
+                    cmd = dirinfo[dir].sname;
+                add_attr(reach, "CMD", cmd);
+            }
 
             vh_pstore(reach, "FROM", to);
             vh_pstore(reach, "TO", from);
@@ -158,14 +164,17 @@ connect_rooms(void)
         rlist = vh_pget(from, "REACH");
         reach = vh_create();
 
-        cmd = vh_sgetref(join, "TO_CMD");
+        cmd = NULL;
         goflag = vh_iget(join, "GO");
-
-        if (cmd == NULL && goflag)
-            cmd = dirinfo[goflag].sname;
-        if (cmd == NULL)
-            cmd = "?";
-        vh_sstore(reach, "CMD", cmd);
+        if ((cmdto = vh_pget(join, "TO_CMD")) != NULL) {
+            vh_pstore(reach, "CMD", cmdto);
+        } else {
+            if (goflag)
+                cmd = dirinfo[goflag].sname;
+            if (cmd == NULL)
+                cmd = "?";
+            add_attr(reach, "CMD", cmd);
+        }
 
         vh_pstore(reach, "FROM", from);
         vh_pstore(reach, "TO", to);
@@ -194,16 +203,19 @@ connect_rooms(void)
             rlist = vh_pget(to, "REACH");
             reach = vh_create();
 
-            cmd = vh_sgetref(join, "FROM_CMD");
-            if (cmd == NULL)
-                cmd = vh_sgetref(join, "TO_CMD");
+            cmd = NULL;
             goflag = dirinfo[goflag].odir;
-
-            if (cmd == NULL && goflag)
-                cmd = dirinfo[goflag].sname;
-            if (cmd == NULL)
-                cmd = "?";
-            vh_sstore(reach, "CMD", cmd);
+            if ((cmdfrom = vh_pget(join, "FROM_CMD")) != NULL) {
+                vh_pstore(reach, "CMD", cmdfrom);
+            } else if (cmdto != NULL) {
+                vh_pstore(reach, "CMD", cmdto);
+            } else {
+                if (goflag)
+                    cmd = dirinfo[goflag].sname;
+                if (cmd == NULL)
+                    cmd = "?";
+                add_attr(reach, "CMD", cmd);
+            }
 
             vh_pstore(reach, "FROM", to);
             vh_pstore(reach, "TO", from);

@@ -65,6 +65,7 @@ static vlist *curdirs = NULL;   /* Current direction list */
 static int modify = 0;          /* Modification flag */
 static int implicit = 0;        /* Implicit-link flag */
 static int allflag = 0;         /* All-items flag */
+static int repeat = 0;          /* String repeat count */
 %}
 
 %union {
@@ -77,7 +78,7 @@ static int allflag = 0;         /* All-items flag */
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
-%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL
+%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -87,6 +88,7 @@ static int allflag = 0;         /* All-items flag */
 %token <sval> STRING ID
 
 %type  <ival> compass otherdir
+%type  <sval> string_repeat
 %type  <vval> var room item task
 
 %%
@@ -165,15 +167,13 @@ room_stmt	: ROOM STRING
                                   vh_pget(curroom, "LINK_LEAVE"));
                         vh_istore(link, "LEAVEALL",
                                   vh_iget(curroom, "LINK_LEAVEALL"));
+                        vh_pstore(link, "FROM_CMD",
+                                  vh_pget(curroom, "FROM_CMD"));
+                        vh_pstore(link, "TO_CMD",
+                                  vh_pget(curroom, "TO_CMD"));
 
                         if ((str = vh_sgetref(curroom, "TAG")) != NULL)
                             set_tag("link", str, link, linktags);
-
-                        if ((str = vh_sgetref(curroom, "FROM_CMD")) != NULL)
-                            vh_sstore(link, "FROM_CMD", str);
-
-                        if ((str = vh_sgetref(curroom, "TO_CMD")) != NULL)
-                            vh_sstore(link, "TO_CMD", str);
 
                         vh_pstore(link, "DIR", dirs);
                         vl_ppush(links, link);
@@ -342,16 +342,24 @@ room_attr	: TAG ID
 		{
                     vh_istore(curroom, "SCORE", $2);
 		}
-                | CMD STRING
+                | CMD string_repeat
                 {
-                    if (!vh_exists(curroom, "TO_CMD"))
-                        vh_sstore(curroom, "TO_CMD", $2);
-                    else
-                        vh_sstore(curroom, "FROM_CMD", $2);
+                    while (repeat-- > 0)
+                        add_attr(curroom, "TO_CMD", $2);
+                }
+                | CMD TO string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curroom, "TO_CMD", $3);
+                }
+                | CMD FROM string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curroom, "FROM_CMD", $3);
                 }
 		| NOTE STRING
 		{
-                    add_note(curroom, $2);
+                    add_attr(curroom, "NOTE", $2);
 		}
 		;
 
@@ -402,7 +410,7 @@ item_attr	: TAG ID
 		}
 		| NOTE STRING
 		{
-                    add_note(curitem, $2);
+                    add_attr(curitem, "NOTE", $2);
 		}
 		| HIDDEN
 		{
@@ -410,6 +418,7 @@ item_attr	: TAG ID
 		}
 		| GIVEN
 		{
+                    obsolete("`given' attribute", "task `give' attribute");
                     vh_istore(curitem, "GIVEN", 1);
 		}
 		| LOST
@@ -511,12 +520,20 @@ link_attr	: DIR dir_list
 		{
                     vh_istore(curlink, "LEN", $2);
 		}
-                | CMD STRING
+                | CMD string_repeat
                 {
-                    if (!vh_exists(curlink, "TO_CMD"))
-                        vh_sstore(curlink, "TO_CMD", $2);
-                    else
-                        vh_sstore(curlink, "FROM_CMD", $2);
+                    while (repeat-- > 0)
+                        add_attr(curlink, "TO_CMD", $2);
+                }
+                | CMD TO string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curlink, "TO_CMD", $3);
+                }
+                | CMD FROM string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curlink, "FROM_CMD", $3);
                 }
                 | TAG ID
 		{
@@ -595,12 +612,20 @@ join_attr	: GO compass
 		{
                     vh_istore(curjoin, "LEN", $2);
 		}
-                | CMD STRING
+                | CMD string_repeat
                 {
-                    if (!vh_exists(curjoin, "TO_CMD"))
-                        vh_sstore(curjoin, "TO_CMD", $2);
-                    else
-                        vh_sstore(curjoin, "FROM_CMD", $2);
+                    while (repeat-- > 0)
+                        add_attr(curjoin, "TO_CMD", $2);
+                }
+                | CMD TO string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curjoin, "TO_CMD", $3);
+                }
+                | CMD FROM string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curjoin, "FROM_CMD", $3);
                 }
                 | TAG ID
 		{
@@ -742,13 +767,14 @@ task_attr	: TAG ID
                 {
                     vh_istore(curtask, "FINISH", 1);
                 }
-                | CMD STRING
+                | CMD string_repeat
                 {
-                    vh_sstore(curtask, "CMD", $2);
+                    while (repeat-- > 0)
+                        add_attr(curtask, "CMD", $2);
                 }
 		| NOTE STRING
 		{
-                    add_note(curtask, $2);
+                    add_attr(curtask, "NOTE", $2);
 		}
 		;
 
@@ -909,6 +935,18 @@ dir_elt		: compass
                     vl_ipush(curdirs, $1);
 		}
 		;
+
+string_repeat   : STRING
+                {
+                    $$ = $1;
+                    repeat = 1;
+                }
+                | STRING TIMES INTEGER
+                {
+                    $$ = $1;
+                    repeat = $3;
+                }
+                ;
 
 compass		: NORTH		{ $$ = D_NORTH;	    }
 		| EAST		{ $$ = D_EAST;	    }

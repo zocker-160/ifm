@@ -98,8 +98,9 @@ raw_map_room(vhash *room)
 void
 raw_map_link(vhash *link)
 {
+    vlist *x, *y, *cmds;
     vhash *from, *to;
-    vlist *x, *y;
+    vscalar *elt;
     int go;
 
     from = vh_pget(link, "FROM");
@@ -121,14 +122,18 @@ raw_map_link(vhash *link)
     if (go != D_NONE)
         printf("go: %s\n", dirinfo[go].sname);
 
-    if (vh_exists(link, "CMD"))
-        printf("cmd: %s\n", vh_sgetref(link, "CMD"));
+    if ((cmds = vh_pget(link, "CMD")) != NULL) {
+        vl_foreach(elt, cmds)
+            printf("cmd: %s\n", vs_sgetref(elt));
+    }
 }
 
 void
 raw_map_join(vhash *join)
 {
     vhash *from, *to;
+    vscalar *elt;
+    vlist *cmds;
     int go;
 
     from = vh_pget(join, "FROM");
@@ -145,8 +150,10 @@ raw_map_join(vhash *join)
     if (go != D_NONE)
         printf("go: %s\n", dirinfo[go].sname);
 
-    if (vh_exists(join, "CMD"))
-        printf("cmd: %s\n", vh_sgetref(join, "CMD"));
+    if ((cmds = vh_pget(join, "CMD")) != NULL) {
+        vl_foreach(elt, cmds)
+            printf("cmd: %s\n", vs_sgetref(elt));
+    }
 }
 
 /* Item functions */
@@ -188,6 +195,7 @@ raw_task_entry(vhash *task)
 {
     vlist *notes = vh_pget(task, "NOTE");
     vhash *room = vh_pget(task, "ROOM");
+    vlist *cmds = vh_pget(task, "CMD");
     int score = vh_iget(task, "SCORE");
     int type = vh_iget(task, "TYPE");
     static int first = 1;
@@ -205,8 +213,10 @@ raw_task_entry(vhash *task)
     if (room != NULL)
         printf("room: %s\n", vh_sgetref(room, "DESC"));
 
-    if (vh_exists(task, "CMD"))
-        printf("cmd: %s\n", vh_sgetref(task, "CMD"));
+    if (cmds != NULL) {
+        vl_foreach(elt, cmds)
+            printf("cmd: %s\n", vs_sgetref(elt));
+    }
 
     if (score > 0)
         printf("score: %d\n", score);

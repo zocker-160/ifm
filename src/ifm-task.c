@@ -55,8 +55,8 @@ add_task(vhash *task)
 static int
 do_task(vhash *task, int print)
 {
+    int scoretask = 1, score, filter = 0;
     vhash *item, *room, *step;
-    int scoretask = 1, score;
     vlist *list, *until;
     vscalar *elt;
 
@@ -72,9 +72,9 @@ do_task(vhash *task, int print)
             print = 0;
 
         if (vh_iget(item, "FINISH"))
-            add_note(task, "Finishes the game");
+            add_attr(task, "NOTE", "Finishes the game");
         else if (!vh_iget(item, "USED"))
-            add_note(task, "Not used for anything yet");
+            add_attr(task, "NOTE", "Not used for anything yet");
 
         break;
     case T_DROP:
@@ -88,17 +88,18 @@ do_task(vhash *task, int print)
         if ((list = vh_pget(task, "GIVE")) != NULL) {
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
-                add_note(task, "Gives %s", vh_sgetref(item, "DESC"));
+                add_attr(task, "NOTE", "Gives %s", vh_sgetref(item, "DESC"));
             }
         }
 
         if ((room = vh_pget(task, "GOTO")) != NULL)
-            add_note(task, "Moves you to %s",
+            add_attr(task, "NOTE", "Moves you to %s",
                      vh_sgetref(room, "DESC"));
 
         if (vh_iget(task, "FINISH"))
-            add_note(task, "Finishes the game");
+            add_attr(task, "NOTE", "Finishes the game");
 
+        filter = 1;
         break;
     case T_GOTO:
         print = 0;
@@ -163,7 +164,8 @@ do_task(vhash *task, int print)
         modify_path();
 
     /* Flag redundant tasks as done */
-    filter_tasks();
+    if (filter)
+        filter_tasks();
 
     /* Return whether to try more tasks */
     if (vh_iget(task, "FINISH"))
@@ -312,7 +314,6 @@ goto_room(vhash *task)
     vhash *item, *reach, *mtask, *last, *room;
     vlist *path, *list;
     vscalar *elt;
-    char *cmd;
 
     /* See if movement is required */
     if ((room = vh_pget(task, "ROOM")) == NULL)
@@ -349,8 +350,8 @@ goto_room(vhash *task)
 
         /* Move to the next room */
         mtask = new_task(T_MOVE, room);
-        cmd = vh_sgetref(reach, "CMD");
-        vh_sstore(mtask, "CMD", cmd);
+        list = vh_pget(reach, "CMD");
+        vh_pstore(mtask, "CMD", list);
         vl_ppush(taskorder, mtask);
 
         if (vh_exists(room, "VISITED")) {
@@ -361,7 +362,7 @@ goto_room(vhash *task)
         vh_istore(room, "VISITED", 1);
 
         if (vh_iget(room, "FINISH"))
-            add_note(mtask, "Finishes the game");
+            add_attr(mtask, "NOTE", "Finishes the game");
 
         DEBUG1(2, "move to: %s", vh_sgetref(room, "DESC"));
         last = room;
@@ -409,7 +410,7 @@ new_task(int type, vhash *data)
             vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
 
         if (vh_exists(data, "CMD"))
-            vh_sstore(step, "CMD", vh_sgetref(data, "CMD"));
+            vh_pstore(step, "CMD", vh_pget(data, "CMD"));
 
         vh_pstore(step, "DROP", vh_pget(data, "DROP"));
         vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
