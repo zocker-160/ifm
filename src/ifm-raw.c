@@ -60,39 +60,36 @@ raw_map_start(void)
 void
 raw_map_section(vhash *sect)
 {
-    if (vh_exists(sect, "TITLE")) {
-        put_string("\nsection: %s\n", vh_sgetref(sect, "TITLE"));
-        printf("width: %d\n", vh_iget(sect, "XLEN"));
-        printf("height: %d\n", vh_iget(sect, "YLEN"));
+    static int count = 0;
+    char buf[100];
+
+    count++;
+    if (!vh_exists(sect, "TITLE")) {
+        sprintf(buf, "Map section %d", count);
+        vh_sstore(sect, "TITLE", buf);
     }
+
+    put_string("\nsection: %s\n", vh_sgetref(sect, "TITLE"));
+    printf("width: %d\n", vh_iget(sect, "XLEN"));
+    printf("height: %d\n", vh_iget(sect, "YLEN"));
 }
 
 void
 raw_map_room(vhash *room)
 {
-    vlist *list, *ex, *ey;
-    vscalar *elt;
-    vhash *item;
+    vlist *ex, *ey;
 
-    put_string("\nroom: %s\n", vh_sgetref(room, "DESC"));
-    printf("id: %d\n", vh_iget(room, "ID"));
-    printf("pos: %d %d\n", vh_iget(room, "X"), vh_iget(room, "Y"));
+    printf("\nroom: %d\n", vh_iget(room, "ID"));
+    put_string("name: %s\n", vh_sgetref(room, "DESC"));
 
-    if ((list = vh_pget(room, "ITEMS")) != NULL) {
-        vl_foreach(elt, list) {
-            item = vs_pget(elt);
-            if (!vh_iget(item, "HIDDEN"))
-                printf("item: %d\n", vh_iget(item, "ID"));
-        }
-    }
+    printf("rpos: %d %d\n", vh_iget(room, "X"), vh_iget(room, "Y"));
 
     ex = vh_pget(room, "EX");
     ey = vh_pget(room, "EY");
-    if (ex != NULL) {
-        while (vl_length(ex) > 0) {
+
+    if (ex != NULL && ey != NULL)
+        while (vl_length(ex) > 0 && vl_length(ey) > 0)
             printf("exit: %d %d\n", vl_ishift(ex), vl_ishift(ey));
-        }
-    }
 }
 
 void
@@ -109,8 +106,8 @@ raw_map_link(vhash *link)
 
     x = vh_pget(link, "X");
     y = vh_pget(link, "Y");
-    while (vl_length(x) > 0)
-        printf("pos: %d %d\n", vl_ishift(x), vl_ishift(y));
+    while (vl_length(x) > 0 && vl_length(y) > 0)
+        printf("lpos: %d %d\n", vl_ishift(x), vl_ishift(y));
 
     if (vh_iget(link, "ONEWAY"))
         printf("oneway: 1\n");
@@ -119,10 +116,9 @@ raw_map_link(vhash *link)
     if (go != D_NONE)
         printf("go: %s\n", dirinfo[go].sname);
 
-    if ((cmds = vh_pget(link, "CMD")) != NULL) {
+    if ((cmds = vh_pget(link, "CMD")) != NULL)
         vl_foreach(elt, cmds)
             put_string("cmd: %s\n", vs_sgetref(elt));
-    }
 }
 
 void
@@ -137,9 +133,6 @@ raw_map_join(vhash *join)
     to = vh_pget(join, "TO");
     printf("\njoin: %d %d\n", vh_iget(from, "ID"), vh_iget(to, "ID"));
 
-    if (vh_iget(join, "SPECIAL"))
-        printf("special: 1\n");
-
     if (vh_iget(join, "ONEWAY"))
         printf("oneway: 1\n");
 
@@ -147,10 +140,9 @@ raw_map_join(vhash *join)
     if (go != D_NONE)
         printf("go: %s\n", dirinfo[go].sname);
 
-    if ((cmds = vh_pget(join, "CMD")) != NULL) {
+    if ((cmds = vh_pget(join, "CMD")) != NULL)
         vl_foreach(elt, cmds)
             put_string("cmd: %s\n", vs_sgetref(elt));
-    }
 }
 
 /* Item functions */
@@ -160,30 +152,65 @@ raw_item_entry(vhash *item)
     vlist *notes = vh_pget(item, "NOTE");
     vhash *room = vh_pget(item, "ROOM");
     int score = vh_iget(item, "SCORE");
-    static int first = 1;
+    vhash *task, *reach;
     vscalar *elt;
+    vlist *list;
 
-    if (!first)
-        printf("\n");
-    first = 0;
-
-    put_string("item: %s\n", vh_sgetref(item, "DESC"));
-
-    printf("id: %d\n", vh_iget(item, "ID"));
+    printf("\nitem: %d\n", vh_iget(item, "ID"));
+    put_string("name: %s\n", vh_sgetref(item, "DESC"));
 
     if (vh_exists(item, "TAG"))
         printf("tag: %s\n", vh_sgetref(item, "TAG"));
 
     if (room != NULL)
-        put_string("room: %s\n", vh_sgetref(room, "DESC"));
+        printf("room: %d\n", vh_iget(room, "ID"));
 
     if (score > 0)
         printf("score: %d\n", score);
 
-    if (notes != NULL) {
+    if (vh_exists(item, "LEAVE"))
+        printf("leave: 1\n");
+
+    if (vh_iget(item, "HIDDEN"))
+        printf("hidden: 1\n");
+
+    if (vh_iget(item, "FINISH"))
+        printf("finish: 1\n");
+
+    if ((list = vh_pget(item, "RTASKS")) != NULL) {
+        vl_foreach(elt, list) {
+            task = vs_pget(elt);
+            printf("after: %d\n", vh_iget(task, "ID"));
+        }
+    }
+
+    if ((list = vh_pget(item, "TASKS")) != NULL) {
+        vl_foreach(elt, list) {
+            task = vs_pget(elt);
+            printf("needed: %d\n", vh_iget(task, "ID"));
+        }
+    }
+
+    if ((list = vh_pget(item, "NROOMS")) != NULL) {
+        vl_foreach(elt, list) {
+            room = vs_pget(elt);
+            printf("enter: %d\n", vh_iget(room, "ID"));
+        }
+    }
+
+    if ((list = vh_pget(item, "NLINKS")) != NULL) {
+        vl_foreach(elt, list) {
+            reach = vs_pget(elt);
+            room = vh_pget(reach, "FROM");
+            printf("move: %d", vh_iget(room, "ID"));
+            room = vh_pget(reach, "TO");
+            printf(" %d\n", vh_iget(room, "ID"));
+        }
+    }
+
+    if (notes != NULL)
         vl_foreach(elt, notes)
             put_string("note: %s\n", vs_sgetref(elt));
-    }
 }
 
 /* Task functions */
@@ -194,31 +221,25 @@ raw_task_entry(vhash *task)
     vhash *room = vh_pget(task, "ROOM");
     vlist *cmds = vh_pget(task, "CMD");
     int score = vh_iget(task, "SCORE");
-    static int first = 1;
     vscalar *elt;
 
-    if (!first)
-        printf("\n");
-    first = 0;
-
-    put_string("task: %s\n", vh_sgetref(task, "DESC"));
+    printf("\ntask: %d\n", vh_iget(task, "ID"));
+    put_string("name: %s\n", vh_sgetref(task, "DESC"));
 
     if (vh_exists(task, "TAG"))
         printf("tag: %s\n", vh_sgetref(task, "TAG"));
 
     if (room != NULL)
-        put_string("room: %s\n", vh_sgetref(room, "DESC"));
+        printf("room: %d\n", vh_iget(room, "ID"));
 
-    if (cmds != NULL) {
+    if (cmds != NULL)
         vl_foreach(elt, cmds)
             put_string("cmd: %s\n", vs_sgetref(elt));
-    }
 
     if (score > 0)
         printf("score: %d\n", score);
 
-    if (notes != NULL) {
+    if (notes != NULL)
         vl_foreach(elt, notes)
             put_string("note: %s\n", vs_sgetref(elt));
-    }
 }
