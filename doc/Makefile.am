@@ -33,11 +33,12 @@ HTML_IMAGE = -no_external_images -local_icons -white -image_type gif
 HTML_NAV   = -next_page_in_navigation
 HTML_TEXT  = -title "$(HTML_TITLE)" -address "$(HTML_ADDR)" -font_size 12pt
 HTML_FILE  = -dir $(HTML_DIR) -mkdir 
+HTML_EXTRA = -short_extn
 
 LATEX2HTML = latex2html $(HTML_DISP) $(HTML_IMAGE) $(HTML_NAV) $(HTML_FILE) \
-$(HTML_TEXT) $(HTML_LOCAL)
+$(HTML_TEXT) $(HTML_EXTRA)
 
-html: ifm.tex ifm.aux
+html: fig ifm.tex ifm.aux
 	$(LATEX2HTML) ifm.tex
 
 # Installation stuff.
@@ -76,7 +77,7 @@ CLEAN_TEX = ifm.tex *.aux *.dvi *.lof *.lot *.log *.toc *.out
 clean-doc: realclean
 
 realclean: htmlclean
-	rm -rf $(FILES)
+	rm -rf $(CLEAN_DOC)
 
 htmlclean:; rm -rf $(HTML_DIR) $(CLEAN_TEX)
 
