@@ -12,18 +12,16 @@ dist-hook:;		cp -rp $(srcdir)/config $(srcdir)/contrib $(distdir)
 ZIPDIR			= ../ifm
 CYGDLL			= /bin/cygwin.dll
 
-IFM			= src/ifm.exe src/ifm-pro.ps doc/ifm.txt doc/ifm.ps \
-			  doc/ifm.html $(CYGDLL)
+IFM			= src/ifm.exe src/ifm-pro.ps doc/ifm.txt doc/ifm.html
 
 SCR2IFM			= scr2ifm/scr2ifm.pl scr2ifm/scr2ifm.txt \
-			  scr2ifm/scr2ifm.ps scr2ifm/scr2ifm.html
+			  scr2ifm/scr2ifm.html
 
-TKIFM			= tkifm/tkifm.tcl tkifm/tkifm.txt tkifm/tkifm.ps \
-			  tkifm/tkifm.html
+TKIFM			= tkifm/tkifm.tcl tkifm/tkifm.txt tkifm/tkifm.html
 
 DOCS			= README README.win32 README.maps NEWS COPYING
 
-ZIPFILES		= $(IFM) $(SCR2IFM) $(TKIFM) $(DOCS)
+ZIPFILES		= $(IFM) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
 
 zip:;			$(MAKE) all
 			rm -rf $(ZIPDIR)
