@@ -210,10 +210,13 @@ resolve_tags(void)
         resolve_tag("room", vh_get(task, "IN"), roomtags);
         resolve_tag("room", vh_get(task, "GOTO"), roomtags);
         resolve_tag("task", vh_get(task, "FOLLOW"), tasktags);
+        resolve_tag("room", vh_get(task, "DROPROOM"), roomtags);
         resolve_tag_list("task", vh_pget(task, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(task, "NEED"), itemtags);
         resolve_tag_list("item", vh_pget(task, "GET"), itemtags);
+        resolve_tag_list("item", vh_pget(task, "GIVE"), itemtags);
         resolve_tag_list("item", vh_pget(task, "LOSE"), itemtags);
+        resolve_tag_list("item", vh_pget(task, "DROP"), itemtags);
         vh_pstore(task, "ROOM", vh_pget(task, "IN"));
     }
 }
