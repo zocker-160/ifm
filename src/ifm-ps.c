@@ -125,7 +125,7 @@ ps_map_start(void)
     printf("%%%%EndComments\n");
 
     /* Print PostScript prolog */
-    fp = open_libfile(get_string("prolog_file", PS_PROLOG));
+    fp = open_file(get_string("prolog_file", PS_PROLOG), 1);
     while ((c = fgetc(fp)) != EOF)
         putchar(c);
     fclose(fp);
