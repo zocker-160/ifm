@@ -25,6 +25,7 @@ extern int mapnum;
 extern void add_dir(int dir);
 extern void get_offset(int dir, int *xoff, int *yoff);
 extern void init_map(void);
+extern void pack_sections(int xmax, int ymax, int border);
 extern void resolve_tag(char *type, vscalar *elt, vhash *table);
 extern void resolve_tag_list(char *type, vlist *list, vhash *table);
 extern void resolve_tags(void);
