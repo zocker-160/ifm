@@ -433,7 +433,7 @@ ps_string(char *str)
     vb_putc(b, '(');
 
     while (*str != '\0') {
-        if (strchr("()\\", *str) != NULL)
+        if (strchr("()", *str) != NULL)
             vb_putc(b, '\\');
         vb_putc(b, *str++);
     }
