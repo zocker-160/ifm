@@ -366,7 +366,7 @@ print_items(int fmt)
     sorted = vl_sort(items, itemsort);
 
     if (func->item_start != NULL)
-        (*func->item_start)(vh_sgetref(map, "TITLE"));
+        (*func->item_start)();
 
     vl_foreach(elt, sorted) {
         item = vs_pget(elt);
@@ -398,7 +398,7 @@ print_tasks(int fmt)
         fatal("no task table driver for %s output", drv.name);
 
     if (func->task_start != NULL)
-        (*func->task_start)(vh_sgetref(map, "TITLE"));
+        (*func->task_start)();
 
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);

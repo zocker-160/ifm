@@ -13,9 +13,9 @@
 extern itemfuncs raw_itemfuncs;
 extern taskfuncs raw_taskfuncs;
 
-extern void raw_item_start(char *title);
+extern void raw_item_start(void);
 extern void raw_item_entry(vhash *item);
-extern void raw_task_start(char *title);
+extern void raw_task_start(void);
 extern void raw_task_entry(vhash *task);
 
 #endif

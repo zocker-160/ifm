@@ -33,7 +33,7 @@ taskfuncs raw_taskfuncs = {
 
 /* Item functions */
 void
-raw_item_start(char *title)
+raw_item_start(void)
 {
     printf("%s\t%s\t%s\n", "ITEM", "ROOM", "NOTE");
 }
@@ -54,7 +54,7 @@ raw_item_entry(vhash *item)
 
 /* Task functions */
 void
-raw_task_start(char *title)
+raw_task_start(void)
 {
     printf("%s\t%s\t%s\t%s\t%s\n",
            "ROOM", "TASK", "NOTE", "SCORE", "INV");

@@ -21,13 +21,13 @@ typedef struct mapfuncs_st {
 } mapfuncs;
 
 typedef struct itemfuncs_st {
-    void (*item_start)(char *title);
+    void (*item_start)(void);
     void (*item_entry)(vhash *item);
     void (*item_finish)(void);
 } itemfuncs;
 
 typedef struct taskfuncs_st {
-    void (*task_start)(char *title);
+    void (*task_start)(void);
     void (*task_entry)(vhash *task);
     void (*task_finish)(void);
 } taskfuncs;
