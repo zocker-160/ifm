@@ -20,6 +20,14 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
+#define FIG_TEXT_DEPTH   100
+#define FIG_ROOM_DEPTH   200
+#define FIG_LINK_DEPTH   300
+#define FIG_SHADOW_DEPTH 400
+#define FIG_TITLE_DEPTH  500
+#define FIG_MAP_DEPTH    600
+#define FIG_PAGE_DEPTH   700
+
 #define MAPX(x) (fig_origin_x + room_size * (fig_xoff + (x)))
 #define MAPY(y) (fig_height - (fig_origin_y + room_size * (fig_yoff + (y))))
 
@@ -171,7 +179,7 @@ fig_map_start(void)
 
         set_colour(box, page_border_colour);
         set_fillcolour(box, page_background_colour);
-        fig_set_depth(box, 900);
+        fig_set_depth(box, FIG_PAGE_DEPTH);
     }
 }
 
@@ -198,7 +206,7 @@ fig_map_section(vhash *sect)
         box = fig_create_box(fig_section, MAPX(x), MAPY(y), width, height);
         set_colour(box, map_border_colour);
         set_fillcolour(box, map_background_colour);
-        fig_set_depth(box, 800);
+        fig_set_depth(box, FIG_MAP_DEPTH);
     }
 
     /* Print title if required */
@@ -213,7 +221,7 @@ fig_map_section(vhash *sect)
                                   MAPX(x), MAPY(y),
                                   width, height,
                                   "%s", vh_sgetref(sect, "TITLE"));
-        fig_set_depth(text, 250);
+        fig_set_depth(text, FIG_TITLE_DEPTH);
         set_colour(text, map_title_colour);
     }
 }
@@ -245,6 +253,7 @@ fig_map_room(vhash *room)
               x, y, xp, yp, width, height);
 
     box = fig_create_box(fig_room, MAPX(xp), MAPY(yp), width, height);
+    fig_set_depth(box, FIG_ROOM_DEPTH);
 
     set_colour(box, room_border_colour);
     set_fillcolour(box, room_colour);
@@ -259,7 +268,7 @@ fig_map_room(vhash *room)
                              MAPX(xp - room_shadow_xoff),
                              MAPY(yp - room_shadow_yoff),
                              width, height);
-        fig_set_depth(box, 200);
+        fig_set_depth(box, FIG_SHADOW_DEPTH);
         set_colour(box, room_shadow_colour);
         set_fillcolour(box, room_shadow_colour);
     }
@@ -294,7 +303,7 @@ fig_map_room(vhash *room)
                                   height * (1 - 2 * yborder),
                                   "%s", vh_sgetref(room, "RDESC"));
 
-        fig_set_depth(text, 50);
+        fig_set_depth(text, FIG_TEXT_DEPTH);
         set_colour(text, room_text_colour);
     } else {
         text = fig_create_textbox(fig_room, room_text_font,
@@ -306,7 +315,7 @@ fig_map_room(vhash *room)
                                   height * (1 - 2 * yborder) / 2,
                                   "%s", vh_sgetref(room, "RDESC"));
 
-        fig_set_depth(text, 50);
+        fig_set_depth(text, FIG_TEXT_DEPTH);
         set_colour(text, room_text_colour);
 
         text = fig_create_textbox(fig_room, item_text_font,
@@ -318,7 +327,7 @@ fig_map_room(vhash *room)
                                   height * (1 - 2 * yborder) / 2,
                                   "%s", itemlist);            
 
-        fig_set_depth(text, 50);
+        fig_set_depth(text, FIG_TEXT_DEPTH);
         set_colour(text, item_text_colour);
     }
 
@@ -352,7 +361,7 @@ fig_map_room(vhash *room)
 
             set_colour(line, room_exit_colour);
             fig_set_linewidth(line, room_exit_width);
-            fig_set_depth(line, 150);
+            fig_set_depth(line, FIG_LINK_DEPTH);
         }
     }
 }
@@ -370,6 +379,7 @@ fig_map_link(vhash *link)
     int i, np = vl_length(x);
     vhash *line, *text;
     double xp, yp;
+    char *str;
 
     /* Draw link line */
     truncate_points(x, y, room_width, room_height);
@@ -391,7 +401,7 @@ fig_map_link(vhash *link)
     if (link_dashed)
         fig_set_linestyle(line, FIG_DASH);
 
-    fig_set_depth(line, 150);
+    fig_set_depth(line, FIG_LINK_DEPTH);
     fig_set_arrow(line, vh_iget(link, "ONEWAY"), 0);
 
     /* Add text if required */
@@ -402,11 +412,11 @@ fig_map_link(vhash *link)
         xp += 0.5;
         yp += 0.5 - room_height;
 
-        text = fig_create_text(fig_section, MAPX(xp), MAPY(yp),
-                               updown ? link_updown_string : link_inout_string);
+        str = updown ? link_updown_string : link_inout_string;
+        text = fig_create_text(fig_section, MAPX(xp), MAPY(yp), str);
 
         fig_set_font(text, link_text_font, link_text_fontsize);
-        fig_set_depth(text, 150);
+        fig_set_depth(text, FIG_LINK_DEPTH);
         set_colour(text, link_text_colour);
         set_fillcolour(text, page_background_colour);
     }
