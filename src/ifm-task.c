@@ -24,19 +24,22 @@ extern int ifm_verbose;
 /* Task step list */
 vlist *tasklist = NULL;
 
+/* Current location */
+static vhash *location = NULL;
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
 /* Internal functions */
-static void do_task(vhash *task);
+static int do_task(vhash *task);
 static void leave_item(vhash *item, vhash *room);
-static void moveto_room(vhash *task, vhash *from, vhash *to);
+static void moveto_room(vhash *task);
 static void task_pair(vhash *before, vhash *after);
 static int task_possible(vhash *room, vhash *step);
 static vhash *task_step(int type, vhash *data);
 
-/* Flag a task as done */
-static void
+/* Perform a task */
+static int
 do_task(vhash *task)
 {
     int print = 1, score = 1;
@@ -48,32 +51,42 @@ do_task(vhash *task)
     switch (vh_iget(task, "TYPE")) {
     case T_GET:
         item = vh_pget(task, "DATA");
+
         if (vh_exists(item, "TAKEN"))
             score = 0;
+
         vh_istore(item, "TAKEN", 1);
+
         if (vh_iget(item, "GIVEN"))
             print = 0;
-        if (!vh_iget(item, "USED"))
-            add_note(task, "This item isn't used yet");
+
         if (vh_iget(item, "FINISH"))
             add_note(task, "Finishes the game");
+        else if (!vh_iget(item, "USED"))
+            add_note(task, "Not used for anything yet");
+
         break;
     case T_DROP:
         item = vh_pget(task, "DATA");
+
         vh_istore(item, "TAKEN", 0);
         vh_istore(item, "DROPPED", 1);
+
         if (vh_iget(item, "LOST"))
             print = 0;
-        break;
-    case T_GOTO:
-        print = 0;
+
         break;
     case T_USER:
         if ((room = vh_pget(task, "GOTO")) != NULL)
-            add_note(task, "Teleports you to %s",
+            add_note(task, "Moves you to %s",
                      vh_sgetref(room, "DESC"));
+
         if (vh_iget(task, "FINISH"))
             add_note(task, "Finishes the game");
+
+        break;
+    case T_GOTO:
+        print = 0;
         break;
     }
 
@@ -102,12 +115,25 @@ do_task(vhash *task)
         }
     }
 
+    /* Teleport to new location if required */
+    if ((room = vh_pget(task, "GOTO")) != NULL)
+        location = room;
+
     /* Flag path modification if required */
     if (vh_iget(task, "MODPATH"))
         modify_path();
 
     /* Flag it as done */
     vh_istore(task, "DONE", 1);
+
+    /* Return whether to try more tasks */
+    if (vh_iget(task, "FINISH"))
+        return 0;
+
+    if (vh_iget(location, "FINISH"))
+        return 0;
+
+    return 1;
 }
 
 /* Leave an item in a room and get it later */
@@ -146,22 +172,28 @@ leave_item(vhash *item, vhash *room)
         vh_istore(step, "OPTIONAL", 1);
 }
 
-/* Move to a new room */
+/* Move to a room to do something */
 static void
-moveto_room(vhash *task, vhash *from, vhash *to)
+moveto_room(vhash *task)
 {
-    vhash *item, *reach, *room, *mtask, *last;
+    vhash *item, *reach, *mtask, *last, *room;
     vlist *path, *list;
     vscalar *elt;
     char *cmd;
+
+    /* See if movement is required */
+    if ((room = vh_pget(task, "ROOM")) == NULL)
+        return;
+    if (room == location)
+        return;
 
     /* Add movement tasks */
     if (vh_iget(task, "BLOCK"))
         path = vh_pget(task, "PATH");
     else
-        path = get_path(to);
+        path = get_path(room);
 
-    last = from;
+    last = location;
 
     vl_foreach(elt, path) {
         reach = vs_pget(elt);
@@ -188,8 +220,11 @@ moveto_room(vhash *task, vhash *from, vhash *to)
         vh_sstore(mtask, "CMD", cmd);
         vl_ppush(taskorder, mtask);
 
-        if (vh_exists(room, "VISITED"))
+        if (vh_exists(room, "VISITED")) {
             vh_delete(mtask, "SCORE");
+            vh_delete(mtask, "NOTE");
+        }
+
         vh_istore(room, "VISITED", 1);
 
         if (vh_iget(room, "FINISH"))
@@ -202,6 +237,8 @@ moveto_room(vhash *task, vhash *from, vhash *to)
 
         last = room;
     }
+
+    location = room;
 }
 
 /* Build the initial task list */
@@ -472,7 +509,7 @@ setup_tasks(void)
 void
 solve_game(void)
 {
-    vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task, *next;
+    vhash *room, *step, *trystep, *item, *task, *next;
     int drop, safeflag, tasksleft;
     vlist *itasks;
     vscalar *elt;
@@ -489,7 +526,7 @@ solve_game(void)
     }
 
     /* Process task list */
-    room = startroom;
+    location = startroom;
     next = NULL;
 
     if (ifm_verbose)
@@ -498,11 +535,11 @@ solve_game(void)
     do {
         if (ifm_verbose) {
             indent(1);
-            printf("room: %s\n", vh_sgetref(room, "DESC"));
+            printf("room: %s\n", vh_sgetref(location, "DESC"));
         }
 
         /* Initialise path searches from this room */
-        init_path(room);
+        init_path(location);
 
         /* Check for dropping unneeded items */
         if (next == NULL) {
@@ -564,7 +601,7 @@ solve_game(void)
                 continue;
 
             /* Check task is possible */
-            if (!task_possible(room, trystep))
+            if (!task_possible(location, trystep))
                 continue;
 
             if (!safeflag && vh_iget(trystep, "SAFEFLAG")) {
@@ -577,22 +614,9 @@ solve_game(void)
 
         if (step != NULL) {
             /* Do the task */
-            nextroom = vh_pget(step, "ROOM");
-            gotoroom = vh_pget(step, "GOTO");
-
-            if (nextroom != NULL && room != nextroom)
-                moveto_room(step, room, nextroom);
-
-            if (nextroom != NULL)
-                room = nextroom;
-            if (gotoroom != NULL)
-                room = gotoroom;
-
-            do_task(step);
+            moveto_room(step);
+            tasksleft = do_task(step);
             next = vh_pget(step, "NEXT");
-
-            if (vh_iget(step, "FINISH") || vh_iget(room, "FINISH"))
-                tasksleft = 0;
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
             vlist *tmp = vl_create();
