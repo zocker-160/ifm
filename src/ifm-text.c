@@ -159,7 +159,7 @@ text_task_entry(vhash *task)
             title = vh_sgetref(map, "TITLE");
         else
             title = "Interactive Fiction game";
-        put_string("Item list for %s\n", title);
+        put_string("Task list for %s\n", title);
     }
 
     type = vh_iget(task, "TYPE");
