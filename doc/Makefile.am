@@ -24,7 +24,9 @@ pdf: ifm.pdf
 
 fig: cover.eps example.eps advent.eps
 
-man:
+man: ifm.1
+
+ifm.1: ifm.man
 	cp ifm.man ifm.tmp
 	echo "[SEE ALSO]" >> ifm.tmp
 	echo ".IP $(ifmdocdir)/html" >> ifm.tmp
