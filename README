@@ -20,10 +20,37 @@ IFM can write hardcopy maps directly to PostScript, suitable for printing
 or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
-There are also a couple of utility programs bundled with IFM: tkifm and
-scr2ifm...
+Existing IFM Maps
+*****************
 
-Tkifm
+Dave Chapeskie (dchapes@ddm.on.ca) has set up a web page of IFM maps, in
+source and PostScript format, at
+
+      //www.sentex.net/~dchapes/ifm
+
+At the moment it contains maps of a few Infocom and Inform games.  Some are
+complete, others not quite.  A few have tasks set up so that a walkthrough
+can be made.
+
+If you produce any maps worthy of distribution, or more complete versions
+of those already there, he will be glad to add them to his page.
+
+In addition, the 'maps' subdirectory contains some demonstration maps that
+don't give away secrets from real games.
+
+Extra IFM Programs
+******************
+
+There are a few utility programs bundled with IFM...
+
+ifm2dev
+=======
+
+ifm2dev is a perl script which is a front end to fig2dev, which converts
+diagrams in Fig format to various other formats.  ifm2dev converts each map
+section and writes them to separate files.
+
+tkifm
 =====
 
 tkifm is a simple graphical interface to IFM.  To use it, you need to have
@@ -31,14 +58,13 @@ Tcl/Tk installed (probably v8.0 or greater).
 
 tkifm provides you with a window allowing you to edit IFM input (or just
 view it, if you want to use your own editor), and menus to view the maps
-you've generated so far or print them to a PostScript file.
+you've generated so far or export them to PostScript or Fig format.
 
-Scr2ifm
+scr2ifm
 =======
 
-scr2ifm is a program that takes one or more Infocom-style transcripts of an
-IF game and creates a map in IFM format.  It's a perl script, so you'll
-need perl (version 5.002 or greater).
+scr2ifm is a perl script that takes one or more Infocom-style transcripts
+of an IF game and creates a map in IFM format.
 
 scr2ifm is designed for people who want maps of their games but don't want
 the hassle of making one themselves (how lazy can you get?).  As long as
@@ -54,7 +80,7 @@ been tested on several different types of transcript (Infocom, Inform,
 TADS, Magnetic Scrolls), but is probably still far from bullet-proof.
 
 Finally...
-==========
+**********
 
 IFM and its utility programs are free software, and you may redistribute
 them under certain conditions; see the file called COPYING for details.
