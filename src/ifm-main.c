@@ -360,8 +360,11 @@ print_map(void)
             list = vh_pget(sect, "LINKS");
             vl_foreach(elt, list) {
                 link = vs_pget(elt);
-                if (!vh_iget(link, "HIDDEN"))
-                    (*func->map_link)(link);
+                if (vh_iget(link, "HIDDEN"))
+                    continue;
+                if (vh_iget(link, "NOLINK"))
+                    continue;
+                (*func->map_link)(link);
             }
         }
 
@@ -383,8 +386,9 @@ print_map(void)
     if (func->map_join != NULL) {
         vl_foreach(elt, joins) {
             join = vs_pget(elt);
-            if (!vh_iget(join, "HIDDEN"))
-                (*func->map_join)(join);
+            if (vh_iget(join, "HIDDEN"))
+                continue;
+            (*func->map_join)(join);
         }
     }
 }
@@ -409,18 +413,19 @@ print_items(void)
     if (func->item_start != NULL)
         (*func->item_start)();
 
-    sorted = vl_sort(items, itemsort);
+    if (func->item_entry != NULL) {
+        sorted = vl_sort(items, itemsort);
 
-    vl_foreach(elt, sorted) {
-        item = vs_pget(elt);
-        if (func->item_entry != NULL)
+        vl_foreach(elt, sorted) {
+            item = vs_pget(elt);
             (*func->item_entry)(item);
+        }
+
+        vl_destroy(sorted);
     }
 
     if (func->item_finish != NULL)
         (*func->item_finish)();
-
-    vl_destroy(sorted);
 }
 
 /* Print task table */
@@ -443,10 +448,13 @@ print_tasks(void)
     if (func->task_start != NULL)
         (*func->task_start)();
 
-    vl_foreach(elt, tasks) {
-        task = vs_pget(elt);
-        if (func->task_entry != NULL)
+    if (func->task_entry != NULL) {
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            if (vh_iget(task, "HIDDEN"))
+                continue;
             (*func->task_entry)(task);
+        }
     }
 
     if (func->task_finish != NULL)
