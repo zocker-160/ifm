@@ -40,9 +40,11 @@ static void print_label(char *string);
 void
 dot_task_start(void)
 {
+    double width, height;
     char *title;
 
     /* Get control variables */
+    set_map_vars();
     show_rooms = var_int("task_graph_rooms");
     show_orphans = var_int("task_graph_orphans");
 
@@ -52,9 +54,16 @@ dot_task_start(void)
     else
         title = "Interactive Fiction game";
 
+    /* Get page size */
+    width = (page_width - page_margin) / 2.54;
+    height = (page_height - page_margin) / 2.54;
+
     /* Write graph header */
     printf("digraph \"%s\" {\n", title);
-    printf("    graph [size = \"10,7\", ratio = fill];\n");
+
+    printf("    graph [size = \"%g,%g\", ratio = fill];\n",
+           height, width);
+
     printf("    rankdir = LR;\n");
     printf("    rotate = 90;\n");
     printf("    concentrate = true;\n");
