@@ -484,10 +484,11 @@ static vhash *
 read_colour_defs(FILE *fp)
 {
     int red, green, blue, pos;
-    char val[20];
+    vbuffer *val;
     vhash *defs;
 
     defs = vh_create();
+    val = vb_create();
 
     while (fgets(buf, BUFSIZ, fp) != NULL) {
         /* Get RGB values */
@@ -499,13 +500,17 @@ read_colour_defs(FILE *fp)
             continue;
 
         /* Scale RGB values */
-        sprintf(val, "%.3g %.3g %.3g",
-                red / 255.0, green / 255.0, blue / 255.0);
+        vb_empty(val);
+        vb_printf(val, "%.3g", red / 255.0);
+        vb_printf(val, " %.3g", green / 255.0);
+        vb_printf(val, " %.3g", blue / 255.0);
 
         /* Add colour */
         v_chop(buf);
-        vh_sstore(defs, &buf[pos], val);
+        vh_sstore(defs, &buf[pos], vb_get(val));
     }
+
+    vb_destroy(val);
 
     return defs;
 }
