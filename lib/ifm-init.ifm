@@ -10,8 +10,7 @@
 # General notes
 ##################################################################
 
-# At the moment, only map output is controlled by variables.  The
-# default values are designed to give nice results in all
+# The default values are designed to give nice results in all
 # formats.  The default for PostScript is to produce maps for
 # monochrome printing on A4 paper.
 
@@ -187,6 +186,33 @@ canvas_height = 6;
 canvas_background_colour = "wheat";
 
 ##################################################################
+# Graphviz (dot) setup variables
+##################################################################
+
+# Whether to group tasks by the room they're done in.  This can
+# either enhance the task structure or make it look a complete
+# mess.
+task_graph_rooms = 0;
+
+# Whether to show orphan tasks (those with no previous/next
+# dependencies).
+task_graph_orphans = 0;
+
+##################################################################
+# Game solver variables
+##################################################################
+
+# These variables modify the overall behaviour of the game
+# solver.
+
+# Whether to keep unused items (i.e. those which were obtained
+# via some task or other, but currently have no use).
+keep_unused_items = 1;
+
+# Whether to treat all tasks as safe (reckless mode!).
+all_tasks_safe = 0;
+
+##################################################################
 # Aliases
 ##################################################################
 
@@ -221,3 +247,7 @@ link_linewidth => link_line_width;
 room_font => room_text_font;
 room_fontsize => room_text_fontsize;
 room_linewidth => room_border_width;
+
+##################################################################
+# End of initialization file
+##################################################################
