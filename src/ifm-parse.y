@@ -30,6 +30,9 @@
 
 #define WARN_IGNORED(attr) \
         warn("attribute `%s' ignored -- no `dir' link", #attr)
+
+/* Modification flag */
+static int modify;
 %}
 
 %union {
@@ -74,6 +77,7 @@ room_stmt	: ROOM STRING
 		{
                     curroom = vh_create();
 		    vh_sstore(curroom, "DESC", $2);
+                    modify = 0;
 		}
                 room_attrs ';'
                 {
@@ -114,6 +118,15 @@ room_stmt	: ROOM STRING
 
                     lastroom = curroom;
                 }
+                | ROOM IDENT
+                {
+                    modify = 1;
+                    if ((curroom = vh_pget(roomtags, $2)) == NULL) {
+                        err("room tag `%s' not yet defined", $2);
+                        curroom = vh_create();
+                    }
+                }
+                room_attrs ';'
 		;
 
 room_attrs	: /* empty */
@@ -122,7 +135,10 @@ room_attrs	: /* empty */
 
 room_attr	: TAG IDENT
 		{
-                    set_tag("room", $2, curroom, roomtags);
+                    if (!modify)
+                        set_tag("room", $2, curroom, roomtags);
+                    else
+                        err("can't change room tag name");
 		}
 		| DIR dir_list FROM IDENT
 		{
@@ -263,6 +279,7 @@ item_stmt	: ITEM STRING
                 {
                     curitem = vh_create();
                     vh_sstore(curitem, "DESC", $2);
+                    modify = 0;
                 }
                 item_attrs ';'
 		{
@@ -272,6 +289,15 @@ item_stmt	: ITEM STRING
                     lastitem = curitem;
                     vl_ppush(items, curitem);
 		}
+                | ITEM IDENT
+                {
+                    modify = 1;
+                    if ((curitem = vh_pget(itemtags, $2)) == NULL) {
+                        err("item tag `%s' not yet defined", $2);
+                        curitem = vh_create();
+                    }
+                }
+                item_attrs ';'
 		;
 
 item_attrs	: /* empty */
@@ -280,7 +306,10 @@ item_attrs	: /* empty */
 
 item_attr	: TAG IDENT
 		{
-                    set_tag("item", $2, curitem, itemtags);
+                    if (!modify)
+                        set_tag("item", $2, curitem, itemtags);
+                    else
+                        err("can't change item tag name");
 		}
 		| IN IDENT
 		{
@@ -329,11 +358,21 @@ link_stmt	: LINK IDENT TO IDENT
                     curlink = vh_create();
                     vh_sstore(curlink, "FROM", $2);
                     vh_sstore(curlink, "TO", $4);
+                    modify = 0;
                 }
                 link_attrs ';'
 		{
                     vl_ppush(links, curlink);
 		}
+                | LINK IDENT
+                {
+                    modify = 1;
+                    if ((curlink = vh_pget(linktags, $2)) == NULL) {
+                        err("link tag `%s' not yet defined", $2);
+                        curlink = vh_create();
+                    }
+                }
+                link_attrs ';'
 		;
 
 link_attrs	: /* empty */
@@ -388,18 +427,35 @@ link_attr	: DIR dir_list
                     else
                         vh_sstore(curlink, "FROM_CMD", $2);
                 }
-		;
+                | TAG IDENT
+		{
+                    if (!modify)
+                        set_tag("link", $2, curlink, linktags);
+                    else
+                        err("can't change link tag name");
+		}
+                ; 
 
 join_stmt	: JOIN IDENT TO IDENT
                 {
                     curjoin = vh_create();
                     vh_sstore(curjoin, "FROM", $2);
                     vh_sstore(curjoin, "TO", $4);
+                    modify = 0;
                 }
                 join_attrs ';'
 		{
                     vl_ppush(joins, curjoin);
 		}
+                | JOIN IDENT
+                {
+                    modify = 1;
+                    if ((curjoin = vh_pget(jointags, $2)) == NULL) {
+                        err("join tag `%s' not yet defined", $2);
+                        curjoin = vh_create();
+                    }
+                }
+                join_attrs ';'
 		;
 
 join_attrs	: /* empty */
@@ -445,12 +501,20 @@ join_attr	: GO go_flag
                     else
                         vh_sstore(curjoin, "FROM_CMD", $2);
                 }
+                | TAG IDENT
+		{
+                    if (!modify)
+                        set_tag("join", $2, curjoin, jointags);
+                    else
+                        err("can't change join tag name");
+		}
 		;
 
 task_stmt	: TASK STRING
                 {
                     curtask = vh_create();
                     vh_sstore(curtask, "DESC", $2);
+                    modify = 0;
                 }
                 task_attrs ';'
 		{
@@ -462,6 +526,15 @@ task_stmt	: TASK STRING
                     lasttask = curtask;
                     vl_ppush(tasks, curtask);
 		}
+                | TASK IDENT
+                {
+                    modify = 1;
+                    if ((curtask = vh_pget(tasktags, $2)) == NULL) {
+                        err("task tag `%s' not yet defined", $2);
+                        curtask = vh_create();
+                    }
+                }
+                task_attrs ';'
 		;
 
 task_attrs	: /* empty */
@@ -470,7 +543,10 @@ task_attrs	: /* empty */
 
 task_attr	: TAG IDENT
 		{
-                    set_tag("task", $2, curtask, tasktags);
+                    if (!modify)
+                        set_tag("task", $2, curtask, tasktags);
+                    else
+                        err("can't change task tag name");
 		}
 		| AFTER task_list
 		{
