@@ -56,8 +56,8 @@ static int
 do_task(vhash *task, int print)
 {
     int scoretask = 1, score, filter = 0;
-    vhash *item, *room, *step;
     vlist *list, *until;
+    vhash *item, *room;
     vscalar *elt;
 
     /* Do the task */
@@ -482,8 +482,8 @@ setup_tasks(void)
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
     vlist *list, *itasks, *rlist, *newlist;
     vhash *step, *istep, *oitem;
-    int num = 0, leaveall;
     vscalar *elt;
+    int num = 0;
     char *msg;
 
     DEBUG0(0, "\nSetting up tasks...");
@@ -852,7 +852,7 @@ setup_tasks(void)
 void
 solve_game(void)
 {
-    vhash *room, *step, *trystep, *item, *task, *next;
+    vhash *step, *trystep, *item, *task, *next;
     int drop, safeflag, tasksleft;
     vlist *itasks;
     vscalar *elt;

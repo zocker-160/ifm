@@ -197,7 +197,6 @@ raw_task_entry(vhash *task)
     vhash *room = vh_pget(task, "ROOM");
     vlist *cmds = vh_pget(task, "CMD");
     int score = vh_iget(task, "SCORE");
-    int type = vh_iget(task, "TYPE");
     static int first = 1;
     vscalar *elt;
 

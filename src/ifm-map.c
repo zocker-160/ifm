@@ -314,7 +314,7 @@ void
 setup_links(void)
 {
     int x, y, xt, yt, xoff, yoff, dir, num, count, ndirs;
-    vhash *room, *link, *from, *to, *other, *sect;
+    vhash *link, *from, *to, *other, *sect;
     vlist *dirs, *xpos, *ypos, *list;
     char *fname, *tname;
     vscalar *elt;

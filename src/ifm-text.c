@@ -88,8 +88,6 @@ text_task_entry(vhash *task)
     int type, score;
     vscalar *elt;
     vlist *cmds;
-    vhash *item;
-    char *str;
 
     if (count == 0) {
         char *title = get_string("title", NULL);
