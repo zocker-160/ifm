@@ -41,6 +41,10 @@ $data = ifmraw($file) or moan("can't get map info");
 @tasks = @{$data->{task}};
 @order = @{$data->{taskorder}};
 
+$wantmaps = $opts{m};
+$wantitems = $opts{i} && @items > 0;
+$wanttasks = $opts{t} && @order > 0;
+
 # Open main output file.
 open(STDOUT, "> $mainfile") or moan("can't open $mainfile: $!");
 
@@ -56,12 +60,16 @@ print "\\usepackage{graphicx}\n";
 print "\\begin{document}\n";
 
 # Print title.
-printf "\\title{%s}\n", $data->{title};
+printf "\\title{%s}\n", texstr($data->{title});
 print "\\maketitle\n";
+print "\\vspace{1cm}\n";
+print "\\listoffigures\n" if $wantmaps;
+print "\\listoftables\n" if $wantitems || $wanttasks;
 print "\\titlepage\n";
 
 # Write map sections.
 if ($opts{m}) {
+    print "\\newpage\n";
     printf "\\input{%s}\n", $mapsfile;
 
     open(OUT, "> $mapsfile") or moan("can't open $mapsfile: $!");
@@ -77,17 +85,20 @@ if ($opts{m}) {
     for ($i = 0; $i < @sects; $i++) {
 	$mapfile = sprintf($template, $i + 1);
 	($num, $count, $w, $h, $name) = split(' ', $data[$i], 5);
+	chomp($name);
+	$scale = 1.0;
 
 	if      ($w >= 10 && $h >= 10) {
-	    $opts = "width=\\textwidth,height=\\textheight,keepaspectratio";
+	    $opts = "width=$scale\\textwidth,height=$scale\\textheight,keepaspectratio";
 	} elsif ($w >= 10) {
-	    $opts = "width=\\textwidth";
+	    $opts = "width=$scale\\textwidth";
 	} elsif ($h >= 10) {
-	    $opts = "height=\\textheight";
+	    $opts = "height=$scale\\textheight";
 	} else {
 	    $opts = "scale=0.7";
 	}
 
+	print OUT "\\addcontentsline{lof}{figure}{" . texstr($name) . "}\n";
 	print OUT "\\begin{center}\n";
 	print OUT "\\includegraphics[$opts]{$mapfile}\n";
 	print OUT "\\end{center}\n";
@@ -98,11 +109,13 @@ if ($opts{m}) {
 }
 
 # Write item list.
-if ($opts{i} && @items > 0) {
+if ($wantitems) {
+    print "\\newpage\n";
     printf "\\input{%s}\n", $itemfile;
 
     open(OUT, "> $itemfile") or moan("can't open $itemfile: $!");
 
+    print OUT "\\addcontentsline{lot}{table}{Items}\n";
     print OUT "{\\small\n";
     print OUT "\\begin{longtable}{|l|p{1.2in}|p{3in}|}\n";
     print OUT "\\hline\n";
@@ -218,11 +231,13 @@ if ($opts{i} && @items > 0) {
 }
 
 # Write task list.
-if ($opts{t} && @order > 0) {
+if ($wanttasks) {
+    print "\\newpage\n";
     printf "\\input{%s}\n", $taskfile;
 
     open(OUT, "> $taskfile") or moan("can't open $taskfile: $!");
 
+    print OUT "\\addcontentsline{lot}{table}{Tasks}\n";
     print OUT "{\\small\n";
     print OUT "\\begin{longtable}{|l|p{1.5in}|p{1in}|p{1.3in}|}\n";
     print OUT "\\hline\n";
