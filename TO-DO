@@ -2,7 +2,17 @@
 
 ** Next distribution
 
-Document new stuff.
+Fix fig: updown/inout overlaps line.  Need border box in page background
+colour.
+
+Allow -set to set non-global vars.  Syntax: type.var = value.  Maybe change
+var syntax to that everywhere.
+
+How about if/unless clauses -- list of vars after it.  Only include that
+thing if at least one var is defined, or none of them is.
+
+Document new stuff: examples of different types of output, maybe using
+ruins.ifm.
 
 Add more vars to control dot output.
 
@@ -34,12 +44,6 @@ question needs those items.
 
 ** General
 
-Have -set option, to set variables on the command line (which override
-settings in the input).
-
-How about option to print map stats (sections and their sizes)?  Could be
-useful for setting up map vars properly.
-
 How about simple 'ifdef/elif/else/endif' syntax?  Depending on whether vars
 are defined or not.  Or instead: 'if <var>' clause on things, which means
 only add them if <var> is defined.  Could maybe implement ifdef stuff with
@@ -62,8 +66,6 @@ knowledge.
 Get load_styles() to return success flag.
 
 ** Maps
-
-How about Xfig output?
 
 How about a 'label' keyword, like rooms, that puts arbitrary text on the
 page (like admap does)?  Specify its offset from a given room, its
@@ -88,10 +90,6 @@ Add 'show_joins' variable.  Default 1.
 
 Need some sort of debugging feature that eases sorting out of overlapping
 stuff.
-
-How about OpenGL driver?  NT users get the OpenGL DLL free, apparently.
-
-How about GD map driver?
 
 How about GTK driver?
 

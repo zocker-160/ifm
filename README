@@ -16,9 +16,9 @@ The IFM task commands, if used, allow you to specify the order in which
 game-solving tasks must be done.  The IFM program can then calculate and
 print different styles of walkthrough for the game.
 
-Currently there is only one type of output that produces hardcopy maps, and
-that is PostScript.  If you don't have a PostScript printer or previewer, I
-recommend that you obtain Ghostview.
+IFM can write hardcopy maps directly to PostScript, suitable for printing
+or viewing.  It can also write maps in Fig format, which can be viewed and
+edited using Xfig, or converted into many other formats.
 
 There are also a couple of utility programs bundled with IFM: tkifm and
 scr2ifm...

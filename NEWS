@@ -1,9 +1,15 @@
 ****************************************************************************
-* Version 4.2                                                     May 2002 *
+* Version 4.2                                                     Jun 2002 *
 ****************************************************************************
 
 Additions
 =========
+
+* New map output: Fig format, suitable for viewing or editing with Xfig, or
+  conversion to many other formats via fig2dev.
+
+* New task output: graphviz (dot) format, which dumps a task dependency
+  graph.
 
 * New 'keep with' and 'keep until' syntax for items, allowing items to be
   kept until certain tasks are done or certain other items are dropped.
@@ -11,16 +17,19 @@ Additions
 * New task and item 'ignore' attribute, indicating that these things should
   be ignored when finding a solution.
 
-* New task output: graphviz (dot) format, which dumps a task dependency
-  graph.
+* New option: -set, which lets you set global customization variables from
+  the command line.
 
 * New -show option: 'maps', which lists all the map sections and their
-  numbers.
+  sizes.
 
 * The -map option now accepts an optional list of map sections to print.
 
 * There are now some variables to control the overall behaviour of the game
   solver.
+
+* The command-line option `-debug' has been removed; its functionality has
+  been replaced by a control variable.
 
 * The GNU Emacs IFM mode in the 'contrib' directory now has font lock
   support.
