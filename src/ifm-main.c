@@ -237,8 +237,12 @@ parse_args(int argc, char *argv[])
 {
     extern int optind, opterr;
     extern char *optarg;
+    int c;
+
+#ifdef DEBUG
     extern int yydebug;
-    int c, dflag;
+    int dflag;
+#endif
 
     opterr = 0;
     optind = 1;
