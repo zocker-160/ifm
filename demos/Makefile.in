@@ -182,6 +182,9 @@ distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
 
+prep: ruins.ifm
+	$(IFM) -P $<
+
 ps fig: maptest.ifm
 	$(IFM) -f $@ -m -o maptest.$@ $<
 
