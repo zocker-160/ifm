@@ -453,7 +453,7 @@ int
 task_priority(vhash *room, vhash *step)
 {
     vhash *before, *taskroom, *gotoroom;
-    int priority = 1000, dist, type;
+    int priority = 1000, dist = 0, type;
     vscalar *elt;
     vlist *prev;
 
@@ -469,9 +469,11 @@ task_priority(vhash *room, vhash *step)
         }
     }
 
+#if 0
     /* If task doesn't open up new paths, lower the priority */
     if (!vh_iget(step, "OPENPATH"))
         priority -= 100;
+#endif
 
     type = vh_iget(step, "TYPE");
     taskroom = vh_pget(step, "ROOM");
@@ -499,12 +501,15 @@ task_priority(vhash *room, vhash *step)
             return 0;
     }
 
+#if 0
     /* If no return path, lower the priority */
     if (gotoroom != NULL)
         taskroom = gotoroom;
     if (taskroom != NULL && !find_path(NULL, taskroom, room))
         priority -= 200;
+#endif
 
+    vh_istore(step, "DIST", dist - 1);
     return priority;
 }
 
