@@ -54,8 +54,8 @@ tk_map_start(void)
 {
     char *title = get_string("title", NULL);
 
-    /* Mark joined rooms */
-    mark_joins();
+    /* Set room names */
+    setup_room_names(1, get_int("show_tags", 0));
 
     /* Set variables */
     printf("set ifm(mapwidth) %d\n", get_int("map_width", 8));
@@ -138,7 +138,7 @@ tk_map_room(vhash *room)
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
     printf("AddRoom {%s} {%s} %d %d %d\n",
-           vh_sgetref(room, "JDESC"),
+           vh_sgetref(room, "RDESC"),
            (itemlist != NULL ? itemlist : ""), x, y,
            vh_iget(room, "PUZZLE"));
 

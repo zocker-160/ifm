@@ -59,8 +59,8 @@ ps_map_start(void)
         }
     }
 
-    /* Mark joined rooms */
-    mark_joins();
+    /* Set room names */
+    setup_room_names(1, get_int("show_tags", 0));
 
     /* Pack sections */
     width = get_int("map_width", 8);
@@ -180,7 +180,7 @@ ps_map_room(vhash *room)
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
     printf("%s %g %g",
-           ps_string(vh_sgetref(room, "JDESC")),
+           ps_string(vh_sgetref(room, "RDESC")),
            x + ps_xoff, y + ps_yoff);
 
     /* Write item list (if any) */
