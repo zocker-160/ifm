@@ -9,4 +9,4 @@ make:;	autoheader
 	automake -v
 
 conf:;	autoconf
-	configure $(ARGS)
+	./configure $(ARGS)

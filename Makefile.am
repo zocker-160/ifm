@@ -2,9 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign check-news
 
-SUBDIRS = vars fig src lib doc maps progs tests
-
-EXTRA_DIST = README.unix README.maps
+SUBDIRS = vars fig gpp src lib doc progs demos tests
 
 EXTRA_DIRS = etc contrib win32
 
@@ -22,6 +20,7 @@ dist-extra:
 	   cp -rp $(top_srcdir)/$$dir $(distdir);			\
 	   rm -rf $(distdir)/$$dir/CVS;					\
 	   rm -f $(distdir)/$$dir/.cvsignore;				\
+	   rm -f $(distdir)/$$dir/*~;					\
 	done
 
 dist-header:
