@@ -29,7 +29,7 @@ dist-header:
 	for dir in src lib progs; do					\
 	   if test -f $$addheader; then					\
 	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir;		\
-	   fi; \
+	   fi;								\
 	done
 
 dist-touch:
