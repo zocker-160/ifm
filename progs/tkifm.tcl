@@ -1,7 +1,4 @@
-# Tkifm, copyright (C) 1997-98 G. Hutchings
-# TkIfm comes with ABSOLUTELY NO WARRANTY.
-# This is free software, and you are welcome to redistribute it
-# under certain conditions; see the file COPYING for details.
+# tkifm -- Tcl/Tk interface to IFM
 
 # Whether to allow editing.
 set ifm(edit) 1
