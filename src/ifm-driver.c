@@ -31,13 +31,13 @@ char *item_text_colour, *link_colour, *link_text_colour;
 char *link_text_font, *link_updown_string, *link_inout_string;
 char *map_text_font, *page_border_colour, *page_background_colour;
 char *title_font, *title_colour, *map_text_colour;
-char *room_exit_colour;
+char *room_exit_colour, *page_size;
 
 float room_text_fontsize, room_border_width, room_shadow_xoff;
 float room_shadow_yoff, room_exit_width, item_text_fontsize;
 float link_arrow_size, link_text_fontsize, link_line_width;
-float map_text_fontsize, title_fontsize, font_scale;
-float room_width, room_height, room_size;
+float map_text_fontsize, title_fontsize, font_scale, page_margin;
+float room_width, room_height, room_size, page_width, page_height;
 
 int room_border_dashed, show_items, link_dashed, show_border;
 int show_title, show_tags;
@@ -62,8 +62,22 @@ set_map_vars(void)
     SET_FONTSIZE(title_fontsize);
 
     SET_REAL(font_scale);
-    SET_REAL(room_height);
+    SET_REAL(page_margin);
+
+    SET_STRING(page_size);
+    if (!get_papersize(page_size, &page_width, &page_height))
+        fatal("invalid paper size: %s", page_size);
+
+    if (VAR_DEF("page_height"))
+        SET_REAL(page_height);
+
+    if (VAR_DEF("page_width"))
+        SET_REAL(page_width);
+
     SET_REAL(room_size);
+    room_size = V_MAX(room_size, 0.1);
+
+    SET_REAL(room_height);
     SET_REAL(room_width);
 }
 
