@@ -297,7 +297,7 @@ task_attr	: TAG IDENT
 
 ctrl_stmt       : TITLE var ';'
                 {
-                    set_var("default", "global", "title", $2);
+                    set_var(NULL, NULL, "title", $2);
                 }
                 | MAP STRING ';'
                 {
