@@ -36,8 +36,6 @@ vlist *items = NULL;            /* List of items */
 vlist *tasks = NULL;            /* List of tasks */
 vlist *sects = NULL;            /* List of sections */
 
-vhash *vars = NULL;             /* Variables */
-
 vhash *roomtags = NULL;         /* Tag -> room mapping */
 vhash *itemtags = NULL;         /* Tag -> item mapping */
 vhash *linktags = NULL;         /* Tag -> link mapping */
@@ -74,7 +72,6 @@ init_map(void)
     sects = vl_create();
 
     rpos = vh_create();
-    vars = vh_create();
 
     roomtags = vh_create();
     itemtags = vh_create();
@@ -92,7 +89,6 @@ init_map(void)
     vh_pstore(map, "SECTS", sects);
 
     vh_pstore(map, "RPOS", rpos);
-    vh_pstore(map, "VARS", vars);
 
     vh_pstore(map, "ROOMTAGS", roomtags);
     vh_pstore(map, "ITEMTAGS", itemtags);

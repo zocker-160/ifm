@@ -11,7 +11,7 @@
 #define IFM_MAP_H
 
 /* External vars */
-extern vhash *map, *vars, *startroom;
+extern vhash *map, *startroom;
 extern vlist *rooms, *links, *joins, *items, *tasks, *sects;
 extern vhash *roomtags, *itemtags, *tasktags, *linktags, *jointags;
 extern vlist *taskorder, *sectnames;

@@ -40,20 +40,13 @@ extern struct d_info dirinfo[];
 
 /* Advertised functions */
 extern void add_attr(vhash *obj, char *attr, char *fmt, ...);
-extern char *get_colour(char *name);
 extern int get_direction(int xoff, int yoff);
-extern int get_int(char *id, int def);
-extern double get_real(char *id, double def);
-extern char *get_string(char *id, char *def);
-extern vscalar *get_var(char *id);
 extern void indent(int num);
 extern void obsolete(char *old, char *new);
-extern FILE *open_file(char *file, int libflag);
+extern FILE *open_file(char *file, int libflag, int required);
 extern int pack_sections(int xmax, int ymax, int border);
-extern void set_var(char *driver, char *var, vscalar *val);
 extern void setup_room_names(int jflag, int tflag);
 extern vlist *split_line(char *string, double ratio);
-extern char *substitute_vars(char *string);
 extern void truncate_points(vlist *x, vlist *y, double wid, double ht);
 
 #endif

@@ -15,16 +15,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <ctype.h>
 #include <math.h>
 #include <vars.h>
 
 #include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-util.h"
-
-#define ALPHA(c) (c == '_' || isalpha(c))
-#define ALNUM(c) (c == '_' || isalnum(c))
 
 /* Direction info (same order as direction enum list) */
 struct d_info dirinfo[] = {
@@ -44,16 +40,8 @@ struct d_info dirinfo[] = {
     NULL,  NULL,        D_NONE,      D_NONE,       0,  0
 };
 
-/* Variable encoding buffer */
-static char encbuf[BUFSIZ];
-
 /* Scribble buffer */
 static char buf[BUFSIZ];
-
-/* Internal functions */
-static vhash *read_colour_defs(FILE *fp);
-static vlist *var_decode(char *code);
-static char *var_encode(char *driver, char *var);
 
 /* Add a list attribute to an object */
 void
@@ -74,32 +62,6 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
     }
 }
 
-/* Return RGB values given a colour name */
-char *
-get_colour(char *name)
-{
-    static vhash *defs = NULL;
-    double red, green, blue;
-    FILE *fp;
-
-    /* Read colour definitions if required */
-    if (defs == NULL) {
-        fp = open_file(COLOUR_DEFS, 1);
-        defs = read_colour_defs(fp);
-        fclose(fp);
-    }
-
-    /* If colour name looks like RGB values, leave it */
-    if (sscanf(name, "%lf %lf %lf", &red, &green, &blue) == 3)
-        return name;
-
-    /* Otherwise, look up colour name */
-    if (!vh_exists(defs, name))
-        fatal("colour `%s' is not defined", name);
-
-    return vh_sgetref(defs, name);
-}
-
 /* Return direction given offsets */
 int
 get_direction(int xoff, int yoff)
@@ -111,61 +73,6 @@ get_direction(int xoff, int yoff)
             return dir;
 
     return D_NONE;
-}
-
-/* Return an integer variable */
-int
-get_int(char *id, int def)
-{
-    vscalar *var = get_var(id);
-
-    if (var != NULL)
-        return vs_iget(var);
-    return def;
-}
-
-/* Return a real variable */
-double
-get_real(char *id, double def)
-{
-    vscalar *var = get_var(id);
-
-    if (var != NULL)
-        return vs_dget(var);
-    return def;
-}
-
-/* Return a string variable */
-char *
-get_string(char *id, char *def)
-{
-    vscalar *var = get_var(id);
-
-    if (var != NULL)
-        return vs_sgetcopy(var);
-    return def;
-}
-
-/* Return value of a variable */
-vscalar *
-get_var(char *id)
-{
-    vscalar *var;
-    char *key;
-
-    /* Check current output format first */
-    if (ifm_format != NULL) {
-        key = var_encode(ifm_format, id);
-        if ((var = vh_get(vars, key)) != NULL)
-            return var;
-    }
-        
-    /* Check global variables */
-    key = var_encode(NULL, id);
-    if ((var = vh_get(vars, key)) != NULL)
-        return var;
-
-    return NULL;
 }
 
 /* Indent output line */
@@ -196,7 +103,7 @@ obsolete(char *old, char *new)
 
 /* Open a file */
 FILE *
-open_file(char *file, int libflag)
+open_file(char *file, int libflag, int required)
 {
     FILE *fp = NULL;
     vscalar *elt;
@@ -216,7 +123,7 @@ open_file(char *file, int libflag)
         strcpy(ifm_input, file);
     }
 
-    if (fp == NULL)
+    if (required && fp == NULL)
         fatal("can't open %s `%s'", (libflag ? "library file" : "file"), file);
 
     return fp;
@@ -394,49 +301,6 @@ pack_sections(int xmax, int ymax, int border)
     return num;
 }
 
-/* Read and return colour definitions from a stream */
-static vhash *
-read_colour_defs(FILE *fp)
-{
-    int red, green, blue, pos;
-    char val[20];
-    vhash *defs;
-
-    defs = vh_create();
-
-    while (fgets(buf, BUFSIZ, fp) != NULL) {
-        /* Get RGB values */
-        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
-            continue;
-
-        /* Get offset of colour name */
-        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
-            continue;
-
-        /* Scale RGB values */
-        sprintf(val, "%.3g %.3g %.3g",
-                red / 255.0, green / 255.0, blue / 255.0);
-
-        /* Add colour */
-        v_chop(buf);
-        vh_sstore(defs, &buf[pos], val);
-    }
-
-    return defs;
-}
-
-/* Set a scalar variable */
-void
-set_var(char *driver, char *var, vscalar *val)
-{
-    char *key = var_encode(driver, var);
-
-    if (val != NULL)
-        vh_store(vars, key, val);
-    else
-        vh_delete(vars, key);
-}
-
 /* Set up room names */
 void
 setup_room_names(int jflag, int tflag)
@@ -516,78 +380,6 @@ split_line(char *string, double ratio)
     return list;
 }
 
-/* Substitute variable values in a string */
-char *
-substitute_vars(char *string)
-{
-    static vbuffer *b = NULL;
-    char *var, *cp, save;
-    int braceflag;
-    vscalar *val;
-
-    /* Initialise */
-    if (b == NULL)
-        b = vb_create();
-    else
-        vb_empty(b);
-
-    /* Scan the string */
-    cp = string;
-    while (*cp != '\0') {
-        /* If not $, just echo */
-        if (*cp != '$') {
-            vb_putc(b, *cp++);
-            continue;
-        }
-
-        /* If $$, turn it into $ */
-        if (*++cp == '$') {
-            vb_putc(b, *cp++);
-            continue;
-        }
-
-        /* If not start of variable, just echo */
-        if (!ALPHA(*cp) && *cp != '{') {
-            vb_putc(b, '$');
-            vb_putc(b, *cp++);
-            continue;
-        }
-
-        /* Find end of variable */
-        braceflag = (*cp == '{');
-        var = cp;
-        if (braceflag)
-            var++;
-
-        while (*++cp != '\0') {
-            if (braceflag && *cp == '}')
-                break;
-            if (!braceflag && !ALNUM(*cp))
-                break;
-        }
-
-        if (braceflag && *cp == '\0') {
-            /* Unterminated brace */
-            vb_puts(b, "${");
-            cp = var;
-        } else {
-            /* Get variable */
-            save = *cp;
-            *cp = '\0';
-            val = get_var(var);
-            *cp = save;
-            if (braceflag)
-                cp++;
-
-            /* Substitute it */
-            if (val != NULL)
-                vb_puts(b, vs_sget(val));
-        }
-    }
-
-    return vb_get(b);
-}
-
 /* Truncate a list of points based on a given box width and height */
 void
 truncate_points(vlist *x, vlist *y, double wid, double ht)
@@ -621,29 +413,4 @@ truncate_points(vlist *x, vlist *y, double wid, double ht)
     vl_dstore(y, 0, yf);
     vl_dstore(x, np - 1, xl);
     vl_dstore(y, np - 1, yl);
-}
-
-/* Decode an encoded variable */
-static vlist *
-var_decode(char *code)
-{
-    static vlist *list = NULL;
-    vscalar *val;
-
-    if (list != NULL)
-        vl_destroy(list);
-    list = vl_split(code, NULL);
-
-    val = vh_get(vars, code);
-    vl_push(list, vs_copy(val));
-
-    return list;
-}
-
-/* Encode a variable */
-static char *
-var_encode(char *driver, char *var)
-{
-    sprintf(encbuf, "%s %s", (driver == NULL ? "default" : driver), var);
-    return encbuf;
 }

@@ -124,7 +124,7 @@ stmt		: ctrl_stmt
 
 ctrl_stmt       : TITLE STRING ';'
                 {
-                    set_var(NULL, "title", vs_screate($2));
+                    var_set(NULL, "title", vs_screate($2));
                 }
                 | MAP STRING ';'
                 {
@@ -977,11 +977,11 @@ task            : ID
 
 vars_stmt       : ID '=' var ';'
                 {
-                    set_var(NULL, $1, $3);
+                    var_set(NULL, $1, $3);
                 }
                 | ID ID '=' var ';'
                 {
-                    set_var($1, $2, $4);
+                    var_set($1, $2, $4);
                 }
 		;
 
