@@ -1,6 +1,9 @@
 #LyX 1.2 created this file. For more info see http://www.lyx.org/
 \lyxformat 220
 \textclass article
+\begin_preamble
+\usepackage{color}
+\end_preamble
 \language english
 \inputencoding auto
 \fontscheme default
@@ -43,6 +46,14 @@ Glenn Hutchings
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset FloatList figure
+
+\end_inset 
+
+
 \layout Section
 \pagebreak_top 
 Introduction
@@ -72,8 +83,7 @@ The IFM mapping commands are designed so that you can easily add to the
  the others.
  A map can consist of several independent sections, allowing you to divide
  up the map however you like.
- See Section\SpecialChar ~
-
+ See Section 
 \begin_inset LatexCommand \ref{sec:making-maps}
 
 \end_inset 
@@ -92,8 +102,7 @@ walkthrough
 \end_inset 
 
  of the game.
- See Section\SpecialChar ~
-
+ See Section 
 \begin_inset LatexCommand \ref{sec:solving-game}
 
 \end_inset 
@@ -101,17 +110,15 @@ walkthrough
  for examples of how to do this.
 \layout Standard
 
-Several output formats are available, including PostScript and ASCII text
- -- see Section\SpecialChar ~
-
+Several output formats are available, including PostScript, Fig and ASCII
+ text -- see Section 
 \begin_inset LatexCommand \ref{sec:output-formats}
 
 \end_inset 
 
 .
  Some of the output formats have a set of variables which control the appearance
- of the output -- see Section\SpecialChar ~
-
+ of the output -- see Section 
 \begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
@@ -222,7 +229,7 @@ prologue
 
 Here's a list of the command-line options (which can be abbreviated):
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -231,7 +238,7 @@ Here's a list of the command-line options (which can be abbreviated):
 \family default 
  Draw a map of the game.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -240,7 +247,7 @@ Here's a list of the command-line options (which can be abbreviated):
 \family default 
  Print a list of items which appear in the game.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -249,7 +256,7 @@ Here's a list of the command-line options (which can be abbreviated):
 \family default 
  Print a list of tasks required to solve the game.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -264,7 +271,7 @@ Here's a list of the command-line options (which can be abbreviated):
 
 ).
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -274,11 +281,23 @@ Here's a list of the command-line options (which can be abbreviated):
 \SpecialChar ~
 
 \family typewriter 
-file
+FILE
 \family default 
  Write to the specified file, instead of stdout.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+-s,\SpecialChar ~
+-set\SpecialChar ~
+VAR=VALUE
+\family default 
+ Set a global customization variable.
+ This overrides any settings in the input files.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -287,43 +306,70 @@ file
 \family default 
  Don't print warnings.
 \layout List
-\labelwidthstring MMMMMMMMMMM
-
-
-\family typewriter 
--d,\SpecialChar ~
--debug
-\family default 
- Print debugging information.
-\layout List
-\labelwidthstring MMMMMMMMMMM
-
-
-\family typewriter 
--s,\SpecialChar ~
--show
-\family default 
-\SpecialChar ~
-
-\family typewriter 
-type
-\family default 
- Show one of several types of information, and exit.
- See below for a list of valid arguments.
-\layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
 -I,\SpecialChar ~
 -include\SpecialChar ~
-dir
+DIR
 \family default 
  Prepend the specified directory to the library and include file search
  path.
  This option may be repeated.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+-show
+\family default 
+\SpecialChar ~
+
+\family typewriter 
+TYPE
+\family default 
+ Show one of several types of information, and exit.
+ The 
+\family typewriter 
+TYPE
+\family default 
+ argument can be one of:
+\begin_deeper 
+\layout List
+\labelwidthstring MMMM
+
+
+\family typewriter 
+maps
+\family default 
+ Show a list of all the map sections defined in the input.
+\layout List
+\labelwidthstring MMMM
+
+
+\family typewriter 
+path
+\family default 
+ Show the directories that are searched for library and include files.
+\layout List
+\labelwidthstring MMMM
+
+
+\family typewriter 
+vars
+\family default 
+ Show a complete list of defined variables, in a format suitable for feeding
+ back into IFM.
+ See Section 
+\begin_inset LatexCommand \ref{sec:output-variables}
+
+\end_inset 
+
+.
+\end_deeper 
+\layout List
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -331,7 +377,7 @@ dir
 \family default 
  Don't read your personal init file.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
@@ -339,42 +385,19 @@ dir
 \family default 
  Print the program version.
 \layout List
-\labelwidthstring MMMMMMMMMMM
+\labelwidthstring MMMMMMMMMMMM
 
 
 \family typewriter 
 -help
 \family default 
  Just print some usage information.
-\layout Standard
-
-Here's a list of the 
-\family typewriter 
--show
-\family default 
- options (which can be abbreviated):
-\layout List
-\labelwidthstring 00.00.0000
-
-path Show the directories that are searched for library and include files.
-\layout List
-\labelwidthstring 00.00.0000
-
-vars Show a complete list of defined variables, in a format suitable for
- feeding back into IFM.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:output-variables}
-
-\end_inset 
-
-.
 \layout Subsection
 
 History of IFM
 \layout Standard
 
-When I started playing IF games, years ago, I did what many people probably
+When I started playing IF games, years ago, I did what many other people
  did -- made a rough map on paper of where I'd explored, so I could see
  which directions I hadn't tried yet.
  Inevitably, the maps always fell off the page and turned into a complete
@@ -412,6 +435,34 @@ Partway through writing the initial version of IFM, I had the idea that
  The concept of tasks appeared, which immediately tripled the size of the
  program and caused all sorts of headaches.
  But eventually it got to the stage where it might be worth releasing.
+\layout Standard
+
+A program lives or dies by the people who actually use it, and IFM is no
+ exception.
+ Very soon after adding it to the IF archive, I got a lot of feedback from
+ one Dave Chapeskie (
+\family typewriter 
+dchapes@ddm.on.ca
+\family default 
+), who made a lot of great suggestions for improvements and new features.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Incidentally, he also has a web page dedicated to IFM, at 
+\begin_inset LatexCommand \url{www.sentex.net/~dchapes/ifm}
+
+\end_inset 
+
+.
+\end_inset 
+
+
+\layout Standard
+
+And now, finally, it's finished and I can go back to that IF game I was
+ playing.
 \layout Section
 \pagebreak_top 
 Making Maps
@@ -423,8 +474,7 @@ Making Maps
 \layout Standard
 
 This section gives you a tour of the main commands for making maps.
- It's not complete -- see Section\SpecialChar ~
-
+ It's not complete -- see Section 
 \begin_inset LatexCommand \ref{sec:language}
 
 \end_inset 
@@ -437,7 +487,7 @@ Introduction to Maps
 
 The traditional Infocom-style way of drawing Interactive Fiction maps is
  the 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 boxes-and-lines
@@ -445,19 +495,44 @@ boxes-and-lines
 \end_inset 
 
  method.
- For example:
+ An example is shown in Figure\SpecialChar ~
+
+\begin_inset LatexCommand \ref{fig:example-map}
+
+\end_inset 
+
+.
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed false
+
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+\align center 
 
 \begin_inset Graphics FormatVersion 1
-	filename map.eps
+	filename example.eps
 	display color
-	size_type 1
-	width 60col%
+	size_type 0
+	width 178pt
+	height 68pt
+	scale 120
 	rotateOrigin center
 	lyxsize_type 0
 	lyxwidth 178pt
-	lyxheight 68pt
+	lyxheight 68pt	lyxscale 120
+
+\end_inset 
+
+
+\layout Caption
+
+Infocom-style map
+\begin_inset LatexCommand \label{fig:example-map}
+
+\end_inset 
+
+
 \end_inset 
 
 
@@ -771,7 +846,7 @@ Some maps can be very large, and may not look good on a single piece of
 
 It might be awkward to put rooms in relation to each other because of, say,
  a lot of up/down connections which have to be 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 flattened out
@@ -1343,6 +1418,9 @@ task "Light bonfire" need match lose it;
 \layout Subsection
 
 Dropping Items
+\layout Comment
+
+Need to mention keep, keep with and keep until here.
 \layout Standard
 
 Normally, you don't have to add explicit drop-item tasks -- IFM knows when
@@ -1657,10 +1735,10 @@ Many games have some sort of scoring system, whereby you get points for
  doing various things.
  In IFM you can record this using the 
 \family typewriter 
-score\SpecialChar ~
-<integer>
+score
 \family default 
  clause, which can apply to rooms, items or tasks.
+ It takes one integer argument -- a score value.
  For rooms, it's the score you get when visiting it for the first time.
  For items, it's the score for first picking it up.
  For tasks, it's the score for doing that task.
@@ -1864,6 +1942,18 @@ know
  you can stop the solver from avoiding it.
  But bear in mind that by doing this you are taking full responsibility
  if the solver gets stuck.
+\layout Standard
+
+If you want to be seriously reckless, you can set the variable 
+\family typewriter 
+all_tasks_safe
+\family default 
+ to a nonzero value.
+ Then, 
+\emph on 
+all
+\emph default 
+ tasks will be considered safe.
 \layout Subsubsection*
 
 Changing path lengths
@@ -2016,13 +2106,16 @@ link LB length 50;
 Debugging
 \layout Standard
 
-Finally...
- you can gain an insight into what the game solver's up to by using the
- 
+Finally, you can gain an insight into what the game solver's up to by setting
+ the 
 \family typewriter 
--debug
+solver_messages
 \family default 
- command-line option.
+ variable (either in one of the input files, or via the 
+\family typewriter 
+-set
+\family default 
+ command-line option).
  This produces reams of output giving details of the game solver's thoughts
  before it does anything.
  It's supposed to be self-explanatory, but my view is slightly biased.
@@ -2147,7 +2240,7 @@ Maps are drawn in the classic Infocom style.
  Rooms are drawn as boxes, and links as are drawn as lines (oneway with
  an arrow).
  Joins are marked by adding a 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 join number
@@ -2167,19 +2260,33 @@ PostScript\SpecialChar ~
 \family typewriter 
 ps
 \family default 
-) Several map sections may be printed per page.
+) This produces PostScript output suitable for printing.
+ Several map sections may be printed per page.
  Automatic packing is done to try to get a good fit on the page.
  Also, portrait or landscape is chosen depending on whichever gives the
  best fit.
  Fonts of room and item text are scaled to fit them in the room boxes, if
  required.
-\newline 
+\begin_deeper 
+\layout Standard
 
-\newline 
 To view the PostScript file on-screen, you'll need a PostScript previewer.
  I recommend Ghostview, which is free and is available for most systems.
  This can also print the map on your printer, even if the printer doesn't
  normally print PostScript files.
+\end_deeper 
+\layout List
+\labelwidthstring MMMMMMMMM
+
+Fig\SpecialChar ~
+(
+\family typewriter 
+fig
+\family default 
+) This produces output which can be read (and edited) by Xfig, and any other
+ programs which understand Fig format.
+ Several map sections may be packed onto a single page, in a similar manner
+ to PostScript.
 \layout List
 \labelwidthstring MMMMMMMMM
 
@@ -3396,8 +3503,11 @@ hidden
 \family typewriter 
 keep
 \family default 
- Indicate that this item shouldn't be dropped (no "drop" task should be
- generated).
+ Indicate that this item shouldn't ever be dropped (no "drop" task should
+ be generated).
+\layout Comment
+
+Add keep with and keep until here.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -5352,10 +5462,18 @@ There are a couple of other programs bundled with IFM, which you might find
  useful.
 \layout Subsection
 
-Tkifm -- graphical map drawing
+
+\family typewriter 
+tkifm
+\family default 
+ -- create maps interactively
 \layout Standard
 
-tkifm is a graphical front end to IFM.
+
+\family typewriter 
+tkifm
+\family default 
+ is a graphical front end to IFM.
  It provides a text editing window in which you can map out your game using
  IFM commands, and a set of menus to view things.
  The various features are as follows:
@@ -5447,24 +5565,43 @@ Using Your Own Editor
 \layout Standard
 
 If you'd like to use your own editor to edit IFM files, but still view results
- with tkifm, you can.
- tkifm recognizes when the file it is visiting gets modified, and rereads
- it if so.
- If you like, you can also disable all tkifm file modification commands
- by setting the 
+ with 
+\family typewriter 
+tkifm
+\family default 
+, you can.
+ 
+\family typewriter 
+tkifm
+\family default 
+ recognizes when the file it is visiting gets modified, and rereads it if
+ so.
+ If you like, you can also disable all 
+\family typewriter 
+tkifm
+\family default 
+ file modification commands by setting the 
 \family typewriter 
 ifm(edit)
 \family default 
  variable to zero (see below).
  This is probably a good idea if using another editor, or else you might
- accidentally save from tkifm and lose all your changes.
+ accidentally save from 
+\family typewriter 
+tkifm
+\family default 
+ and lose all your changes.
 \layout Subsubsection*
 
 Customization
 \layout Standard
 
-On startup, tkifm reads an initialization file in your home directory (the
- one pointed at by the 
+On startup, 
+\family typewriter 
+tkifm
+\family default 
+ reads an initialization file in your home directory (the one pointed at
+ by the 
 \family typewriter 
 HOME
 \family default 
@@ -5502,19 +5639,35 @@ Any errors or warnings that occur when invoking IFM will be displayed in
  or warning line (if appropriate).
 \layout Subsection
 
-Scr2ifm -- converting transcripts to IFM maps
+
+\family typewriter 
+scr2ifm
+\family default 
+ -- convert transcripts to IFM map
 \layout Standard
 
-scr2ifm reads one or more transcripts of an Interactive Fiction game and
- produces a map of it in IFM format.
+
+\family typewriter 
+scr2ifm
+\family default 
+ reads one or more transcripts of an Interactive Fiction game and produces
+ a map of it in IFM format.
  It works on Infocom-style transcripts -- those produced by Inform- and
  TADS-generated games (and of course Infocom games themselves).
  The idea is that you play your game in a carefree manner, without worrying
- about mapping anything, and after the session use scr2ifm to get a map.
+ about mapping anything, and after the session use 
+\family typewriter 
+scr2ifm
+\family default 
+ to get a map.
  Well, that's the theory anyway.
 \layout Standard
 
-scr2ifm offers two basic ways of mapping: you can create an initial (incomplete)
+
+\family typewriter 
+scr2ifm
+\family default 
+ offers two basic ways of mapping: you can create an initial (incomplete)
  map from your first transcript and then add the rest 
 \begin_inset Quotes eld
 \end_inset 
@@ -5531,7 +5684,11 @@ by hand
 Options
 \layout Standard
 
-These are the command-line options for scr2ifm:
+These are the command-line options for 
+\family typewriter 
+scr2ifm
+\family default 
+:
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -5603,7 +5760,11 @@ Print a short usage message and exit.
 Operation
 \layout Standard
 
-scr2ifm works by recognizing several key things in the transcript:
+
+\family typewriter 
+scr2ifm
+\family default 
+ works by recognizing several key things in the transcript:
 \layout Itemize
 
 The commands you type.
@@ -5657,8 +5818,11 @@ Some of these checks can be tailored to a particular transcript.
 Making Transcripts
 \layout Standard
 
-For best results with scr2ifm, you should follow these guidelines when making
- a transcript:
+For best results with 
+\family typewriter 
+scr2ifm
+\family default 
+, you should follow these guidelines when making a transcript:
 \layout Itemize
 
 Always use 
@@ -5672,8 +5836,11 @@ verbose
  mode.
  If you don't, then when you revisit a room you've been in before, no descriptio
 n will be printed.
- In that case, scr2ifm will have to rely on the room name to tell where
- it is.
+ In that case, 
+\family typewriter 
+scr2ifm
+\family default 
+ will have to rely on the room name to tell where it is.
  If there's more than one room with that name, it'll get confused (and so
  will you when you look at the map!).
 \layout Itemize
@@ -5686,13 +5853,20 @@ After starting the script, look around.
 If there's a bend in a link (e.g.\SpecialChar ~
 if you leave a room by going east, and enter
  the next room from the south) make sure you do the return journey.
- Otherwise, scr2ifm won't know about the bend.
+ Otherwise, 
+\family typewriter 
+scr2ifm
+\family default 
+ won't know about the bend.
 \layout Itemize
 
 Avoid places where different rooms have the same room description (i.e.\SpecialChar ~
 mazes).
- scr2ifm can't resolve cases like this, and will assume there's just a single
- room.
+ 
+\family typewriter 
+scr2ifm
+\family default 
+ can't resolve cases like this, and will assume there's just a single room.
  Note that this doesn't exclude 
 \emph on 
 all
@@ -5719,9 +5893,12 @@ map
  command to give it a name).
 \layout Standard
 
-Some games will be more amenable to scr2ifm than others -- in general the
- ones with reasonable map connections, where each connection makes sense
- in relation to the others.
+Some games will be more amenable to 
+\family typewriter 
+scr2ifm
+\family default 
+ than others -- in general the ones with reasonable map connections, where
+ each connection makes sense in relation to the others.
  For these games, the order in which rooms are visited will probably make
  no difference to the resulting map.
  But for perverse games (e.g.\SpecialChar ~
@@ -5744,7 +5921,11 @@ IFM Commands
 \layout Standard
 
 While you're making your transcript, you can use a subset of IFM commands
- to add extra things that scr2ifm will recognize.
+ to add extra things that 
+\family typewriter 
+scr2ifm
+\family default 
+ will recognize.
  (Of course, the game almost certainly won't understand these commands,
  and will print a suitable indignant reply.
  But that shouldn't affect the state of things.) The commands recognized
@@ -5851,7 +6032,11 @@ delete
  Delete the last declared task, if any.
 \layout Standard
 
-Note that scr2ifm knows almost nothing about IFM command syntax.
+Note that 
+\family typewriter 
+scr2ifm
+\family default 
+ knows almost nothing about IFM command syntax.
  If there's a syntax error in a command, you'll have to manually edit the
  resulting transcript (or delete the item/task and do it again).
 \layout Subsubsection*
@@ -5859,7 +6044,11 @@ Note that scr2ifm knows almost nothing about IFM command syntax.
 Fixing Problems
 \layout Standard
 
-The map produced by scr2ifm will not be perfect in a lot of cases.
+The map produced by 
+\family typewriter 
+scr2ifm
+\family default 
+ will not be perfect in a lot of cases.
  When running it through IFM you might get warnings about overlapping rooms,
  or crossed link lines.
  These problems are usually fixed by stretching the link lines of some of
@@ -5876,15 +6065,23 @@ You can fix most of these problems by creating a command file and specifying
 -c
 \family default 
  option.
- There are two types of entry: scr2ifm commands and IFM commands.
+ There are two types of entry: 
+\family typewriter 
+scr2ifm
+\family default 
+ commands and IFM commands.
  In a command file, blank lines and comment lines (those starting with a
  
 \family typewriter 
 #
 \family default 
 ) are ignored.
- If a command isn't recognized as a scr2ifm command, it's assumed to be
- an IFM command, and is passed straight into the output verbatim.
+ If a command isn't recognized as a 
+\family typewriter 
+scr2ifm
+\family default 
+ command, it's assumed to be an IFM command, and is passed straight into
+ the output verbatim.
  You can use these to resolve conflicts in the generated map, by stretching
  certain links or hiding them altogether.
 \layout Standard
@@ -5931,8 +6128,11 @@ TEXT
 set_option\SpecialChar ~
 LETTER
 \family default 
- This is a convenience that lets you specify scr2ifm command-line options
- in the command file instead.
+ This is a convenience that lets you specify 
+\family typewriter 
+scr2ifm
+\family default 
+ command-line options in the command file instead.
  E.g.
  
 \family typewriter 
@@ -5966,7 +6166,11 @@ undef
 
 Here's a list of the parameters that control how the transcript is parsed,
  and their defaults.
- You can use the scr2ifm 
+ You can use the 
+\family typewriter 
+scr2ifm
+\family default 
+ 
 \family typewriter 
 set_param
 \family default 
@@ -6082,7 +6286,11 @@ Regexp matching commands that are known to cause a teleport to an arbitrary
 Writing the Map
 \layout Standard
 
-Output from scr2ifm is as follows.
+Output from 
+\family typewriter 
+scr2ifm
+\family default 
+ is as follows.
  First, if the title of the map was specified with the 
 \family typewriter 
 title
@@ -6175,7 +6383,11 @@ Finally, the IFM commands from the file indicated by the
 Example Session
 \layout Standard
 
-Here's a simple example of scr2ifm in action on Colossal Cave.
+Here's a simple example of 
+\family typewriter 
+scr2ifm
+\family default 
+ in action on Colossal Cave.
  First, the transcript in file 
 \family typewriter 
 advent.scr
@@ -6323,12 +6535,58 @@ we get the following map:
 \end_inset 
 
 
+\layout Standard
+
+Printed, it looks like Figure\SpecialChar ~
+
+\begin_inset LatexCommand \ref{fig:scr2ifm-map}
+
+\end_inset 
+
+.
+\begin_inset Float figure
+placement htbp
+wide false
+collapsed true
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics FormatVersion 1
+	filename advent.eps
+	display default
+	size_type 2
+	scale 70
+	rotateOrigin center
+	lyxsize_type 2
+	lyxscale 70
+
+\end_inset 
+
+
+\layout Caption
+
+Map produced by 
+\family typewriter 
+scr2ifm
+\begin_inset LatexCommand \label{fig:scr2ifm-map}
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsubsection*
 
 Limitations
 \layout Standard
 
-Here's a list of things that scr2ifm doesn't currently deal with:
+Here's a list of things that 
+\family typewriter 
+scr2ifm
+\family default 
+ doesn't currently deal with:
 \layout Itemize
 
 Mazes.
