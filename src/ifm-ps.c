@@ -39,10 +39,11 @@ static char *ps_string(char *str);
 void
 ps_map_start(void)
 {
+    char *title, *name, tag[10], buf[BUFSIZ];
     int ylen, c, num_pages, width, height;
+    vhash *sect, *join, *from, *to;
     vscalar *elt;
-    vhash *sect;
-    char *title;
+    int jnum = 0;
     FILE *fp;
 
     /* Allow title space for sections with titles */
@@ -54,6 +55,25 @@ ps_map_start(void)
         }
     }
 
+    /* Create joined room names */
+    vl_foreach(elt, joins) {
+        join = vs_pget(elt);
+        from = vh_pget(join, "FROM");
+        to = vh_pget(join, "TO");
+
+        sprintf(tag, " (%d)", ++jnum);
+
+        name = vh_sgetref(from, "PDESC");
+        strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
+        strcat(buf, tag);
+        vh_sstore(from, "PDESC", buf);
+
+        name = vh_sgetref(to, "PDESC");
+        strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
+        strcat(buf, tag);
+        vh_sstore(to, "PDESC", buf);
+    }
+
     /* Pack sections */
     width = get_int("map_width", 8);
     height = get_int("map_height", 12);
@@ -63,7 +83,8 @@ ps_map_start(void)
     title = get_string("title", NULL);
 
     printf("%%!PS-Adobe-3.0\n");
-    printf("%%%%Title: %s\n", title ? title : "Interactive Fiction map");
+    printf("%%%%Title: %s\n",
+           title != NULL ? title : "Interactive Fiction map");
     printf("%%%%Creator: IFM v%s\n", VERSION);
     printf("%%%%Pages: %d\n", num_pages);
     printf("%%%%EndComments\n");
@@ -74,20 +95,27 @@ ps_map_start(void)
         putchar(c);
     fclose(fp);
 
-    /* Print variable values */
+    /* Print variables */
     printf("/origpagewidth %g inch def\n", get_real("page_width", 8.3));
     printf("/origpageheight %g inch def\n", get_real("page_height", 11.7));
-    printf("/pagemargin %g inch def\n", get_real("page_margin", 0.5));
+    printf("/pagemargin %g inch def\n", get_real("page_margin", 0.7));
 
     printf("/origmapwidth %d def\n", width);
     printf("/origmapheight %d def\n", height);
 
     printf("/titlefont /%s def\n", get_string("title_font", "Times-Bold"));
-    printf("/titlefontsize %g def\n", get_real("title_fontsize", 16));
+    printf("/titlefontsize %g def\n", get_real("title_fontsize", 18));
 
-    printf("/border %s def\n", get_int("border", 0) ? "true" : "false");
+    if (title != NULL)
+        printf("/titlestring %s def\n", ps_string(title));
 
-    printf("%%%%EndProlog\n");
+    printf("/showtitle %s def\n",
+           title != NULL && get_int("show_title", 1) ? "true" : "false");
+
+    printf("/showborder %s def\n",
+           get_int("show_border", 0) ? "true" : "false");
+
+    printf("\n%%%%EndProlog\n");
 }
 
 void
@@ -106,10 +134,13 @@ ps_map_section(vhash *sect)
     /* Start a new page if required */
     if (page != ps_pagenum) {
         if (ps_pagenum > 0)
-            printf("endpage\n");
+            printf("\nendpage\n");
 
         ps_pagenum = page;
-        printf("%%%%Page: %d\n", ps_pagenum);
+        printf("\n%%%%Page: %d\n\n", ps_pagenum);
+
+        printf("/mapfont /%s def\n", get_string("map_font", "Times-Bold"));
+        printf("/mapfontsize %g def\n", get_real("map_fontsize", 14));
 
         printf("/roomwidth %g def\n", ps_roomwidth);
         printf("/roomheight %g def\n", ps_roomheight);
@@ -118,7 +149,7 @@ ps_map_section(vhash *sect)
         printf("/roomfontsize %g def\n", get_real("room_fontsize", 10));
 
         printf("/itemfont /%s def\n", get_string("item_font", "Times-Italic"));
-        printf("/itemfontsize %g def\n", get_real("item_fontsize", 8));
+        printf("/itemfontsize %g def\n", get_real("item_fontsize", 6));
 
         printf("/labelfont /%s def\n", get_string("label_font", "Times-Roman"));
         printf("/labelfontsize %g def\n", get_real("label_fontsize", 8));
@@ -126,7 +157,10 @@ ps_map_section(vhash *sect)
         printf("/roomshading %g def\n", 1 - get_real("shading", 0.0));
 
         printf("/showitems %s def\n",
-               (get_int("show_items", 0) ? "true" : "false"));
+               get_int("show_items", 0) ? "true" : "false");
+
+        printf("/roomlinewidth %g def\n", get_real("room_linewidth", 0.8));
+        printf("/linklinewidth %g def\n", get_real("link_linewidth", 0.8));
 
         printf("\n%d %d %s beginpage\n",
                vh_iget(sect, "PXLEN"),
@@ -232,7 +266,7 @@ ps_map_endsection(void)
 void
 ps_map_finish(void)
 {
-    printf("endpage\n");
+    printf("\nendpage\n");
 }
 
 /* Return a string suitable for passing to PostScript */
