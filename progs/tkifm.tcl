@@ -197,55 +197,6 @@ proc DrawMap {num} {
     grid rowconfig    $f 0 -weight 1 -minsize 0
     grid columnconfig $f 0 -weight 1 -minsize 0
 
-    # Draw links.
-    foreach link $links {
-	if {[Get $link sect] == $sect} {
-	    set coords [Truncate $link $ifm(roomwidth) $ifm(roomheight)]
-	    set xlist [lindex $coords 0]
-	    set ylist [lindex $coords 1]
-
-	    set updown [Get $link updown]
-	    set inout [Get $link inout]
-	    set oneway [Get $link oneway]
-	    set special [Get $link special]
-
-	    set cmd "$c create line"
-	    for {set i 0} {$i < [llength $xlist]} {incr i} {
-		if {$i > 0} {
-		    set xlast $x
-		    set ylast $y
-		}
-
-		set xoff [lindex $xlist $i]
-		set yoff [lindex $ylist $i]
-		set yoff [expr $ylen - 1 - $yoff]
-		set x [expr ($xoff + 0.5) * $ifm(roomsize)]
-		set y [expr ($yoff + 0.5) * $ifm(roomsize)]
-		lappend cmd ${x}c ${y}c
-	    }
-
-	    if {$oneway} {lappend cmd -arrow last}
-	    if {$special} {lappend cmd -fill $ifm(specialcol)}
-
-	    lappend cmd -width $ifm(linklinewidth) -smooth $ifm(curvelines)
-	    eval $cmd
-
-	    if {$updown || $inout} {
-		set xmid [expr ($x + $xlast) / 2]
-		set ymid [expr ($y + $ylast) / 2]
-
-		if {$updown} {
-		    set text "U/D"
-		} else {
-		    set text "I/O"
-		}
-
-		$c create text ${xmid}c ${ymid}c -text $text \
-			-font $ifm(labelfont) -fill $ifm(labelcol)
-	    }
-	}
-    }
-
     # Draw rooms.
     foreach room $rooms {
 	if {[Get $room sect] == $sect} {
@@ -259,12 +210,13 @@ proc DrawMap {num} {
 	    if {$ifm(roomshadow) > 0} {
 		set soff [expr $ifm(roomsize) * $ifm(roomshadow)]
 		set xmin [expr $xoff * $ifm(roomsize) + $xgap - $soff]
-		set ymin [expr $yoff * $ifm(roomsize) + $ygap - $soff]
+		set ymin [expr $yoff * $ifm(roomsize) + $ygap + $soff]
 		set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
 		set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
 
 		$c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
-			-width $ifm(roomlinewidth) -fill black
+			-width $ifm(roomlinewidth) -outline $ifm(shadowcol) \
+			-fill $ifm(shadowcol)
 	    }
 
 	    set xmin [expr $xoff * $ifm(roomsize) + $xgap]
@@ -272,11 +224,12 @@ proc DrawMap {num} {
 	    set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
 	    set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
 
-	    set fillcol white
+	    set fillcol $ifm(roomcol)
 	    if {$puzzle} {set fillcol $ifm(puzzlecol)}
 
 	    $c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
-		    -width $ifm(roomlinewidth) -fill $fillcol
+		    -width $ifm(roomlinewidth) -outline $ifm(bordercol) \
+		    -fill $fillcol
 
 	    set xc [expr ($xmin + $xmax) / 2]
 	    set yc [expr ($ymin + $ymax) / 2]
@@ -287,15 +240,17 @@ proc DrawMap {num} {
 
 		set yo [expr $ifm(roomsize) * $ifm(roomheight) * $fac / 2]
 		$c create text ${xc}c [expr $yc - $yo]c -text $desc \
-			-width ${wid}c -justify center -font $ifm(roomfont)
+			-width ${wid}c -justify center -font $ifm(roomfont) \
+			-fill $ifm(roomtextcol)
 
 		set yo [expr $ifm(roomsize) * $ifm(roomheight) * (1 - $fac) / 2]
 		$c create text ${xc}c [expr $yc + $yo]c -text $items \
-			-width ${wid}c -justify center -font $ifm(itemfont)
-		
+			-width ${wid}c -justify center -font $ifm(itemfont) \
+			-fill $ifm(itemcol)
 	    } else {
 		$c create text ${xc}c ${yc}c -text $desc \
-			-width ${wid}c -justify center -font $ifm(roomfont)
+			-width ${wid}c -justify center -font $ifm(roomfont) \
+			-fill $ifm(roomtextcol)
 	    }
 	}
     }
@@ -329,8 +284,57 @@ proc DrawMap {num} {
 	    set y2 [expr ($y2 + 0.5) * $ifm(roomsize)]
 	    lappend cmd ${x2}c ${y2}c
 
-	    lappend cmd -width $ifm(exitlinewidth) -fill $ifm(exitcol)
+	    lappend cmd -width $ifm(exitwidth) -fill $ifm(exitcol)
 	    eval $cmd
+	}
+    }
+
+    # Draw links.
+    foreach link $links {
+	if {[Get $link sect] == $sect} {
+	    set coords [Truncate $link $ifm(roomwidth) $ifm(roomheight)]
+	    set xlist [lindex $coords 0]
+	    set ylist [lindex $coords 1]
+
+	    set updown [Get $link updown]
+	    set inout [Get $link inout]
+	    set oneway [Get $link oneway]
+	    set special [Get $link special]
+
+	    set cmd "$c create line"
+	    for {set i 0} {$i < [llength $xlist]} {incr i} {
+		if {$i > 0} {
+		    set xlast $x
+		    set ylast $y
+		}
+
+		set xoff [lindex $xlist $i]
+		set yoff [lindex $ylist $i]
+		set yoff [expr $ylen - 1 - $yoff]
+		set x [expr ($xoff + 0.5) * $ifm(roomsize)]
+		set y [expr ($yoff + 0.5) * $ifm(roomsize)]
+		lappend cmd ${x}c ${y}c
+	    }
+
+	    if {$oneway} {lappend cmd -arrow last}
+	    if {$special} {lappend cmd -fill $ifm(linkspecialcol)}
+
+	    lappend cmd -width $ifm(linkwidth) -smooth $ifm(linkspline)
+	    eval $cmd
+
+	    if {$updown || $inout} {
+		set xmid [expr ($x + $xlast) / 2]
+		set ymid [expr ($y + $ylast) / 2]
+
+		if {$updown} {
+		    set text $ifm(linkupdown)
+		} else {
+		    set text $ifm(linkinout)
+		}
+
+		$c create text ${xmid}c ${ymid}c -text $text \
+			-font $ifm(linkfont) -fill $ifm(linkcol)
+	    }
 	}
     }
 
