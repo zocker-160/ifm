@@ -489,7 +489,7 @@ proc ShowPath {} {
     global ifm
 
     # Get path.
-    set result [RunProgram $ifm(pathcmd) $ifm(path)]
+    set result [RunProgram $ifm(pathcmd)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
