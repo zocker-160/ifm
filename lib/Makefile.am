@@ -1,3 +1,9 @@
-## Automake template for ifm library files.
+## Automake template for IFM library files.
 
-pkgdata_DATA = ifm-pro.ps ifm-rgb.txt
+STYLES = puzzle.ifm special.ifm
+
+LIBFILES = ifm-init.ifm ifm-pro.ps ifm-rgb.txt $(STYLES)
+
+pkgdata_DATA = $(LIBFILES)
+
+EXTRA_DIST = $(LIBFILES)
