@@ -72,7 +72,6 @@ room_text_colour = "black";
 room_text_font = "Times-Bold";
 room_text_fontsize = 10;
 room_text_fontdef = "Times 10 bold";
-fig room_text_font = "Times Bold";
 
 # Whether to append room tag names to room descriptions.  If so,
 # they are appended in square brackets, like [this].
@@ -86,7 +85,6 @@ item_text_colour = "black";
 item_text_font = "Times-Italic";
 item_text_fontsize = 6;
 item_text_fontdef = "Times 8 italic";
-fig item_text_font = "Times Italic";
 
 ##################################################################
 # Link style variables
@@ -112,7 +110,6 @@ link_text_font = "Times-Roman";
 link_text_fontsize = 6;
 link_text_fontdef = "Times 8 bold";
 link_text_colour = "black";
-fig link_text_font = "Times Roman";
 tk link_text_colour = "red";
 
 # Text strings indicating up/down/in/out on links.
@@ -151,20 +148,13 @@ page_border_colour = "black";
 # Colour of the page background.
 page_background_colour = "white";
 
-# Whether to show the main title on each page.
-show_title = 1;
-
-# Appearance of the main title (if shown).
-title_font = "Times-Bold";
-fig title_font = "Times Bold";
-title_fontsize = 18;
-title_colour = "black";
-
 # Appearance of the title printed above each map section.
 map_text_font = "Times-Bold";
-fig map_text_font = "Times Bold";
 map_text_fontsize = 14;
 map_text_colour = "black";
+
+# Width, in rooms, of the border around each map section.
+map_border_size = 1;
 
 # Scale factor which is applied to all fonts.  This is a
 # convenience variable to make font adjustments easier.
@@ -173,6 +163,14 @@ font_scale = 1;
 ##################################################################
 # PostScript setup variables
 ##################################################################
+
+# Whether to show the main title on each page.
+show_title = 1;
+
+# Appearance of the main title (if shown).
+title_font = "Times-Bold";
+title_fontsize = 18;
+title_colour = "black";
 
 # Prolog file that gets prepended to all the PostScript output.
 # This defines all the procedures for drawing everything.
@@ -187,9 +185,9 @@ page_rotate = undef;
 # Fig setup variables
 ##################################################################
 
-# Whether to scale the layout to fit on a single page.  If you
-# turn this off, you can get poster output.
-fit_page = 1;
+# Whether to scale the layout to fit on a single page.  Most of
+# the time, this doesn't make things look good.
+fit_page = 0;
 
 ##################################################################
 # Tk setup variables
