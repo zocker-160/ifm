@@ -102,7 +102,7 @@ text_task_entry(vhash *task)
         moved++;
     } else {
         if (moved)
-            printf("\nAt %s:\n", vh_sgetref(room, "DESC"));
+            printf("\n%s:\n", vh_sgetref(room, "DESC"));
         else if (!count)
             printf("\nFirstly:\n");
 
@@ -121,11 +121,17 @@ text_task_entry(vhash *task)
         note = vh_sgetref(task, "NOTE");
     } 
 
-    if ((score = vh_iget(task, "SCORE")) > 0)
-        printf("      score: %d\n", score);
+    if ((score = vh_iget(task, "SCORE")) > 0) {
+        if (type != T_MOVE)
+            printf("   ");
+        printf("   score: %d\n", score);
+    }
 
-    if (note != NULL && !STREQ(note, ""))
-        printf("      note: %s\n", note);
+    if (note != NULL && !STREQ(note, "")) {
+        if (type != T_MOVE)
+            printf("   ");
+        printf("   note: %s\n", note);
+    }
 
     total += score;
     count++;
