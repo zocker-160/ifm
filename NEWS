@@ -6,9 +6,11 @@ Additions
 =========
 
 * New map output: Fig format, suitable for viewing or editing with Xfig, or
-  exporting to other formats.  There's a new utility program called
-  ifm2dev, which pipes ifm output through fig2dev repeatedly to write each
-  map section to its own file.
+  exporting to other formats.  There's a couple of new utility programs
+  which make use of this: ifm2dev, which pipes IFM output through fig2dev
+  repeatedly to write each map section to its own file, and ifm2tex, which
+  converts the Fig files to EPS and includes them in a LaTeX document
+  together with tables of items and tasks.
 
 * New task output: graphviz (dot) format, which dumps a task dependency
   graph.
@@ -21,6 +23,9 @@ Additions
 
 * New task and item 'ignore' attribute, indicating that these things should
   be ignored when finding a solution.
+
+* New task 'do' attribute, indicating that when a task is done, it also
+  does one or more other tasks automatically.
 
 * New option: -style, which sets global styles for all IFM objects.
 

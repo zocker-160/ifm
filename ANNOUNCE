@@ -11,12 +11,15 @@ So, what's new?  Here's a short summary of the main new gimmicks.
   Xfig, import them into various other programs that read Fig files, and
   convert the Fig output into lots of other formats.  As a convenience,
   there's a perl script called ifm2dev, which is a front end to fig2dev.
+  There's also another script called ifm2tex, which can create a LaTeX
+  document for printing.
 
 * Another new output format is for Graphviz, a graph drawing program.  IFM
   can write out a task dependency graph to be drawn by Graphviz.
 
-* IFM input is now preprocessed, in a manner similar to C programs.  This
-  allows much more flexibility in writing input.
+* IFM input is now preprocessed using gpp (distributed with IFM), in a
+  manner similar to C programs.  This allows much more flexibility in
+  writing input.
 
 * There are a few new keywords for use in solving the game.  I won't bother
   repeating it all here; details are in the docs.

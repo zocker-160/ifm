@@ -12,9 +12,11 @@ tools will be needed, and here's how to do it:
        to the zip directory.
 
   3)   Zip the 'ifm' directory up into a zip file.  Tack the version number
-       on the end (e.g. ifm42.zip).
+       on the end to make a valid MS-DOG filename (e.g. ifm50.zip).
 
   4)   Post it off to the IF archive.
+
+  5)   Er... that's it.
 
 Feel free to add some blurb in the distribution saying that you're the
 maintainer of the Win32 port.

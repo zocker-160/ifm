@@ -1,54 +1,18 @@
 * IFM to-do list
 
-** Next distribution
+** General
 
-Fix fig: updown/inout overlaps line.  Need border box in page background
-colour.
+BUG: task-attr2 test -- need thing, shurely?
 
-Allow -set to set non-global vars.  Syntax: type.var = value.  Maybe change
-var syntax to that everywhere.
+BUG: order matters with -S option.  Try -S reckless -S verbose in different
+order -- only 1 takes effect.
 
-How about if/unless clauses -- list of vars after it.  Only include that
-thing if at least one var is defined, or none of them is.
-
-Document new stuff: examples of different types of output, maybe using
-ruins.ifm.
-
-Add more vars to control dot output.
-
-Task text output: merge multiple identical tasks into one, with (%d times)
-appended.
+Document the 'do' keyword.
 
 Maybe prepend $(pkgdatadir)/site-ifm directory to search path, to allow for
 customization.  Create that dir when installing.
 
-All new variables need testing somehow.  Create some test cases.
-
-** Problems
-
-Win32: doesn't install properly -- doesn't add .exe suffix.
-
-Fix bugs with zork1.ifm: postscript output is weird.
-
-Problem with PostScript room/item text filling -- see Attic in zorkzero.
-
-tkifm accelerators don't work on Unix.
-
-Nasty bug with 'leave': see leave-bug.ifm.  How to fix it?  One possibility
-is to warn about it when doing movement -- if you ever move where you
-shouldn't be allowed to.  But then again... how about, in find_path(),
-keeping track of items that have to be left.  Then, in need-item check, can
-see if it had to be dropped.  If first find_path() fails and at least one
-LEAVE item was NEEDed, do find_path() again, pretending that the task in
-question needs those items.
-
-** General
-
-How about simple 'ifdef/elif/else/endif' syntax?  Depending on whether vars
-are defined or not.  Or instead: 'if <var>' clause on things, which means
-only add them if <var> is defined.  Could maybe implement ifdef stuff with
-scanner in a different state.  Need a stack, I think, to implement nested
-ifs.
+Maybe get consecutive strings to merge together.
 
 Joining multiple rooms in a single command: isn't there a problem with join
 tags?
@@ -61,9 +25,7 @@ more accurate error location.
 Simplify driver interface.  It's a mess.  Maybe remove dependence on Vars
 knowledge.
 
-** Styles
-
-Get load_styles() to return success flag.
+How about some sort of LaTeX output?
 
 ** Maps
 
@@ -76,17 +38,11 @@ Just consecutive strings?  Attributes: width, height, anchor, dir, from,
 style.  Generalize put_room_at() to accept things apart from rooms
 (labels).  With labels, the dir clause is mandatory.
 
-Have general external room labels, at compass points.  Mark up/down/in/out
-using them.
-
-Add syntax to allow changing of join text (by default, it's an increasing
-number).  Add warning if two join texts are the same.  Only allow join text
-with explicit 'join' command.
+Implement separate U/D/I/O labels.  Have table of room offsets given the
+direction.
 
 Add 'show_exit_arrows' variable.  Arrow size controlled same as other
 arrows.
-
-Add 'show_joins' variable.  Default 1.
 
 Need some sort of debugging feature that eases sorting out of overlapping
 stuff.
@@ -101,6 +57,14 @@ inventory management.
 
 ** Tasks
 
+BUG: Nasty problem with 'leave': see leave-bug.ifm.  How to fix it?  One
+possibility is to warn about it when doing movement -- if you ever move
+where you shouldn't be allowed to.  But then again... how about, in
+find_path(), keeping track of items that have to be left.  Then, in
+need-item check, can see if it had to be dropped.  If first find_path()
+fails and at least one LEAVE item was NEEDed, do find_path() again,
+pretending that the task in question needs those items.
+
 How about 'after all' on tasks, which means 'do it last'?
 
 How about inventory max-carried stuff?  Need to give each item a
@@ -113,13 +77,6 @@ pick them up again?  Need to do a 'drop-until' -- but until what task?
 Until the next task to be done with the item you're about to pick up?
 Maybe make 'get' tasks that would put you over the limit *very* low
 priority -- only done if nothing else can be.
-
-How about task 'do' attr, which flags other tasks as done too?  Might allow
-multiple solutions.  But does it do all the other task's actions too
-(losing items, dropping, etc)?  I think it must.
-
-Maybe item 'need' list implies that the needed item can't be dropped until
-that item is.
 
 Is there a way to indicate that 'leave' items aren't explicitly dropped
 without resorting to item 'lost' attr?  If so, can probably phase it out.
@@ -138,11 +95,9 @@ Change T_<attr> to G_<attr>, and T_USER to G_DO.
 
 How about Dave's item-state idea?
 
-** Tests
-
-Need more of them.
-
 ** PostScript driver
+
+BUG: Fix bugs with zork1.ifm: postscript output is weird.
 
 Implement 'link_spline' using curveto, if poss.
 
@@ -150,18 +105,17 @@ How about support for generic EPS file backgrounds?
 
 Make overlapping stuff look less cryptic.
 
-What about poster output?  Could have poster_width and poster_height
-variables (integers), which magnify the page dimensions by these factors
-and invoke the printposter function on each page (with its page dimensions
-set to original page size minus poster_margin).  That way, could do an A3
-poster (or whatever) too.  Not quite that simple though.  Work out poster
-dimensions from poster single-page size and the size of the poster.  Have
-'poster_print' var to turn poster on.  Specify poster single-page size in
-same manner as normal page size.
-
 Fix roomitemratio like Tk version.  Maybe have this as a control var.
 
+** Fig driver
+
+BUG: output don't start at the origin -- why?
+
+Updown/inout overlaps line.  Need border box in page background colour.
+
 ** Text driver
+
+Merge multiple identical tasks into one, with (%d times) appended.
 
 Implement note filling.  Have variable 'text_wrap_column' (default 75).
 Problem: tk uses text to get items/tasks.  But you can't specify a separate
@@ -183,21 +137,17 @@ room_char_size or something.  Also need some width/height ratio variable so
 that if room_width and room_height are the same, the box looks square on
 output.
 
-** Raw driver
+** Tkifm
 
-** Recording driver
+BUG: tkifm accelerators don't work on Unix.
 
-** Tcl/Tk driver
-
-Do line clipping here instead of in tkifm.  Make clipping standard across
+Do line clipping in IFM instead of in tkifm.  Make clipping standard across
 drivers, using the util function.  In fact, have clipped version of lines
 before drivers even see them (but keep originals for raw output).
 
-** Tkifm
-
 Gather all warnings/errors and display them at once in a text window.
-Enable single-click which goes to that line number (if any) in edit
-window.  Don't exit IFM after first error.
+Enable single-click which goes to that line number (if any) in edit window.
+Don't exit IFM after first error.
 
 Add horizontal scrollbars to text windows.  Don't wrap words.
 
@@ -236,19 +186,3 @@ How about using the innate script facility of dumb-frotz instead of
 capturing stdout?  Or maybe an option to that effect.
 
 The cmd command don't seem to want to print RETURN.
-
-** IFM maps
-
-lgop: add scratch 'n' sniff stuff.
-
-lgop: implement alternative flytrap solution (hiss).
-
-** Documentation
-
-Index needs improving.
-
-Document output of -debug option.
-
-Write doc about how to add drivers (need vars know-how).
-
-Add history/future directions section?
