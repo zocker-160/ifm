@@ -83,6 +83,8 @@ static struct driver_st {
 # endif
 #endif
 
+#define F_NONE -1
+
 /* Max. errors before aborting */
 #define MAX_ERRORS 10
 
@@ -105,7 +107,7 @@ static char buf[BUFSIZ];
 static char *ifm_input = NULL;
 
 /* Output format ID */
-static int ifm_fmt = -1;
+static int ifm_fmt = F_NONE;
 
 /* Output format name */
 char *ifm_format = NULL;
@@ -268,10 +270,9 @@ main(int argc, char *argv[])
         return 1;
 
     /* Set output format if not already specified */
-    if (output != O_NONE && ifm_fmt < 0) {
+    if (output != O_NONE && ifm_fmt == F_NONE) {
         vscalar *var = get_var("format");
         ifm_fmt = select_format(var != NULL ? vs_sget(var) : NULL, output);
-        ifm_format = drivers[ifm_fmt].name;
     }
 
     /* Resolve tags */
@@ -307,6 +308,9 @@ main(int argc, char *argv[])
     }
 
     /* Do what's required */
+    if (ifm_fmt != F_NONE)
+        ifm_format = drivers[ifm_fmt].name;
+
     if (output == O_NONE)
         printf("Syntax appears OK\n");
 
