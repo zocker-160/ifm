@@ -1,8 +1,8 @@
 ## Automake template for IFM library files.
 
-STYLES = puzzle.ifm special.ifm
+STYLES = helvetica.ifm puzzle.ifm special.ifm
 
-LIBFILES = ifm-init.ifm ifm-pro.ps ifm-rgb.txt $(STYLES)
+LIBFILES = ifm-alias.ifm ifm-init.ifm ifm-pro.ps ifm-rgb.txt $(STYLES)
 
 pkgdata_DATA = $(LIBFILES)
 
