@@ -257,9 +257,9 @@ one via the 'dir' clause.
 Indicate that the implicit link from this room should not be used by the
 game solver.
 
-=item style ID
+=item style ID [ID...]
 
-Add a display style to the room.  See L<"Styles">.
+Add a list of display styles to the room.  See L<"Styles">.
 
 =back
 
@@ -332,9 +332,9 @@ done.
 
 Indicate that getting this item finishes the game.
 
-=item style ID
+=item style ID [ID...]
 
-Add a display style to the item.  See L<"Styles">.
+Add a list of display styles to the item.  See L<"Styles">.
 
 =back
 
@@ -422,9 +422,9 @@ using this connection.
 As above, except indicate that I<all> items must be left behind.  The
 'except' clause can be used to omit specific items.
 
-=item style ID
+=item style ID [ID...]
 
-Add a display style to the link.  See L<"Styles">.
+Add a list of display styles to the link.  See L<"Styles">.
 
 =back
 
@@ -507,9 +507,9 @@ using this connection.
 As above, except indicate that I<all> items must be left behind.  The
 'except' clause can be used to omit specific items.
 
-=item style ID
+=item style ID [ID...]
 
-Add a display style to the join.  See L<"Styles">.
+Add a list of display styles to the join.  See L<"Styles">.
 
 =back
 
@@ -609,9 +609,9 @@ concatenate into a list of commands.
 
 Indicate that no command is required to do this task.
 
-=item style ID
+=item style ID [ID...]
 
-Add a display style to the task.  See L<"Styles">.
+Add a list of display styles to the task.  See L<"Styles">.
 
 =back
 
@@ -684,11 +684,11 @@ pops the current style from the style list.  The previous style on the list
 (if any) becomes the current style.  The ID, if specified, should match the
 ID in the corresponding 'style' command, or a warning is given.
 
-Each display style has its own set of variable values.  On output, when the
-value of a variable is needed for displaying an object, the style list for
-that object is searched in reverse order of declaration.  The value used is
-from the first style to define this variable.  If no style defines it, then
-the default value is used.
+Each display style has its own set of values for customization variables.
+On output, when the value of a variable is needed for displaying an object,
+the style list for that object is searched in reverse order of declaration.
+The value used is from the first style to define this variable.  If no
+style defines it, then the default value is used.
 
 If a style is referenced by an object but not defined anywhere in the
 input, then its definition is assumed to be in a separate file, which is
