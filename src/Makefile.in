@@ -155,7 +155,7 @@ FIG_BIN = $(top_builddir)/fig
 VARS_SRC = $(top_srcdir)/vars/src
 VARS_BIN = $(top_builddir)/vars/src
 
-ifm_LDADD = -lfig -lvars-noinst -lm
+ifm_LDADD = -lfig -lvars-noinst -lz @LIBS@
 
 ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
 
