@@ -3,6 +3,9 @@
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
+PDF_TITLE  = IFM Version $(VERSION)
+PDF_AUTHOR = Glenn Hutchings
+
 # Main targets.
 
 doc: fig pdf html
@@ -29,46 +32,24 @@ IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
 .fig.png:;	fig2dev -L png $< > $@
 .fig.tex:;	fig2dev -L latex $< > $@
 
-# Stuff for generating PDF.
-
-PDF_TITLE  = IFM Version $(VERSION)
-PDF_AUTHOR = Glenn Hutchings
-
-# Stuff for generating HTML.
-
-.PHONY: html
-
-HTML_TITLE = IFM Version $(VERSION)
-HTML_ADDR  = zondo@pillock.freeserve.co.uk
-HTML_DIR   = html
-HTML_DISP  = -split 4 -link 4 -show_section_numbers -html_version 4.0
-HTML_IMAGE = -no_external_images -local_icons -white -image_type gif
-HTML_NAV   = -next_page_in_navigation
-HTML_TEXT  = -title "$(HTML_TITLE)" -address "$(HTML_ADDR)" -font_size 12pt
-HTML_FILE  = -dir $(HTML_DIR) -mkdir 
-HTML_EXTRA = -short_extn
-
-LATEX2HTML = latex2html $(HTML_DISP) $(HTML_IMAGE) $(HTML_NAV) $(HTML_FILE) \
-$(HTML_TEXT) $(HTML_EXTRA)
-
-html: fig ifm.tex ifm.aux
-	$(LATEX2HTML) ifm.tex
+html: fig ifm.lyx
+	lyx2html ifm.lyx
 
 # Installation stuff.
 
 install-doc: install-html install-pdf
 
 install-html: $(ifmdocdir)
-	@ if test -d $(srcdir)/$(HTML_DIR); then			\
+	@ if test -d $(srcdir)/ifm; then				\
 	   set -x;							\
-	   rm -rf $(ifmdocdir)/$(HTML_DIR);				\
-	   cp -rf $(srcdir)/$(HTML_DIR) $(ifmdocdir);			\
+	   rm -rf $(ifmdocdir)/html;					\
+	   cp -rf $(srcdir)/ifm $(ifmdocdir)/html;			\
 	fi
 
 install-pdf: $(ifmdocdir)
 	@ if test -f $(srcdir)/ifm.pdf; then				\
 	   set -x;							\
-	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(ifmdocdir);			\
+	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(ifmdocdir);		\
 	fi
 
 $(ifmdocdir):
@@ -84,8 +65,8 @@ advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	    \
 cover.ifm tkifm.txt macros.tex
 
 dist-doc: $(EXTRA_DIST)
-	if test -d $(srcdir)/$(HTML_DIR); then				\
-	   cp -rf $(srcdir)/$(HTML_DIR) $(distdir);			\
+	if test -d $(srcdir)/ifm; then					\
+	   cp -rf $(srcdir)/ifm $(distdir);				\
 	fi
 	if test -f $(srcdir)/ifm.pdf; then				\
 	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
@@ -101,11 +82,11 @@ clean-doc: realclean
 realclean: htmlclean
 	rm -rf $(CLEAN_DOC)
 
-htmlclean:; rm -rf $(HTML_DIR) $(CLEAN_TEX)
+htmlclean:; rm -rf ifm $(CLEAN_TEX)
 
 # Other stuff.
 
-test:; opera `pwd`/$(HTML_DIR)/index.htm
+test:; opera `pwd`/ifm/index.htm
 
 distclean-local: clean-doc
 
