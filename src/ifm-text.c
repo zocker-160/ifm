@@ -28,8 +28,11 @@ itemfuncs text_itemfuncs = {
 taskfuncs text_taskfuncs = {
     text_task_start,
     text_task_entry,
-    NULL
+    text_task_finish,
 };
+
+/* Total score */
+static int total = 0;
 
 /* Item functions */
 void
@@ -82,21 +85,35 @@ text_task_entry(vhash *task)
     int score = vh_iget(task, "SCORE");
     char *note = vh_sgetref(task, "NOTE");
     static vhash *last = NULL;
+    static int flag = 0;
     vscalar *elt;
 
     if (room != last && room != NULL)
         printf("\n%s:\n", vh_sgetref(room, "DESC"));
-    else if (last == NULL)
+    else if (last == NULL && flag++ == 0)
         printf("\nFirstly:\n");
 
     printf("   %s\n", vh_sgetref(task, "DESC"));
 
     if (score > 0)
-        printf("      score %d for doing this\n", score);
+        printf("      score: %d\n", score);
+
+    if (vh_iget(task, "TYPE") == T_GET) {
+        vhash *item = vh_pget(task, "DATA");
+        note = vh_sgetref(item, "NOTE");
+    }
 
     if (note != NULL && !STREQ(note, ""))
         printf("      note: %s\n", note);
 
     if (room != NULL)
         last = room;
+    total += score;
+}
+
+void
+text_task_finish(void)
+{
+    if (total > 0)
+    printf("\nTotal score: %d\n", total);
 }
