@@ -99,7 +99,7 @@ ps_map_start(void)
     /* Get paper size */
     pagesize = get_string("page_size", "A4");
     if (!ps_getsize(pagesize, &ps_page_width, &ps_page_height))
-        warn("invalid page size: %s", pagesize);
+        fatal("invalid page size: %s", pagesize);
 
     ps_page_width = get_real("page_width", ps_page_width);
     ps_page_height = get_real("page_height", ps_page_height);
