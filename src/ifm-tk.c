@@ -65,27 +65,25 @@ tk_map_start(void)
     printf("set ifm(roomsize) %g\n", get_real("room_size", 3.0));
     printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
     printf("set ifm(roomheight) %g\n", get_real("room_height", 0.65));
-
     printf("set ifm(roomlinewidth) %d\n", get_int("room_linewidth", 2));
-
     printf("set ifm(roomfont) {%s}\n", get_string("room_font",
                                                   "Times 10 bold"));
-
     printf("set ifm(puzzlecol) %s\n", get_string("room_puzzle_colour",
                                                  "grey80"));
 
-    printf("set ifm(linklinewidth) %d\n", get_int("link_linewidth", 1));
+    printf("set ifm(showitems) %d\n", get_int("show_items", 0));
+    printf("set ifm(itemfont) {%s}\n", get_string("item_font",
+                                                  "Times 8 italic"));
 
+    printf("set ifm(linklinewidth) %d\n", get_int("link_linewidth", 1));
     printf("set ifm(curvelines) %s\n", (get_int("link_spline", 1) ?
                                         "true" : "false"));
-
     printf("set ifm(specialcol) %s\n", get_string("link_special_colour",
                                                   "blue"));
 
+    printf("set ifm(labelcol) %s\n", get_string("label_colour", "red"));
     printf("set ifm(labelfont) {%s}\n", get_string("label_font",
                                                    "Times 8 bold"));
-
-    printf("set ifm(labelcol) %s\n", get_string("label_colour", "red"));
 }
 
 void
