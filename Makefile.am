@@ -17,7 +17,7 @@ FILES			= README README.win32 README.maps NEWS COPYING
 
 PROGS			= src/$(EXE) tkifm/tkifm.tcl scr2ifm/scr2ifm.pl
 
-DLL			= /bin/cygwin.dll
+DLL			= /bin/cygwin1.dll
 
 DOCS			= doc/ifm.txt doc/ifm.html tkifm/tkifm.txt \
 			  tkifm/tkifm.html scr2ifm/scr2ifm.txt \
