@@ -11,7 +11,7 @@ task-give2.ifm task-nocmd.ifm task-leave1.ifm task-leave2.ifm task-lose.ifm \
 task-nolink.ifm task-nopath.ifm task-note.ifm task-path.ifm task-simple.ifm \
 task-unsafe.ifm
 
-IFM		= $(top_srcdir)/src/ifm
+IFM		= $(top_srcdir)/src/ifm -I$(top_srcdir)/lib
 
 TKIFM		= wish -f $(top_srcdir)/tkifm/tkifm.tcl
 
