@@ -1,23 +1,27 @@
 title: Interactive Fiction map
 
-room: South Room
-id: 2
-pos: 1 0
+section: Map section 1
+width: 3
+height: 2
 
-room: North Room
-id: 1
-pos: 1 1
+room: 1
+name: South Room
+rpos: 1 0
 
-link: 1 2
-pos: 1 1
-pos: 1 0
+room: 0
+name: North Room
+rpos: 1 1
 
-link: 2 1
-pos: 1 0
-pos: 2 0
-pos: 1 1
+link: 0 1
+lpos: 1 1
+lpos: 1 0
 
-link: 2 1
-pos: 1 0
-pos: 0 0
-pos: 1 1
+link: 1 0
+lpos: 1 0
+lpos: 2 0
+lpos: 1 1
+
+link: 1 0
+lpos: 1 0
+lpos: 0 0
+lpos: 1 1

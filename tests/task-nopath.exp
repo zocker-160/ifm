@@ -1,14 +1,19 @@
-task: Move to R2
-room: R2
+
+task: 5
+name: Move to R2
+room: 1
 cmd: E
 
-task: Move to R3
-room: R3
+task: 6
+name: Move to R3
+room: 2
 cmd: S
 
-task: Move to R4
-room: R4
+task: 7
+name: Move to R4
+room: 3
 cmd: W
 
-task: Win
-room: R4
+task: 4
+name: Win
+room: 3

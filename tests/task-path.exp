@@ -1,6 +1,9 @@
-task: Move to R4
-room: R4
+
+task: 5
+name: Move to R4
+room: 3
 cmd: SE
 
-task: Win
-room: R4
+task: 4
+name: Win
+room: 3

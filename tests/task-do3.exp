@@ -1,32 +1,42 @@
-task: Move to Room 2
-room: Room 2
+
+task: 7
+name: Move to Room 2
+room: 1
 cmd: E
 
-task: Move to Room 3
-room: Room 3
+task: 8
+name: Move to Room 3
+room: 2
 cmd: E
 
-task: Safe task
-room: Room 3
+task: 6
+name: Safe task
+room: 2
 
-task: Move to Room 2
-room: Room 2
+task: 9
+name: Move to Room 2
+room: 1
 cmd: W
 
-task: Move to Room 1
-room: Room 1
+task: 10
+name: Move to Room 1
+room: 0
 cmd: W
 
-task: Do unsafe thing
-room: Room 1
+task: 3
+name: Do unsafe thing
+room: 0
 
-task: Seal off room
+task: 4
+name: Seal off room
 tag: unsafe
-room: Room 1
+room: 0
 
-task: Move to Room 2
-room: Room 2
+task: 11
+name: Move to Room 2
+room: 1
 cmd: E
 
-task: Win
-room: Room 2
+task: 5
+name: Win
+room: 1

@@ -1,15 +1,20 @@
-task: Move to Room 2
-room: Room 2
+
+task: 4
+name: Move to Room 2
+room: 1
 cmd: go to other room
 
-task: First thing
+task: 3
+name: First thing
 tag: t1
-room: Room 2
+room: 1
 
-task: Move to Room 1
-room: Room 1
+task: 5
+name: Move to Room 1
+room: 0
 cmd: go to other room
 
-task: Second thing
+task: 2
+name: Second thing
 tag: t2
-room: Room 1
+room: 0

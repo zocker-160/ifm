@@ -1,26 +1,34 @@
-task: Move to Landing
-room: Landing
+
+task: 6
+name: Move to Landing
+room: 2
 cmd: U
 
-task: Move to Bedroom
-room: Bedroom
+task: 7
+name: Move to Bedroom
+room: 3
 cmd: E
 
-task: Tidy the room
+task: 5
+name: Tidy the room
 tag: tidy
-room: Bedroom
+room: 3
 
-task: Move to Landing
-room: Landing
+task: 8
+name: Move to Landing
+room: 2
 cmd: W
 
-task: Move to Lounge
-room: Lounge
+task: 9
+name: Move to Lounge
+room: 0
 cmd: D
 
-task: Move to Kitchen
-room: Kitchen
+task: 10
+name: Move to Kitchen
+room: 1
 cmd: E
 
-task: Make the tea
-room: Kitchen
+task: 4
+name: Make the tea
+room: 1

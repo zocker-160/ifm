@@ -1,18 +1,25 @@
-task: Get tongs
-room: Room 1
 
-task: Get hot coal
-room: Room 1
+task: 3
+name: Get tongs
+room: 0
 
-task: Move to Room 2
-room: Room 2
+task: 2
+name: Get hot coal
+room: 0
+
+task: 6
+name: Move to Room 2
+room: 1
 cmd: E
 
-task: Put coal in diamond machine
+task: 4
+name: Put coal in diamond machine
 tag: lose_coal
-room: Room 2
+room: 1
 
-task: Drop tongs
+task: 7
+name: Drop tongs
 
-task: Make diamond
-room: Room 2
+task: 5
+name: Make diamond
+room: 1

@@ -1,22 +1,30 @@
-task: Get thing
-room: Room 1
 
-task: Shazam!
-room: Room 1
+task: 4
+name: Get thing
+room: 0
+
+task: 5
+name: Shazam!
+room: 0
 note: Moves you to Room 4
 
-task: Move to Room 3
-room: Room 3
+task: 9
+name: Move to Room 3
+room: 2
 cmd: W
 
-task: Get thing
-room: Room 3
+task: 8
+name: Get thing
+room: 2
 
-task: Move to Room 2
-room: Room 2
+task: 10
+name: Move to Room 2
+room: 1
 cmd: W
 
-task: Win
-room: Room 2
+task: 6
+name: Win
+room: 1
 
-task: Drop thing
+task: 11
+name: Drop thing

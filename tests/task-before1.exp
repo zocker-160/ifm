@@ -1,42 +1,55 @@
-task: Move to Closet
-room: Closet
+
+task: 9
+name: Move to Closet
+room: 2
 cmd: S
 
-task: Get torch
-room: Closet
+task: 6
+name: Get torch
+room: 2
 
-task: Move to Start
-room: Start
+task: 10
+name: Move to Start
+room: 0
 cmd: N
 
-task: Move to Cell
-room: Cell
+task: 11
+name: Move to Cell
+room: 1
 cmd: E
 
-task: Get treasure
-room: Cell
+task: 5
+name: Get treasure
+room: 1
 score: 1
 
-task: Move to Start
-room: Start
+task: 12
+name: Move to Start
+room: 0
 cmd: W
 
-task: Pull the stick
+task: 7
+name: Pull the stick
 tag: pull_stick
-room: Start
+room: 0
 
-task: Get stick
-room: Start
+task: 4
+name: Get stick
+room: 0
 score: 1
 note: Props cell door open
 
-task: Move to Freedom
-room: Freedom
+task: 13
+name: Move to Freedom
+room: 3
 cmd: W
 
-task: Win the game
-room: Freedom
+task: 8
+name: Win the game
+room: 3
 
-task: Drop stick
+task: 14
+name: Drop stick
 
-task: Drop treasure
+task: 15
+name: Drop treasure

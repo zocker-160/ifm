@@ -1,12 +1,17 @@
-task: Do first thing
-room: Start
 
-task: Move to Finish
-room: Finish
+task: 2
+name: Do first thing
+room: 0
+
+task: 5
+name: Move to Finish
+room: 1
 cmd: S
 
-task: Visit finish room
-room: Finish
+task: 3
+name: Visit finish room
+room: 1
 
-task: Do second thing
-room: Finish
+task: 4
+name: Do second thing
+room: 1

@@ -1,11 +1,16 @@
-task: Get dynamite
-room: Room 1
 
-task: Move to Room 2
-room: Room 2
+task: 2
+name: Get dynamite
+room: 0
+
+task: 5
+name: Move to Room 2
+room: 1
 cmd: SE
 
-task: Scare granny with dynamite
-room: Room 2
+task: 4
+name: Scare granny with dynamite
+room: 1
 
-task: Explode
+task: 3
+name: Explode

@@ -1,17 +1,23 @@
-task: Move to Room 2
-room: Room 2
+
+task: 8
+name: Move to Room 2
+room: 1
 cmd: S
 
-task: Ask man for thing
-room: Room 2
+task: 6
+name: Ask man for thing
+room: 1
 score: 15
 note: Gives thing
 
-task: Move to Room 1
-room: Room 1
+task: 9
+name: Move to Room 1
+room: 0
 cmd: N
 
-task: Win
-room: Room 1
+task: 5
+name: Win
+room: 0
 
-task: Drop thing
+task: 10
+name: Drop thing

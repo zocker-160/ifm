@@ -1,25 +1,32 @@
-task: Move to Kitchen
-room: Kitchen
+
+task: 6
+name: Move to Kitchen
+room: 1
 cmd: S
 note: Funny smell here
 
-task: Move to Garage
-room: Garage
+task: 7
+name: Move to Garage
+room: 2
 cmd: S
 
-task: Do first
+task: 5
+name: Do first
 tag: first
-room: Garage
+room: 2
 note: First task
 note: Another note
 
-task: Move to Kitchen
-room: Kitchen
+task: 8
+name: Move to Kitchen
+room: 1
 cmd: N
 
-task: Move to Start
-room: Start
+task: 9
+name: Move to Start
+room: 0
 cmd: N
 
-task: Win
-room: Start
+task: 4
+name: Win
+room: 0

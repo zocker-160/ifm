@@ -1,15 +1,20 @@
-task: Cut hole in door
-room: Room 1
 
-task: Open door
+task: 2
+name: Cut hole in door
+room: 0
+
+task: 4
+name: Open door
 tag: open_door
-room: Room 1
+room: 0
 score: 1
 
-task: Move to Room 2
-room: Room 2
+task: 6
+name: Move to Room 2
+room: 1
 cmd: E
 
-task: Win
-room: Room 2
+task: 5
+name: Win
+room: 1
 note: Finishes the game

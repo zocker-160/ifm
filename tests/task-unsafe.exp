@@ -1,44 +1,56 @@
-task: Move to Corridor
-room: Corridor
+
+task: 8
+name: Move to Corridor
+room: 2
 cmd: W
 
-task: Move to Corridor
-room: Corridor
+task: 9
+name: Move to Corridor
+room: 3
 cmd: W
 
-task: Move to Corridor
-room: Corridor
+task: 10
+name: Move to Corridor
+room: 4
 cmd: W
 
-task: Move to Treasure Room
-room: Treasure Room
+task: 11
+name: Move to Treasure Room
+room: 5
 cmd: W
 
-task: Get diamond
-room: Treasure Room
+task: 6
+name: Get diamond
+room: 5
 score: 1
 note: Not used for anything yet
 
-task: Move to Corridor
-room: Corridor
+task: 12
+name: Move to Corridor
+room: 4
 cmd: E
 
-task: Move to Corridor
-room: Corridor
+task: 13
+name: Move to Corridor
+room: 3
 cmd: N
 
-task: Move to Corridor
-room: Corridor
+task: 14
+name: Move to Corridor
+room: 2
 cmd: E
 
-task: Move to Start
-room: Start
+task: 15
+name: Move to Start
+room: 0
 cmd: E
 
-task: Move to Bottom of Chute
-room: Bottom of Chute
+task: 16
+name: Move to Bottom of Chute
+room: 1
 cmd: S
 
-task: Win the game
-room: Bottom of Chute
+task: 7
+name: Win the game
+room: 1
 score: 10

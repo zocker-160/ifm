@@ -1,12 +1,17 @@
-task: Get thing 1
-room: Room 1
 
-task: Get thing 2
-room: Room 1
+task: 2
+name: Get thing 1
+room: 0
 
-task: Move to Room 2
-room: Room 2
+task: 3
+name: Get thing 2
+room: 0
+
+task: 5
+name: Move to Room 2
+room: 1
 cmd: S
 
-task: Win
-room: Room 2
+task: 4
+name: Win
+room: 1

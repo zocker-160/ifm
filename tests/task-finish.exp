@@ -1,7 +1,10 @@
-task: Move to Kitchen
-room: Kitchen
+
+task: 7
+name: Move to Kitchen
+room: 1
 cmd: E
 
-task: Get broom
-room: Kitchen
+task: 4
+name: Get broom
+room: 1
 note: Finishes the game

@@ -1,14 +1,19 @@
-task: Move to Room 3
-room: Room 3
+
+task: 5
+name: Move to Room 3
+room: 2
 cmd: S
 
-task: Move to Room 4
-room: Room 4
+task: 6
+name: Move to Room 4
+room: 3
 cmd: E
 
-task: Move to Room 2
-room: Room 2
+task: 7
+name: Move to Room 2
+room: 1
 cmd: N
 
-task: Win
-room: Room 2
+task: 4
+name: Win
+room: 1

@@ -1,20 +1,27 @@
-task: Get large object
-room: Room 1
+
+task: 4
+name: Get large object
+room: 0
 score: 1
 
-task: Move to Room 2
-room: Room 2
+task: 6
+name: Move to Room 2
+room: 1
 cmd: E
 
-task: Move to Room 3
-room: Room 3
+task: 7
+name: Move to Room 3
+room: 2
 cmd: S
 
-task: Move to Room 4
-room: Room 4
+task: 8
+name: Move to Room 4
+room: 3
 cmd: W
 
-task: Win the game
-room: Room 4
+task: 5
+name: Win the game
+room: 3
 
-task: Drop large object
+task: 9
+name: Drop large object
