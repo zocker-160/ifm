@@ -48,10 +48,8 @@ connect_rooms(void)
     vscalar *elt;
     char *cmd;
 
-    if (ifm_debug) {
-        printf("Task debugging information\n\n");
-        printf("Connecting rooms...\n");
-    }
+    DEBUG0(0, "Task debugging information\n");
+    DEBUG0(0, "Connecting rooms...");
 
     /* Create lists of reachable rooms from each room */
     vl_foreach(elt, rooms) {
@@ -248,7 +246,9 @@ find_path(vhash *step, vhash *from, vhash *to)
 
     if (ifm_debug && to != NULL) {
         indent(3);
-        printf("find path to: %s", vh_sgetref(to, "DESC"));
+        printf("find path: `%s' to `%s'",
+               vh_sgetref(from, "DESC"),
+               vh_sgetref(to, "DESC"));
     }
 
     /* Check for cached path */
@@ -669,11 +669,7 @@ void
 modify_path(void)
 {
     path_modify = 1;
-
-    if (ifm_debug) {
-        indent(2);
-        printf("flag path update\n");
-    }
+    DEBUG0(2, "flag path update");
 }
 
 /* Task sorting function */
