@@ -71,6 +71,9 @@ tk_map_start(void)
     printf("set ifm(puzzlecol) %s\n", get_string("room_puzzle_colour",
                                                  "grey80"));
 
+    printf("set ifm(exitlinewidth) %d\n", get_int("exit_linewidth", 2));
+    printf("set ifm(exitcol) %s\n", get_string("exit_colour", "red"));
+
     printf("set ifm(showitems) %d\n", get_int("show_items", 0));
     printf("set ifm(itemfont) {%s}\n", get_string("item_font",
                                                   "Times 8 italic"));
@@ -108,12 +111,14 @@ tk_map_section(vhash *sect)
 void
 tk_map_room(vhash *room)
 {
+    vlist *items, *ex, *ey;
     char *itemlist = NULL;
-    vlist *items;
+    int x, y, xoff, yoff;
+    vscalar *elt;
 
+    /* Build item list if required */
     items = vh_pget(room, "ITEMS");
     if (items != NULL && vl_length(items) > 0) {
-        vscalar *elt;
         vhash *item;
         vlist *list;
 
@@ -129,12 +134,24 @@ tk_map_room(vhash *room)
         vl_destroy(list);
     }
 
+    /* Do room command */
+    x = vh_iget(room, "X");
+    y = vh_iget(room, "Y");
     printf("AddRoom {%s} {%s} %d %d %d\n",
            vh_sgetref(room, "JDESC"),
-           (itemlist != NULL ? itemlist : ""),
-           vh_iget(room, "X"),
-           vh_iget(room, "Y"),
+           (itemlist != NULL ? itemlist : ""), x, y,
            vh_iget(room, "PUZZLE"));
+
+    /* Do room exit commands (if any) */
+    ex = vh_pget(room, "EX");
+    ey = vh_pget(room, "EY");
+    if (ex != NULL) {
+        while (vl_length(ex) > 0) {
+            xoff = vl_ishift(ex);
+            yoff = vl_ishift(ey);
+            printf("AddExit {%d %d} {%d %d}\n", x, x + xoff, y, y + yoff);
+        }
+    }
 }
 
 void

@@ -85,6 +85,7 @@ WHITE		[ \t\f]*
 "down"		{ return DOWN; }
 "e"		{ return EAST; }
 "east"		{ return EAST; }
+"exit"		{ return EXIT; }
 "from"		{ return FROM; }
 "get"           { return GET; }
 "given"         { return GIVEN; }

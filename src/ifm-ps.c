@@ -149,6 +149,7 @@ ps_map_section(vhash *sect)
 
         printf("/roomlinewidth %g def\n", get_real("room_linewidth", 0.8));
         printf("/linklinewidth %g def\n", get_real("link_linewidth", 0.8));
+        printf("/exitlinewidth %g def\n", get_real("exit_linewidth", 1.2));
 
         printf("\n%d %d %s beginpage\n",
                vh_iget(sect, "PXLEN"),
@@ -170,14 +171,17 @@ ps_map_section(vhash *sect)
 void
 ps_map_room(vhash *room)
 {
+    static vlist *px = NULL, *py = NULL;
     char *str, *itemlist = NULL;
-    vlist *items;
+    vlist *items, *ex, *ey;
+    int x, y;
 
     /* Write coords */
+    x = vh_iget(room, "X");
+    y = vh_iget(room, "Y");
     printf("%s %g %g",
            ps_string(vh_sgetref(room, "JDESC")),
-           vh_dget(room, "X") + ps_xoff,
-           vh_dget(room, "Y") + ps_yoff);
+           x + ps_xoff, y + ps_yoff);
 
     /* Write item list (if any) */
     items = vh_pget(room, "ITEMS");
@@ -205,6 +209,37 @@ ps_map_room(vhash *room)
 
     printf(" %s", vh_iget(room, "PUZZLE") ? "true" : "false");
     printf(" room\n");
+
+    /* Write room exits (if any) */
+    ex = vh_pget(room, "EX");
+    ey = vh_pget(room, "EY");
+    if (ex != NULL) {
+        double x1, y1, x2, y2;
+
+        if (px == NULL) {
+            px = vl_create();
+            py = vl_create();
+        }
+
+        while (vl_length(ex) > 0) {
+            vl_istore(px, 0, x);
+            vl_istore(py, 0, y);
+            vl_istore(px, 1, x + vl_ishift(ex));
+            vl_istore(py, 1, y + vl_ishift(ey));
+            truncate_points(px, py, ps_roomwidth, ps_roomheight);
+            x1 = vl_dget(px, 0);
+            y1 = vl_dget(py, 0);
+            x2 = vl_dget(px, 1);
+            y2 = vl_dget(py, 1);
+
+            x2 = x1 + 0.35 * (x2 - x1);
+            y2 = y1 + 0.35 * (y2 - y1);
+
+            printf("%g %g %g %g roomexit\n",
+                   ps_xoff + x1, ps_yoff + y1,
+                   ps_xoff + x2, ps_yoff + y2);
+        }
+    }
 }
 
 void
@@ -218,10 +253,9 @@ ps_map_link(vhash *link)
     vlist *x, *y;
     int i, np;
 
-    truncate_link(link, ps_roomwidth, ps_roomheight);
-
     x = vh_pget(link, "X");
     y = vh_pget(link, "Y");
+    truncate_points(x, y, ps_roomwidth, ps_roomheight);
 
     printf("[");
     np = vl_length(x);

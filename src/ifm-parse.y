@@ -25,7 +25,7 @@ static char buf[BUFSIZ];
 
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
-%token        GIVEN LOST KEEP TITLE
+%token        EXIT GIVEN LOST KEEP TITLE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -76,6 +76,10 @@ room_attr	: TAG IDENT
 		{
 		    set_room_dirs();
 		    set_room_near(NULL);
+		}
+		| EXIT dir_list
+		{
+		    set_room_exits();
 		}
 		| LINK link_list
 		{

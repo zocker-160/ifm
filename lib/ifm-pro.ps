@@ -137,6 +137,23 @@
     grestore
 } def
 
+% Draw a room exit.
+/roomexit {			% X1 Y1 X2 Y2 roomexit
+    % Save arguments.
+    /re-y2 exch def
+    /re-x2 exch def
+    /re-y1 exch def
+    /re-x1 exch def
+
+    gsave
+	% Draw line.
+	exitlinewidth setlinewidth
+	re-x1 re-y1 pagepos moveto
+	re-x2 re-y2 pagepos lineto
+	stroke
+    grestore
+} def
+
 % Draw a link.
 /link {				% [ X Y ... ] UPDOWN INOUT ONEWAY SPECIAL link
     % Save arguments.

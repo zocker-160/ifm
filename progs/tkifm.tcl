@@ -115,7 +115,7 @@ proc MainWindow {} {
 
 # Draw a map section.
 proc DrawMap {num} {
-    global ifm rooms links
+    global ifm rooms links exits
     global sectnum
 
     if {[MaybeSave] == 0} return
@@ -266,6 +266,40 @@ proc DrawMap {num} {
 	    }
 	}
     }
+
+    # Draw room exits.
+    foreach exit $exits {
+	if {[Get $exit sect] == $sect} {
+	    set coords [Truncate $exit $ifm(roomwidth) $ifm(roomheight)]
+	    set xlist [lindex $coords 0]
+	    set ylist [lindex $coords 1]
+
+	    set x1 [lindex $xlist 0]
+	    set y1 [lindex $ylist 0]
+	    set y1 [expr $ylen - 1 - $y1]
+
+	    set x3 [lindex $xlist 1]
+	    set y3 [lindex $ylist 1]
+	    set y3 [expr $ylen - 1 - $y3]
+
+	    set fac 0.35
+	    set x2 [expr $x1 + ($x3 - $x1) * $fac]
+	    set y2 [expr $y1 + ($y3 - $y1) * $fac]
+
+	    set cmd "$c create line"
+
+	    set x1 [expr ($x1 + 0.5) * $ifm(roomsize)]
+	    set y1 [expr ($y1 + 0.5) * $ifm(roomsize)]
+	    lappend cmd ${x1}c ${y1}c
+
+	    set x2 [expr ($x2 + 0.5) * $ifm(roomsize)]
+	    set y2 [expr ($y2 + 0.5) * $ifm(roomsize)]
+	    lappend cmd ${x2}c ${y2}c
+
+	    lappend cmd -width $ifm(exitlinewidth) -fill $ifm(exitcol)
+	    eval $cmd
+	}
+    }
 }
 
 # Show item list.
@@ -372,8 +406,8 @@ proc ShowTasks {} {
 
 # Build the map.
 proc BuildMap {} {
-    global sectnum roomnum linknum
-    global sects rooms links
+    global sectnum roomnum linknum exitnum
+    global sects rooms links exits
     global ifm
 
     # Get map data.
@@ -397,10 +431,12 @@ proc BuildMap {} {
     set sects {}
     set rooms {}
     set links {}
+    set exits {}
 
     set sectnum 0
     set roomnum 0
     set linknum 0
+    set exitnum 0
 
     eval $data
 
@@ -494,6 +530,21 @@ proc AddLink {xlist ylist updown inout oneway special} {
     Set $var inout $inout
     Set $var oneway $oneway
     Set $var special $special
+
+    Set $var sect sect$sectnum
+}
+
+# Add a room exit.
+proc AddExit {xlist ylist} {
+    global exits exitnum sectnum
+    incr exitnum
+    set var exit$exitnum
+    global $var
+    lappend exits $var
+
+    Set $var num $exitnum
+    Set $var xlist $xlist
+    Set $var ylist $ylist
 
     Set $var sect sect$sectnum
 }
