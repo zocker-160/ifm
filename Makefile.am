@@ -27,7 +27,7 @@ DOCS			= doc/ifm.txt doc/ifm.html tkifm/tkifm.txt \
 			  tkifm/tkifm.html scr2ifm/scr2ifm.txt \
 			  scr2ifm/scr2ifm.html 
 
-LIBS			= lib/ifm-init.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
+LIBS			= lib/*.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
 
 ZIPFILES		= $(IFM) $(LIB) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
 
