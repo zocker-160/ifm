@@ -127,7 +127,7 @@ print_vars()
             vl_foreach(elt, entries2) {
                 var = vs_sgetref(elt);
                 sprintf(buf, "%s %s %s", table1, table2, var);
-                fprintf(stderr, "%s = %s", buf, vh_sgetref(symtab2, var));
+                fprintf(stderr, "%s = %s", buf, vh_sget(symtab2, var));
                 if (used_vars != NULL && vh_iget(used_vars, buf))
                     fprintf(stderr, " (used)");
                 fprintf(stderr, "\n");
@@ -201,6 +201,9 @@ truncate_link(vhash *link, double wid, double ht)
     double xfac = 1 - wid / 2;
     double yfac = 1 - ht / 2;
     int np = vl_length(x);
+
+    if (np < 2)
+        return;
 
     /* Truncate first point */
     x1 = vl_dget(x, 1);
