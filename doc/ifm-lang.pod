@@ -612,11 +612,34 @@ the following syntax:
 B<FORMAT>, if specified, is the name of a specific output format -- the
 variable then applies only to that output format.  B<IDENT> is the name of
 the variable, and it can take an integer, real or string value.  Note that
-setting a variable to the value 'undef' effectively removes it, and allows
-the default setting to reappear.
+setting a variable to the value 'undef' effectively removes it.
 
 Note that it is not an error to refer to an unknown output format or
 variable.  This is so that maps using new formats will continue to work
 with old versions of B<IFM>.  One slight drawback of this is that if you
 mistype a format or variable there will be no obvious way of telling -- and
 no effect on your output either.
+
+Some output formats use variables so that you can customize them.  They
+expect certain variables to be defined, and give an error if they aren't.
+The default values for these variables are set in the initialization file
+-- see L<"Output Variables">.
+
+=head2 Include Files
+
+Your B<IFM> input can include other input files too, via the 'include'
+directive.  There are two forms:
+
+    include "file"
+
+and
+
+    include <file>
+
+The first form looks for the exact file name -- either absolute or relative
+to the current directory.  The second form does a directory search to find
+the file, using the B<IFM> search path (which can be set via the B<-I>
+command line option or the B<IFMPATH> environment variable).
+
+Note that to be recognized, the 'include' directive must be the first thing
+on a line.  Note also that no semicolon is required after it.

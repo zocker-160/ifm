@@ -1,11 +1,10 @@
 =head1 OPERATION
 
-On startup, B<IFM> does the following.  Firstly, if there is a system
-initialization file for this system, and it exists, it is read.  This sets
-defaults used by everyone.  This file is called F<ifm-init.ifm>, and is
-found by searching a standard set of directories.  You can override this
-search path by setting the environment variable B<IFMPATH> to be a
-colon-separated list of directories.
+On startup, B<IFM> does the following.  Firstly, the initialization file is
+read.  This sets defaults used by everyone.  This file is called
+F<ifm-init.ifm>, and is found by searching a standard set of directories.
+You can override this search path by setting the environment variable
+B<IFMPATH> to be a colon-separated list of directories.
 
 Then, if you have a personal initialization file, that is read.  This file
 is found in the directory specified by your B<HOME> environment variable.
@@ -60,13 +59,14 @@ Don't print warnings.
 
 Print debugging information.
 
+=item B<-I>, B<-include> F<dir>
+
+Prepend the specified directory to the library and include file search
+path.  This option may be repeated.
+
 =item B<-noinit>
 
 Don't read your personal init file.
-
-=item B<-nosysinit>
-
-Don't read the system init file.
 
 =item B<-showpath>
 
