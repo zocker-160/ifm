@@ -7,7 +7,7 @@ infodir = $(prefix)/info
 
 info_DATA = ifm.info
 
-EXTRA_DIST = ifm.info ifm.txt ifm.doc ifm.1 ifm.html
+EXTRA_DIST = ifm.info ifm.txt ifm.html
 
 all: ifm.info
 

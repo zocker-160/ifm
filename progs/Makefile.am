@@ -6,8 +6,7 @@ info_DATA = scr2ifm.info
 
 bin_SCRIPTS = scr2ifm
 
-EXTRA_DIST = scr2ifm.pl scr2ifm.pod scr2ifm.txt scr2ifm.1 scr2ifm.doc \
-scr2ifm.html scr2ifm.info
+EXTRA_DIST = scr2ifm.pl scr2ifm.txt scr2ifm.html scr2ifm.info
 
 ETAGS_ARGS = scr2ifm.pl
 
