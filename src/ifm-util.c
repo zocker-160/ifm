@@ -21,6 +21,7 @@
 #include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-util.h"
+#include "ifm-vars.h"
 
 /* Direction info (same order as direction enum list) */
 struct d_info dirinfo[] = {
@@ -299,6 +300,14 @@ pack_sections(int xmax, int ymax, int border)
 
     vl_destroy(pages);
     return num;
+}
+
+/* Send a string to stdout */
+void
+put_string(char *fmt, ...)
+{
+    VPRINT(buf, fmt);
+    fputs(var_subst(buf), stdout);
 }
 
 /* Set up room names */
