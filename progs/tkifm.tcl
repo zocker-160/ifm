@@ -593,7 +593,7 @@ proc SaveAs {} {
 	    -filetypes $ifm(ifmfiles)]
 
     if [string length $file] {
-	set ifm(path) $file
+	SetFile $file
 	Save
     }
 }
