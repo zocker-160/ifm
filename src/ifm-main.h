@@ -44,7 +44,7 @@ extern int line_number;
 extern int ifm_debug;
 extern char ifm_input[];
 extern vlist *ifm_search;
-extern char *ifm_format, *ifm_output;
+extern char *ifm_format;
 
 /* Advertised functions */
 extern void yyerror(char *msg);

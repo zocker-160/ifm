@@ -124,14 +124,13 @@ stmt		: ctrl_stmt
 
 ctrl_stmt       : TITLE STRING ';'
                 {
-                    set_var(NULL, NULL, "title", vs_screate($2));
+                    set_var(NULL, "title", vs_screate($2));
                 }
                 | MAP STRING ';'
                 {
                     if (sectnames == NULL)
                         sectnames = vl_create();
                     vl_spush(sectnames, $2);
-                    mapnum++;
                 }
                 ;
 
@@ -254,7 +253,7 @@ room_stmt	: ROOM STRING
 		;
 
 room_attrs	: /* empty */
-		| room_attrs room_attr sep
+		| room_attrs room_attr
 		;
 
 room_attr	: TAG ID
@@ -491,7 +490,7 @@ item_stmt	: ITEM STRING
 		;
 
 item_attrs	: /* empty */
-		| item_attrs item_attr sep
+		| item_attrs item_attr
 		;
 
 item_attr	: TAG ID
@@ -616,7 +615,7 @@ link_stmt	: LINK room TO room
 		;
 
 link_attrs	: /* empty */
-		| link_attrs link_attr sep
+		| link_attrs link_attr
 		;
 
 link_attr	: DIR dir_list
@@ -721,7 +720,7 @@ join_stmt	: JOIN room TO room
 		;
 
 join_attrs	: /* empty */
-		| join_attrs join_attr sep
+		| join_attrs join_attr
 		;
 
 join_attr	: GO compass
@@ -826,7 +825,7 @@ task_stmt	: TASK STRING
 		;
 
 task_attrs	: /* empty */
-		| task_attrs task_attr sep
+		| task_attrs task_attr
 		;
 
 task_attr	: TAG ID
@@ -978,35 +977,11 @@ task            : ID
 
 vars_stmt       : ID '=' var ';'
                 {
-                    set_var(NULL, NULL, $1, $3);
+                    set_var(NULL, $1, $3);
                 }
                 | ID ID '=' var ';'
                 {
-                    set_var($1, NULL, $2, $4);
-                }
-                | MAP ID '=' var ';'
-                {
-                    set_var(NULL, "map", $2, $4);
-                }
-                | ITEM ID '=' var ';'
-                {
-                    set_var(NULL, "item", $2, $4);
-                }
-                | TASK ID '=' var ';'
-                {
-                    set_var(NULL, "task", $2, $4);
-                }
-                | ID MAP ID '=' var ';'
-                {
-                    set_var($1, "map", $3, $5);
-                }
-                | ID ITEM ID '=' var ';'
-                {
-                    set_var($1, "item", $3, $5);
-                }
-                | ID TASK ID '=' var ';'
-                {
-                    set_var($1, "task", $3, $5);
+                    set_var($1, $2, $4);
                 }
 		;
 
@@ -1091,10 +1066,6 @@ string_repeat   : STRING
                         err("invalid repeat count");
                     obsolete("`times' keyword", "just the repeat count");
                 }
-                ;
-
-sep             : ','
-                | /* empty */
                 ;
 
 %%

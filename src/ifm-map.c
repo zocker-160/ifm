@@ -49,8 +49,6 @@ vhash *startroom = NULL;        /* Starting room */
 vlist *taskorder = NULL;        /* Ordered task list */
 vlist *sectnames = NULL;	/* List of section names */
 
-int mapnum = 0;                 /* Current map section number */
-
 /* Internal stuff */
 static vhash *rpos = NULL;      /* Room positions */
 

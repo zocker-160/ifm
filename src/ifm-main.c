@@ -99,9 +99,6 @@ static int ifm_fmt = F_NONE;
 /* Output format name */
 char *ifm_format = NULL;
 
-/* Output type name */
-char *ifm_output = NULL;
-
 /* Parse function */
 extern void yyparse();
 
@@ -347,9 +344,6 @@ print_map(void)
     vlist *sects, *list;
     vscalar *elt;
 
-    ifm_output = "map";
-    mapnum = 0;
-
     if (func == NULL)
         fatal("no map driver for %s output", drv.name);
 
@@ -360,10 +354,17 @@ print_map(void)
 
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
-        mapnum++;
 
         if (func->map_section != NULL)
             (*func->map_section)(sect);
+
+        if (func->map_room != NULL) {
+            list = vh_pget(sect, "ROOMS");
+            vl_foreach(elt, list) {
+                room = vs_pget(elt);
+                (*func->map_room)(room);
+            }
+        }
 
         if (func->map_link != NULL) {
             list = vh_pget(sect, "LINKS");
@@ -374,14 +375,6 @@ print_map(void)
                 if (vh_iget(link, "NOLINK"))
                     continue;
                 (*func->map_link)(link);
-            }
-        }
-
-        if (func->map_room != NULL) {
-            list = vh_pget(sect, "ROOMS");
-            vl_foreach(elt, list) {
-                room = vs_pget(elt);
-                (*func->map_room)(room);
             }
         }
 
@@ -411,8 +404,6 @@ print_items(void)
     vlist *items, *sorted;
     vscalar *elt;
     vhash *item;
-
-    ifm_output = "item";
 
     items = vh_pget(map, "ITEMS");
 
@@ -446,8 +437,6 @@ print_tasks(void)
     vscalar *elt;
     vlist *tasks;
     vhash *task;
-
-    ifm_output = "task";
 
     tasks = vh_pget(map, "TASKS");
 
