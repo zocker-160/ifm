@@ -1,0 +1,77 @@
+=head1 NAME
+
+ifm -- Interactive Fiction mapper
+
+=head1 SYNOPSIS
+
+ifm [options] [file]
+
+=begin inf
+
+IFM -- Interactive Fiction Mapper
+*********************************
+
+This Info file describes version %V% of IFM, a language and a program for
+keeping track of your progress in an Interactive Fiction game.
+
+=end inf
+
+=for inf node DESCRIPTION, Introduction, What is IFM?
+
+=for inf node OPERATION, Operation, How to run IFM
+
+=for inf node MAKING MAPS, Making Maps, How to create maps
+=for inf node Example Map,, Sample map to be drawn
+=for inf node Adding Rooms,, How to add new rooms
+=for inf node Adding Links,, How to add extra links
+=for inf node Other Directions,, Setting non-compass directions
+=for inf node Room Exits,, Indicating unexplored directions
+=for inf node Map Sections,, Splitting the map into pieces
+=for inf node Adding Items,, Showing where items were found
+=for inf node Conflicts,, When things overlap each other
+
+=for inf node SOLVING THE GAME, Solving the Game, Creating a walkthrough
+=for inf node Introduction to Tasks, Task Intro, Introduction to tasks
+=for inf node Requiring Tasks,, Tasks can depend on previous tasks
+=for inf node Requiring Items,, Tasks often need items
+=for inf node Obtaining Items,, Tasks often supply items
+=for inf node Losing Items,, Tasks can destroy items too
+=for inf node Dropping Items,, Tasks can cause items to be dropped
+=for inf node Leaving Items,, Carrying items can block movement
+=for inf node Limiting Movement,, Tasks often affect movement
+=for inf node Movement Tasks,, Sometimes moving around is a task
+=for inf node Scoring Points,, Getting credit for doing things
+=for inf node Finishing the Game,, Certain things signal game end
+=for inf node Finding a Solution,, What the game solver does
+=for inf node Tweaking the Solution,, Helping the solver along
+=for inf node Limitations,, What the game solver can't do
+
+=for inf node OUTPUT FORMATS, Output Formats, Available types of output
+=for inf node Map Output,, Creating game maps
+=for inf node Item List Output,, Listing items in the game
+=for inf node Task List Output,, Listing tasks needed to solve the game
+=for inf node Output Variables,, Customizing output
+
+=for inf node OUTPUT VARIABLES, Output Variables, Variables used by output formats
+=for inf node Room Variables,, Setting the appearance of rooms
+=for inf node Link Variables,, Setting the appearance of links
+=for inf node Feature Variables,, Enabling optional features
+=for inf node PostScript Page Variables,, Controlling PostScript pages
+=for inf node Tk Window Variables,, Setting Tk window attributes
+=for inf node Miscellaneous Variables,, Other useful variables
+
+=for inf node LANGUAGE, Language, Language specification
+=for inf node Format,, General layout of the input
+=for inf node Control,, Map sections and local variables
+=for inf node Tags,, Format of tags
+=for inf node Commands,, Format of commands
+=for inf node Rooms,, The 'room' command
+=for inf node Items,, The 'item' command
+=for inf node Links,, The 'link' command
+=for inf node Joins,, The 'join' command
+=for inf node Tasks,, The 'task' command
+=for inf node Variables,, Format of variables
+
+=for inf node DIAGNOSTICS, Diagnostics, Errors and warnings
+
+=for inf node ENVIRONMENT, Environment, Environment variables

@@ -1,0 +1,110 @@
+=head1 OUTPUT FORMATS
+
+B<IFM> has three different types of output (a map, a list of items, and a
+list of tasks) and several different output formats.  Not all types of
+output are produced by each output format.  Some output formats can be
+customized by using variables, as described below.
+
+=head2 Map Output
+
+The following output formats produce maps:
+
+=over 4
+
+=item PostScript (ps)
+
+Several map sections may be printed per page.  Automatic packing is done to
+try to get a good fit on the page.  Also, portrait or landscape is chosen
+depending on whichever gives the best fit.
+
+Rooms are drawn as boxes (puzzle rooms are dashed).  Links as are drawn as
+lines (oneway with an arrow, special links are dashed).  Joins are marked
+by adding a 'join number' to the room text of the joined rooms.  Non-hidden
+items can be shown in their initial rooms.
+
+Titles, room text, item text and labels each have their own fonts, and are
+scaled automatically with the map.
+
+=item Tk commands (tk)
+
+This produces commands for input to B<tkifm> (*note Tkifm:(tkifm).), a
+simple graphical interface to B<IFM>.  It isn't very useful to produce this
+output yourself -- B<tkifm> does that internally to build its map pictures.
+But you can control its display by setting variables in the usual way.
+
+=item Raw data (raw)
+
+This produces raw lists of data for sending to other programs.  Each entry
+consists of a number of data lines, and is separated from other entries by
+a blank line.  Each data line consists of an attribute, a colon, and its
+value.  The attributes should be self-explanatory.
+
+=back
+
+=head2 Item List Output
+
+The following output formats produce item lists:
+
+=over 4
+
+=item ASCII text (text)
+
+This produces human-readable output.  The output should be fairly
+self-explanatory.
+
+=item Raw data (raw)
+
+This produces raw lists of data for sending to other programs.  Each entry
+consists of a number of data lines, and is separated from other entries by
+a blank line.  Each data line consists of an attribute, a colon, and its
+value.  The attributes should be self-explanatory.
+
+=back
+
+=head2 Task List Output
+
+The following output formats produce task lists:
+
+=over 4
+
+=item ASCII text (text)
+
+This produces human-readable output.  The output should be fairly
+self-explanatory.
+
+=item Recording commands (rec)
+
+This output produces a list of commands suitable for feeding to IF
+interpreters in playback mode.  All the commands in the output are
+converted to uppercase.
+
+In order for this to work properly, you have to give commands that the game
+will understand.  The 'cmd' attribute of rooms, links, joins and tasks can
+help with this.  Currently there's no item 'cmd' attribute, so you have to
+make sure that the item description is recognized by the game (for get and
+drop commands).  Also, if a task is implicitly done in the game without you
+having to type any commands (e.g. visiting a room), you can indicate this
+by using 'cmd none'.
+
+Of course, a recording will only play back properly in an interpreter if it
+provides correct game commands.  Random events can't be dealt with by
+B<IFM>, and will probably cause playback to fail.  But you can work around
+this with an interpreter that is able to fix the random seed at startup
+(e.g. B<dumb-frotz>).  This should eliminate most (but not all) of the
+problems of randomness.
+
+=item Raw data (raw)
+
+This produces raw lists of data for sending to other programs.  Each entry
+consists of a number of data lines, and is separated from other entries by
+a blank line.  Each data line consists of an attribute, a colon, and its
+value.  The attributes should be self-explanatory.
+
+=back
+
+=head2 Output Variables
+
+There are many variables available for customizing the different sorts of
+output.  Their names, descriptions and default values are all contained in
+the default B<IFM> initialization file, which is reproduced below.
+

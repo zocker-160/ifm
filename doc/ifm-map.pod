@@ -1,0 +1,286 @@
+=head1 MAKING MAPS
+
+This section gives you a tour of the main commands for making maps.  It's
+not complete -- see L<"LANGUAGE"> for a full list of commands.
+
+=head2 Example Map
+
+The traditional Infocom-style way of drawing interactive fiction maps is
+the 'boxes-and-lines' method.  Here is an example map to represent using
+B<IFM> commands.
+
+    +--------------+   +--------------+   +--------------+
+    |              |   |              |   |              |
+    |    Kitchen   |---|    Lounge    |   |     Study    |
+    |              |   |              |   |              |
+    +--------------+   +--------------+   +--------------+
+            |       \          |                  |
+            |        \         |                  |
+            |         \        |                  |
+    +--------------+   +--------------+           |
+    |              |   |              |           |
+    |    Garage    |   |  Dining Room |-----------+
+    |              |   |              |
+    +--------------+   +--------------+
+
+=head2 Adding Rooms
+
+To draw the example map, you first choose an arbitrary start location: the
+kitchen (when mapping a real game, you'd choose your actual start
+location).  To add the kitchen, just type this:
+
+    room "Kitchen";
+
+Now you're in the kitchen.  Suppose, if this were a real game, that you
+first went south to explore the garage.  That can be added to the map like
+this:
+
+    room "Garage" dir south;
+
+Now you've said which way you went to get to the garage, and since you were
+in the kitchen, B<IFM> knows that the garage is south of the kitchen.  By
+the way, 'south' can be abbreviated 's' (and similarly for all other
+directions), just like in the games.
+
+Ok, you're in the garage.  Unfortunately, that's a dead end and you have to
+retrace your steps to the kitchen.  You've already mapped that, so there's
+no need to do anything.  Now you head off east to the lounge.  Now, you're
+moving from the kitchen again but B<IFM> thinks you're in the garage
+(B<IFM>'s idea of 'where you are' is always the last room mentioned).  You
+need a way of referring to the kitchen again -- to do that, you add a 'tag'
+to it by changing the 'kitchen' line like this:
+
+    room "Kitchen" tag Kitchen;
+
+The tag name can be any name you like.  You might think that you could
+refer to the kitchen by using the name in quotes, but that would mean you
+could never have two distinct rooms with the same name.
+
+Now you can refer to the kitchen by its tag, so you can move east from it
+into the lounge like this:
+
+    room "Lounge" dir e from Kitchen;
+
+The 'from' clause tells B<IFM> where you're moving from.  If it's omitted,
+it assumes you're moving from the last room mentioned.
+
+Continuing your exploration, you move south into the dining room:
+
+    room "Dining Room" dir s;
+
+You exit the dining room to the east, and turn a corner north before
+entering the study.  How can you represent the corner faithfully on the
+map?  Like this:
+
+    room "Study" dir e n;
+
+This says that you move east, then north, to get to the study.  Now, what
+if someone locked the study door behind you and the only way out was
+through the window?  That's a one-way trip into the study, which you can
+indicate using the 'oneway' attribute like this:
+
+    room "Study" dir e n oneway;
+
+This is indicated on the map, probably by an arrow.
+
+=head2 Adding Links
+
+The map as it stands is not complete -- the diagonal link between the
+kitchen and the dining room is missing (because you didn't go that way in
+visiting the kitchen or the dining room).  To add it, you need to modify
+the dining room command like this:
+
+    room "Dining Room" dir s link Kitchen;
+
+The 'link' clause creates a straight-line link between the current room and
+the room with the specified tag name (in this case, the kitchen).
+
+Note that if this link needed to turn corners, as in the study example
+above, then that method of linking the rooms wouldn't have worked.  In that
+case, you'd have to use the stand-alone 'link' command.  For example:
+
+    link Diner to Kitchen dir n nw;
+
+This assumes you've given the dining room the tag name 'Diner'.  The link
+starts off going north, then turns northwest, and finally goes toward the
+kitchen.  Note that in a 'link' command, if you omit the final direction
+which leads to the linked room, it is added automatically.
+
+=head2 Other Directions
+
+Suppose that there were steps down from the kitchen into the garage, and
+that you wanted to indicate that you could up or down as well.  You could
+do that using the 'go' clause, like this:
+
+    room "Garage" dir s go down;
+
+This indicates that the actual direction travelled is downwards, but it is
+still represented as south on the map.  The 'go' clause accepts 'up',
+'down', 'in' and 'out'.
+
+=head2 Room Exits
+
+At various points in a game, you arrive in a room with many directions to
+explore.  It is useful to be able to mark some of these directions as
+unexplored, so that you can come back and explore them later.  You could
+mark these by creating dummy rooms in those directions, but this is
+tedious.  Alternatively, you can use the 'exit' clause, like this:
+
+    room "Dining Room" dir s exit nw e;
+
+This says that there are two unexplored exits from this room, in the
+northwest and east directions.  When a map is drawn, this fact will be
+displayed (probably by a small line poking out of the room in those
+directions).
+
+When you come to actually explore those directions, and add links to new
+rooms, the corresponding room exit markers will no longer be drawn.  So you
+can leave the exit clauses in if you want.
+
+=head2 Map Sections
+
+In B<IFM>, rooms are divided into groups called 'map sections'.  Each room
+in a map section has an explicit spatial relationship to all the other
+rooms in that section.  A room which is obtained by moving via a 'dir'
+clause from a previous room is on the same map section as the previous
+room, since its co-ordinates can be calculated relative to it.
+
+There are several reasons why it might be a good idea to split a game map
+into different sections:
+
+=over 4
+
+=item *
+
+Some maps can be very large, and may not look good on a single sheet.
+
+=item *
+
+It might be awkward to put rooms in relation to each other because of, say,
+a lot of up/down connections which have to be 'flattened out'.
+
+=item *
+
+The game might naturally divide into sections -- a prologue, middle-game
+and end-game, for example.
+
+=back
+
+B<IFM> manages independent map sections automatically, by deciding which
+rooms are on which section.  No special command is needed to start a new
+map section -- simply define a room which has no connection to any previous
+room, by leaving out the 'dir' clause (note that that's how the kitchen
+starts out, in the example).
+
+Rooms on different map sections are completely separate, and you may not
+link them via the 'link' command.  However, you can indicate where a room
+on one section is connected to a room on another, using the 'join' command:
+
+    join Room1 to Room2;
+
+As usual, 'Room1' and 'Room2' are tag names.  You can also use 'join' as a
+clause in a room command (usually done with the room starting in a new
+section):
+
+    room "Basement" join Ground_Floor;
+
+The 'joined' status of the two rooms is indicated on the map, the exact
+manner depending on the output format.
+
+Each map section can be given a title using the 'map' command, like this:
+
+    map "Kensington Gardens";
+
+This names the next map section that hasn't been named.  Note that you
+should have as many 'map' commands as you have map sections, although this
+isn't enforced -- any names that are missing will be assigned default
+names, and extra names will be ignored.  It's conventional to give a 'map'
+command just before starting a new map section.
+
+In rare circumstances (e.g. a three-dimensional maze) you may need to have
+rooms on the same map section which are not connected to each other.  The
+room 'dir' clause creates an implicit link from the previous room by
+default, but you can stop this from happening by using the 'nolink'
+attribute.  As a trivial example:
+
+    room "One Side of Wall" tag this_side;
+    room "Other Side of Wall" dir e nolink tag other_side;
+
+    room "Underground Passage" tag passage_1;
+    room "Underground Passage" tag passage_2 dir e;
+
+    join this_side to passage_1 go down;
+    join passage_2 to other_side go up;
+
+In this example, there are two map sections: above ground, and below
+ground.  But the two above-ground rooms are not connected directly.
+
+=head2 Adding Items
+
+As well as rooms, B<IFM> can indicate the initial rooms of various items
+found in the game.  To add an item, use the 'item' command like this:
+
+    item "Spoon" in Kitchen;
+
+The 'in' clause can be omitted, and then the room defaults to the last room
+mentioned.  You can also add an arbitrary note to each item (e.g. to
+remind you what it's for) using the 'note' attribute:
+
+    item "Spoon" in Kitchen note "Stirs tea";
+
+Here's the completed map description for the above example, with a few
+other items thrown in:
+
+    # Example map.
+
+    room "Kitchen" tag Kitchen;
+    item "spoon" note "Stirs tea";
+    item "sink";
+    item "monkey";
+
+    room "Garage" dir s go down;
+    item "monkey wrench" note "For wrenching monkey out of sink";
+
+    room "Lounge" dir e from Kitchen;
+    item "TV set";
+
+    room "Dining Room" dir s link Kitchen;
+    item "table";
+    item "chair";
+
+    room "Study" dir e n oneway;
+
+=head2 Conflicts
+
+After creating a map from a real game and sending the results through
+B<IFM>, you may get warnings which talk about things overlapping.  This is
+due to two rooms, or a room and a link, wanting to occupy the same space on
+the map.  There are several ways that this could occur:
+
+=over 4
+
+=item *
+
+The game designer made some room links longer than others, and you haven't
+taken that into account.  To extend the length of a link, just duplicate
+the direction indicator in the 'dir' clause (e.g. 'dir e e' instead of 'dir
+e').
+
+=item *
+
+One of the links turned a corner, so that the direction you use to go back
+isn't the opposite of the one you used to get here.  In that case, you need
+to add the corner-turn in the link (e.g. 'dir e s' instead of 'dir e').
+
+=item *
+
+The map is multi-level, in which case it's probably best to split it into
+different map sections.
+
+=item *
+
+The map is just weird.  Colossal Cave is a good example, particularly the
+above-ground section and the mazes.  There seems to be no logic tying the
+rooms together.  You're on your own.
+
+=back
