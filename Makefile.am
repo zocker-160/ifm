@@ -11,19 +11,19 @@ EXTRA_DIST = README.unix README.win32 README.maps README.vars
 dist-hook: dist-config dist-header dist-extra dist-touch dist-cleanup
 
 dist-config:
-	cp -rp $(top_srcdir)/config $(distdir)
-	rm -rf $(distdir)/config/RCS
-	rm -f $(distdir)/config/*header*
+	cp -rp $(top_srcdir)/etc $(distdir)
+	rm -rf $(distdir)/etc/RCS
+	rm -f $(distdir)/etc/*header*
 
 dist-extra:
 	cp -rp $(top_srcdir)/maps $(distdir)
 	cp -rp $(top_srcdir)/contrib $(distdir)
 
 dist-header:
-	addheader=$(top_srcdir)/config/add-header; \
+	addheader=$(top_srcdir)/etc/add-header; \
 	for dir in src lib tkifm scr2ifm; do \
 	   if test -f $$addheader; then \
-	      $$addheader $(top_srcdir)/config $(distdir)/$$dir; \
+	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir; \
 	   fi; \
 	done
 
@@ -33,8 +33,8 @@ dist-touch:
 	done
 
 dist-cleanup:
-	rm -f $(distdir)/config.h
-	rm -f $(distdir)/stamp-h
+	rm -f $(distdir)/etc/config.h
+	rm -f $(distdir)/etc/stamp-h
 
 ## Stuff for Win32 distribution.
 .PHONY: ziptest
