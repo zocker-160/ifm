@@ -1,6 +1,6 @@
 %{
 /*
- *  Ifm version 1.0, Copyright (C) 1997 G. Hutchings
+ *  Ifm, copyright (C) 1997, 1998 G. Hutchings
  *  Ifm comes with ABSOLUTELY NO WARRANTY.
  *  This is free software, and you are welcome to redistribute it
  *  under certain conditions; see the file COPYING for details.
