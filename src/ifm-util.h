@@ -20,11 +20,11 @@ extern struct d_info dirinfo[];
 /* Advertised functions */
 extern void add_attr(vhash *obj, char *attr, char *fmt, ...);
 extern void add_list(vhash *obj, char *attr, vhash *thing);
+extern char *find_file(char *name);
 extern int get_direction(int xoff, int yoff);
 extern int get_papersize(char *pagesize, float *width, float *height);
 extern void indent(int num);
 extern void obsolete(char *old, char *new);
-extern FILE *open_file(char *file, int libflag, int required);
 extern int pack_sections(int xmax, int ymax);
 extern void put_string(char *fmt, ...);
 extern void setup_room_names(void);

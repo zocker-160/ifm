@@ -39,13 +39,11 @@
 #define AND "\" \""
 
 static char *gpp_args[] = {
-    "-n",
     "-U \"" U1 AND U2 AND U3 AND U4 AND U5 AND U6 AND U7 AND U8 AND U9 "\"",
     "-M \"" M1 AND M2 AND M3 AND M4 AND M5 AND M6 AND M7 "\"",
-    "+c \"" C11 AND C12 "\"",
-    "+c \"" C21 AND C22 "\"",
+    "+c \"" C11 AND C12 "\"", "+c \"" C21 AND C22 "\"",
     "+s \"" S1 AND S2 AND S3 "\"",
-    "-includemarker \"#line % \\\"%\\\" %\"",
+    "-n", "-nostdinc", "-includemarker \"#line % \\\"%\\\" %\"",
     NULL
 };
 
@@ -60,6 +58,13 @@ void
 gpp_close(FILE *fp)
 {
     pclose(fp);
+}
+
+/* Return the current GPP command */
+char *
+gpp_command(void)
+{
+    return gpp_cmd;
 }
 
 /* Define a GPP token */
@@ -95,16 +100,13 @@ gpp_init(void)
 {
     int i;
 
-    strcpy(gpp_cmd, "gpp");
+    if (v_exists(GPPPATH))
+        strcpy(gpp_cmd, GPPPATH);
+    else
+        strcpy(gpp_cmd, "gpp");
 
-    for (i = 0; gpp_args[i] != NULL; i++) {
-        strcat(gpp_cmd, " ");
-        strcat(gpp_cmd, gpp_args[i]);
-    }
-
-#ifdef GPP_DEBUG
-    fprintf(stderr, "%s\n", gpp_cmd);
-#endif
+    for (i = 0; gpp_args[i] != NULL; i++)
+        gpp_option(gpp_args[i], NULL);
 
     return 1;
 }
@@ -129,6 +131,7 @@ gpp_option(char *opt, char *arg)
 {
     strcat(gpp_cmd, " ");
     strcat(gpp_cmd, opt);
+
     if (arg != NULL)
 	strcat(gpp_cmd, arg);
 }

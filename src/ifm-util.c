@@ -86,6 +86,24 @@ add_list(vhash *obj, char *attr, vhash *thing)
     vl_ppush(list, thing);
 }
 
+/* Locate a file using the search path */
+char *
+find_file(char *name)
+{
+    static char path[BUFSIZ];
+    vscalar *elt;
+
+    vl_foreach(elt, ifm_search) {
+        sprintf(path, "%s/%s", vs_sgetref(elt), name);
+        if (v_exists(path)) {
+            vl_break(ifm_search);
+            return path;
+        }
+    }
+
+    return NULL;
+}
+
 /* Return direction given offsets */
 int
 get_direction(int xoff, int yoff)
@@ -140,34 +158,6 @@ obsolete(char *old, char *new)
 
     vh_sstore(warned, old, new);
     warn("%s is obsolete -- use %s instead", old, new);
-}
-
-/* Open a file */
-FILE *
-open_file(char *file, int libflag, int required)
-{
-    FILE *fp = NULL;
-    vscalar *elt;
-
-    /* Try the search path if required */
-    if (libflag) {
-        vl_foreach(elt, ifm_search) {
-            sprintf(buf, "%s/%s", vs_sgetref(elt), file);
-            if ((fp = fopen(buf, "r")) != NULL) {
-                strcpy(ifm_input, buf);
-                vl_break(ifm_search);
-                break;
-            }
-        }
-    } else {
-        fp = fopen(file, "r");
-        strcpy(ifm_input, file);
-    }
-
-    if (required && fp == NULL)
-        fatal("can't open %s `%s'", (libflag ? "library file" : "file"), file);
-
-    return fp;
 }
 
 /* Pack sections onto virtual pages */

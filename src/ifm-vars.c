@@ -246,8 +246,8 @@ char *
 var_colour(char *id)
 {
     static vhash *defs = NULL;
+    char *name, *file, *path;
     double red, green, blue;
-    char *name;
     FILE *fp;
 
     /* Get colour name */
@@ -259,7 +259,14 @@ var_colour(char *id)
 
     /* Read colour definitions if required */
     if (defs == NULL) {
-        fp = open_file(var_string("colour_file"), 1, 1);
+        file = var_string("colour_file");
+
+        if ((path = find_file(file)) == NULL)
+            fatal("can't locate colour definitions file `%s'", file);
+
+        if ((fp = fopen(path, "r")) == NULL)
+            fatal("can't open `%s'", path);
+
         defs = read_colour_defs(fp);
         fclose(fp);
     }

@@ -75,11 +75,16 @@ static char *ps_string(char *str);
 void
 ps_map_start(void)
 {
+    char *title, *pagesize, *prolog, *file;
     int ylen, c, num_pages, width, height;
-    char *title, *pagesize;
     vscalar *elt;
     vhash *sect;
     FILE *fp;
+
+    /* Locate prolog file */
+    file = var_string("prolog_file");
+    if ((prolog = find_file(file)) == NULL)
+        fatal("can't find PostScript prolog `%s'", file);
 
     /* Allow title space for sections with titles */
     vl_foreach(elt, sects) {
@@ -121,9 +126,12 @@ ps_map_start(void)
     printf("%%%%EndComments\n\n");
 
     /* Print PostScript prolog */
-    fp = open_file(var_string("prolog_file"), 1, 1);
+    if ((fp = fopen(prolog, "r")) == NULL)
+        fatal("can't open `%s'", prolog);
+
     while ((c = fgetc(fp)) != EOF)
         putchar(c);
+
     fclose(fp);
 
     /* Page variables */

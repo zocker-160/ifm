@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 extern void gpp_close(FILE *fp);
+extern char *gpp_command(void);
 extern void gpp_define(char *var, char *val);
 extern void gpp_include(char *paths);
 extern int gpp_init(void);

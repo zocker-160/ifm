@@ -1,22 +1,27 @@
 # Makefile for building Win32 distribution.
 
+bindir = /bin
+
 TOPDIR = ..
 SRCDIR = $(TOPDIR)/src
 LIBDIR = $(TOPDIR)/lib
 DOCDIR = $(TOPDIR)/doc
-MAPDIR = $(TOPDIR)/maps
+GPPDIR = $(TOPDIR)/gpp
+MAPDIR = $(TOPDIR)/demos
 PROGDIR = $(TOPDIR)/progs
 
 ZIPDIR = ifm
 
-EXE = ifm.exe
+IFM = ifm.exe
+
+GPP = gpp.exe
 
 DLL = $(bindir)/cygwin1.dll
 
 FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
 
-PROGS = $(SRCDIR)/$(EXE) $(PROGDIR)/ifm2dev.pl $(PROGDIR)/tkifm.tcl	\
-$(PROGDIR)/scr2ifm.pl
+PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/ifm2dev.pl	\
+$(PROGDIR)/tkifm.tcl $(PROGDIR)/scr2ifm.pl
 
 DOCS = $(DOCDIR)/ifm.pdf $(DOCDIR)/html
 
@@ -26,25 +31,35 @@ MAPS = $(MAPDIR)/*.ifm $(MAPDIR)/README
 
 all: test
 
-test:; $(MAKE) EXE=ifm DLL="" zip
+test:; $(MAKE) IFM=ifm GPP=gpp DLL="" zip
 
-zip:;	rm -rf $(ZIPDIR)
+zip: init files progs docs lib demos final
+
+init:;	rm -rf $(ZIPDIR)
 	mkdir $(ZIPDIR)
-	cp $(FILES) $(ZIPDIR)
-	for i in README NEWS COPYING; do				\
+
+files:;	cp $(FILES) $(ZIPDIR)
+	- for i in README NEWS COPYING; do				\
 	   mv $(ZIPDIR)/$$i $(ZIPDIR)/$$i.txt;				\
 	done
 	cp README.win32 $(ZIPDIR)/WIN32.txt
-	mkdir $(ZIPDIR)/progs
+
+progs:;	- mkdir $(ZIPDIR)/progs
 	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
-	strip $(ZIPDIR)/progs/$(EXE)
-	mkdir $(ZIPDIR)/docs
+	strip $(ZIPDIR)/progs/$(IFM)
+	strip $(ZIPDIR)/progs/$(GPP)
+
+docs:;	- mkdir $(ZIPDIR)/docs
 	- cp -r $(DOCS) $(ZIPDIR)/docs
-	mkdir $(ZIPDIR)/lib
+	- cp $(GPPDIR)/gpp.html $(ZIPDIR)/docs
+
+lib:;	- mkdir $(ZIPDIR)/lib
 	cp $(LIBS) $(ZIPDIR)/lib
-	mkdir $(ZIPDIR)/maps
-	cp $(MAPS) $(ZIPDIR)/maps
-	mv $(ZIPDIR)/maps/README $(ZIPDIR)/maps/README.txt
-	chmod -R +w $(ZIPDIR)
+
+demos:;	- mkdir $(ZIPDIR)/demos
+	cp $(MAPS) $(ZIPDIR)/demos
+	- mv $(ZIPDIR)/demos/README $(ZIPDIR)/demos/README.txt
+
+final:;	chmod -R a+w $(ZIPDIR)
 
 clean:; rm -rf $(ZIPDIR)

@@ -9,7 +9,7 @@ in the ZIP file are:
     progs	The programs, and DLL
     docs	Documentation, in ASCII and HTML format
     lib		Various library files used by IFM
-    maps        Example maps
+    demos       Example maps
 
 Installation
 ============

@@ -13,6 +13,7 @@
 #include <vars.h>
 
 #include "ifm-driver.h"
+#include "ifm-gpp.h"
 #include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-path.h"
@@ -116,6 +117,9 @@ char *ifm_format = NULL;
 /* List of map sections to output */
 static vlist *sections = NULL;
 
+/* Whether to only preprocess */
+static int prep_only = 0;
+
 /* Parse function */
 extern void yyparse();
 
@@ -147,7 +151,7 @@ static struct show_st {
 int
 main(int argc, char *argv[])
 {
-    char *env, *file, *info = NULL, *spec;
+    char *env, *file, *info = NULL, *spec, *fmt = NULL;
     int output = O_NONE, initfile = 1;
     vlist *args, *list;
     vscalar *elt;
@@ -162,9 +166,8 @@ main(int argc, char *argv[])
     yy_flex_debug = 0;
 #endif
 
+    /* Initialise */
     v_debug_env();
-
-    /* Set program name */
     progname = argv[0];
 
     /* Define options */
@@ -196,11 +199,19 @@ main(int argc, char *argv[])
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
-    v_option('I', "include", V_OPT_LIST, "dir",
-             "Prepend directory to search path");
-
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
+
+    v_optgroup("Preprocessor options:");
+
+    v_option('D', NULL, V_OPT_LIST, "var[=val]",
+             "Define a preprocessor symbol");
+
+    v_option('I', NULL, V_OPT_LIST, "dir",
+             "Prepend directory to search path");
+
+    v_option('P', NULL, V_OPT_FLAG, NULL,
+             "Just preprocess input");
 
     v_optgroup("Information options:");
 
@@ -213,11 +224,7 @@ main(int argc, char *argv[])
     v_option('h', "help", V_OPT_FLAG, NULL,
              "This help message");
 
-    v_option('D', "DEBUG", V_OPT_ARG, "flag", NULL);
-
-    /* Set file search path */
-    env = getenv("IFMPATH");
-    ifm_search = vl_split(env != NULL ? env : IFMPATH, ":");
+    v_option('\0', "DEBUG", V_OPT_ARG, "flag", NULL);
 
     /* Parse command-line arguments */
     if ((opts = vh_getopt(argc, argv)) == NULL)
@@ -228,10 +235,6 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "version"))
         print_version();
-
-    if ((list = vh_pget(opts, "include")) != NULL)
-        while (vl_length(list) > 0)
-            vl_sunshift(ifm_search, vl_spop(list));
 
     if (vh_exists(opts, "map")) {
         output |= O_MAP;
@@ -246,8 +249,10 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "tasks"))
         output |= O_TASKS;
 
-    if (vh_exists(opts, "format"))
-        ifm_fmt = select_format(vh_sgetref(opts, "format"), 0);
+    if (vh_exists(opts, "format")) {
+        fmt = vh_sgetref(opts, "format");
+        ifm_fmt = select_format(fmt, 0);
+    }
 
     if (vh_exists(opts, "nowarn"))
         warning_flag = 0;
@@ -262,6 +267,36 @@ main(int argc, char *argv[])
         vl_foreach(elt, ifm_styles)
             ref_style(vs_sgetref(elt));
 
+    /* Set up preprocessor stuff */
+    gpp_init();
+
+    ifm_search = vl_split(IFMPATH, ":");
+
+    if ((env = getenv("IFMPATH")) != NULL) {
+        list = vl_split(env, ":");
+        while (vl_length(list) > 0)
+            vl_sunshift(ifm_search, vl_spop(list));
+    }
+
+    if ((list = vh_pget(opts, "I")) != NULL)
+        while (vl_length(list) > 0)
+            vl_sunshift(ifm_search, vl_spop(list));
+
+    vl_foreach(elt, ifm_search)
+        gpp_include(vs_sgetref(elt));
+
+    if ((list = vh_pget(opts, "D")) != NULL)
+        vl_foreach(elt, list)
+            gpp_define(vs_sgetref(elt), NULL);
+
+    gpp_define("IFM_VERSION", VERSION);
+
+    if (fmt != NULL)
+        gpp_define("IFM_FORMAT", fmt);
+
+    prep_only = vh_iget(opts, "P");
+
+    /* Set internal debugging options */
     switch (vh_iget(opts, "DEBUG")) {
 #ifdef FLEX_DEBUG
     case 1:
@@ -278,7 +313,9 @@ main(int argc, char *argv[])
         break;
     }
 
-    /* Initialise */
+    debug("gpp command: %s", gpp_command());
+
+    /* Initialise map stuff */
     init_map();
 
     /* Parse system init file */
@@ -302,6 +339,10 @@ main(int argc, char *argv[])
     } else if (info == NULL && !parse_input(NULL, 0, 1)) {
         return 1;
     }
+
+    /* That's it if only preprocessing */
+    if (prep_only)
+        return 0;
 
     /* Load style definitions */
     load_styles();
@@ -550,22 +591,44 @@ parse_input(char *file, int libflag, int required)
 {
     static int parses = 0;
     extern FILE *yyin;
+    char *path = file;
+    int c;
 
     line_number = 0;
 
     if (file == NULL || V_STREQ(file, "-")) {
         strcpy(ifm_input, "<stdin>");
-        yyin = stdin;
-    } else if ((yyin = open_file(file, libflag, required)) == NULL) {
-        strcpy(ifm_input, "");
-        return 1;
+        path = NULL;
+    } else {
+        if (libflag)
+            path = find_file(file);
+
+        if (!required && (path == NULL || !v_exists(path)))
+            return 1;
+
+        if (path == NULL)
+            fatal("can't locate file `%s'", file);
+        else if (!v_exists(path))
+            fatal("file `%s' not found", path);
+
+        strcpy(ifm_input, path);
     }
 
     line_number = 1;
     ifm_errors = 0;
-    if (parses++)
-        yyrestart(yyin);
-    yyparse();
+
+    yyin = gpp_open(path);
+
+    if (prep_only) {
+        while ((c = fgetc(yyin)) != EOF)
+            putchar(c);
+    } else {
+        if (parses++)
+            yyrestart(yyin);
+        yyparse();
+    }
+
+    gpp_close(yyin);
     line_number = 0;
     strcpy(ifm_input, "");
 
@@ -638,15 +701,18 @@ select_format(char *str, int output)
             if (output & O_MAP)
                 if (drivers[i].mfunc != NULL)
                     return i;
+
             if (output & O_ITEMS)
                 if (drivers[i].ifunc != NULL)
                     return i;
+
             if (output & O_TASKS)
                 if (drivers[i].tfunc != NULL)
                     return i;
         } else {
             if (strcmp(drivers[i].name, str) == 0)
                 return i;
+
             if (strncmp(drivers[i].name, str, len) == 0) {
                 nmatch++;
                 match = i;
