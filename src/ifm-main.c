@@ -791,8 +791,8 @@ fatal(char *fmt, ...)
 static void
 print_version(void)
 {
-    printf("IFM version %s, copyright (C) Glenn Hutchings <%s>\n",
-           VERSION, PACKAGE_BUGREPORT);
+    printf("IFM version %s\n", VERSION);
+    printf("Copyright (C) Glenn Hutchings <%s>\n", PACKAGE_BUGREPORT);
     printf("\n");
     printf("This program is free software; you can redistribute it and/or modify\n");
     printf("it under the terms of the GNU General Public License as published by\n");
