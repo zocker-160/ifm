@@ -15,7 +15,6 @@ extern void push_style(char *name);
 extern void ref_style(char *name);
 extern void set_style(char *name);
 extern void set_style_list(vlist *list);
-extern void var_alias(char *alias_id, char *id);
 extern int var_changed(char *id);
 extern char *var_colour(char *id);
 extern vscalar *var_get(char *id);

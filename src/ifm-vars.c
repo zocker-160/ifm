@@ -17,7 +17,6 @@
 
 #define INIT_VARS                                                       \
         if (nvars == NULL) cvars = nvars = vh_create();                 \
-        if (alias == NULL) alias = vh_create();                         \
         if (styles == NULL) styles = vh_create();                       \
         if (rstyles == NULL) rstyles = vh_create()
 
@@ -34,9 +33,6 @@ static vhash *cvars = NULL;
 /* Defined non-style variables */
 static vhash *nvars = NULL;
 
-/* Defined aliases */
-static vhash *alias = NULL;
-
 /* Defined styles */
 static vhash *styles = NULL;
 
@@ -52,7 +48,7 @@ static char buf[BUFSIZ];
 /* Internal functions */
 static vhash *read_colour_defs(FILE *fp);
 static char *var_encode(char *driver, char *var);
-static void var_print(vhash *vars, char *style, int alias);
+static void var_print(vhash *vars, char *style);
 
 /* Add a style to the style list */
 void
@@ -205,18 +201,6 @@ set_style_list(vlist *list)
     style_list = list;
 }
 
-/* Set a variable alias */
-void
-var_alias(char *alias_id, char *id)
-{
-    INIT_VARS;
-
-    if (id != NULL)
-        vh_sstore(alias, alias_id, id);
-    else
-        vh_delete(alias, alias_id);
-}
-
 /* Return whether a variable has changed since last accessed */
 int
 var_changed(char *id)
@@ -306,10 +290,6 @@ var_get(char *id)
 
     INIT_VARS;
 
-    /* Resolve aliases */
-    if (vh_exists(alias, id))
-        id = vh_sgetref(alias, id);
-
     /* Check style list if required */
     if (style_list != NULL) {
         len = vl_length(style_list);
@@ -369,7 +349,7 @@ var_list(void)
     printf("# IFM defined variables.\n");
 
     /* Non-style variables */
-    var_print(nvars, NULL, 0);
+    var_print(nvars, NULL);
 
     /* Style variables */
     slist = vh_sortkeys(styles, NULL);
@@ -378,18 +358,15 @@ var_list(void)
         style = vs_sgetref(elt);
         svars = vh_pget(styles, style);
         if (svars != NULL)
-            var_print(svars, style, 0);
+            var_print(svars, style);
     }
 
     vl_destroy(slist);
-
-    /* Aliases */
-    var_print(alias, NULL, 1);
 }
 
 /* Print out a set of variables */
 static void
-var_print(vhash *vars, char *style, int alias)
+var_print(vhash *vars, char *style)
 {
     vscalar *elt, *val;
     char *name, *sval;
@@ -399,20 +376,13 @@ var_print(vhash *vars, char *style, int alias)
 
     printf("\n");
 
-    if (alias)
-        printf("# Aliases.\n");
-    else if (style != NULL)
+    if (style != NULL)
         printf("# Style `%s' variables.\n", style);
     else
         printf("# General variables.\n");
 
     vl_foreach(elt, names) {
         name = vs_sgetref(elt);
-        if (alias) {
-            printf("%s => %s;\n", name, vh_sgetref(vars, name));
-            continue;
-        }
-
         printf("%s = ", name);
         val = vh_get(vars, name);
 
@@ -460,11 +430,6 @@ var_set(char *driver, char *id, vscalar *val)
 
     INIT_VARS;
 
-    /* Check aliases */
-    if (vh_exists(alias, id))
-       id = vh_sgetref(alias, id);
-
-    /* Set variable */
     key = var_encode(driver, id);
 
     if (val != NULL)
