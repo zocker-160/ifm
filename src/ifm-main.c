@@ -25,7 +25,6 @@
 /* Output drivers */
 #include "ifm-ps.h"
 #include "ifm-text.h"
-#include "ifm-groff.h"
 #include "ifm-tk.h"
 #include "ifm-raw.h"
 
@@ -50,13 +49,6 @@ static struct driver_st {
     },
 #endif
 
-#ifdef GROFF
-    {
-        "groff", "Groff with pic, tbl and -me macros",
-        &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs, NULL
-    },
-#endif
-
 #ifdef TK
     {
         "tk", "Tcl/Tk program commands",
@@ -67,7 +59,7 @@ static struct driver_st {
 #ifdef RAW
     {
         "raw", "Tab-delimited ASCII text fields",
-        NULL, &raw_itemfuncs, &raw_taskfuncs, NULL
+        &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL
     },
 #endif
 };
@@ -141,8 +133,13 @@ main(int argc, char *argv[])
     vlist *args;
     char *file;
 
-#ifdef DEBUG
+#ifdef BISON_DEBUG
     extern int yydebug;
+#endif
+
+#ifdef FLEX_DEBUG
+    extern int yy_flex_debug;
+    yy_flex_debug = 0;
 #endif
 
     v_debug_env();
@@ -184,9 +181,7 @@ main(int argc, char *argv[])
     v_option('h', "help", V_OPT_FLAG, NULL,
              "This help message");
 
-#ifdef DEBUG
     v_option('D', "debug", V_OPT_ARG, "flag", NULL);
-#endif
 
     /* Parse command-line arguments */
     if ((opts = vh_getopt(argc, argv)) == NULL)
@@ -226,16 +221,23 @@ main(int argc, char *argv[])
         if (freopen(file, "w", stdout) == NULL)
             fatal("can't open %s", file);
 
-#ifdef DEBUG
     switch (vh_iget(opts, "debug")) {
+#ifdef FLEX_DEBUG
     case 1:
-        ifm_debug = 1;
+        yy_flex_debug = 1;
         break;
+#endif
+
+#ifdef BISON_DEBUG
     case 2:
         yydebug = 1;
         break;
-    }
 #endif
+
+    default:
+        ifm_debug = 1;
+        break;
+    }
 
     /* Last argument (if any) is input file */
     args = vh_pget(opts, "ARGS");
@@ -266,9 +268,8 @@ main(int argc, char *argv[])
     if (output != O_NONE && ifm_fmt < 0) {
         vscalar *var = get_var("format");
         ifm_fmt = select_format(var != NULL ? vs_sget(var) : NULL, output);
+        ifm_format = drivers[ifm_fmt].name;
     }
-
-    ifm_format = drivers[ifm_fmt].name;
 
     /* Resolve tags */
     resolve_tags();
@@ -325,8 +326,9 @@ print_map(void)
 {
     struct driver_st drv = drivers[ifm_fmt];
     mapfuncs *func = drv.mfunc;
-    vlist *sects, *roomlist, *linklist;
-    vhash *sect, *room, *link;
+
+    vhash *sect, *room, *link, *join;
+    vlist *sects, *list;
     vscalar *elt;
 
     ifm_output = "map";
@@ -348,8 +350,8 @@ print_map(void)
             (*func->map_section)(sect);
 
         if (func->map_link != NULL) {
-            linklist = vh_pget(sect, "LINKS");
-            vl_foreach(elt, linklist) {
+            list = vh_pget(sect, "LINKS");
+            vl_foreach(elt, list) {
                 link = vs_pget(elt);
                 if (!vh_iget(link, "HIDDEN"))
                     (*func->map_link)(link);
@@ -357,8 +359,8 @@ print_map(void)
         }
 
         if (func->map_room != NULL) {
-            roomlist = vh_pget(sect, "ROOMS");
-            vl_foreach(elt, roomlist) {
+            list = vh_pget(sect, "ROOMS");
+            vl_foreach(elt, list) {
                 room = vs_pget(elt);
                 (*func->map_room)(room);
             }
@@ -370,6 +372,13 @@ print_map(void)
 
     if (func->map_finish != NULL)
         (*func->map_finish)();
+
+    if (func->map_join != NULL) {
+        vl_foreach(elt, joins) {
+            join = vs_pget(elt);
+            (*func->map_join)(join);
+        }
+    }
 }
 
 /* Print items table */
