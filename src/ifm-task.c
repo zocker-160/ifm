@@ -14,6 +14,9 @@
 
 #define NOLIMIT 1000
 
+/* Verbose flag */
+extern int ifm_verbose;
+
 /* Task step list */
 static vlist *tasklist = NULL;
 
@@ -22,8 +25,8 @@ static char buf[BUFSIZ];
 
 /* Internal functions */
 static void task_pair(vhash *before, vhash *after);
-static int task_possible(vhash *room, vhash *step, int maxdist,
-                         int *dist, int *safe);
+static int task_possible(vhash *room, vhash *step, int maxlen,
+                         int *dist, int *len, int *safe);
 static vhash *task_step(int type, vhash *data);
 
 /* Add a new task */
@@ -60,180 +63,18 @@ add_task_list(char *tag)
     }
 }
 
-/* Build the initial task list */
-void
-build_tasks(void)
-{
-    vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
-    vlist *list, *itasks, *rlist;
-    vhash *step, *istep, *oitem;
-    vscalar *elt;
-
-    /* Create 'goto room' steps, and mention scored rooms */
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
-        step = task_step(T_GOTO, room);
-        vh_pstore(room, "STEP", step);
-        if (vh_iget(room, "SCORE") > 0)
-            task_pair(step, step);
-    }
-
-    /* Create 'get item' steps, and mention scored items */
-    vl_foreach(elt, items) {
-        item = vs_pget(elt);
-        step = task_step(T_GET, item);
-        vh_pstore(item, "STEP", step);
-        if (vh_iget(item, "SCORE") > 0)
-            task_pair(step, step);
-    }
-
-    /* Create user task steps */
-    vl_foreach(elt, tasks) {
-        task = vs_pget(elt);
-        step = task_step(T_USER, task);
-        vh_pstore(task, "STEP", step);
-        task_pair(step, step);
-    }
-
-    /* Add prerequisites for doing tasks */
-    vl_foreach(elt, tasks) {
-        task = vs_pget(elt);
-        tstep = vh_pget(task, "STEP");
-
-        /* Must get required items before doing it */
-        list = vh_pget(task, "NEED");
-        if (list != NULL) {
-            vl_foreach(elt, list) {
-                item = vs_pget(elt);
-                vh_istore(item, "USED", 1);
-
-                room = vh_pget(item, "ROOM");
-                if (room != NULL) {
-                    get = vh_pget(item, "STEP");
-                    task_pair(get, tstep);
-                }
-
-                /* Record dependent tasks for this item */
-                itasks = vh_pget(item, "TASKS");
-                if (itasks == NULL) {
-                    itasks = vl_create();
-                    vh_pstore(item, "TASKS", itasks);
-                }
-                vl_ppush(itasks, tstep);
-            }
-        }
-
-        /* Must do it before getting supplied items */
-        list = vh_pget(task, "GET");
-        if (list != NULL) {
-            vl_foreach(elt, list) {
-                item = vs_pget(elt);
-                room = vh_pget(item, "ROOM");
-                if (room != NULL) {
-                    get = vh_pget(item, "STEP");
-                    task_pair(tstep, get);
-                }
-            }
-        }
-
-        /* Must do it after all preceding tasks */
-        list = vh_pget(task, "AFTER");
-        if (list != NULL) {
-            vl_foreach(elt, list) {
-                otask = vs_pget(elt);
-                after = vh_pget(otask, "STEP");
-                task_pair(after, tstep);
-            }
-        }
-    }
-
-    /* Add prerequisites for getting items */
-    vl_foreach(elt, items) {
-        item = vs_pget(elt);
-        istep = vh_pget(item, "STEP");
-
-        /* Must get required items before getting it */
-        list = vh_pget(item, "NEED");
-        if (list != NULL) {
-            vl_foreach(elt, list) {
-                oitem = vs_pget(elt);
-                vh_istore(oitem, "USED", 1);
-
-                room = vh_pget(oitem, "ROOM");
-                if (room != NULL) {
-                    get = vh_pget(oitem, "STEP");
-                    task_pair(get, istep);
-                }
-
-                /* Record dependent tasks for this item */
-                itasks = vh_pget(oitem, "TASKS");
-                if (itasks == NULL) {
-                    itasks = vl_create();
-                    vh_pstore(oitem, "TASKS", itasks);
-                }
-                vl_ppush(itasks, istep);
-            }
-        }
-
-        /* Required tasks must be done before getting it */
-        list = vh_pget(item, "AFTER");
-        if (list != NULL) {
-            vl_foreach(elt, list) {
-                task = vs_pget(elt);
-                step = vh_pget(task, "STEP");
-                task_pair(step, istep);
-            }
-        }
-    }
-
-    /* Mention items and tasks which are needed for paths */
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
-        rlist = vh_pget(room, "REACH");
-
-        vl_foreach(elt, rlist) {
-            reach = vs_pget(elt);
-
-            list = vh_pget(reach, "NEED");
-            if (list != NULL) {
-                vl_foreach(elt, list) {
-                    item = vs_pget(elt);
-                    vh_istore(item, "USED", 1);
-                    vh_istore(item, "NEEDED", 1);
-                    step = vh_pget(item, "STEP");
-                    task_pair(step, step);
-                }
-            }
-
-            list = vh_pget(reach, "AFTER");
-            if (list != NULL) {
-                vl_foreach(elt, list) {
-                    task = vs_pget(elt);
-                    step = vh_pget(task, "STEP");
-                    task_pair(step, step);
-                }
-            }
-        }
-    }
-}
-
 /* Flag a task as done */
 static void
 do_task(vhash *task, vhash *from, vhash *to)
 {
-    vlist *path, *invent;
+    vlist *path, *invent, *list;
     vscalar *elt;
     vhash *item;
 
-#ifdef DEBUG
-    debug("Done: %s\n", vh_sgetref(task, "DESC"));
-#endif
-
-    /* Record path if required */
-    path = vl_create();
-    vh_pstore(task, "PATH", path);
-    if (from != NULL && to != NULL)
-        find_path(path, from, to, NOLIMIT);
+    if (ifm_verbose) {
+        indent(2);
+        printf("choose: %s\n", vh_sgetref(task, "DESC"));
+    }
 
     /* Do the task */
     switch (vh_iget(task, "TYPE")) {
@@ -254,6 +95,18 @@ do_task(vhash *task, vhash *from, vhash *to)
         break;
     }
 
+    /* Lose any items involved */
+    if ((list = vh_pget(task, "LOSE")) != NULL) {
+        vl_foreach(elt, list) {
+            item = vs_pget(elt);
+            vh_istore(item, "DROPPED", 1);
+            if (ifm_verbose) {
+                indent(2);
+                printf("lose: %s\n", vh_sgetref(item, "DESC"));
+            }
+        }
+    }
+
     /* Record items currently carried */
     invent = vl_create();
     vh_pstore(task, "INVENT", invent);
@@ -265,146 +118,6 @@ do_task(vhash *task, vhash *from, vhash *to)
 
     /* Flag it as done */
     vh_istore(task, "DONE", 1);
-}
-
-/* Create the ordered task list */
-void
-order_tasks(void)
-{
-    vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task;
-    int drop, dist, trysafe, trydist, safeflag, tasksleft;
-    vlist *itasks;
-    vscalar *elt;
-
-    /* Don't bother if no tasks */
-    if (tasklist == NULL || vl_length(tasklist) == 0)
-        return;
-
-    /* Build initial inventory */
-    vl_foreach(elt, items) {
-        item = vs_pget(elt);
-        if (vh_pget(item, "ROOM") == NULL)
-            vh_istore(item, "TAKEN", 1);
-    }
-
-    /* Process task list */
-    room = startroom;
-    while (1) {
-        /* Check for dropping unneeded items */
-        vl_foreach(elt, items) {
-            item = vs_pget(elt);
-
-            if (!vh_iget(item, "TAKEN"))
-                continue;
-            if (vh_iget(item, "DROPPED"))
-                continue;
-            if (vh_iget(item, "NEEDED"))
-                continue;
-            if (vh_iget(item, "KEEP"))
-                continue;
-            if (!vh_iget(item, "USED"))
-                continue;
-
-            drop = 1;
-            itasks = vh_pget(item, "TASKS");
-            if (itasks != NULL) {
-                vl_foreach(elt, itasks) {
-                    if (!drop)
-                        continue;
-                    task = vs_pget(elt);
-                    if (!vh_iget(task, "DONE"))
-                        drop = 0;
-                }
-            }
-
-            if (drop) {
-                step = task_step(T_DROP, item);
-                do_task(step, room, NULL);
-            }
-        }
-
-        /* Search for next task */
-        step = NULL;
-        dist = NOLIMIT;
-        safeflag = 0;
-        tasksleft = 0;
-
-        vl_foreach(elt, tasklist) {
-            trystep = vs_pget(elt);
-
-            /* If task is done, skip it */
-            if (vh_iget(trystep, "DONE"))
-                continue;
-
-            /* Flag at least one task still to do */
-            tasksleft = 1;
-
-            /*
-             * If we have a safe task in the current room, skip
-             * the rest.
-             */
-            if (safeflag && dist == 0)
-                continue;
-
-            /*
-             * Check task is possible.  If we already have a safe task
-             * to do N rooms away, skip tasks with paths longer than N.
-             */
-            if (!task_possible(room, trystep,
-                               (safeflag ? dist : NOLIMIT),
-                               &trydist, &trysafe))
-                continue;
-
-#ifdef DEBUG
-            debug("Try: `%s' (distance %d)%s",
-                  vh_sgetref(trystep, "DESC"), trydist,
-                  (trysafe ? "" : " (unsafe)"));
-#endif
-
-            if (trysafe && !safeflag) {
-                /* This task is the first safe one -- choose it */
-                safeflag = 1;
-                step = trystep;
-                dist = trydist;
-            } else if (!trysafe && safeflag) {
-                /* We have a safe task but this isn't -- skip it */
-                continue;
-            } else if (step == NULL || trydist < dist) {
-                /* Choose based on distance to travel */
-                step = trystep;
-                dist = trydist;
-            }
-        }
-
-        if (step != NULL) {
-            /* Do the task */
-            nextroom = vh_pget(step, "ROOM");
-            gotoroom = vh_pget(step, "GOTO");
-            do_task(step, room, nextroom);
-            if (nextroom != NULL)
-                room = nextroom;
-            if (gotoroom != NULL)
-                room = gotoroom;
-        } else if (tasksleft) {
-            /* Hmm... we seem to be stuck */
-            vlist *tmp = vl_create();
-            char *sep = "\n    ";
-
-            vl_foreach(elt, tasklist) {
-                step = vs_pget(elt);
-                if (!vh_iget(step, "DONE"))
-                    vl_spush(tmp, vh_sgetref(step, "DESC"));
-            }
-
-            warn("can't solve game (%d tasks not done)%s%s",
-                 vl_length(tmp), sep, vl_join(tmp, sep));
-
-            vl_destroy(tmp);
-            break;
-        } else {
-            break;
-        }
-    }
 }
 
 /* Set list of following tasks */
@@ -445,6 +158,401 @@ set_task_tag(char *str)
     set_tag("task", str, curtask, tasktags);
 }
 
+/* Build the initial task list */
+void
+setup_tasks(void)
+{
+    vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
+    vlist *list, *itasks, *rlist;
+    vhash *step, *istep, *oitem;
+    vscalar *elt;
+
+    if (ifm_verbose)
+        printf("\nSetting up tasks...\n");
+
+    /* Create 'goto room' steps, and mention scored rooms */
+    vl_foreach(elt, rooms) {
+        room = vs_pget(elt);
+        step = task_step(T_GOTO, room);
+        vh_pstore(room, "STEP", step);
+        if (vh_iget(room, "SCORE") > 0)
+            task_pair(step, step);
+    }
+
+    /* Create 'get item' steps, and mention scored items */
+    vl_foreach(elt, items) {
+        item = vs_pget(elt);
+        step = task_step(T_GET, item);
+        vh_pstore(item, "STEP", step);
+        if (vh_iget(item, "SCORE") > 0)
+            task_pair(step, step);
+    }
+
+    /* Create user task steps */
+    vl_foreach(elt, tasks) {
+        task = vs_pget(elt);
+        step = task_step(T_USER, task);
+        vh_pstore(task, "STEP", step);
+        task_pair(step, step);
+    }
+
+    /* Process rooms and map connections */
+    vl_foreach(elt, rooms) {
+        room = vs_pget(elt);
+        rlist = vh_pget(room, "REACH");
+
+        /* Flag 'before' tasks for this room as unsafe */
+        if ((list = vh_pget(room, "BEFORE")) != NULL) {
+            vl_foreach(elt, list) {
+                task = vs_pget(elt);
+                step = vh_pget(task, "STEP");
+                vh_istore(step, "UNSAFE", 1);
+            }
+        }
+
+        /* Must get required items before visiting this room */
+        if ((list = vh_pget(room, "NEED")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+                vh_istore(item, "USED", 1);
+                vh_istore(item, "NEEDED", 1);
+
+                room = vh_pget(item, "ROOM");
+                if (room != NULL) {
+                    step = vh_pget(item, "STEP");
+                    task_pair(step, step);
+                }
+            }
+        }
+
+        vl_foreach(elt, rlist) {
+            reach = vs_pget(elt);
+
+            /* Flag 'before' tasks for this connection as unsafe */
+            if ((list = vh_pget(reach, "BEFORE")) != NULL) {
+                vl_foreach(elt, list) {
+                    task = vs_pget(elt);
+                    step = vh_pget(task, "STEP");
+                    vh_istore(step, "UNSAFE", 1);
+                }
+            }
+
+            /* Flag items which are needed for paths */
+            if ((list = vh_pget(reach, "NEED")) != NULL) {
+                vl_foreach(elt, list) {
+                    item = vs_pget(elt);
+                    vh_istore(item, "USED", 1);
+                    vh_istore(item, "NEEDED", 1);
+                    step = vh_pget(item, "STEP");
+                    task_pair(step, step);
+                }
+            }
+
+#if 0
+            /* Don't think I need this */
+            if ((list = vh_pget(reach, "AFTER")) != NULL) {
+                vl_foreach(elt, list) {
+                    task = vs_pget(elt);
+                    step = vh_pget(task, "STEP");
+                    task_pair(step, step);
+                }
+            }
+#endif
+        }
+    }
+
+    /* Process items */
+    vl_foreach(elt, items) {
+        item = vs_pget(elt);
+        istep = vh_pget(item, "STEP");
+
+        /* Must get required items before getting this item */
+        if ((list = vh_pget(item, "NEED")) != NULL) {
+            vl_foreach(elt, list) {
+                oitem = vs_pget(elt);
+                vh_istore(oitem, "USED", 1);
+
+                room = vh_pget(oitem, "ROOM");
+                if (room != NULL) {
+                    get = vh_pget(oitem, "STEP");
+                    task_pair(get, istep);
+                }
+
+                /* Record dependent tasks for this item */
+                itasks = vh_pget(oitem, "TASKS");
+                if (itasks == NULL) {
+                    itasks = vl_create();
+                    vh_pstore(oitem, "TASKS", itasks);
+                }
+                vl_ppush(itasks, istep);
+            }
+        }
+
+        /* Required tasks must be done before getting this item */
+        if ((list = vh_pget(item, "AFTER")) != NULL) {
+            vl_foreach(elt, list) {
+                task = vs_pget(elt);
+                step = vh_pget(task, "STEP");
+                task_pair(step, istep);
+            }
+        }
+    }
+
+    /* Process tasks (1st pass) */
+    vl_foreach(elt, tasks) {
+        task = vs_pget(elt);
+        tstep = vh_pget(task, "STEP");
+
+        /* Deal with 'next' tasks */
+        if ((otask = vh_pget(tstep, "NEXT")) != NULL) {
+            if (vh_exists(otask, "FOLLOW"))
+                err("more than one task requires `%s' to be done next",
+                    vh_sgetref(otask, "DESC"));
+            vh_istore(otask, "FOLLOW", 1);
+            step = vh_pget(otask, "STEP");
+            vh_istore(tstep, "UNSAFE", 1);
+            task_pair(tstep, step);
+        }
+
+        /* Deal with 'prev' tasks */
+        if ((otask = vh_pget(tstep, "PREV")) != NULL) {
+            if (vh_exists(task, "FOLLOW"))
+                err("more than one task requires `%s' to be done next",
+                    vh_sgetref(task, "DESC"));
+            vh_istore(task, "FOLLOW", 1);
+            step = vh_pget(otask, "STEP");
+            vh_pstore(step, "NEXT", task);
+            vh_istore(step, "UNSAFE", 1);
+            task_pair(step, tstep);
+        }
+
+        /* Must get required items before doing this task */
+        if ((list = vh_pget(task, "NEED")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+                vh_istore(item, "USED", 1);
+
+                room = vh_pget(item, "ROOM");
+                if (room != NULL) {
+                    get = vh_pget(item, "STEP");
+                    task_pair(get, tstep);
+                }
+
+                /* Record dependent tasks for this item */
+                itasks = vh_pget(item, "TASKS");
+                if (itasks == NULL) {
+                    itasks = vl_create();
+                    vh_pstore(item, "TASKS", itasks);
+                }
+                vl_ppush(itasks, tstep);
+            }
+        }
+
+        /* Must do this task before getting supplied items */
+        if ((list = vh_pget(task, "GET")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+                room = vh_pget(item, "ROOM");
+                if (room != NULL) {
+                    get = vh_pget(item, "STEP");
+                    task_pair(tstep, get);
+                }
+            }
+        }
+
+        /* Must do this task after all preceding tasks */
+        if ((list = vh_pget(task, "AFTER")) != NULL) {
+            vl_foreach(elt, list) {
+                otask = vs_pget(elt);
+                after = vh_pget(otask, "STEP");
+                task_pair(after, tstep);
+            }
+        }
+    }
+
+    /* Process tasks (2nd pass) */
+    vl_foreach(elt, tasks) {
+        task = vs_pget(elt);
+        tstep = vh_pget(task, "STEP");
+
+        /* Add dependencies for tasks which lose items */
+        if ((list = vh_pget(tstep, "LOSE")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+
+                /* If item is needed for paths, mark task unsafe */
+                if (vh_exists(item, "NEEDED"))
+                    vh_istore(tstep, "UNSAFE", 1);
+
+                if ((itasks = vh_pget(item, "TASKS")) != NULL) {
+                    vl_foreach(elt, itasks) {
+                        step = vs_pget(elt);
+                        task_pair(step, tstep);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Solve the game by ordering the task list */
+void
+solve_game(void)
+{
+    vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task, *next;
+    int drop, len, trysafe, trydist, trylen, safeflag, tasksleft;
+    vlist *itasks;
+    vscalar *elt;
+
+    /* Don't bother if no tasks */
+    if (tasklist == NULL || vl_length(tasklist) == 0)
+        return;
+
+    /* Build initial inventory */
+    vl_foreach(elt, items) {
+        item = vs_pget(elt);
+        if (vh_pget(item, "ROOM") == NULL)
+            vh_istore(item, "TAKEN", 1);
+    }
+
+    /* Process task list */
+    room = startroom;
+    next = NULL;
+
+    if (ifm_verbose)
+        printf("\nSolving game...\n");
+
+    do {
+        /* Check for dropping unneeded items */
+        if (next == NULL) {
+            vl_foreach(elt, items) {
+                item = vs_pget(elt);
+
+                if (!vh_iget(item, "TAKEN"))
+                    continue;
+                if (vh_iget(item, "DROPPED"))
+                    continue;
+                if (vh_iget(item, "NEEDED"))
+                    continue;
+                if (vh_iget(item, "KEEP"))
+                    continue;
+                if (!vh_iget(item, "USED"))
+                    continue;
+
+                drop = 1;
+                itasks = vh_pget(item, "TASKS");
+                if (itasks != NULL) {
+                    vl_foreach(elt, itasks) {
+                        if (!drop)
+                            continue;
+                        task = vs_pget(elt);
+                        if (!vh_iget(task, "DONE"))
+                            drop = 0;
+                    }
+                }
+
+                if (drop) {
+                    step = task_step(T_DROP, item);
+                    do_task(step, room, NULL);
+                }
+            }
+        }
+
+        /* Search for next task */
+        step = NULL;
+        len = NOLIMIT;
+        safeflag = 0;
+        tasksleft = 0;
+
+        if (ifm_verbose) {
+            indent(1);
+            printf("room: %s\n", vh_sgetref(room, "DESC"));
+        }
+
+        vl_foreach(elt, tasklist) {
+            trystep = vs_pget(elt);
+
+            /* If task is done, skip it */
+            if (vh_iget(trystep, "DONE"))
+                continue;
+
+            /* Flag at least one task still to do */
+            tasksleft = 1;
+
+            /* If there's a forced next task but this isn't it, skip it */
+            if (next != NULL && trystep != next)
+                continue;
+
+            /*
+             * If we have a safe task in the current room, skip
+             * the rest.
+             */
+            if (safeflag && len == 0)
+                continue;
+
+            /*
+             * Check task is possible.  If we already have a safe task
+             * to do N rooms away, skip tasks with paths longer than N.
+             */
+            if (!task_possible(room, trystep, (safeflag ? len : NOLIMIT),
+                               &trydist, &trylen, &trysafe))
+                continue;
+
+#if 0
+            /* Record task attributes */
+            vh_istore(trystep, "DIST", trydist);
+            vh_istore(trystep, "SAFE", trysafe);
+#endif
+
+            if (trysafe && !safeflag) {
+                /* This task is the first safe one -- choose it */
+                safeflag = 1;
+                step = trystep;
+                len = trylen;
+            } else if (!trysafe && safeflag) {
+                /* We have a safe task but this isn't -- skip it */
+                continue;
+            } else if (step == NULL || trylen < len) {
+                /* Choose based on distance to travel */
+                step = trystep;
+                len = trylen;
+            }
+        }
+
+        if (step != NULL) {
+            /* Do the task */
+            nextroom = vh_pget(step, "ROOM");
+            gotoroom = vh_pget(step, "GOTO");
+            do_task(step, room, nextroom);
+            if (nextroom != NULL)
+                room = nextroom;
+            if (gotoroom != NULL)
+                room = gotoroom;
+            task = vh_pget(step, "NEXT");
+            next = (task == NULL ? NULL : vh_pget(task, "STEP"));
+        } else if (tasksleft) {
+            /* Hmm... we seem to be stuck */
+            vlist *tmp = vl_create();
+            char *sep = "\n    ";
+
+            vl_foreach(elt, tasklist) {
+                step = vs_pget(elt);
+                if (!vh_iget(step, "DONE"))
+                    vl_spush(tmp, vh_sgetref(step, "DESC"));
+            }
+
+            warn("can't solve game (%d tasks not done)%s%s",
+                 vl_length(tmp), sep, vl_join(tmp, sep));
+
+            vl_destroy(tmp);
+            break;
+        } else if (ifm_verbose) {
+            indent(2);
+            printf("no more tasks\n\n");
+        }
+    } while (tasksleft);
+}
+
 /* Add an ordered task pair to the task list */
 static void
 task_pair(vhash *before, vhash *after)
@@ -457,38 +565,40 @@ task_pair(vhash *before, vhash *after)
     if (!vh_iget(before, "SEEN")) {
         vh_istore(before, "SEEN", 1);
         vl_ppush(tasklist, before);
-        vh_pstore(before, "PREV", vl_create());
+        vh_pstore(before, "PREVIOUS", vl_create());
     }
 
     if (!vh_iget(after, "SEEN")) {
         vh_istore(after, "SEEN", 1);
         vl_ppush(tasklist, after);
-        vh_pstore(after, "PREV", vl_create());
+        vh_pstore(after, "PREVIOUS", vl_create());
     }
 
     if (before != after) {
-        prev = vh_pget(after, "PREV");
+        prev = vh_pget(after, "PREVIOUS");
         vl_ppush(prev, before);
     }
 
-#ifdef DEBUG
-    if (before != after)
-        debug("Task pair: do `%s' before `%s'",
-              vh_sgetref(before, "DESC"),
-              vh_sgetref(after, "DESC"));
-#endif
+    if (ifm_verbose && before != after) {
+        indent(1);
+        printf("do `%s' before `%s'\n",
+               vh_sgetref(before, "DESC"),
+               vh_sgetref(after, "DESC"));
+    }
 }
 
 /* Return whether a task is possible (and other stats) */
 static int
-task_possible(vhash *room, vhash *step, int maxdist, int *dist, int *safe)
+task_possible(vhash *room, vhash *step, int maxlen,
+              int *dist, int *len, int *safe)
 {
     vhash *before, *taskroom, *gotoroom;
+    int tmp1, tmp2, path = 1;
     vscalar *elt;
     vlist *prev;
 
     /* All previous tasks must be done */
-    prev = vh_pget(step, "PREV");
+    prev = vh_pget(step, "PREVIOUS");
     if (prev != NULL) {
         vl_foreach(elt, prev) {
             before = vs_pget(elt);
@@ -502,35 +612,54 @@ task_possible(vhash *room, vhash *step, int maxdist, int *dist, int *safe)
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
 
+    if (ifm_verbose) {
+        indent(2);
+        printf("consider: %s\n", vh_sgetref(step, "DESC"));
+    }
+
+    *dist = *len = 0;
     if (taskroom == NULL || taskroom == room) {
         /*
          * Task can be done anywhere, or in current room -- if it's a
          * goto-room task, you must be able to get there.
          */
-        if (vh_iget(step, "TYPE") == T_GOTO) {
-            if ((*dist = find_path(NULL, room, gotoroom, maxdist)) < 0)
-                return 0;
-        } else {
-            *dist = 0;
-        }
+        if (vh_iget(step, "TYPE") == T_GOTO)
+            path = find_path(NULL, room, gotoroom, maxlen, dist, len);
     } else {
         /*
          * Task must be done elsewhere -- there must be a path from
          * here to the task room.
          */
-        if ((*dist = find_path(NULL, room, taskroom, maxdist)) < 0)
-            return 0;
+        path = find_path(NULL, room, taskroom, maxlen, dist, len);
     }
 
-    /* If no return path, mark it as unsafe */
-    *safe = 1;
-    if (gotoroom != NULL)
-        taskroom = gotoroom;
-    if (taskroom != NULL && find_path(NULL, taskroom, room, NOLIMIT) < 0)
-        *safe = 0;
+    if (path) {
+        /* If no return path, mark it as unsafe */
+        *safe = 1;
+        if (gotoroom != NULL)
+            taskroom = gotoroom;
+        if (taskroom != NULL
+            && !find_path(NULL, taskroom, room, NOLIMIT, &tmp1, &tmp2))
+            *safe = 0;
 
-    vh_istore(step, "DIST", *dist);
-    return 1;
+        /* Override safe flag if required */
+        if (vh_exists(step, "UNSAFE"))
+            *safe = 0;
+        if (vh_exists(step, "SAFE"))
+            *safe = 1;
+
+        if (ifm_verbose) {
+            indent(2);
+            printf("possible: %s", vh_sgetref(step, "DESC"));
+            if (*len > 0)
+                printf(" (distance %d)", *len);
+            if (!*safe)
+                printf(" (unsafe)");
+            printf("\n");
+        }
+    }
+
+    return path;
 }
 
 /* Create and return a new task step */
@@ -562,13 +691,19 @@ task_step(int type, vhash *data)
         break;
     case T_USER:
         strcpy(buf, desc);
+        vh_pstore(step, "NEXT", vh_pget(data, "NEXT"));
+        vh_pstore(step, "PREV", vh_pget(data, "PREV"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
+        vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
         vh_sstore(step, "NOTE", vh_sgetref(data, "NOTE"));
         vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
         break;
     default:
         fatal("internal: unknown task type");
     }
+
+    if (vh_exists(data, "SAFE"))
+        vh_istore(step, "SAFE", vh_iget(data, "SAFE"));
 
     vh_sstore(step, "DESC", buf);
     vh_pstore(step, "ROOM", room);
