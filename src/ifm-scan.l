@@ -168,7 +168,7 @@ ID		{LETTER}{ALNUM}*
 "w"		{ return WEST; }
 "west"		{ return WEST; }
 
-^[ \t]*"include" {
+^"include"      {
                     BEGIN(INC);
                 }
 
@@ -236,7 +236,7 @@ push_include(char *file, int libflag)
     ilevel++;
 
     /* Go to new include file */
-    fp = open_file(file, libflag);
+    fp = open_file(file, libflag, 1);
     buffer = yy_create_buffer(fp, YY_BUF_SIZE);
     yy_switch_to_buffer(buffer);
     line_number = 1;
