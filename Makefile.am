@@ -1,20 +1,29 @@
 ## Automake template for ifm.
 
 AUTOMAKE_OPTIONS	= foreign
-SUBDIRS			= lib src doc tkifm tests
+SUBDIRS			= @BUILD@
+DIST_SUBDIRS		= lib src doc tests scr2ifm tkifm
 EXTRA_DIST		= README.src README.win32 README.maps README.lib
 
-install-tkifm:;		cd tkifm; $(MAKE) $@
+dist-hook:;		cp -rp config contrib $(distdir)
+
+## Stuff for Win32 distribution.
 
 ZIPDIR			= ../ifm
 CYGDLL			= /bin/cygwin.dll
 
-ZIPFILES		= README README.win32 README.maps NEWS COPYING \
-			  src/ifm.exe src/ifm-pro.ps doc/ifm.txt doc/ifm.ps \
-			  doc/ifm.html $(CYGDLL) tkifm/tkifm.tcl \
-			  tkifm/tkifm.txt tkifm/tkifm.ps tkifm/tkifm.html
+IFM			= src/ifm.exe src/ifm-pro.ps doc/ifm.txt doc/ifm.ps \
+			  doc/ifm.html $(CYGDLL)
 
-dist-hook:;		cp -rp contrib $(distdir)
+SCR2IFM			= scr2ifm/scr2ifm.pl scr2ifm/scr2ifm.txt \
+			  scr2ifm/scr2ifm.ps scr2ifm/scr2ifm.html
+
+TKIFM			= tkifm/tkifm.tcl tkifm/tkifm.txt tkifm/tkifm.ps \
+			  tkifm/tkifm.html
+
+DOCS			= README README.win32 README.maps NEWS COPYING
+
+ZIPFILES		= $(IFM) $(SCR2IFM) $(TKIFM) $(DOCS)
 
 zip:;			$(MAKE) all
 			rm -rf $(ZIPDIR)
