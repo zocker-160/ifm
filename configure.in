@@ -4,6 +4,7 @@ AC_CONFIG_AUX_DIR(config)
 
 AM_INIT_AUTOMAKE(ifm, 3.1)
 AM_CONFIG_HEADER(config.h)
+AM_CYGWIN32
 AM_WITH_DMALLOC
 
 dnl Checks for programs.
