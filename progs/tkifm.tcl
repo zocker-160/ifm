@@ -5,13 +5,14 @@
 
 # Global variables (internal).
 set ifm(version) 1.0
-set ifm(debug)   0
 set ifm(edit)    1
 
-set ifm(mapcmd)   {ifm -map   -format tk}
+set ifm(mapcmd)   {ifm -map -format tk}
 set ifm(itemcmd)  {ifm -items -format tk}
 set ifm(taskcmd)  {ifm -tasks -format tk}
-set ifm(printcmd) {ifm -map   -format ps}
+set ifm(debugcmd) {ifm -debug -format tk}
+set ifm(printcmd) {ifm -map -format ps}
+set ifm(aboutcmd) {ifm -version}
 
 # Global variables (customizable).
 set ifm(editwidth)      80
@@ -20,8 +21,15 @@ set ifm(editfont)       {Courier 12 bold}
 set ifm(editforeground) black
 set ifm(editbackground) wheat
 
-set ifm(textwidth)      50
-set ifm(textheight)     30
+set ifm(itemwidth)      50
+set ifm(itemheight)     30
+
+set ifm(taskwidth)      50
+set ifm(taskheight)     30
+
+set ifm(debugwidth)     80
+set ifm(debugheight)    30
+
 set ifm(textfont)       {Times 12 bold}
 set ifm(textforeground) black
 set ifm(textbackground) wheat
@@ -82,13 +90,11 @@ proc MainWindow {} {
     $m add cascade -label "Tasks" -menu $c -underline 0
     $c add command -label "Task list" -command ShowTasks -underline 0
 
-    if $ifm(debug) {
-	# Debug options.
-	set c $m.debug
-	menu $c -tearoff $ifm(tearoff)
-	$m add cascade -label "Debug" -menu $c -underline 0
-	$c add command -label "Goto line 1" -command "GotoLine 1"
-    }
+    # Debug options.
+    set c $m.debug
+    menu $c -tearoff $ifm(tearoff)
+    $m add cascade -label "Debug" -menu $c -underline 0
+    $c add command -label "Debugging output" -command ShowDebug -underline 0
 
     # Help options.
     set c $m.help
@@ -342,40 +348,14 @@ proc ShowItems {} {
 	return
     }
 
+    # Display results.
     eval $data
-    if {$itemlist == ""} {
+    if {$itemlist != ""} {
+	TextWindow "Items" .items $itemlist $ifm(itemwidth) $ifm(itemheight)
+    } else {
 	Message "No items found"
 	return
     }
-
-    # Initialise window.
-    set w .items
-    catch {destroy $w}
-    toplevel $w
-    wm title $w "Items"
-
-    # Set up text.
-    set t $w.text
-    set s $w.scroll
-    text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(textwidth) -height $ifm(textheight) \
-	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
-	    -bg $ifm(textbackground)
-    scrollbar $s -command "$t yview"
-
-    pack $s -side right -fill y
-    pack $t -expand yes -fill both
-
-    $t insert end $itemlist
-    $t configure -state disabled
-
-    bind $t <3> "$t scan mark %x %y"
-    bind $t <B3-Motion> "$t scan dragto %x %y"
-
-    # Add 'dismiss' button.
-    set b $w.bye
-    button $b -text "Dismiss" -command "destroy $w"
-    pack $b -fill x
 }
 
 # Show task list.
@@ -399,23 +379,55 @@ proc ShowTasks {} {
 	return
     }
 
+    # Display results.
     eval $data
-    if {$tasklist == ""} {
+    if {$tasklist != ""} {
+	TextWindow "Tasks" .tasks $tasklist $ifm(taskwidth) $ifm(taskheight)
+    } else {
 	Message "No tasks found"
+    }
+}
+
+# Show debugging output.
+proc ShowDebug {} {
+    global ifm
+
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} return
+	if {[MaybeRead] == 0} return
+    } else {
+	Message "You must save the current file first."
 	return
     }
 
+    # Get task data.
+    set result [RunProgram $ifm(debugcmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Error [lindex $result 2]
+	return
+    }
+
+    # Display results.
+    TextWindow "Debugging Output" .debug $data \
+	    $ifm(debugwidth) $ifm(debugheight)
+}
+
+# Display a text window.
+proc TextWindow {title w text width height} {
+    global ifm
+
     # Initialise window.
-    set w .tasks
     catch {destroy $w}
     toplevel $w
-    wm title $w "Tasks"
+    wm title $w $title
 
     # Set up text.
     set t $w.text
     set s $w.scroll
     text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(textwidth) -height $ifm(textheight) \
+	    -width $width -height $height \
 	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
 	    -bg $ifm(textbackground)
     scrollbar $s -command "$t yview"
@@ -423,7 +435,7 @@ proc ShowTasks {} {
     pack $s -side right -fill y
     pack $t -expand yes -fill both
 
-    $t insert end $tasklist
+    $t insert end $text
     $t configure -state disabled
 
     bind $t <3> "$t scan mark %x %y"
@@ -731,25 +743,13 @@ proc Quit {} {
 proc About {} {
     global ifm
 
-    set text    "This is Tkifm, version $ifm(version).\n"
-    append text "Copyright (C) Glenn Hutchings 1997-98\n\n"
-
-    append text "This program is free software; you can redistribute it "
-    append text "and/or modify it under the terms of the GNU General "
-    append text "Public License as published by the Free Software "
-    append text "Foundation; either version 2, or (at your option) any "
-    append text "later version.\n\n"
-
-    append text "This program is distributed in the hope that it will be "
-    append text "useful, but WITHOUT ANY WARRANTY; without even the "
-    append text "implied warranty of MERCHANTABILITY or FITNESS FOR A "
-    append text "PARTICULAR PURPOSE.  See the GNU General Public License "
-    append text "for more details.\n\n"
-
-    append text "You should have received a copy of the GNU General "
-    append text "Public License along with this program; if not, write "
-    append text "to the Free Software Foundation, Inc., 675 Mass Ave, "
-    append text "Cambridge, MA 02139, USA."
+    set result [RunProgram $ifm(aboutcmd)]
+    if [lindex $result 0] {
+	set text [lindex $result 1]
+    } else {
+	Error [lindex $result 2]
+	return
+    }
 
     Message $text
 }
@@ -868,6 +868,10 @@ if {$tcl_platform(platform) == "unix"} {
 
 set rcfile [file join $env(HOME) $rcname]
 if [file readable $rcfile] {source $rcfile}
+
+if {$tcl_platform(platform) == "unix"} {
+    option add *Dialog.msg.wrapLength 10i
+}
 
 # Boot up.
 MainWindow

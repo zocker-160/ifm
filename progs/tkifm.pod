@@ -45,11 +45,25 @@ window.
 This contains a single menu item, which displays a high-level walkthrough
 of the game in another window.
 
+=item Debugging output menu
+
+This contains a single menu item, which displays some debugging information
+in another window.
+
 =item Help menu
 
-At the moment this just displays a small info panel about B<tkifm>.
+At the moment this just displays a small info panel about the current
+B<ifm> version.
 
 =back
+
+=head1 USING YOUR OWN EDITOR
+
+If you'd like to use your own editor to edit B<ifm> files, but still view
+results with B<tkifm>, you can.  B<tkifm> recognizes when the file it is
+visiting gets modified, and rereads it if so.  If you like, you can also
+disable all B<tkifm> file modification commands by setting the C<ifm(edit)>
+variable to zero (see the next section).
 
 =head1 CUSTOMIZATION
 
@@ -62,6 +76,9 @@ variables, their format and defaults.
 
     # Example tkifm init file.
 
+    # Whether to allow editing.
+    set ifm(edit) 1
+
     # Edit window dimensions.
     set ifm(editwidth) 80
     set ifm(editheight) 24
@@ -73,9 +90,17 @@ variables, their format and defaults.
     set ifm(editforeground) black
     set ifm(editbackground) wheat
 
-    # Text window (items and tasks) dimensions.
-    set ifm(textwidth) 50
-    set ifm(textheight) 30
+    # Item list window dimensions.
+    set ifm(itemwidth) 50
+    set ifm(itemheight) 30
+
+    # Task list window dimensions.
+    set ifm(taskwidth) 50
+    set ifm(taskheight) 30
+
+    # Debugging output window dimensions.
+    set ifm(debugwidth) 80
+    set ifm(debugheight) 30
 
     # Text window font.
     set ifm(textfont) {Times 12 bold}
