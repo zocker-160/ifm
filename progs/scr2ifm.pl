@@ -72,11 +72,11 @@ if ($opt_c) {
 	next if /^\s*#/;
 	next if /^\s*$/;
 
-	if (/eval\s+(.+)/) {
+	if (/set_param\s+(.+)/) {
 	    # Perl expression.
 	    eval $1;
 	    &error("%s: %s", $opt_c, $@) if $@;
-	} elsif (/option\s+(.+)/) {
+	} elsif (/set_option\s+(.+)/) {
 	    # Set command-line option.
 	    eval '$opt_' . $1 . ' = 1';
 	    &error("%s: %s", $opt_c, $@) if $@;

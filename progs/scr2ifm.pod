@@ -302,11 +302,6 @@ Here's a list of the commands available:
 
 =over 4
 
-=item eval <expression>
-
-This evaluates the given perl expression.  You can use this to set various
-parameters that control how the transcript is parsed (see below).
-
 =item is_room <text>
 
 Declare a line of text that is actually the name of a room.  Normally room
@@ -325,15 +320,22 @@ visited.  This is for cases where a room description changes too much
 between visits to be called the same room.  Note that this implies that
 there can only ever be one room with this name.
 
-=item option <letter>
+=item set_option <letter>
 
 This is a convenience that lets you specify B<scr2ifm> command-line options
-in the command file instead.  E.g. 'option i' will indent output nicely.
+in the command file instead.  E.g. 'set_option i' will indent output
+nicely.
+
+=item set_param <var> = <value>
+
+This evaluates the given perl expression.  You can use this to set various
+parameters that control how the transcript is parsed (see below).  Setting
+a value of B<undef> will remove that parameter (so that it won't be used).
 
 =back
 
 Here's a list of the parameters that control how the transcript is parsed,
-and their defaults.  You can use the B<scr2ifm> 'eval' command to set
+and their defaults.  You can use the B<scr2ifm> 'set_param' command to set
 them in the command file.
 
 =over 4
@@ -543,7 +545,7 @@ have meant 'Darkness' appeared on the map as a room.
     A three foot black rod with a rusty star on one end lies
     nearby.
 
-    >item "black rod" tag rod
+    >item "black rod" tag Rod
     That's not a verb I recognise.
 
     >xyzzy
