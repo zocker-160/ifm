@@ -23,8 +23,9 @@
 #include "ifm-vars.h"
 
 #define INIT_VARS \
-        if (vars == NULL) vars = vh_create(); \
-        if (alias == NULL) alias = vh_create()
+        if (nvars == NULL) vars = nvars = vh_create(); \
+        if (alias == NULL) alias = vh_create(); \
+        if (styles == NULL) styles = vh_create()
 
 #define VAR_GET(id, var) \
         if ((var = var_get(id)) == NULL) \
@@ -33,11 +34,20 @@
 #define ALPHA(c) (c == '_' || isalpha(c))
 #define ALNUM(c) (c == '_' || isalnum(c))
 
-/* Defined variables */
+/* Current variables */
 static vhash *vars = NULL;
+
+/* Defined non-style variables */
+static vhash *nvars = NULL;
 
 /* Defined aliases */
 static vhash *alias = NULL;
+
+/* Defined styles */
+static vhash *styles = NULL;
+
+/* Style stack */
+static vlist *style_stack = NULL;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
@@ -46,35 +56,58 @@ static char buf[BUFSIZ];
 static vhash *read_colour_defs(FILE *fp);
 static char *var_encode(char *driver, char *var);
 
-/* Read and return colour definitions from a stream */
-static vhash *
-read_colour_defs(FILE *fp)
+/* Return the current style */
+char *
+current_style(void)
 {
-    int red, green, blue, pos;
-    char val[20];
-    vhash *defs;
+    if (style_stack == NULL || vl_length(style_stack) == 0)
+        return NULL;
+    return vl_stail(style_stack);
+}
 
-    defs = vh_create();
+/* Push a style onto the style stack */
+void
+push_style(char *name)
+{
+    if (style_stack == NULL)
+        style_stack = vl_create();
+    vl_spush(style_stack, name);
+    set_style(name);
+}
 
-    while (fgets(buf, BUFSIZ, fp) != NULL) {
-        /* Get RGB values */
-        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
-            continue;
+/* Pop a style from the style stack */
+void
+pop_style(char *name)
+{
+    char *sname;
 
-        /* Get offset of colour name */
-        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
-            continue;
-
-        /* Scale RGB values */
-        sprintf(val, "%.3g %.3g %.3g",
-                red / 255.0, green / 255.0, blue / 255.0);
-
-        /* Add colour */
-        v_chop(buf);
-        vh_sstore(defs, &buf[pos], val);
+    if (style_stack != NULL && vl_length(style_stack) > 0) {
+        sname = vl_spop(style_stack);
+        if (name != NULL && !V_STREQ(sname, name))
+            warn("unexpected style: %s (expected %s)", name, sname);
+        if (vl_length(style_stack) > 0)
+            set_style(vl_stail(style_stack));
+        else
+            set_style(NULL);
+    } else {
+        warn("no matching style command");
     }
+}
 
-    return defs;
+/* Set the current style */
+void
+set_style(char *name)
+{
+    INIT_VARS;
+
+    if (name != NULL && strlen(name) > 0) {
+        if ((vars = vh_pget(styles, name)) == NULL) {
+            vars = vh_create();
+            vh_pstore(styles, name, vars);
+        }
+    } else {
+        vars = nvars;
+    }
 }
 
 /* Set a variable alias */
@@ -85,6 +118,30 @@ var_alias(char *alias_id, char *id)
         vh_sstore(alias, alias_id, id);
     else
         vh_delete(alias, alias_id);
+}
+
+/* Return whether a variable has changed since last accessed */
+int
+var_changed(char *id)
+{
+    static vhash *values = NULL;
+    vscalar *sval, *cval;
+    int changed = 1;
+
+    if (values == NULL)
+        values = vh_create();
+
+    sval = var_get(id);
+
+    if ((cval = vh_get(values, id)) == NULL && sval == NULL)
+        changed = 0;
+    else if (cval != NULL && sval != NULL && vs_equal(cval, sval))
+        changed = 0;
+
+    if (changed)
+        vh_store(values, id, vs_copy(sval));
+
+    return changed;
 }
 
 /* Return RGB values from a variable */
@@ -151,6 +208,19 @@ var_get(char *id)
     if ((var = vh_get(vars, key)) != NULL)
         return var;
 
+    /* Try non-style variables if required */
+    if (vars != nvars) {
+        if (ifm_format != NULL) {
+            key = var_encode(ifm_format, id);
+            if ((var = vh_get(nvars, key)) != NULL)
+                return var;
+        }
+        
+        key = var_encode(NULL, id);
+        if ((var = vh_get(nvars, key)) != NULL)
+            return var;
+    }
+
     return NULL;
 }
 
@@ -213,7 +283,7 @@ var_list(void)
 
         vl_foreach(elt, names) {
             name = vs_sgetref(elt);
-            printf("%s == %s;\n", name, vh_sgetref(alias, name));
+            printf("%s => %s;\n", name, vh_sgetref(alias, name));
         }
     }
 
@@ -329,4 +399,35 @@ var_subst(char *string)
     }
 
     return vb_get(b);
+}
+
+/* Read and return colour definitions from a stream */
+static vhash *
+read_colour_defs(FILE *fp)
+{
+    int red, green, blue, pos;
+    char val[20];
+    vhash *defs;
+
+    defs = vh_create();
+
+    while (fgets(buf, BUFSIZ, fp) != NULL) {
+        /* Get RGB values */
+        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
+            continue;
+
+        /* Get offset of colour name */
+        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
+            continue;
+
+        /* Scale RGB values */
+        sprintf(val, "%.3g %.3g %.3g",
+                red / 255.0, green / 255.0, blue / 255.0);
+
+        /* Add colour */
+        v_chop(buf);
+        vh_sstore(defs, &buf[pos], val);
+    }
+
+    return defs;
 }

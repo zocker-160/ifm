@@ -13,7 +13,12 @@
 #define VAR_DEF(var)  (var_get(var) != NULL)
 
 /* Advertised functions */
+extern char *current_style(void);
+extern void pop_style(char *name);
+extern void push_style(char *name);
+extern void set_style(char *name);
 extern void var_alias(char *alias_id, char *id);
+extern int var_changed(char *id);
 extern char *var_colour(char *id);
 extern vscalar *var_get(char *id);
 extern int var_int(char *id);

@@ -27,6 +27,110 @@
 # In Tk output, all line width values are interpreted as integers.
 
 ##################################################################
+# General variables
+##################################################################
+
+# Space allocated for each room, in cm.  In PostScript, this is
+# the maximum size -- the actual size may be reduced in order to
+# fit things on the page.
+room_size = 3;
+
+# Proportion of the room space that's taken up by the room
+# dimensions.  These values should be less than 1 or you'll have
+# no space left for link lines.
+room_width = 0.8;
+room_height = 0.65;
+
+##################################################################
+# Room style variables
+##################################################################
+
+# Default background colour of rooms.
+room_colour = "white";
+
+# Offset and colour of room 'shadows'.  This is a pseudo-3D
+# effect which makes rooms look raised off the page.  The offsets
+# are a proportion of the allocated room space.  Note that you
+# can change the direction of the room shadow by negating one or
+# both of the offsets.
+room_shadow_xoff = 0.05;
+room_shadow_yoff = 0.05;
+room_shadow_colour = "grey30";
+
+# Width and colour of the room box lines.
+room_border_width = 1;
+room_border_colour = "black";
+
+# Whether to draw dashed room borders (PostScript only).
+room_border_dashed = 0;
+
+# Width and colour of the room exit lines.
+room_exit_width = 1;
+room_exit_colour = "black";
+
+# Colour, font and fontsize of room description text.
+room_text_colour = "black";
+ps room_text_font = "Times-Bold";
+ps room_text_fontsize = 10;
+tk room_text_fontdef = "Times 10 bold";
+
+# Whether to append room tag names to room descriptions.  If so,
+# they are appended in square brackets, like [this].
+show_tags = 0;
+
+# Whether to show non-hidden item descriptions in rooms.
+show_items = 1;
+
+# Colour, font and fontsize of item description text (if shown).
+item_text_colour = "black";
+ps item_text_font = "Times-Italic";
+ps item_text_fontsize = 6;
+tk item_text_fontdef = "Times 8 italic";
+
+##################################################################
+# Link style variables
+##################################################################
+
+# Width and colour of link lines.
+link_line_width = 1;
+link_colour = "black";
+
+# Size of oneway link arrows, as a proportion of the allocated
+# room space.
+link_arrow_size = 0.08;
+
+# Whether to draw link lines as splines (Tk only).
+link_spline = 1;
+
+# Whether to draw dashed link lines (PostScript only).
+link_dashed = 0;
+
+# Appearance of text that's associated with link lines.  The Tk
+# default is to colour them differently for readability.
+ps link_text_font = "Times-Roman";
+ps link_text_fontsize = 6;
+ps link_text_colour = "black";
+tk link_text_fontdef = "Times 8 bold";
+tk link_text_colour = "red";
+
+# Text strings indicating up/down/in/out on links.
+link_updown_string = "U/D";
+link_inout_string = "I/O";
+
+##################################################################
+# Predefined styles
+##################################################################
+
+# These styles are for backward compatibility.
+
+# Room 'puzzle' style (was previously the 'puzzle' attribute).
+room_colour = "grey" in style "puzzle";
+
+# Link 'special' style (was previously the 'special' attribute).
+ps link_dashed = 1 in style "special";
+tk link_colour = "blue" in style "special";
+
+##################################################################
 # PostScript setup variables
 ##################################################################
 
@@ -96,131 +200,37 @@ canvas_height = 6;
 canvas_background_colour = "wheat";
 
 ##################################################################
-# Room variables
-##################################################################
-
-# Space allocated for each room, in cm.  In PostScript, this is
-# the maximum size -- the actual size may be reduced in order to
-# fit things on the page.
-room_size = 3;
-
-# Proportion of the room space that's taken up by the room
-# dimensions.  These values should be less than 1 or you'll have
-# no space left for link lines.
-room_width = 0.8;
-room_height = 0.65;
-
-# Default background colour of rooms.
-room_colour = "white";
-
-# Background colour of rooms that are marked with the 'puzzle'
-# attribute.
-room_puzzle_colour = "grey";
-
-# Offset and colour of room 'shadows'.  This is a pseudo-3D
-# effect which makes rooms look raised off the page.  The offsets
-# are a proportion of the allocated room space.  Note that you
-# can change the direction of the room shadow by negating one or
-# both of the offsets.
-room_shadow_xoff = 0.05;
-room_shadow_yoff = 0.05;
-room_shadow_colour = "grey30";
-
-# Width and colour of the room box lines.
-room_border_width = 1;
-room_border_colour = "black";
-
-# Width and colour of the room exit lines.
-room_exit_width = 1;
-room_exit_colour = "black";
-
-# Colour, font and fontsize of room description text.
-room_text_colour = "black";
-ps room_text_font = "Times-Bold";
-ps room_text_fontsize = 10;
-tk room_text_fontdef = "Times 10 bold";
-
-# Whether to append room tag names to room descriptions.  If so,
-# they are appended in square brackets, like [this].
-show_tags = 0;
-
-# Whether to show non-hidden item descriptions in rooms.
-show_items = 1;
-
-# Colour, font and fontsize of item description text (if shown).
-item_text_colour = "black";
-ps item_text_font = "Times-Italic";
-ps item_text_fontsize = 6;
-tk item_text_fontdef = "Times 8 italic";
-
-##################################################################
-# Link variables
-##################################################################
-
-# Width and colour of link lines.
-link_line_width = 1;
-link_colour = "black";
-
-# Size of oneway link arrows, as a proportion of the allocated
-# room space.
-link_arrow_size = 0.08;
-
-# Whether to draw link lines as splines (Tk only).
-link_spline = 1;
-
-# Appearance of link lines that are marked 'special'.  Default for
-# PostScript is to be black, and dashed.  Default for Tk (which
-# can't dash lines) is to be coloured.
-link_special_dashed = 1;
-ps link_special_colour = "black";
-tk link_special_colour = "blue";
-
-# Appearance of text that's associated with link lines.  The Tk
-# default is to colour them differently for readability.
-ps link_text_font = "Times-Roman";
-ps link_text_fontsize = 6;
-ps link_text_colour = "black";
-tk link_text_fontdef = "Times 8 bold";
-tk link_text_colour = "red";
-
-# Text strings indicating up/down/in/out on links.
-link_updown_string = "U/D";
-link_inout_string = "I/O";
-
-##################################################################
 # Aliases
 ##################################################################
 
-# Alternate spellings for colour variables, for US IFM fans.
-canvas_background_color == canvas_background_colour;
-color_file == colour_file;
-item_text_color == item_text_colour;
-link_color == link_colour;
-link_special_color == link_special_colour;
-link_text_color == link_text_colour;
-map_text_color == map_text_colour;
-page_background_color == page_background_colour;
-page_border_color == page_border_colour;
-room_border_color == room_border_colour;
-room_color == room_colour;
-room_exit_color == room_exit_colour;
-room_puzzle_color == room_puzzle_colour;
-room_shadow_color == room_shadow_colour;
-room_text_color == room_text_colour;
-title_color == title_colour;
+# Alternate spellings for colour variables, for U.S. IFM fans.
+canvas_background_color => canvas_background_colour;
+color_file => colour_file;
+item_text_color => item_text_colour;
+link_color => link_colour;
+link_text_color => link_text_colour;
+map_text_color => map_text_colour;
+page_background_color => page_background_colour;
+page_border_color => page_border_colour;
+room_border_color => room_border_colour;
+room_color => room_colour;
+room_exit_color => room_exit_colour;
+room_shadow_color => room_shadow_colour;
+room_text_color => room_text_colour;
+title_color => title_colour;
 
 # Compatibility aliases for old versions of IFM.  If your maps
 # use any of these, you should replace them with the aliased
 # variable -- at some point in the future these aliases may go
 # away.
-exit_colour == room_exit_colour;
-exit_linewidth == room_exit_width;
-item_font == item_text_font;
-item_fontsize == item_text_fontsize;
-label_colour == link_text_colour;
-label_font == link_text_font;
-label_fontsize == link_text_fontsize;
-link_linewidth == link_line_width;
-room_font == room_text_font;
-room_fontsize == room_text_fontsize;
-room_linewidth == room_border_width;
+exit_colour => room_exit_colour;
+exit_linewidth => room_exit_width;
+item_font => item_text_font;
+item_fontsize => item_text_fontsize;
+label_colour => link_text_colour;
+label_font => link_text_font;
+label_fontsize => link_text_fontsize;
+link_linewidth => link_line_width;
+room_font => room_text_font;
+room_fontsize => room_text_fontsize;
+room_linewidth => room_border_width;

@@ -21,6 +21,7 @@
 #include "ifm-path.h"
 #include "ifm-task.h"
 #include "ifm-util.h"
+#include "ifm-vars.h"
 
 #define TS_INVALID 0
 #define TS_UNSAFE  1
@@ -526,6 +527,9 @@ new_task(int type, vhash *data)
 
         if (vh_exists(data, "TAG"))
             vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
+
+        if (vh_exists(data, "STYLE"))
+            vh_sstore(step, "STYLE", vh_sgetref(data, "STYLE"));
 
         if (vh_exists(data, "CMD"))
             vh_pstore(step, "CMD", vh_pget(data, "CMD"));
