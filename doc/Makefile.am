@@ -29,7 +29,7 @@ HTML_TITLE = IFM Version $(VERSION)
 
 HTML_ADDRESS = zondo@pillock.freeserve.co.uk
 
-HTML_DIR = ifm
+HTML_DIR = html
 
 HTML_SPLIT = 5
 
@@ -71,7 +71,7 @@ install-doc:
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.lyx map.dia map.eps
+EXTRA_DIST = ifm.pdf
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
