@@ -33,29 +33,6 @@ static int ps_yoff;             /* Current Y offset */
 /* Internal functions */
 static char *ps_string(char *str);
 
-/* Return a string suitable for passing to PostScript */
-static char *
-ps_string(char *str)
-{
-    static vbuffer *b = NULL;
-
-    if (b == NULL)
-        b = vb_create();
-    else
-        vb_empty(b);
-
-    vb_putc(b, '(');
-
-    while (*str != '\0') {
-        if (strchr("()\\", *str) != NULL)
-            vb_putc(b, '\\');
-        vb_putc(b, *str++);
-    }
-
-    vb_putc(b, ')');
-    return vb_get(b);
-}
-
 /* Map functions */
 void
 ps_map_start(void)
@@ -165,11 +142,9 @@ ps_map_section(vhash *sect)
 void
 ps_map_room(vhash *room)
 {
-    int puzzle, doitems;
-    vlist *list, *items;
-    char *desc, *str;
-    vhash *item;
-    vscalar *elt;
+    char *desc, *str, *itemlist = NULL;
+    vlist *items;
+    int puzzle;
 
     /* Initialise */
     desc = vh_sgetref(room, "PDESC");
@@ -178,36 +153,38 @@ ps_map_room(vhash *room)
     if (desc == NULL)
         desc = "";
 
-    items = vh_pget(room, "ITEMS");
-    doitems = items && vl_length(items) > 0;
     puzzle = vh_iget(room, "PUZZLE");
 
     /* Write coords */
-    printf("%s %g %g room\n", ps_string(desc),
+    printf("%s %g %g", ps_string(desc),
            vh_dget(room, "X") + ps_xoff,
            vh_dget(room, "Y") + ps_yoff);
 
-#if 0
-    /* Get item list */
-    if (doitems) {
+    /* Write item list (if any) */
+    items = vh_pget(room, "ITEMS");
+    if (items != NULL && vl_length(items) > 0) {
+        vscalar *elt;
+        vhash *item;
+        vlist *list;
+
+        list = vl_create();
         vl_foreach(elt, items) {
             item = vs_pget(elt);
             if (!vh_iget(item, "HIDDEN"))
                 vl_spush(list, vh_sgetref(item, "DESC"));
         }
 
-        if (vl_length(list) > 0) {
-            str = vl_join(list, ", ");
-            vl_destroy(list);
-            list = split_line(str, 3.5);
-            vl_foreach(elt, list)
-                printf(" \"\\s-2\\f[%s]%s\\fP\\s0\"",
-                       groff_itemfont, vs_sget(elt));
-        }
+        if (vl_length(list) > 0)
+            itemlist = vl_join(list, ", ");
+        vl_destroy(list);
     }
 
-    vl_destroy(list);
-#endif
+    if (itemlist != NULL)
+        printf(" %s true", ps_string(itemlist));
+    else
+        printf(" false");
+
+    printf(" room\n");
 }
 
 void
@@ -218,10 +195,34 @@ ps_map_link(vhash *link)
 void
 ps_map_endsection(void)
 {
+    /* Nothing to do */
 }
 
 void
 ps_map_finish(void)
 {
     printf("endpage\n");
+}
+
+/* Return a string suitable for passing to PostScript */
+static char *
+ps_string(char *str)
+{
+    static vbuffer *b = NULL;
+
+    if (b == NULL)
+        b = vb_create();
+    else
+        vb_empty(b);
+
+    vb_putc(b, '(');
+
+    while (*str != '\0') {
+        if (strchr("()\\", *str) != NULL)
+            vb_putc(b, '\\');
+        vb_putc(b, *str++);
+    }
+
+    vb_putc(b, ')');
+    return vb_get(b);
 }

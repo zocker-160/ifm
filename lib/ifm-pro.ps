@@ -54,8 +54,13 @@
 } def
 
 % Draw a room. 
-/room {				% STRING X Y room
+/room {				% STRING X Y [STRING] FLAG room
     % Convert and save arguments.
+    /rm-items exch def
+    rm-items {
+	/rm-itemlist exch def
+    } if
+
     pagepos
     /rm-ypos exch def
     /rm-xpos exch def
@@ -76,12 +81,29 @@
     % Fill it.
     gsave roomshading setgray fill grestore stroke
 
-    % Draw room text.
+    % Draw room text (and item text if required).
     roomfont roomfontsize fontscale mul selectfont
-    rm-string rm-xpos rm-ypos
-    boxsize roomwidth mul
-    boxsize roomheight mul
-    boxtext
+
+    rm-items showitems and {
+	rm-string rm-xpos rm-ypos
+	boxsize roomheight mul 1 roomitemratio sub 2 div mul add
+	boxsize roomwidth mul
+	boxsize roomheight mul roomitemratio mul
+	boxtext
+
+	itemfont itemfontsize fontscale mul selectfont
+
+	rm-itemlist rm-xpos rm-ypos
+	boxsize roomheight mul roomitemratio 2 div mul sub
+	boxsize roomwidth mul
+	boxsize roomheight mul 1 roomitemratio sub mul
+	boxtext
+    }{
+	rm-string rm-xpos rm-ypos
+	boxsize roomwidth mul
+	boxsize roomheight mul
+	boxtext
+    } ifelse
 } def
 
 % Draw a link.
@@ -282,7 +304,7 @@
 
 % Standard definitions.
 /cm {2.54 72 div mul} def
-/debug true def
+/debug false def
 /degree {} def
 /inch {72 mul} def
 /max {2 copy gt {} {exch} ifelse pop} def
@@ -294,3 +316,4 @@
 % Control variables.
 /textspacing 0.1 def
 /textmargin 0.1 def
+/roomitemratio 0.6 def
