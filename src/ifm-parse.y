@@ -376,12 +376,14 @@ room_attr	: TAG ID
 		| SPECIAL
 		{
                     obsolete("`special' attribute", "`style \"special\"'");
-                    vh_sstore(curroom, ATTR(STYLE), "special");
+                    add_attr(curroom, ATTR(STYLE), "special");
+                    ref_style("special");
 		}
 		| PUZZLE
 		{
                     obsolete("`puzzle' attribute", "`style \"puzzle\"'");
-                    vh_sstore(curroom, ATTR(STYLE), "puzzle");
+                    add_attr(curroom, ATTR(STYLE), "puzzle");
+                    ref_style("puzzle");
 		}
 		| START
 		{
@@ -662,6 +664,7 @@ link_attr	: DIR dir_list
 		{
                     obsolete("`special' attribute", "`style \"special\"'");
                     add_attr(curlink, "STYLE", "special");
+                    ref_style("special");
 		}
 		| HIDDEN
 		{
