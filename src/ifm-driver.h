@@ -5,51 +5,31 @@
  *  under certain conditions; see the file COPYING for details.
  */
 
-/* Output drivers */
+/* Output driver definitions */
 
 #ifndef DRIVER_H
 #define DRIVER_H
 
-#ifdef PS
-#include "drv-ps.c"
+/* Driver structs */
+typedef struct mapfuncs_st {
+    void (*map_start)(void);
+    void (*map_section)(vhash *sect);
+    void (*map_room)(vhash *room);
+    void (*map_link)(vhash *link);
+    void (*map_endsection)(void);
+    void (*map_finish)(void);
+} mapfuncs;
+
+typedef struct itemfuncs_st {
+    void (*item_start)(char *title);
+    void (*item_entry)(vhash *item);
+    void (*item_finish)(void);
+} itemfuncs;
+
+typedef struct taskfuncs_st {
+    void (*task_start)(char *title);
+    void (*task_entry)(vhash *task);
+    void (*task_finish)(void);
+} taskfuncs;
+
 #endif
-
-#ifdef RAW
-#include "drv-raw.c"
-#endif
-
-#ifdef GROFF
-#include "drv-groff.c"
-#endif
-
-#define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
-
-struct driver_st {
-    char *name, *desc;
-    mapfuncs  *mfunc;
-    itemfuncs *ifunc;
-    taskfuncs *tfunc;
-} drivers[] = {
-#ifdef PS
-    {
-        "ps", "PostScript",
-        &ps_mapfuncs, NULL, NULL
-    },
-#endif
-
-#ifdef RAW
-    {
-        "raw", "Tab-delimited ASCII text fields",
-        NULL, &raw_itemfuncs, &raw_taskfuncs
-    },
-#endif
-
-#ifdef GROFF
-    {
-        "groff", "Groff with pic, tbl and -me macros",
-        &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs
-    },
-#endif
-};
-
-#endif /* DRIVER_H */
