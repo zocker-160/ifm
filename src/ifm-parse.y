@@ -25,7 +25,8 @@ static char buf[BUFSIZ];
 
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
-%token        EXIT GIVEN LOST KEEP TITLE
+%token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE NEXT UNDEF
+%token        PREV 
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -114,9 +115,18 @@ room_attr	: TAG IDENT
                 {
                     set_room_items();
                 }
+		| BEFORE task_list
+		{
+		    set_room_tasks("BEFORE");
+		}
 		| AFTER task_list
 		{
-		    set_room_after();
+		    set_room_tasks("AFTER");
+		}
+		| LENGTH INTEGER
+		{
+		    sprintf(buf, "%d", $2);
+		    set_room_attr("LEN", buf);
 		}
 		| SCORE INTEGER
 		{
@@ -214,9 +224,18 @@ link_attr	: DIR dir_list
                 {
                     set_link_items();
                 }
+		| BEFORE task_list
+		{
+		    set_link_tasks("BEFORE");
+		}
 		| AFTER task_list
 		{
-		    set_link_after();
+		    set_link_tasks("AFTER");
+		}
+		| LENGTH INTEGER
+		{
+		    sprintf(buf, "%d", $2);
+		    set_link_attr("LEN", buf);
 		}
 		;
 
@@ -243,9 +262,18 @@ join_attr	: GO go_flag
                 {
                     set_join_items();
                 }
+		| BEFORE task_list
+		{
+		    set_join_tasks("BEFORE");
+		}
 		| AFTER task_list
 		{
-		    set_join_after();
+		    set_join_tasks("AFTER");
+		}
+		| LENGTH INTEGER
+		{
+		    sprintf(buf, "%d", $2);
+		    set_join_attr("LEN", buf);
 		}
 		;
 
@@ -276,9 +304,21 @@ task_attr	: TAG IDENT
 		{
 		    set_task_items("GET");
 		}
+		| LOSE item_list
+		{
+		    set_task_items("LOSE");
+		}
                 | GOTO IDENT
                 {
                     set_task_attr("GOTO", $2);
+                }
+                | NEXT IDENT
+                {
+                    set_task_attr("NEXT", $2);
+                }
+                | PREV IDENT
+                {
+                    set_task_attr("PREV", $2);
                 }
 		| IN IDENT
 		{
@@ -288,6 +328,10 @@ task_attr	: TAG IDENT
 		{
 		    set_task_attr("NOROOM", "1");
 		}
+                | SAFE
+                {
+                    set_task_attr("SAFE", "1");
+                }
 		| SCORE INTEGER
 		{
 		    sprintf(buf, "%d", $2);
@@ -421,6 +465,7 @@ go_flag		: IN            { $$ = IN;   }
 var             : INTEGER       { $$ = vs_istore(NULL, $1); }
                 | REAL          { $$ = vs_dstore(NULL, $1); }
                 | STRING        { $$ = vs_sstore(NULL, $1); }
+                | UNDEF         { $$ = NULL; }
                 ;
 
 %%

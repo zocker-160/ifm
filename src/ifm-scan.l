@@ -80,6 +80,7 @@ WHITE		[ \t\f]*
 
 "after"         { return AFTER; }
 "any"           { return ANY; }
+"before"        { return BEFORE; }
 "d"		{ return DOWN; }
 "dir"		{ return DIR; }
 "down"		{ return DOWN; }
@@ -97,12 +98,15 @@ WHITE		[ \t\f]*
 "join"		{ return JOIN; }
 "keep"          { return KEEP; }
 "last"		{ return LAST; }
+"length"	{ return LENGTH; }
 "link"		{ return LINK; }
+"lose"          { return LOSE; }
 "lost"          { return LOST; }
 "map"           { return MAP; }
 "n"		{ return NORTH; }
 "ne"		{ return NORTHEAST; }
 "need"          { return NEED; }
+"next"          { return NEXT; }
 "north"		{ return NORTH; }
 "northeast"	{ return NORTHEAST; }
 "northwest"	{ return NORTHWEST; }
@@ -110,9 +114,11 @@ WHITE		[ \t\f]*
 "nw"		{ return NORTHWEST; }
 "oneway"	{ return ONEWAY; }
 "out"		{ return OUT; }
+"prev"          { return PREV; }
 "puzzle"	{ return PUZZLE; }
 "room"		{ return ROOM; }
 "s"		{ return SOUTH; }
+"safe"          { return SAFE; }
 "score"         { return SCORE; }
 "se"		{ return SOUTHEAST; }
 "south"		{ return SOUTH; }
@@ -126,6 +132,7 @@ WHITE		[ \t\f]*
 "title"		{ return TITLE; }
 "to"		{ return TO; }
 "u"		{ return UP; }
+"undef"         { return UNDEF; }
 "up"		{ return UP; }
 "w"		{ return WEST; }
 "west"		{ return WEST; }
