@@ -42,7 +42,7 @@ use Getopt::Std;
 # Default room name recognition parameters.
 $name_maxwords = 8;
 $name_maxuncap = 3;
-$name_invalid = '[.!?]';
+$name_invalid = '[.!?"]';	# fix emacs highlighting with another "
 $name_remove = '\s+\(.+\)';
 
 # Default room description recognition parameters.
@@ -80,12 +80,15 @@ if ($opt_c) {
 	    # Set command-line option.
 	    eval '$opt_' . $1 . ' = 1';
 	    &error("%s: %s", $opt_c, $@) if $@;
-	} elsif (/isroom\s+(.+)/) {
+	} elsif (/is_room\s+(.+)/) {
 	    # Extra strings that are room names.
-	    $isroom{$1}++;
-	} elsif (/usename\s+(.+)/) {
+	    $is_room{$1}++;
+	} elsif (/not_room\s+(.+)/) {
+	    # Extra strings that aren't room names.
+	    $not_room{$1}++;
+	} elsif (/use_name\s+(.+)/) {
 	    # Room name to be used.
-	    $usename{$1}++;
+	    $use_name{$1}++;
 	} else {
 	    # IFM command.
 	    push(@ifmcmds, $_);
@@ -264,11 +267,12 @@ foreach $move (@moves) {
     }
 }
 
+# Give first room a default map section name if required.
 $room = $rooms[0];
-if ($needmap && $room && !$room->{JOIN}) {
+if ($section > 0 && $room && !$room->{JOIN}) {
     $tag = $room->{TAG};
     $move = $movemap{$tag};
-    $move->{MAP} = "Map section 1";
+    $move->{MAP} = "Start";
 }
 
 ### Stage 4 -- Write IFM output.
@@ -277,7 +281,7 @@ print "## IFM map created by $0\n";
 
 print "\ntitle \"$title\";\n" if $title;
 
-if ($needmap) {
+if ($section > 0) {
     print "\n## Map sections.\n";
 
     foreach $move (@moves) {
@@ -308,19 +312,26 @@ foreach $move (@moves) {
 	$attr = $obj->{ATTR};
 
 	if ($opt_i) {
-	    if ($type =~ /(room|link)/) {
+	    if ($type eq "room" || $type eq "link") {
 		print "\n" if $linecount++;
 	    } else {
 		print "  ";
 	    }
 	}
 
+	if ($type eq "link" && $join) {
+	    $type = "join";
+	    $go = $dir if $dir;
+	}
+
 	print "$type ";
 
 	if ($type eq "link" || $type eq "join") {
 	    print "$from to $to";
-	    print " dir $dir" if $dir;
+	    print " dir $dir" if $dir && !$join;
+	    undef $join;
 	} else {
+	    $name =~ s/"/\\"/g;
 	    print "\"$name\"";
 	    print " dir $dir" if $dir && !$join;
 	    print " from $from" if $from && !$join;
@@ -349,8 +360,9 @@ sub roomname {
     # Remove unwanted stuff.
     $line =~ s/$name_remove//go;
 
-    # User override.
-    return 1 if $isroom{$line};
+    # User overrides.
+    return 1 if $is_room{$line};
+    return 0 if $not_room{$line};
 
     # Quick check for invalid format.
     return 0 if $name_invalid && $line =~ /$name_invalid/io;
@@ -366,9 +378,6 @@ sub roomname {
     for (@words) {
 	return 0 if $name_maxuncap && /^[a-z]/ && length() > $name_maxuncap;
     }
-
-    # Check special cases (if any).
-    return 0 if $name_ignore && $line =~ /$name_ignore/o;
 
     return 1;
 }
@@ -395,6 +404,9 @@ sub newroom {
     $room->{CMD} = $cmd if $cmd;
     $room->{FILE} = $move->{FILE};
     $room->{LINE} = $move->{LINE};
+
+    $section++ unless $from;
+    $room->{SECT} = $section;
 
     $roommap{$tag} = $room;
 
@@ -443,6 +455,10 @@ sub newlink {
 	$link->{FILE} = $move->{FILE};
 	$link->{LINE} = $move->{LINE};
 
+	my $sectfrom = $roommap{$from}{SECT};
+	my $sectto = $roommap{$to}{SECT};
+	$link->{JOIN} = ($sectfrom != $sectto);
+
 	&moveroom($from, $dir);
 	$roommap{$from}{$dir} = $to;
 	$linkmap{$from}{$to} = $link;
@@ -474,7 +490,7 @@ sub findroom {
     foreach $room (@rooms) {
 	undef $score;
 
-	if ($desc && !$usename{$name}) {
+	if ($desc && !$use_name{$name}) {
 	    # We have a description -- try exact match first.
 	    $score += 10 if $room->{DESC} eq $desc;
 
@@ -607,7 +623,7 @@ sub ifmcmd {
 	}
 
 	$room->{JOIN}++;
-	$needmap++;
+	$section++;
     } elsif ($cmd =~ /^(\S+)\s+"(.+?)"\s*(.*)/) {
 	# Define object.
 	my $obj = {};
