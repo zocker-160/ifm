@@ -17,6 +17,12 @@
 #include "ifm-map.h"
 #include "ifm-util.h"
 
+#define WARN_CROSS(room, from, to) \
+        warn("room `%s' crossed by link line between `%s' and `%s'", \
+             vh_sgetref(room, "DESC"), \
+             vh_sgetref(from, "DESC"), \
+             vh_sgetref(to, "DESC"))
+
 vhash *map = NULL;              /* The map */
 
 vlist *rooms = NULL;            /* List of rooms */
@@ -322,6 +328,8 @@ setup_links(void)
     /* Build coordinate list for each link */
     vl_foreach(elt, links) {
 	link = vs_pget(elt);
+        if (vh_iget(link, "HIDDEN"))
+            continue;
 
 	from = vh_pget(link, "FROM");
 	fname = vh_sgetref(from, "DESC");
@@ -387,8 +395,7 @@ setup_links(void)
                 /* Check for crossing other rooms */
                 if ((x != xt || y != yt || count < ndirs)
                     && (other = room_at(num, x, y)) != NULL)
-                    warn("room `%s' crossed by link line",
-                         vh_sgetref(other, "DESC"));
+                    WARN_CROSS(other, from, to);
             }
         }
 
@@ -426,8 +433,7 @@ setup_links(void)
                     vl_ipush(xpos, x);
                     vl_ipush(ypos, y);
                     if ((other = room_at(num, x, y)) != NULL)
-                        warn("room `%s' crossed by link line",
-                             vh_sgetref(other, "DESC"));
+                        WARN_CROSS(other, from, to);
                 }
             }
 
@@ -448,7 +454,7 @@ setup_links(void)
 void
 setup_rooms(void)
 {
-    vhash *base, *room, *near, *other, *sect;
+    vhash *base, *room, *link, *near, *other, *sect;
     int nfound, x, y, dir, num;
     vlist *list, *dirs;
     vscalar *elt;
@@ -470,15 +476,16 @@ setup_rooms(void)
 		room = vs_pget(elt);
                 if (vh_exists(room, "X"))
 		    continue;
-		if ((near = vh_pget(room, "NEAR")) == NULL)
-		    continue;
+		if ((link = vh_pget(room, "LINK")) == NULL)
+                    continue;
+                near = vh_pget(link, "FROM");
                 if (!vh_exists(near, "X"))
 		    continue;
 
 		x = vh_iget(near, "X");
 		y = vh_iget(near, "Y");
 
-		dirs = vh_pget(room, "DIR");
+		dirs = vh_pget(link, "DIR");
 		vl_foreach(elt, dirs) {
 		    dir = vs_iget(elt);
 		    x += dirinfo[dir].xoff;

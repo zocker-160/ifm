@@ -356,7 +356,8 @@ print_map(void)
             list = vh_pget(sect, "LINKS");
             vl_foreach(elt, list) {
                 link = vs_pget(elt);
-                (*func->map_link)(link);
+                if (!vh_iget(link, "HIDDEN"))
+                    (*func->map_link)(link);
             }
         }
 
