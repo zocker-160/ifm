@@ -137,8 +137,6 @@ SUBDIRS = vars fig gpp src lib doc progs demos tests
 
 EXTRA_DIRS = etc contrib win32
 
-EXTRA_DIST = ANNOUNCE
-
 DAYS = 7
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
