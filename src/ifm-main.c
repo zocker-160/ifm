@@ -264,13 +264,16 @@ main(int argc, char *argv[])
     if (ifm_errors > 0)
         return 1;
 
-    /* Position rooms */
-    position_rooms();
+    /* Set up rooms */
+    setup_rooms();
 
     /* Set up links */
     setup_links();
     if (ifm_errors > 0)
         return 1;
+
+    /* Set up room exits */
+    setup_exits();
 
     /* Set up sections */
     setup_sections();
