@@ -18,8 +18,9 @@
 
 /* Output drivers */
 #include "ifm-ps.h"
-#include "ifm-groff.h"
+#include "ifm-text.h"
 #include "ifm-raw.h"
+#include "ifm-groff.h"
 
 static struct driver_st {
     char *name, *desc;
@@ -31,6 +32,13 @@ static struct driver_st {
     {
         "ps", "PostScript",
         &ps_mapfuncs, NULL, NULL
+    },
+#endif
+
+#ifdef TEXT
+    {
+        "text", "Nicely-formatted ASCII text",
+        NULL, &text_itemfuncs, &text_taskfuncs
     },
 #endif
 
@@ -96,9 +104,9 @@ int ifm_debug = 0;
 extern void yyparse();
 
 /* Local functions */
-static void draw_map(int fmt);
-static void draw_items(int fmt);
-static void draw_tasks(int fmt);
+static void print_map(int fmt);
+static void print_items(int fmt);
+static void print_tasks(int fmt);
 static int itemsort(vscalar **ip1, vscalar **ip2);
 static int parse_input(char *file, int required);
 static void print_version(void);
@@ -272,21 +280,21 @@ main(int argc, char *argv[])
         printf("Syntax appears OK\n");
 
     if (output & O_MAP)
-        draw_map(format);
+        print_map(format);
 
     if (output & O_ITEMS)
-        draw_items(format);
+        print_items(format);
 
     if (output & O_TASKS)
-        draw_tasks(format);
+        print_tasks(format);
 
     /* Er... that's it */
     return 0;
 }
 
-/* Draw the map */
+/* Print the map */
 static void
-draw_map(int fmt)
+print_map(int fmt)
 {
     struct driver_st drv = drivers[fmt];
     mapfuncs *func = drv.mfunc;
@@ -338,9 +346,9 @@ draw_map(int fmt)
         (*func->map_finish)();
 }
 
-/* Draw items table */
+/* Print items table */
 static void
-draw_items(int fmt)
+print_items(int fmt)
 {
     struct driver_st drv = drivers[fmt];
     itemfuncs *func = drv.ifunc;
@@ -372,9 +380,9 @@ draw_items(int fmt)
     vl_destroy(sorted);
 }
 
-/* Draw task table */
+/* Print task table */
 static void
-draw_tasks(int fmt)
+print_tasks(int fmt)
 {
     struct driver_st drv = drivers[fmt];
     taskfuncs *func = drv.tfunc;
@@ -596,6 +604,7 @@ print_version(void)
 {
     printf("This is Ifm version %s, copyright (C) G. Hutchings\n", VERSION);
     printf("Ifm is free software, and comes with ABSOLUTELY NO WARRANTY.\n");
+    printf("See the file COPYING that came with this program.\n");
 
     exit(0);
 }
