@@ -126,6 +126,23 @@ due to part of the map being inaccessible, or B<IFM> stupidly choosing the
 wrong order of doing things.  Hopefully the latter shouldn't happen very
 often.  See L<"Finding a Solution">.
 
+=item B<warning: no matching style command>
+
+You've used 'endstyle' without a matching 'style'.  You probably have too
+many 'endstyle' commands.
+
+=item B<warning: unexpected style: [name] (expected [name])>
+
+You've used 'endstyle' with an argument that doesn't match the argument of
+the corresponding 'style'.  You might have missed out another 'endstyle'
+somewhere, or have too many.
+
+=item B<warning: style [name] referenced but not defined>
+
+An object in your input uses the specified style, but it isn't defined
+anywhere and the style definition file F<name.ifm> doesn't exist in the
+search path (or if it does, it doesn't define the required style).
+
 =item B<warning: [keyword] is obsolete -- use [phrase] instead>
 
 You've used an obsolete keyword.  Consult the documentation and then try
