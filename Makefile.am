@@ -6,16 +6,17 @@ SUBDIRS = vars src lib doc tests @tkifm@ @scr2ifm@
 
 DIST_SUBDIRS = vars src lib doc tests tkifm scr2ifm
 
-EXTRA_DIST = README.unix README.win32 README.maps
+EXTRA_DIST = README.unix README.win32 README.maps README.vars
 
-dist-hook: dist-config dist-contrib dist-header dist-cleanup
+dist-hook: dist-config dist-header dist-extra dist-touch dist-cleanup
 
 dist-config:
 	cp -rp $(top_srcdir)/config $(distdir)
 	rm -rf $(distdir)/config/RCS
 	rm -f $(distdir)/config/*header*
 
-dist-contrib:
+dist-extra:
+	cp -rp $(top_srcdir)/maps $(distdir)
 	cp -rp $(top_srcdir)/contrib $(distdir)
 
 dist-header:
@@ -24,6 +25,11 @@ dist-header:
 	   if test -f $$addheader; then \
 	      $$addheader $(top_srcdir)/config $(distdir)/$$dir; \
 	   fi; \
+	done
+
+dist-touch:
+	for file in src/ifm-scan.c src/ifm-parse.c src/ifm-parse.h; do \
+	   touch $(distdir)/$$file; \
 	done
 
 dist-cleanup:
@@ -48,6 +54,8 @@ scr2ifm/scr2ifm.txt scr2ifm/scr2ifm.html
 
 LIBS = lib/*.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
 
+MAPS = maps/*.ifm maps/README
+
 ZIPFILES = $(IFM) $(LIB) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
 
 zip:; $(MAKE) all zipdir
@@ -70,4 +78,7 @@ zipdir:
 	cp $(DOCS) $(ZIPDIR)/docs
 	mkdir $(ZIPDIR)/lib
 	cp $(LIBS) $(ZIPDIR)/lib
+	mkdir $(ZIPDIR)/maps
+	cp $(MAPS) $(ZIPDIR)/maps
+	mv $(ZIPDIR)/maps/README $(ZIPDIR)/maps/README.txt
 	chmod -R +w $(ZIPDIR)
