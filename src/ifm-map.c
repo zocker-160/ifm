@@ -139,7 +139,7 @@ init_map(void)
 }
 
 /* Pack sections onto virtual pages */
-void
+int
 pack_sections(int xmax, int ymax, int border)
 {
     int xo1, yo1, xo2, yo2, xc1, yc1, xc2, yc2, v1, v2, rflag;
@@ -307,6 +307,7 @@ pack_sections(int xmax, int ymax, int border)
     }
 
     vl_destroy(pages);
+    return num;
 }
 
 /* Resolve a tag */
