@@ -1,11 +1,10 @@
 " IFM syntax file
 " Language: Interactive Fiction Mapper
 " Maintainer: Dave Chapeskie <dchapes@ddm.on.ca>
-" $Id$
 "
 " Note:  This is my first attempt at doing vim syntax highlighting,
 "        if there is a better way of doing any of this please e-mail me.
-" Note:  This is for version 4.0 of IFM.
+" Note:  This is for version 4.2 of IFM.
 " TODO: handle using "$variable_name" where strings or numbers are expected
 " TODO: handle expressions
 
@@ -13,7 +12,7 @@
 syntax clear
 
 " Catch keywords in the wrong spot
-syntax keyword ifmError contained title map room item task link join
+syntax keyword ifmError contained require title map room item task link join
 
 " IFM statements
 " TODO: doesn't complain when there is something betweem the keyword and the
@@ -21,6 +20,7 @@ syntax keyword ifmError contained title map room item task link join
 " TODO: IFM2.0 and above supports changing existing objects by leaving out
 "	the string and using the tag, the tag doesn't get hightlighted using
 "       ifmId yet.
+syntax region ifmRequireStatement	end=";" matchgroup=ifmStatement start="\<require\>" contains=ifmError,ifmComment,ifmString
 syntax region ifmTitleStatement	end=";" matchgroup=ifmStatement start="\<title\>" contains=ifmError,ifmComment,ifmString
 syntax region ifmMapStatement	end=";" matchgroup=ifmStatement start="\<map\>" contains=ifmError,ifmComment,ifmString
 syntax region ifmRoomStatement	end=";" matchgroup=ifmStatement start="\<room\>" contains=ifmError,ifmComment,ifmString,ifmRoomOpt,ifmTagOpt,ifmDirFromOpt,ifmExitOpt,ifmScoreOpt,ifmGoOpt,ifmLengthOpt
@@ -76,8 +76,8 @@ syntax keyword ifmLinkOpt contained to cmd need after before leave nopath style
 syntax keyword ifmJoinOpt contained to cmd need after before leave nopath style
 "    These options don't have arguments
 syntax keyword ifmRoomOpt contained start oneway finish
-syntax keyword ifmItemOpt contained hidden keep lost finish "given [obsolete]
-syntax keyword ifmTaskOpt contained safe finish
+syntax keyword ifmItemOpt contained hidden keep ignore lost finish "given [obsolete]
+syntax keyword ifmTaskOpt contained safe ignore finish
 syntax keyword ifmLinkOpt contained oneway hidden
 syntax keyword ifmJoinOpt contained oneway hidden
 
