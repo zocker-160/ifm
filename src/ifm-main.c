@@ -73,9 +73,6 @@ static struct driver_st {
 /* What's my name? */
 char *progname;
 
-/* Am I being verbose? */
-static int verbose_flag;
-
 /* Current line number */
 int line_number = 1;
 
@@ -118,7 +115,7 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int i, output = O_NONE, format = -1, initfile = 1;
+    int i, output = O_NONE, format = -1, sysinit = 1, initfile = 1;
     vscalar *fmt;
     vhash *opts;
     vlist *args;
@@ -149,16 +146,20 @@ main(int argc, char *argv[])
     v_option('o', "output", V_OPT_ARG, "file",
              "Write output to file");
 
-    v_option('v', "verbose", V_OPT_FLAG, NULL,
-             "Be verbose about things");
-
-    v_option('n', "noinit", V_OPT_FLAG, NULL,
-             "Don't read init file");
-
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
-    v_option('V', "version", V_OPT_FLAG, NULL,
+#ifdef INITFILE
+    v_option('\0', "noinit", V_OPT_FLAG, NULL,
+             "Don't read personal init file");
+#endif
+
+#ifdef SYSINIT
+    v_option('\0', "nosysinit", V_OPT_FLAG, NULL,
+             "Don't read system init file");
+#endif
+
+    v_option('v', "version", V_OPT_FLAG, NULL,
              "Print program version");
 
     v_option('h', "help", V_OPT_FLAG, NULL,
@@ -189,9 +190,6 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "format"))
         format = select_format(vh_sgetref(opts, "format"));
-
-    if (vh_exists(opts, "verbose"))
-        verbose_flag = 1;
 
     if (vh_exists(opts, "nowarn"))
         warning_flag = 1;
@@ -224,43 +222,47 @@ main(int argc, char *argv[])
     /* Initialise */
     init_map();
 
-    /* Parse init file if available */
-    if (initfile && getenv("IFMINIT") != NULL)
-        if (!parse_input(getenv("IFMINIT"), 0))
+#ifdef SYSINIT
+    /* Parse system init file */
+    if (sysinit && !parse_input(SYSINIT, 0))
+        return 1;
+#endif
+
+#ifdef INITFILE
+    /* Parse personal init file if available */
+    if (initfile && getenv("HOME") != NULL) {
+        sprintf(buf, "%s/%s", getenv("HOME"), INITFILE);
+        if (!parse_input(buf, 0))
             return 1;
+    }
+#endif
 
     /* Parse input */
     if (!parse_input(file, 1))
         return 1;
 
     /* Resolve tags */
-    status("Resolving tags...");
     resolve_tags();
     if (ifm_errors > 0)
         return 1;
 
     /* Position rooms */
-    status("Positioning rooms...");
     position_rooms();
 
     /* Set up links */
-    status("Setting up room links...");
     setup_links();
     if (ifm_errors > 0)
         return 1;
 
     /* Set up sections */
-    status("Setting up sections...");
     setup_sections();
 
     /* Do task setup if required */
     if (output == O_NONE || output & O_TASKS) {
         /* Connect rooms */
-        status("Connecting rooms...");
         connect_rooms();
 
         /* Create task list */
-        status("Creating tasks...");
         build_tasks();
         order_tasks();
     }
@@ -434,7 +436,6 @@ parse_input(char *file, int required)
     if (parses++)
         yyrestart(yyin);
 
-    status("Parsing %s", ifm_input);
     yyparse();
 
     return (ifm_errors == 0);
@@ -523,16 +524,6 @@ yyerror(char *msg)
 	fatal("too many errors.  Goodbye!");
 }
 
-/* Write status message (only if verbose) */
-void
-status(char *fmt, ...)
-{
-    if (verbose_flag) {
-	VPRINT(buf, fmt);
-	fprintf(stderr, "%s\n", buf);
-    }
-}
-
 /* Give a debugging message */
 void
 debug(char *fmt, ...)
@@ -603,8 +594,23 @@ static void
 print_version(void)
 {
     printf("This is Ifm version %s, copyright (C) G. Hutchings\n", VERSION);
-    printf("Ifm is free software, and comes with ABSOLUTELY NO WARRANTY.\n");
-    printf("See the file COPYING that came with this program.\n");
+
+    printf("\nLibrary file search path:\n   %s\n\n",
+           vl_join(search_path(), "\n   "));
+
+    printf("This program is free software; you can redistribute it and/or modify\n");
+    printf("it under the terms of the GNU General Public License as published by\n");
+    printf("the Free Software Foundation; either version 2, or (at your option)\n");
+    printf("any later version.\n");
+    printf("\n");
+    printf("This program is distributed in the hope that it will be useful,\n");
+    printf("but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
+    printf("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
+    printf("GNU General Public License for more details.\n");
+    printf("\n");
+    printf("You should have received a copy of the GNU General Public License\n");
+    printf("along with this program; if not, write to the Free Software\n");
+    printf("Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n");
 
     exit(0);
 }

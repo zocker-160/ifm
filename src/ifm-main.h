@@ -29,7 +29,6 @@ extern char *ifm_format, *ifm_output;
 
 /* Advertised functions */
 extern void yyerror(char *msg);
-extern void status(char *fmt, ...);
 extern void debug(char *fmt, ...);
 extern void err(char *fmt, ...);
 extern void warn(char *fmt, ...);
