@@ -11,13 +11,13 @@ dist-hook:;		cp -rp $(srcdir)/config $(srcdir)/contrib $(distdir)
 
 ZIPDIR			= ../ifm
 
-EXE			= src/ifm.exe
+EXE			= ifm.exe
 
 FILES			= README README.win32 README.maps NEWS COPYING
 
-PROGS			= $(EXE) tkifm/tkifm.tcl scr2ifm/scr2ifm.pl
+PROGS			= src/$(EXE) tkifm/tkifm.tcl scr2ifm/scr2ifm.pl
 
-DLLS			= /bin/cygwin.dll
+DLL			= /bin/cygwin.dll
 
 DOCS			= doc/ifm.txt doc/ifm.html tkifm/tkifm.txt \
 			  tkifm/tkifm.html scr2ifm/scr2ifm.txt \
@@ -29,7 +29,7 @@ ZIPFILES		= $(IFM) $(LIB) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
 
 zip:;			$(MAKE) all zipdir
 
-ziptest:;		$(MAKE) ZIPDIR=zip EXE="" DLLS="" zipdir
+ziptest:;		$(MAKE) ZIPDIR=zip EXE=ifm DLL="" zipdir
 
 zipdir:;		rm -rf $(ZIPDIR)
 			mkdir $(ZIPDIR)
@@ -40,10 +40,8 @@ zipdir:;		rm -rf $(ZIPDIR)
 			mv $(ZIPDIR)/README.win32 $(ZIPDIR)/WIN32.txt
 			mv $(ZIPDIR)/README.maps $(ZIPDIR)/MAPS.txt
 			mkdir $(ZIPDIR)/progs
-			cp $(PROGS) $(DLLS) $(ZIPDIR)/progs
-			if test "$(EXE)" != ""; then \
-				strip $(ZIPDIR)/progs/$(EXE); \
-			fi
+			cp $(PROGS) $(DLL) $(ZIPDIR)/progs
+			strip $(ZIPDIR)/progs/$(EXE)
 			mkdir $(ZIPDIR)/docs
 			cp $(DOCS) $(ZIPDIR)/docs
 			mkdir $(ZIPDIR)/lib
