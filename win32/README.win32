@@ -7,7 +7,7 @@ distribution).  This should be in your DLL search path.  The subdirectories
 in the ZIP file are:
 
     progs	The programs, and DLL
-    docs	Documentation, in ASCII and HTML format
+    docs	Documentation, in PDF and HTML format
     lib		Various library files used by IFM
     demos       Example maps
 

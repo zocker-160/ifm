@@ -23,7 +23,7 @@ FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
 PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/ifm2tex.pl		\
 $(PROGDIR)/ifm2dev.pl $(PROGDIR)/tkifm.tcl $(PROGDIR)/scr2ifm.pl
 
-DOCS = $(DOCDIR)/ifm.pdf $(DOCDIR)/html
+DOCS = $(DOCDIR)/ifm.pdf $(DOCDIR)/ifm
 
 LIBS = $(LIBDIR)/*.ifm $(LIBDIR)/ifm-pro.ps $(LIBDIR)/ifm-rgb.txt
 
