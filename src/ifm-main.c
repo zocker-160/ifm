@@ -74,7 +74,7 @@ static struct driver_st {
 char *progname;
 
 /* Current line number */
-int line_number = 1;
+int line_number;
 
 /* No. of errors */
 int ifm_errors = 0;
@@ -433,6 +433,7 @@ parse_input(char *file, int required)
     }
 
     ifm_errors = 0;
+    line_number = 1;
     if (parses++)
         yyrestart(yyin);
 
