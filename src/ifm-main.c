@@ -22,6 +22,7 @@
 
 /* Output drivers */
 #include "ifm-ps.h"
+#include "ifm-fig.h"
 #include "ifm-text.h"
 #include "ifm-tk.h"
 #include "ifm-raw.h"
@@ -37,6 +38,9 @@ static struct driver_st {
 } drivers[] = {
     { "ps", "PostScript",
       &ps_mapfuncs, NULL, NULL, NULL },
+
+    { "fig", "Fig drawing commands",
+      &fig_mapfuncs, NULL, NULL, NULL },
 
     { "text", "Nicely-formatted ASCII text",
       NULL, &text_itemfuncs, &text_taskfuncs, NULL },
@@ -134,8 +138,8 @@ static struct show_st {
     void (*func)(void);
 } showopts[] = {
     { "maps", "Show map sections",      show_maps },
+    { "vars", "Show defined variables", var_list  },
     { "path", "Show file search path",  show_path },
-    { "vars", "Show defined variables", var_list },
     { NULL,   NULL,                NULL }
 };
 
@@ -393,6 +397,8 @@ print_map(void)
             vh_istore(sect, "NOPRINT", 1);
     }
 
+    set_map_vars();
+
     if (func->map_start != NULL)
         (*func->map_start)();
 
@@ -410,6 +416,7 @@ print_map(void)
             vl_foreach(elt, list) {
                 room = vs_pget(elt);
                 set_style_list(vh_pget(room, "STYLE"));
+                set_room_vars();
                 (*func->map_room)(room);
             }
         }
@@ -418,11 +425,15 @@ print_map(void)
             list = vh_pget(sect, "LINKS");
             vl_foreach(elt, list) {
                 link = vs_pget(elt);
+
                 if (vh_iget(link, "HIDDEN"))
                     continue;
+
                 if (vh_iget(link, "NOLINK"))
                     continue;
+
                 set_style_list(vh_pget(link, "STYLE"));
+                set_link_vars();
                 (*func->map_link)(link);
             }
         }
@@ -437,8 +448,10 @@ print_map(void)
     if (func->map_join != NULL) {
         vl_foreach(elt, joins) {
             join = vs_pget(elt);
+
             if (vh_iget(join, "HIDDEN"))
                 continue;
+
             set_style_list(vh_pget(join, "STYLE"));
             (*func->map_join)(join);
         }

@@ -71,25 +71,31 @@ tkifm = @tkifm@
 
 bin_PROGRAMS = ifm
 
-SRCS = ifm-dot.c ifm-main.c ifm-map.c ifm-parse.y ifm-path.c ifm-ps.c	 ifm-raw.c ifm-rec.c ifm-scan.l ifm-task.c ifm-text.c ifm-tk.c ifm-util.c ifm-vars.c
+SRCS = ifm-dot.c ifm-driver.c ifm-fig.c ifm-main.c ifm-map.c ifm-parse.y ifm-path.c ifm-ps.c ifm-raw.c ifm-rec.c ifm-scan.l ifm-task.c ifm-text.c ifm-tk.c ifm-util.c ifm-vars.c
 
 
-HDRS = ifm-dot.h ifm-driver.h ifm-main.h ifm-map.h ifm-parse.h ifm-path.h ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h ifm-tk.h ifm-util.h	  ifm-vars.h
+HDRS = ifm-dot.h ifm-driver.h ifm-fig.h ifm-main.h ifm-map.h ifm-parse.h ifm-path.h ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h ifm-tk.h	 ifm-util.h ifm-vars.h
 
 
 ifm_SOURCES = $(SRCS) $(HDRS)
 
 EXTRA_DIST = ifm-parse.c ifm-scan.c
 
+FIG = ../fig
+
 VARS = ../vars/src
 
-ifm_LDADD = -lvars
+ifm_LDADD = -lfig -lvars
 
-ifm_LDFLAGS = -L$(VARS)
+ifm_LDFLAGS = -L$(FIG) -L$(VARS)
 
 YFLAGS = -d -v
 
-INCLUDES = -I$(VARS) -DSYSINIT=\"ifm-init.ifm\" -DIFMPATH=\"$(pkgdatadir):.\"
+SYSDEF = -DSYSINIT=\"ifm-init.ifm\"
+
+PATHDEF = -DIFMPATH=\"$(pkgdatadir):.\"
+
+INCLUDES = -I$(FIG) -I$(VARS) $(SYSDEF) $(PATHDEF)
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ../etc/config.h
 CONFIG_CLEAN_FILES = 
@@ -100,9 +106,9 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I../etc
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-ifm_OBJECTS =  ifm-dot.o ifm-main.o ifm-map.o ifm-parse.o ifm-path.o \
-ifm-ps.o ifm-raw.o ifm-rec.o ifm-scan.o ifm-task.o ifm-text.o ifm-tk.o \
-ifm-util.o ifm-vars.o
+ifm_OBJECTS =  ifm-dot.o ifm-driver.o ifm-fig.o ifm-main.o ifm-map.o \
+ifm-parse.o ifm-path.o ifm-ps.o ifm-raw.o ifm-rec.o ifm-scan.o \
+ifm-task.o ifm-text.o ifm-tk.o ifm-util.o ifm-vars.o
 ifm_DEPENDENCIES = 
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LEXLIB = @LEXLIB@
@@ -117,10 +123,11 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/ifm-dot.P .deps/ifm-main.P .deps/ifm-map.P \
-.deps/ifm-parse.P .deps/ifm-path.P .deps/ifm-ps.P .deps/ifm-raw.P \
-.deps/ifm-rec.P .deps/ifm-scan.P .deps/ifm-task.P .deps/ifm-text.P \
-.deps/ifm-tk.P .deps/ifm-util.P .deps/ifm-vars.P
+DEP_FILES =  .deps/ifm-dot.P .deps/ifm-driver.P .deps/ifm-fig.P \
+.deps/ifm-main.P .deps/ifm-map.P .deps/ifm-parse.P .deps/ifm-path.P \
+.deps/ifm-ps.P .deps/ifm-raw.P .deps/ifm-rec.P .deps/ifm-scan.P \
+.deps/ifm-task.P .deps/ifm-text.P .deps/ifm-tk.P .deps/ifm-util.P \
+.deps/ifm-vars.P
 SOURCES = $(ifm_SOURCES)
 OBJECTS = $(ifm_OBJECTS)
 
@@ -344,7 +351,7 @@ mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-$(bin_PROGRAMS): $(VARS)/libvars.a
+$(bin_PROGRAMS): $(FIG)/libfig.a $(VARS)/libvars.a
 
 ifm-parse.h: ifm-parse.c
 
