@@ -20,7 +20,7 @@ game transcripts.
 =for inf node DESCRIPTION, Introduction, What is scr2ifm?
 =for inf node OPTIONS, Options, Command-line options
 =for inf node OPERATION, Operation, How scr2ifm works
-=for inf node HINTS AND TIPS, Hints and Tips, How to improve things
+=for inf node MAKING TRANSCRIPTS, Making Transcripts, While playing the game
 =for inf node IFM COMMANDS, Ifm Commands, Adding items and tasks
 =for inf node FIXING PROBLEMS, Fixing Problems, Patching things up
 =for inf node EXAMPLE SESSION, Example, Example scr2ifm session
@@ -33,11 +33,17 @@ produces a map of it in B<ifm> format.  It works on Infocom-style
 transcripts -- those produced by Inform- and TADS-generated games (and of
 course Infocom games themselves).  The idea is that you play your game in a
 carefree manner, without worrying about mapping anything, and after the
-session use B<scr2ifm> to get a map.  Well, that's the theory anyway.  For
-best results, you should follow a few simple guidelines when creating your
-transcript (see L<"HINTS AND TIPS">).
+session use B<scr2ifm> to get a map.  Well, that's the theory anyway.
+
+B<scr2ifm> offers two basic ways of mapping: you can create an initial
+(incomplete) map from your first transcript and then add the rest 'by
+hand', or you can create a set of transcripts, each exploring different
+parts of the game, and then merge them all into a final map.  Which you
+choose is up to you.
 
 =head1 OPTIONS
+
+These are the command-line options for B<scr2ifm>:
 
 =over 4
 
@@ -68,7 +74,7 @@ Don't print warnings.
 
 =item B<-h>
 
-Print a usage message and exit.
+Print a short usage message and exit.
 
 =back
 
@@ -102,12 +108,13 @@ If there is a description, an exact description match is tried.  If that
 fails, a substring match is attempted.  If I<that> fails, the first few
 words are examined to see if they match.  If there's no description, an
 exact room name match is tried.  This isn't as reliable, which is why you
-should always create a transcript in 'verbose' mode (see L<"HINTS AND
-TIPS">).
+should always create a transcript in 'verbose' mode (see L<"MAKING
+TRANSCRIPTS">).
 
 =item *
 
-Special B<ifm> commands -- see L<"IFM COMMANDS">.
+Special B<ifm> commands that are (hopefully) ignored completely by the game
+-- see L<"IFM COMMANDS">.
 
 =back
 
@@ -143,7 +150,7 @@ make it unique.  For example, 'black rod' might get a tag 'Black_rod_2'.
 Finally, the B<ifm> commands from the file indicated by the B<-c> option
 are echoed (if any).
 
-=head1 HINTS AND TIPS
+=head1 MAKING TRANSCRIPTS
 
 For best results with B<scr2ifm>, you should follow these guidelines when
 making a transcript:
@@ -201,6 +208,11 @@ for an example.  Sometimes it's worth having a second attempt at a
 transcript, choosing different directions to go in, too see if it improves
 things.
 
+Another problem with mapping is that some games have these inconvenient
+things called puzzles, which sometimes block you from exploring everywhere
+so you can map it properly.  Come on, IF authors, let's get our priorities
+right!
+
 =head1 IFM COMMANDS
 
 While you're making your transcript, you can use a subset of B<ifm>
@@ -220,10 +232,7 @@ appear anywhere, and has the same effect each time.
 
 Indicate that the current room starts a new map section with the given
 name.  The name must be in double-quotes.  This is useful if it seems like
-the map divides into different sections (e.g. the floors of a house).  But
-it can lead to errors if you move from one section to another via a room
-that hasn't had 'map' declared on it, since B<ifm> will try to link rooms
-on different map sections.
+the map divides into different sections (e.g. the floors of a house).
 
 If you use the 'map' command, you'll end up with two or more map sections.
 The first map section is the one that contains the very first room, and
@@ -292,13 +301,18 @@ Here's a list of the commands available:
 This evaluates the given perl expression.  You can use this to set various
 parameters that control how the transcript is parsed (see below).
 
-=item isroom <text>
+=item is_room <text>
 
 Declare a line of text that is actually the name of a room.  Normally room
 names get recognized properly, but there may be some special cases that
 aren't.
 
-=item usename <text>
+=item not_room <text>
+
+Declare a line of text that definitely isn't the name of a room.  This is
+for opposite cases to the above.
+
+=item use_name <text>
 
 Use only the room name to decide whether a room has been previously
 visited.  This is for cases where a room description changes too much
@@ -331,15 +345,9 @@ Maximum no. of words in a room name.
 
 Maximum length of an uncapitalized word in a room name.
 
-=item $name_invalid (default: '[.!?]')
+=item $name_invalid (default: '[.!?"]')
 
 Regexp which, if matched, signals an invalid room name.
-
-=item $name_ignore (default: unset)
-
-Optional regexp matching any other possible room names that should be
-ignored.  You can use this for special cases, where particular transcript
-lines are thought to be room names when they shouldn't be.
 
 =item $desc_minwords (default: 20)
 
@@ -646,8 +654,6 @@ we get the following map:
     join IDR to IB cmd "xyzzy";
 
 =head1 RESTRICTIONS
-
-The 'map' command can cause B<ifm> errors.
 
 There's currently no support for mapping mazes.  Different maze rooms that
 look identical will simply appear as a single room.
