@@ -29,7 +29,7 @@
 
 #define PRINT_COLOUR(name) \
         if (var_changed(#name)) \
-                printf("set ifm(%s) %s\n", #name, var_string(#name))
+                printf("set ifm(%s) {%s}\n", #name, var_string(#name))
 
 #define PRINT_FONTDEF(name) \
         if (var_changed(#name)) \
