@@ -68,7 +68,7 @@ syntax keyword ifmFromOpt       contained from
 "    TODO: IFM2.0 added things like "leave all except ID" which should be
 "    highlighted.
 syntax keyword ifmRoomOpt contained link join note need after before leave cmd
-syntax keyword ifmRoomOpt contained nolink nopath style
+syntax keyword ifmRoomOpt contained nolink nopath nodrop style
 syntax keyword ifmItemOpt contained in note need after before style
 syntax keyword ifmTaskOpt contained in cmd note need after follow get give lose
 syntax keyword ifmTaskOpt contained drop goto style
