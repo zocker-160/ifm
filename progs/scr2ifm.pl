@@ -194,12 +194,13 @@ foreach $move (@moves) {
 foreach $move (@moves) {
     $name = $move->{NAME};
     $desc = $move->{DESC};
+    $file = $move->{FILE};
     $line = $move->{LINE};
     $cmd = $move->{CMD};
 
     # Check for IFM command.
     if ($cmd =~ /$cmd_ifm/io) {
-	&ifmcmd($here, $line, $cmd);
+	&ifmcmd($here, $file, $line, $cmd);
 	next;
     }
 
@@ -279,7 +280,7 @@ foreach $move (@moves) {
     undef $desc;
     foreach $obj (@$list) {
 	$type = $obj->{TYPE};
-	$file = $move->{FILE};
+	$file = $obj->{FILE};
 	$line = $obj->{LINE};
 	$name = $obj->{NAME};
 	$tag = $obj->{TAG};
@@ -367,6 +368,7 @@ sub newroom {
     $room->{FROM} = $from if $from;
     $room->{GO} = $go if $go;
     $room->{CMD} = $cmd if $cmd;
+    $room->{FILE} = $move->{FILE};
     $room->{LINE} = $move->{LINE};
 
     $roommap{$tag} = $room;
@@ -410,6 +412,7 @@ sub newlink {
 	$link->{DIR} = $dir if $dir;
 	$link->{GO} = $go if $go;
 	$link->{CMD} = $cmd if $cmd;
+	$link->{FILE} = $move->{FILE};
 	$link->{LINE} = $move->{LINE};
 
 	&moveroom($from, $dir);
@@ -546,7 +549,7 @@ sub roomtag {
 
 # Parse IFM command.
 sub ifmcmd {
-    my ($roomtag, $line, $cmd) = @_;
+    my ($roomtag, $file, $line, $cmd) = @_;
     my $move = $movemap{$roomtag};
     my $room = $roommap{$roomtag};
 
@@ -577,6 +580,7 @@ sub ifmcmd {
 	$obj->{TYPE} = $1;
 	$obj->{NAME} = $2;
 	$obj->{ATTR} = $3;
+	$obj->{FILE} = $file;
 	$obj->{LINE} = $line;
 	push(@{$move->{IFM}}, $obj);
 
