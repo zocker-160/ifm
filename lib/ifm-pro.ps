@@ -171,6 +171,7 @@
  		/ln-xn ln-points ln-i 1 add 2 mul get def
  		/ln-yn ln-points ln-i 1 add 2 mul 1 add get def
  		ln-x ln-y pagepos ln-xn ln-yn pagepos 10 arcto
+		pop pop pop pop
  	    } ifelse
  	} for
  
@@ -374,17 +375,27 @@
     gsave
 	% Move to text centre.
 	translate
-	dup stringwidth pop neg 2 div
-	currentfontsize neg 3 div
+	/tx-string exch def
+
+	% Get string length.
+	tx-string stringwidth pop
+
+	% Subtract space width if required.
+	tx-string length 1 sub tx-string exch get 32 eq {
+	    ( ) stringwidth pop sub
+	} if
+
+	% Move to string centre.
+	neg 2 div currentfontsize neg 3 div
 	moveto
 
 	% Draw text outline in background.
 	gsave
-	    dup false charpath pathbbox 1 setgray rectangle
+	    tx-string false charpath pathbbox 1 setgray rectangle
 	grestore
 
 	% Draw text.
-	show
+	tx-string show
     grestore
 } bind def
 
