@@ -4,7 +4,7 @@
 set ifm(edit) 1
 
 # Edit window dimensions.
-set ifm(editwidth) 80
+set ifm(editwidth)  80
 set ifm(editheight) 24
 
 # Editing font.
@@ -15,19 +15,19 @@ set ifm(editforeground) black
 set ifm(editbackground) wheat
 
 # Item list window dimensions.
-set ifm(itemwidth) 50
+set ifm(itemwidth)  50
 set ifm(itemheight) 30
 
 # Task list (brief) window dimensions.
-set ifm(taskwidth) 50
+set ifm(taskwidth)  50
 set ifm(taskheight) 30
 
 # Task list (verbose) window dimensions.
-set ifm(verbosewidth) 80
+set ifm(verbosewidth)  80
 set ifm(verboseheight) 30
 
 # Variable window dimensions.
-set ifm(varswidth) 50
+set ifm(varswidth)  50
 set ifm(varsheight) 30
 
 # Text window font.
@@ -51,13 +51,23 @@ set ifm(varscmd)    {ifm -nowarn -show vars}
 set ifm(pathcmd)    {ifm -nowarn -show path}
 set ifm(aboutcmd)   {ifm -nowarn -version}
 
+# Syntax highlighting variables.
+set ifm(syntaxcomments)     firebrick
+set ifm(syntaxstrings)      grey40
+set ifm(syntaxstructure)    blue
+set ifm(syntaxdirections)   darkgoldenrod
+set ifm(syntaxspecial)      cadetblue
+set ifm(syntaxbuiltin)      forestgreen
+set ifm(syntaxkeyword)      royalblue
+set ifm(syntaxpreprocessor) purple
+
 # Internal variables.
-set ifm(untitled) "untitled.ifm"
-set ifm(ifmfiles) {{"IFM files" {.ifm}} {"All files" *}}
-set ifm(psfiles)  {{"PostScript files" {.ps}} {"All files" *}}
-set ifm(figfiles) {{"Fig files" {.fig}} {"All files" *}}
+set ifm(untitled)      "untitled.ifm"
+set ifm(ifmfiles)      {{"IFM files" {.ifm}} {"All files" *}}
+set ifm(psfiles)       {{"PostScript files" {.ps}} {"All files" *}}
+set ifm(figfiles)      {{"Fig files" {.fig}} {"All files" *}}
 set ifm(roomitemratio) 0.5
-set ifm(busycursor) watch
+set ifm(busycursor)    watch
 
 # Room style variable names.
 set ifm(roomvars) {
@@ -149,11 +159,11 @@ proc MainWindow {} {
     set s .edit.scroll
     set ifm(text) $t
 
-    text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(editwidth) -height $ifm(editheight) \
-	    -wrap word -font $ifm(editfont) -fg $ifm(editforeground) \
-	    -bg $ifm(editbackground) -insertofftime 0 \
-	    -insertbackground red
+    ctext $t -yscrollcommand "$s set" -setgrid true \
+	-width $ifm(editwidth) -height $ifm(editheight) \
+	-wrap word -font $ifm(editfont) -fg $ifm(editforeground) \
+	-bg $ifm(editbackground) -insertofftime 0 \
+	-insertbackground red
 
     bind $t <3> "$t scan mark %x %y"
     bind $t <B3-Motion> "$t scan dragto %x %y"
@@ -163,6 +173,33 @@ proc MainWindow {} {
     pack .edit -expand yes -fill both
     pack $s -side right -fill y
     pack $t -expand yes -fill both
+
+    # Set up highlighting.
+    ctext::addHighlightClass .edit.text preprocessor \
+        $ifm(syntaxpreprocessor) {%include %define %defeval %if %ifdef %undef \
+				      %ifndef %ifeq %ifneq %else %endif %eval \
+				      %1 %2 %3 %4 %5 %6 %7 %8 %9 %exec defined}
+
+    ctext::addHighlightClass .edit.text structure $ifm(syntaxstructure) \
+	{room link}
+    ctext::addHighlightClass .edit.text directions  $ifm(syntaxdirections) \
+	{n north ne northeast e east se southeast s south sw \
+	     southwest w west nw northwest}
+    ctext::addHighlightClass .edit.text special  $ifm(syntaxspecial) \
+        {endstyle style title map start finish safe require}
+    ctext::addHighlightClass .edit.text builtin  $ifm(syntaxbuiltin) \
+	{all any it last none undef}
+    ctext::addHighlightClass .edit.text keyword  $ifm(syntaxkeyword) \
+        {after before cmd d do down dir drop except exit follow \
+	     from get give go goto hidden ignore in item join keep \
+	     leave length lose lost need nodrop nolink nopath note \
+	     oneway out score tag task to u up until with}
+
+    # This is where the syntax highlighting is defined
+    ctext::addHighlightClassForRegexp .edit.text strings \
+	$ifm(syntaxstrings) {\"([^\\\"]|(\\.))*\"}
+    ctext::addHighlightClassForRegexp .edit.text comments \
+	$ifm(syntaxcomments) {#[^\n]*}
 
     if $ifm(edit) {
 	focus $ifm(text)
@@ -628,6 +665,7 @@ proc ReadFile {file} {
 	$ifm(text) configure -state normal
 	$ifm(text) delete 0.0 end
 	$ifm(text) insert end $ifm(data)
+	$ifm(text) highlight 1.0 end
 
 	if !$ifm(edit) {
 	    $ifm(text) configure -state disabled
