@@ -125,6 +125,8 @@ WHITE		[ \t\f]*
 "ne"		{ return NORTHEAST; }
 "need"		{ return NEED; }
 "nolink"        { return NOLINK; }
+"nopath"        { return NOPATH; }
+"none"          { return NONE; }
 "north"		{ return NORTH; }
 "northeast"	{ return NORTHEAST; }
 "northwest"	{ return NORTHWEST; }

@@ -85,6 +85,7 @@ static int repeat = 0;          /* String repeat count */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
+%token        NOPATH NONE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -164,6 +165,8 @@ room_stmt	: ROOM STRING
                                   vh_iget(curroom, "SPECIAL"));
                         vh_istore(link, "NOLINK",
                                   vh_iget(curroom, "NOLINK"));
+                        vh_istore(link, "NOPATH",
+                                  vh_iget(curroom, "NOPATH"));
                         vh_istore(link, "LEN",
                                   vh_iget(curroom, "LEN"));
                         vh_pstore(link, "BEFORE",
@@ -198,6 +201,8 @@ room_stmt	: ROOM STRING
                             WARN_IGNORED(special);
                         if (vh_exists(curroom, "LEN"))
                             WARN_IGNORED(length);
+                        if (vh_exists(curroom, "NOPATH"))
+                            WARN_IGNORED(nopath);
                         if (vh_exists(curroom, "TO_CMD"))
                             WARN_IGNORED(cmd);
                     }
@@ -325,6 +330,10 @@ room_attr	: TAG ID
 		| NOLINK
 		{
                     vh_istore(curroom, "NOLINK", 1);
+		}
+		| NOPATH
+		{
+                    vh_istore(curroom, "NOPATH", 1);
 		}
 		| SPECIAL
 		{
@@ -528,6 +537,10 @@ link_attr	: DIR dir_list
 		{
                     vh_istore(curlink, "HIDDEN", 1);
 		}
+		| NOPATH
+		{
+                    vh_istore(curlink, "NOPATH", 1);
+		}
                 | NEED item_list
                 {
                     SET_LIST(curlink, "NEED", curitems);
@@ -619,6 +632,10 @@ join_attr	: GO compass
 		| HIDDEN
 		{
                     vh_istore(curjoin, "HIDDEN", 1);
+		}
+		| NOPATH
+		{
+                    vh_istore(curjoin, "NOPATH", 1);
 		}
                 | NEED item_list
                 {
@@ -797,14 +814,14 @@ task_attr	: TAG ID
                 {
                     vh_istore(curtask, "FINISH", 1);
                 }
-                | HIDDEN
-                {
-                    vh_istore(curtask, "HIDDEN", 1);
-                }
                 | CMD string_repeat
                 {
                     while (repeat-- > 0)
                         add_attr(curtask, "CMD", $2);
+                }
+                | CMD NONE
+                {
+                    add_attr(curtask, "CMD", NULL);
                 }
 		| NOTE STRING
 		{
