@@ -999,6 +999,14 @@ vars_stmt       : ID '=' exp ';'
                 {
                     var_set($1, $2, vs_screate($4));
                 }
+                | ID '=' VAR ';'
+                {
+                    var_set(NULL, $1, vs_screate(var_string($3)));
+                }
+                | ID ID '=' VAR ';'
+                {
+                    var_set($1, $2, vs_screate(var_string($4)));
+                }
                 | ID '=' UNDEF ';'
                 {
                     var_set(NULL, $1, NULL);
