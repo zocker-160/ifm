@@ -26,7 +26,7 @@ static char buf[BUFSIZ];
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE NEXT UNDEF
-%token        PREV 
+%token        PREV CMD LEAVE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -133,6 +133,10 @@ room_attr	: TAG IDENT
 		    sprintf(buf, "%d", $2);
 		    set_room_attr("SCORE", buf);
 		}
+                | CMD STRING
+                {
+                    set_room_cmd($2);
+                }
 		| NOTE STRING
 		{
 		    set_room_attr("NOTE", $2);
@@ -245,6 +249,10 @@ link_attr	: DIR dir_list
 		    sprintf(buf, "%d", $2);
 		    set_link_attr("LEN", buf);
 		}
+                | CMD STRING
+                {
+                    set_link_cmd($2);
+                }
 		;
 
 join_stmt	: JOIN IDENT TO IDENT join_attrs ';'
@@ -287,6 +295,10 @@ join_attr	: GO go_flag
 		    sprintf(buf, "%d", $2);
 		    set_join_attr("LEN", buf);
 		}
+                | CMD STRING
+                {
+                    set_join_cmd($2);
+                }
 		;
 
 task_stmt	: TASK STRING task_attrs ';'
@@ -458,20 +470,20 @@ dir_elt		: dir
 		}
 		;
 
-dir		: NORTH		{ $$ = NORTH;	  }
-		| EAST		{ $$ = EAST;	  }
-		| SOUTH		{ $$ = SOUTH;	  }
-		| WEST		{ $$ = WEST;	  }
-		| NORTHEAST	{ $$ = NORTHEAST; }
-		| NORTHWEST	{ $$ = NORTHWEST; }
-		| SOUTHEAST	{ $$ = SOUTHEAST; }
-		| SOUTHWEST	{ $$ = SOUTHWEST; }
+dir		: NORTH		{ $$ = D_NORTH;	  }
+		| EAST		{ $$ = D_EAST;	  }
+		| SOUTH		{ $$ = D_SOUTH;	  }
+		| WEST		{ $$ = D_WEST;	  }
+		| NORTHEAST	{ $$ = D_NORTHEAST; }
+		| NORTHWEST	{ $$ = D_NORTHWEST; }
+		| SOUTHEAST	{ $$ = D_SOUTHEAST; }
+		| SOUTHWEST	{ $$ = D_SOUTHWEST; }
 		;
 
-go_flag		: IN            { $$ = IN;   }
-		| OUT           { $$ = OUT;  }
-		| UP            { $$ = UP;   }
-		| DOWN          { $$ = DOWN; }
+go_flag		: IN            { $$ = D_IN;   }
+		| OUT           { $$ = D_OUT;  }
+		| UP            { $$ = D_UP;   }
+		| DOWN          { $$ = D_DOWN; }
 		;
 
 var             : INTEGER       { $$ = vs_istore(NULL, $1); }

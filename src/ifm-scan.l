@@ -81,6 +81,7 @@ WHITE		[ \t\f]*
 "after"         { return AFTER; }
 "any"           { return ANY; }
 "before"        { return BEFORE; }
+"cmd"           { return CMD; }
 "d"		{ return DOWN; }
 "dir"		{ return DIR; }
 "down"		{ return DOWN; }
@@ -98,6 +99,7 @@ WHITE		[ \t\f]*
 "join"		{ return JOIN; }
 "keep"          { return KEEP; }
 "last"		{ return LAST; }
+"leave"		{ return LEAVE; }
 "length"	{ return LENGTH; }
 "link"		{ return LINK; }
 "lose"          { return LOSE; }
