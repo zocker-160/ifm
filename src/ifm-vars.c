@@ -360,7 +360,7 @@ var_print(vhash *vars, char *style, int alias)
         }
 
         if (style != NULL)
-            printf(" in style \"%s\"", style);
+            printf(" in style %s", style);
 
         printf(";\n");
     }
