@@ -54,7 +54,7 @@ connect_rooms(void)
     vhash *room, *link, *join, *reach, *from, *to;
     int oneway, len, goflag, dir, num = 0;
     char *cmd, id[10], *fnode, *tnode;
-    vlist *cmdfrom, *cmdto;
+    vlist *cmdfrom, *cmdto, *list;
     vscalar *elt;
 
     DEBUG0(0, "Task debugging information\n");
@@ -117,10 +117,11 @@ connect_rooms(void)
 
         if (ifm_debug) {
             indent(1);
+            list = vh_pget(reach, "CMD");
             printf("link `%s' to `%s' (%s)",
                    vh_sgetref(from, "DESC"),
                    vh_sgetref(to, "DESC"),
-                   cmd);
+                   vl_join(list, ". "));
             if (len > 1)
                 printf(" (dist %d)", len);
             printf("\n");
@@ -158,10 +159,11 @@ connect_rooms(void)
 
             if (ifm_debug) {
                 indent(1);
+                list = vh_pget(reach, "CMD");
                 printf("link `%s' to `%s' (%s)",
                        vh_sgetref(to, "DESC"),
                        vh_sgetref(from, "DESC"),
-                       cmd);
+                       vl_join(list, ". "));
                 if (len > 1)
                     printf(" (dist %d)", len);
                 printf("\n");
@@ -210,10 +212,11 @@ connect_rooms(void)
 
         if (ifm_debug) {
             indent(1);
+            list = vh_pget(reach, "CMD");
             printf("join `%s' to `%s' (%s)",
                    vh_sgetref(from, "DESC"),
                    vh_sgetref(to, "DESC"),
-                   cmd);
+                   vl_join(list, ". "));
             if (len > 1)
                 printf(" (dist %d)", len);
             printf("\n");
@@ -250,10 +253,11 @@ connect_rooms(void)
 
             if (ifm_debug) {
                 indent(1);
+                list = vh_pget(reach, "CMD");
                 printf("join `%s' to `%s' (%s)",
                        vh_sgetref(to, "DESC"),
                        vh_sgetref(from, "DESC"),
-                       cmd);
+                       vl_join(list, ". "));
                 if (len > 1)
                     printf(" (dist %d)", len);
                 printf("\n");
