@@ -28,13 +28,18 @@ while (<FIND>) {
     $newfile = $file . ".out";
     open(OUT, "> $newfile") or &bomb("can't open $newfile: $!");
 
-    # Echo header.
+    # Check lex/yacc source.
+    open(IN, $file) or &bomb("can't open $file: $!");
+    $first = <IN>;
+    $lexyacc = ($first eq "%{\n");
+    print OUT $first if $lexyacc;
+
+    # Print header.
     open(HDR, $header) or &bomb("can't open $header: $!");
     print OUT while <HDR>;
     close HDR;
 
-    # Echo source file.
-    open(IN, $file) or &bomb("can't open $file: $!");
+    print OUT $first unless $lexyacc;
     print OUT while <IN>;
     close IN;
 
