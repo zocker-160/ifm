@@ -6,6 +6,7 @@
 
 /* Internal functions */
 static int fig_calc_bbox(vhash *object);
+static void fig_write_arrows(vhash *object, FILE *fp);
 static void fig_write_object(vhash *object, FILE *fp);
 
 /* Calculate bounding box of an object */
@@ -103,10 +104,32 @@ fig_calc_bbox(vhash *object)
     return 1;
 }
 
+/* Write object arrows to a stream */
+static void
+fig_write_arrows(vhash *object, FILE *fp)
+{
+    int arrow_forward = vh_iget(object, "ARROW_FORWARD");
+    int arrow_backward = vh_iget(object, "ARROW_BACKWARD");
+    int arrow_type = vh_iget(object, "ARROW_TYPE");
+    int arrow_style = vh_iget(object, "ARROW_STYLE");
+    float thickness = vh_fget(object, "ARROW_THICK");
+    float width = vh_fget(object, "ARROW_WIDTH");
+    float height = vh_fget(object, "ARROW_HEIGHT");
+
+    if (arrow_forward)
+        fprintf(fp, "\t%d %d %g %g %g\n",
+                arrow_type, arrow_style, thickness, width, height);
+
+    if (arrow_backward)
+        fprintf(fp, "\t%d %d %g %g %g\n",
+                arrow_type, arrow_style, thickness, width, height);
+}
+
 /* Write figure to a stream */
 void
 fig_write_figure(vhash *figure, FILE *fp)
 {
+    int orient = vh_iget(figure, "ORIENTATION");
     vlist *objects;
     vhash *colours;
     vscalar *elt;
@@ -117,15 +140,12 @@ fig_write_figure(vhash *figure, FILE *fp)
 
     /* Write header info */
     fprintf(fp, "#FIG 3.2\n");
-
-    fprintf(fp, "%s\n", vh_iget(figure, "ORIENTATION") == FIG_LANDSCAPE ?
-            "Landscape" : "Portrait");
-
+    fprintf(fp, "%s\n", orient == FIG_LANDSCAPE ? "Landscape" : "Portrait");
     fprintf(fp, "Center\n");
-    fprintf(fp, "Inches\n");
-    fprintf(fp, "A4\n");
+    fprintf(fp, "%s\n", vh_sgetref(figure, "UNITS"));
+    fprintf(fp, "%s\n", vh_sgetref(figure, "PAPERSIZE"));
     fprintf(fp, "100.00\n");
-    fprintf(fp, "Single\n");
+    fprintf(fp, "Multiple\n");
     fprintf(fp, "-2\n");
     fprintf(fp, "%d 2\n", FIG_RESOLUTION);
 
@@ -144,26 +164,19 @@ fig_write_figure(vhash *figure, FILE *fp)
 static void
 fig_write_object(vhash *object, FILE *fp)
 {
-    int arrow_forward, arrow_backward, radius, npoints;
-    int type, subtype, pen_style, cap_style;
-    int i, arrow_type, arrow_style, font_flags;
-    float style_val, width, height, thickness;
-    vlist *objects, *xp, *yp;
+    int radius = 1, npoints, type, subtype, pen_style = 0, cap_style = 0;
+    float style_val = 1.0, width, height, thickness;
+    int i, font_flags = 4, direction = 0;
+    vlist *objects, *xp, *yp, *shape;
     vscalar *elt;
 
     type = vh_iget(object, "TYPE");
     subtype = vh_iget(object, "SUBTYPE");
 
-    pen_style = 0;
-    style_val = 1.0;
-    cap_style = 0;
-    radius = 1;
-
     xp = vh_pget(object, "XP");
     yp = vh_pget(object, "YP");
+    shape = vh_pget(object, "SHAPE");
     npoints = (xp != NULL ? vl_length(xp) : 0);
-    arrow_forward = vh_iget(object, "ARROW_FORWARD");
-    arrow_backward = vh_iget(object, "ARROW_BACKWARD");
 
     if (vh_exists(object, "NAME"))
         fprintf(fp, "# %s\n", vh_sgetref(object, "NAME"));
@@ -188,33 +201,14 @@ fig_write_object(vhash *object, FILE *fp)
         fprintf(fp, "%d ", vh_iget(object, "JOINSTYLE"));
         fprintf(fp, "%d ", cap_style);
         fprintf(fp, "%d ", radius);
-        fprintf(fp, "%d ", arrow_forward);
-        fprintf(fp, "%d ", arrow_backward);
+        fprintf(fp, "%d ", vh_iget(object, "ARROW_FORWARD"));
+        fprintf(fp, "%d ", vh_iget(object, "ARROW_BACKWARD"));
         fprintf(fp, "%d\n", npoints);
 
-        switch (subtype) {
-
-        case FIG_PICTURE:
+        if (subtype == FIG_PICTURE)
             fprintf(fp, "\t0 %s\n", vh_sgetref(object, "PICFILE"));
-            break;
-
-        default:
-            arrow_type = vh_iget(object, "ARROW_TYPE");
-            arrow_style = vh_iget(object, "ARROW_STYLE");
-            thickness = vh_fget(object, "ARROW_THICK");
-            width = vh_fget(object, "ARROW_WIDTH");
-            height = vh_fget(object, "ARROW_HEIGHT");
-
-            if (arrow_forward)
-                fprintf(fp, "\t%d %d %g %g %g\n",
-                        arrow_type, arrow_style, thickness, width, height);
-
-            if (arrow_backward)
-                fprintf(fp, "\t%d %d %g %g %g\n",
-                        arrow_type, arrow_style, thickness, width, height);
-
-            break;
-        }
+        else
+            fig_write_arrows(object, fp);
 
         fprintf(fp, "\t");
         for (i = 0; i < npoints; i++)
@@ -224,12 +218,36 @@ fig_write_object(vhash *object, FILE *fp)
         break;
 
     case FIG_SPLINE:
-        /* FINISH ME */
+        fprintf(fp, "%d ", type);
+        fprintf(fp, "%d ", subtype);
+        fprintf(fp, "%d ", vh_iget(object, "LINESTYLE"));
+        fprintf(fp, "%d ", vh_iget(object, "THICKNESS"));
+        fprintf(fp, "%d ", vh_iget(object, "PENCOLOUR"));
+        fprintf(fp, "%d ", vh_iget(object, "FILLCOLOUR"));
+        fprintf(fp, "%d ", vh_iget(object, "DEPTH"));
+        fprintf(fp, "%d ", pen_style);
+        fprintf(fp, "%d ", vh_iget(object, "FILLSTYLE"));
+        fprintf(fp, "%.3f ", style_val);
+        fprintf(fp, "%d ", cap_style);
+        fprintf(fp, "%d ", vh_iget(object, "ARROW_FORWARD"));
+        fprintf(fp, "%d ", vh_iget(object, "ARROW_BACKWARD"));
+        fprintf(fp, "%d\n", npoints);
+
+        fig_write_arrows(object, fp);
+
+        fprintf(fp, "\t");
+        for (i = 0; i < npoints; i++)
+            fprintf(fp, " %d %d", vl_iget(xp, i), vl_iget(yp, i));
+        fprintf(fp, "\n");
+
+        fprintf(fp, "\t");
+        for (i = 0; i < npoints; i++)
+            fprintf(fp, " %g", vl_dget(shape, i));
+        fprintf(fp, "\n");
+
         break;
 
     case FIG_TEXT:
-        font_flags = 4;
-
         fprintf(fp, "%d ", type);
         fprintf(fp, "%d ", vh_iget(object, "JUSTIFY"));
         fprintf(fp, "%d ", vh_iget(object, "PENCOLOUR"));
@@ -247,7 +265,26 @@ fig_write_object(vhash *object, FILE *fp)
         break;
 
     case FIG_ARC:
-        /* FINISH ME */
+        fprintf(fp, "%d ", type);
+        fprintf(fp, "%d ", subtype);
+        fprintf(fp, "%d ", vh_iget(object, "LINESTYLE"));
+        fprintf(fp, "%d ", vh_iget(object, "THICKNESS"));
+        fprintf(fp, "%d ", vh_iget(object, "PENCOLOUR"));
+        fprintf(fp, "%d ", vh_iget(object, "FILLCOLOUR"));
+        fprintf(fp, "%d ", vh_iget(object, "DEPTH"));
+        fprintf(fp, "%d ", pen_style);
+        fprintf(fp, "%d ", vh_iget(object, "FILLSTYLE"));
+        fprintf(fp, "%.3f ", style_val);
+        fprintf(fp, "%d ", cap_style);
+        fprintf(fp, "%d ", direction);
+        fprintf(fp, "%d ", vh_iget(object, "ARROW_FORWARD"));
+        fprintf(fp, "%d ", vh_iget(object, "ARROW_BACKWARD"));
+
+        for (i = 0; i < npoints; i++)
+            fprintf(fp, " %g %g", vl_fget(xp, i), vl_fget(yp, i));
+
+        fprintf(fp, "\n");
+        fig_write_arrows(object, fp);
         break;
 
     case FIG_COMPOUND:

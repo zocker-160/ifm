@@ -16,9 +16,27 @@ enum {
     FIG_LINE = 1, FIG_BOX, FIG_POLYGON, FIG_ARCBOX, FIG_PICTURE
 };
 
-extern void fig_add_point(vhash *object, float x, float y);
-extern vhash *fig_create(void);
-extern vhash *fig_create_arc(vhash *parent, int subtype);
+/* Ellipse types */
+enum {
+    FIG_ELLIPSE_RADII = 1, FIG_ELLIPSE_DIAM, FIG_CIRCLE_RADIUS,
+    FIG_CIRCLE_DIAM
+};
+
+/* Arc types */
+enum {
+    FIG_WEDGE, FIG_OPEN
+};
+
+/* Spline types */
+enum {
+    FIG_OPEN_APPROX, FIG_CLOSED_APPROX, FIG_OPEN_INTERP, FIG_CLOSED_INTERP,
+    FIG_OPEN_XSPLINE, FIG_CLOSED_XSPLINE
+};
+
+extern vhash *fig_create(int orient);
+extern vhash *fig_create_arc(vhash *parent, int subtype, float cx, float cy,
+                             float x1, float y1, float x2, float y2, float x3,
+                             float y3);
 extern vhash *fig_create_box(vhash *parent, float x1, float y1, float x2,
                              float y2);
 extern vhash *fig_create_compound(vhash *parent);
@@ -27,6 +45,7 @@ extern vhash *fig_create_line(vhash *parent, float x1, float y1, float x2,
                               float y2);
 extern vhash *fig_create_picture(vhash *parent, float x1, float y1, float x2,
                                  float y2, char *file);
+extern int fig_create_point(vhash *parent, float x, float y);
 extern vhash *fig_create_polygon(vhash *parent, float x1, float y1, float x2,
                                  float y2, float x3, float y3);
 extern vhash *fig_create_polyline(vhash *parent, int subtype);

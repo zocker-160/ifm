@@ -181,3 +181,31 @@ fig_set_name(vhash *object, char *fmt, ...)
     V_VPRINT(buf, fmt);
     vh_sstore(object, "NAME", buf);
 }
+
+/* Set the orientation of a figure */
+void
+fig_set_orientation(vhash *figure, int orient)
+{
+    vh_istore(figure, "ORIENTATION", orient);
+}
+
+/* Set the paper size of a figure */
+void
+fig_set_papersize(vhash *figure, char *size)
+{
+    vh_sstore(figure, "PAPERSIZE", size);
+}
+
+/* Set the spline shape of a point */
+void
+fig_set_shape(vhash *object, int num, float shape)
+{
+    vlist *list;
+
+    if ((list = vh_pget(object, "SHAPE")) == NULL) {
+        list = vl_create();
+        vh_pstore(object, "SHAPE", list);
+    }
+
+    vl_fstore(list, num, shape);
+}

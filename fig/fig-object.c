@@ -14,53 +14,39 @@ static char buf[BUFSIZ];
 /* Internal functions */
 static vhash *fig_create_object(vhash *parent, int type);
 
-/* Add an X,Y point to an object */
-void
-fig_add_point(vhash *object, float x, float y)
-{
-    vlist *list;
-
-    if ((list = vh_pget(object, "XP")) == NULL) {
-        list = vl_create();
-        vh_pstore(object, "XP", list);
-    }
-
-    x *= SCALE;
-    vl_ipush(list, (int) x);
-
-    if ((list = vh_pget(object, "YP")) == NULL) {
-        list = vl_create();
-        vh_pstore(object, "YP", list);
-    }
-
-    y *= SCALE;
-    vl_ipush(list, (int) y);
-}
-
 /* Create a new figure */
 vhash *
-fig_create(void)
+fig_create(int units)
 {
     vlist *objects;
     vhash *obj;
 
     obj = fig_create_object(NULL, FIG_ROOT);
 
+    fig_set_papersize(obj, "A4");
+    fig_set_orientation(obj, FIG_LANDSCAPE);
+
     vh_istore(obj, "RESOLUTION", SCALE);
-    vh_istore(obj, "ORIENTATION", FIG_LANDSCAPE);
+    vh_sstore(obj, "UNITS", units == FIG_INCHES ? "Inches" : "Metric");
+    vh_dstore(obj, "SCALE", units == FIG_INCHES ? 1.0 : 0.375);
 
     return obj;
 }
 
 /* Create an arc object */
 vhash *
-fig_create_arc(vhash *parent, int subtype)
+fig_create_arc(vhash *parent, int subtype, float cx, float cy,
+               float x1, float y1, float x2, float y2, float x3, float y3)
 {
     vhash *obj;
 
     obj = fig_create_object(parent, FIG_ARC);
     vh_istore(obj, "SUBTYPE", subtype);
-    /* FINISH ME */
+
+    fig_create_point(obj, cx, cy);
+    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x2, y2);
+    fig_create_point(obj, x3, y3);
 
     return obj;
 }
@@ -73,11 +59,11 @@ fig_create_box(vhash *parent, float x1, float y1, float x2, float y2)
 
     obj = fig_create_polyline(parent, FIG_BOX);
 
-    fig_add_point(obj, x1, y1);
-    fig_add_point(obj, x2, y1);
-    fig_add_point(obj, x2, y2);
-    fig_add_point(obj, x1, y2);
-    fig_add_point(obj, x1, y1);
+    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x2, y1);
+    fig_create_point(obj, x2, y2);
+    fig_create_point(obj, x1, y2);
+    fig_create_point(obj, x1, y1);
 
     return obj;
 }
@@ -110,8 +96,8 @@ fig_create_line(vhash *parent, float x1, float y1, float x2, float y2)
 
     obj = fig_create_polyline(parent, FIG_LINE);
 
-    fig_add_point(obj, x1, y1);
-    fig_add_point(obj, x2, y2);
+    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x2, y2);
 
     return obj;
 }
@@ -159,15 +145,47 @@ fig_create_picture(vhash *parent,
 
     obj = fig_create_polyline(parent, FIG_PICTURE);
 
-    fig_add_point(obj, x1, y1);
-    fig_add_point(obj, x2, y1);
-    fig_add_point(obj, x2, y2);
-    fig_add_point(obj, x1, y2);
-    fig_add_point(obj, x1, y1);
+    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x2, y1);
+    fig_create_point(obj, x2, y2);
+    fig_create_point(obj, x1, y2);
+    fig_create_point(obj, x1, y1);
 
     vh_sstore(obj, "PICFILE", file);
 
     return obj;
+}
+
+/* Add an X,Y point to an object */
+int
+fig_create_point(vhash *parent, float x, float y)
+{
+    vhash *figure = fig_get_figure(parent);
+    float scale = vh_dget(figure, "SCALE");
+    vlist *list;
+
+    if ((list = vh_pget(parent, "XP")) == NULL) {
+        list = vl_create();
+        vh_pstore(parent, "XP", list);
+    }
+
+    vl_ipush(list, (int) (x * scale * SCALE));
+
+    if ((list = vh_pget(parent, "YP")) == NULL) {
+        list = vl_create();
+        vh_pstore(parent, "YP", list);
+    }
+
+    vl_ipush(list, (int) (y * scale * SCALE));
+
+    if ((list = vh_pget(parent, "SHAPE")) == NULL) {
+        list = vl_create();
+        vh_pstore(parent, "SHAPE", list);
+    }
+
+    vl_fpush(list, 1.0);
+
+    return vl_length(list) - 1;
 }
 
 /* Create a polygon object */
@@ -181,9 +199,9 @@ fig_create_polygon(vhash *parent,
 
     obj = fig_create_polyline(parent, FIG_POLYGON);
 
-    fig_add_point(obj, x1, y1);
-    fig_add_point(obj, x2, y2);
-    fig_add_point(obj, x3, y3);
+    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x2, y2);
+    fig_create_point(obj, x3, y3);
 
     return obj;
 }
@@ -208,7 +226,6 @@ fig_create_spline(vhash *parent, int subtype)
 
     obj = fig_create_object(parent, FIG_SPLINE);
     vh_istore(obj, "SUBTYPE", subtype);
-    /* FINISH ME */
 
     return obj;
 }
@@ -217,6 +234,8 @@ fig_create_spline(vhash *parent, int subtype)
 vhash *
 fig_create_text(vhash *parent, float x, float y, char *fmt, ...)
 {
+    vhash *figure = fig_get_figure(parent);
+    float scale = vh_dget(figure, "SCALE");
     vhash *obj;
 
     obj = fig_create_object(parent, FIG_TEXT);
@@ -225,16 +244,13 @@ fig_create_text(vhash *parent, float x, float y, char *fmt, ...)
     vh_sstore(obj, "TEXT", buf);
 
     vh_istore(obj, "FONT", 0);
-    vh_fstore(obj, "FONTSIZE", 10.0);
+    vh_fstore(obj, "FONTSIZE", 10.0 * scale);
 
-    vh_fstore(obj, "WIDTH", strlen(buf) * FIG_TEXT_WSCALE);
-    vh_fstore(obj, "HEIGHT", 10.0 * FIG_TEXT_HSCALE);
+    vh_fstore(obj, "WIDTH", strlen(buf) * FIG_TEXT_WSCALE * scale);
+    vh_fstore(obj, "HEIGHT", 10.0 * FIG_TEXT_HSCALE * scale);
 
-    x *= SCALE;
-    vh_istore(obj, "X", (int) x);
-
-    y *= SCALE;
-    vh_istore(obj, "Y", (int) y);
+    vh_istore(obj, "X", (int) (x * scale * SCALE));
+    vh_istore(obj, "Y", (int) (y * scale * SCALE));
 
     return obj;
 }

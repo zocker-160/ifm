@@ -15,6 +15,11 @@ enum {
     FIG_LANDSCAPE, FIG_PORTRAIT
 };
 
+/* Units */
+enum {
+    FIG_METRIC, FIG_INCHES
+};
+
 /* Indexed colours */
 enum {
     FIG_BLACK, FIG_BLUE, FIG_GREEN, FIG_CYAN, FIG_RED, FIG_MAGENTA,
@@ -59,5 +64,8 @@ extern void fig_set_joinstyle(vhash *object, int style);
 extern void fig_set_justify(vhash *object, int justify);
 extern void fig_set_linestyle(vhash *object, int style);
 extern void fig_set_name(vhash *object, char *fmt, ...);
+extern void fig_set_orientation(vhash *figure, int orient);
+extern void fig_set_papersize(vhash *figure, char *size);
+extern void fig_set_shape(vhash *object, int num, float shape);
 
 #endif
