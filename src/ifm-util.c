@@ -148,7 +148,7 @@ indent(int num)
 {
     int i;
 
-    for (i = 0; i < 3 * num; i++)
+    for (i = 0; i < 4 * num; i++)
         putchar(' ');
 }
 
