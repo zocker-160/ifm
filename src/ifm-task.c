@@ -32,9 +32,6 @@ static vhash *location = NULL;
 static int all_tasks_safe = 0;
 static int keep_unused_items = 0;
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static void add_task(vhash *task);
 static int do_task(vhash *task, int print, int recurse);
@@ -71,7 +68,7 @@ check_cycles(void)
     vscalar *elt;
     vhash *step;
     vlist *list;
-    vbuffer *b;
+    V_BUF_DECL;
     vgraph *g;
     int count;
 
@@ -90,7 +87,6 @@ check_cycles(void)
     }
 
     /* Cycles found -- give error and die */
-    b = vb_create();
     cycles = vg_tsort_cycles();
     vl_foreach(elt, cycles) {
         list = vs_pget(elt);
@@ -103,17 +99,14 @@ check_cycles(void)
         line = vl_join(list, " -> ");
         list = vl_filltext(line, 65);
 
-        vb_puts(b, "   cycle:\n");
-        vl_foreach(elt, list) {
-            vb_puts(b, "      ");
-            vb_puts(b, vs_sgetref(elt));
-            vb_puts(b, "\n");
-        }
+        V_BUF_ADD("   cycle:\n");
+        vl_foreach(elt, list)
+            V_BUF_ADD1("      %s\n", vs_sgetref(elt));
     }
 
     count = vl_length(cycles);
     err("can't solve game (%d cyclic task dependenc%s)\n%s",
-        count, (count == 1 ? "y" : "ies"), vb_get(b));
+        count, (count == 1 ? "y" : "ies"), V_BUF_VAL);
 }
 
 /* Perform a task */
@@ -530,6 +523,7 @@ new_task(int type, vhash *data)
     int score = vh_iget(data, "SCORE");
     static int taskid = 0;
     vhash *room, *step;
+    V_BUF_DECL;
 
     step = vh_create();
     vh_istore(step, "TYPE", type);
@@ -538,25 +532,25 @@ new_task(int type, vhash *data)
 
     switch (type) {
     case T_MOVE:
-        sprintf(buf, "Move to %s", desc);
+        V_BUF_SET1("Move to %s", desc);
         room = data;
         break;
     case T_GET:
-        sprintf(buf, "Get %s", desc);
+        V_BUF_SET1("Get %s", desc);
         room = vh_pget(data, "ROOM");
         break;
     case T_DROP:
-        sprintf(buf, "Drop %s", desc);
+        V_BUF_SET1("Drop %s", desc);
         room = NULL;
         score = 0;
         break;
     case T_GOTO:
-        sprintf(buf, "Go to %s", desc);
+        V_BUF_SET1("Go to %s", desc);
         room = data;
         break;
     case T_USER:
+        V_BUF_SET(desc);
         room = vh_pget(data, "ROOM");
-        strcpy(buf, desc);
 
         if (vh_exists(data, "TAG"))
             vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
@@ -594,7 +588,7 @@ new_task(int type, vhash *data)
 
     vh_istore(step, "IGNORE", vh_iget(data, "IGNORE"));
 
-    vh_sstore(step, "DESC", buf);
+    vh_sstore(step, "DESC", V_BUF_VAL);
     vh_pstore(step, "ROOM", room);
     vh_istore(step, "SCORE", score);
     vh_istore(step, "ID", taskid++);
@@ -1128,10 +1122,13 @@ solve_game(void)
 void
 solver_msg(int level, char *fmt, ...)
 {
+    V_BUF_DECL;
+    char *msg;
+
     if (TASK_VERBOSE) {
         indent(level);
-        V_VPRINT(buf, fmt);
-        printf("%s\n", buf);
+        V_BUF_FMT(fmt, msg);
+        printf("%s\n", msg);
     }
 }
 
@@ -1144,6 +1141,7 @@ task_graph(void)
     vscalar *elt;
     vlist *list;
     vhash *step;
+    V_BUF_DECL;
     vgraph *g;
 
     g = vg_create();
@@ -1151,9 +1149,9 @@ task_graph(void)
     if (tasklist != NULL) {
         vl_foreach(elt, tasklist) {
             step = vs_pget(elt);
-            sprintf(buf, "T%d", ++count);
-            vh_sstore(step, "NODE", buf);
-            vg_node_pstore(g, buf, step);
+            V_BUF_SET1("T%d", ++count);
+            vh_sstore(step, "NODE", V_BUF_VAL);
+            vg_node_pstore(g, V_BUF_VAL, step);
         }
 
         vl_foreach(elt, tasklist) {
@@ -1318,7 +1316,7 @@ warn_failure(void)
     vlist *list, *keys;
     int count = 0;
     vscalar *elt;
-    vbuffer *b;
+    V_BUF_DECL;
 
     /* Record which tasks can't be done */
     reasons = vh_create();
@@ -1332,36 +1330,34 @@ warn_failure(void)
 
         /* Build failure reason */
         if (vh_iget(step, "IGNORED")) {
-            strcpy(buf, "ignored");
+            V_BUF_SET("ignored");
             rdesc = NULL;
         } else if (require_task(step) != NULL) {
-            strcpy(buf, "requires previous task to be done first");
+            V_BUF_SET("requires previous task to be done first");
             rdesc = NULL;
         } else {
+            V_BUF_SET("no path to task room");
             room = vh_pget(step, "ROOM");
             rdesc = vh_sgetref(room, "DESC");
-            strcpy(buf, "no path to task room");
         }
 
         /* Add it to list */
-        if ((list = vh_pget(reasons, buf)) == NULL) {
+        if ((list = vh_pget(reasons, V_BUF_VAL)) == NULL) {
             list = vl_create();
-            vh_pstore(reasons, buf, list);
+            vh_pstore(reasons, V_BUF_VAL, list);
         }
 
         if (rdesc == NULL)
-            strcpy(buf, tdesc);
+            V_BUF_SET(tdesc);
         else
-            sprintf(buf, "%s (%s)", tdesc, rdesc);
+            V_BUF_SET2("%s (%s)", tdesc, rdesc);
 
-        vl_spush(list, buf);
+        vl_spush(list, V_BUF_VAL);
     }
 
     /* Build warning message */
-    b = vb_create();
-    vb_puts(b, "   final location:\n      ");
-    vb_puts(b, vh_sgetref(location, "DESC"));
-    vb_puts(b, "\n"); 
+    V_BUF_SET1("   final location:\n      %s\n",
+               vh_sgetref(location, "DESC"));
 
     keys = vh_sortkeys(reasons, NULL);
     vl_foreach(elt, keys) {
@@ -1369,19 +1365,12 @@ warn_failure(void)
         list = vh_pget(reasons, reason);
         entries = vl_join(list, ", ");
         list = vl_filltext(entries, 65);
-
-        vb_puts(b, "   ");
-        vb_puts(b, reason);
-        vb_puts(b, ":\n");
-
-        vl_foreach(elt, list) {
-            vb_puts(b, "      ");
-            vb_puts(b, vs_sgetref(elt));
-            vb_puts(b, "\n");
-        }
+        V_BUF_ADD1("   %s:\n", reason);
+        vl_foreach(elt, list)
+            V_BUF_ADD1("      %s\n", vs_sgetref(elt));
     }
 
     /* Print it */
     warn("can't solve game (%d task%s not done)\n%s",
-         count, (count == 1 ? "" : "s"), vb_get(b));
+         count, (count == 1 ? "" : "s"), V_BUF_VAL);
 }

@@ -50,14 +50,13 @@ static struct paper_st {
     { NULL,       0.0,    0.0   }
 };
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Add a string attribute to an object */
 void
 add_attr(vhash *obj, char *attr, char *fmt, ...)
 {
     vlist *list;
+    V_BUF_DECL;
+    char *str;
 
     if ((list = vh_pget(obj, attr)) == NULL) {
         list = vl_create();
@@ -65,8 +64,8 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
     }
 
     if (fmt != NULL) {
-        V_VPRINT(buf, fmt);
-        vl_spush(list, buf);
+        V_BUF_FMT(fmt, str);
+        vl_spush(list, str);
     } else {
         vl_empty(list);
     }
@@ -90,11 +89,12 @@ add_list(vhash *obj, char *attr, vhash *thing)
 char *
 find_file(char *name)
 {
-    static char path[BUFSIZ];
     vscalar *elt;
+    V_BUF_DECL;
+    char *path;
 
     vl_foreach(elt, ifm_search) {
-        sprintf(path, "%s/%s", vs_sgetref(elt), name);
+        path = V_BUF_SET2("%s/%s", vs_sgetref(elt), name);
         if (v_exists(path)) {
             vl_break(ifm_search);
             return path;
@@ -343,8 +343,11 @@ pack_sections(int xmax, int ymax)
 void
 put_string(char *fmt, ...)
 {
-    V_VPRINT(buf, fmt);
-    fputs(var_subst(buf), stdout);
+    V_BUF_DECL;
+    char *str;
+
+    V_BUF_FMT(fmt, str);
+    fputs(var_subst(str), stdout);
 }
 
 /* Set up room names */
@@ -355,6 +358,7 @@ setup_room_names(void)
     vhash *room, *join, *from, *to;
     int jnum = 0;
     vscalar *elt;
+    V_BUF_DECL;
 
     /* Indicate joins if required */
     if (var_int("show_joins")) {
@@ -377,16 +381,18 @@ setup_room_names(void)
             name = vh_sgetref(from, "RDESC");
             if (strlen(name) == 0)
                 name = vh_sgetref(from, "DESC");
-            strcpy(buf, name);
-            strcat(buf, tag);
-            vh_sstore(from, "RDESC", buf);
+
+            V_BUF_SET(name);
+            V_BUF_ADD(tag);
+            vh_sstore(from, "RDESC", V_BUF_VAL);
 
             name = vh_sgetref(to, "RDESC");
             if (strlen(name) == 0)
                 name = vh_sgetref(to, "DESC");
-            strcpy(buf, name);
-            strcat(buf, tag);
-            vh_sstore(to, "RDESC", buf);
+
+            V_BUF_SET(name);
+            V_BUF_ADD(tag);
+            vh_sstore(to, "RDESC", V_BUF_VAL);
         }
     }
 
@@ -402,9 +408,10 @@ setup_room_names(void)
         vl_foreach(elt, rooms) {
             room = vs_pget(elt);
             if (vh_exists(room, "TAG")) {
-                sprintf(buf, "%s [%s]", vh_sgetref(room, "RDESC"),
-                        vh_sgetref(room, "TAG"));
-                vh_sstore(room, "RDESC", buf);
+                V_BUF_SET2("%s [%s]",
+                           vh_sgetref(room, "RDESC"),
+                           vh_sgetref(room, "TAG"));
+                vh_sstore(room, "RDESC", V_BUF_VAL);
             }
         }
     }
@@ -416,23 +423,23 @@ split_line(char *string, double ratio)
 {
     int llen = (int) (sqrt((double) strlen(string)) * ratio);
     vlist *list = vl_create();
-    static char buf[BUFSIZ];
-    char *tok;
+    char *tok, *val;
+    V_BUF_DECL;
 
     tok = strtok(string, " \t");
-    strcpy(buf, tok);
+    val = V_BUF_SET(tok);
 
     while ((tok = strtok(NULL, " \t")) != NULL) {
-        if (strlen(buf) + strlen(tok) + 1 > llen) {
-            vl_spush(list, buf);
-            strcpy(buf, tok);
+        if (strlen(val) + strlen(tok) + 1 > llen) {
+            vl_spush(list, val);
+            val = V_BUF_SET(tok);
         } else {
-            strcat(buf, " ");
-            strcat(buf, tok);
+            val = V_BUF_ADD(" ");
+            val = V_BUF_ADD(tok);
         }
     }
 
-    vl_spush(list, buf);
+    vl_spush(list, val);
     return list;
 }
 

@@ -197,30 +197,19 @@ VAR             \${ID}
 static void
 parse_prep_line(char *str)
 {
+    int flag, line;
     vlist *tokens;
-    int flag;
+    char *file;
 
     tokens = vl_split(str, " \t\"");
-    if (vl_length(tokens) < 2)
+    if (vl_length(tokens) >= 2) {
+        line = vl_iget(tokens, 1) - 1;
+        file = vl_sgetref(tokens, 2);
+        flag = vl_iget(tokens, 3);
+        vl_destroy(tokens);
+    } else {
         return;
-
-    line_number = vl_iget(tokens, 1) - 1;
-    strcpy(ifm_input, vl_sgetref(tokens, 2));
-    flag = vl_iget(tokens, 3);
-    vl_destroy(tokens);
-
-    switch (flag) {
-    case 0:
-        debug("switching to file: %s, line %d",
-              ifm_input, line_number);
-        break;
-    case 1:
-        debug("including file: %s, line %d",
-              ifm_input, line_number);
-        break;
-    case 2:
-        debug("returning to file: %s, line %d",
-              ifm_input, line_number);
-        break;
     }
+
+    switch_file(file, line, flag);
 }

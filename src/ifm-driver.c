@@ -13,9 +13,45 @@
 #include <vars.h>
 
 #include "ifm-driver.h"
+#include "ifm-map.h"
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
+#include "ifm-ps.h"
+#include "ifm-fig.h"
+#include "ifm-text.h"
+#include "ifm-tk.h"
+#include "ifm-raw.h"
+#include "ifm-rec.h"
+#include "ifm-dot.h"
+
+/* Driver info */
+driver drivers[] = {
+    { "ps", "PostScript",
+      &ps_mapfuncs, NULL, NULL, NULL },
+
+    { "fig", "Fig drawing commands",
+      &fig_mapfuncs, NULL, NULL, NULL },
+
+    { "text", "Nicely-formatted ASCII text",
+      NULL, &text_itemfuncs, &text_taskfuncs, NULL },
+
+    { "rec", "Recording of game commands",
+      NULL, NULL, &rec_taskfuncs, NULL },
+
+    { "dot", "Graph of task dependencies",
+      NULL, NULL, &dot_taskfuncs, NULL },
+
+    { "raw", "Raw ASCII text fields",
+      &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL },
+
+    { "tk", "Tcl/Tk program commands (tkifm)",
+      &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs },
+
+    { NULL, NULL, NULL, NULL, NULL, NULL } /* Terminator */
+};
+
+/* Macros for setting variables */
 #define SET_BOOL(name)     name = var_int(#name)
 #define SET_COLOUR(name)   name = var_colour(#name)
 #define SET_REAL(name)     name = var_real(#name)
@@ -42,6 +78,9 @@ float room_width, room_height, room_size, page_width, page_height;
 
 int room_border_dashed, show_items, link_dashed, show_page_border;
 int show_page_title, show_tags, link_spline, show_map_border, show_map_title;
+
+/* Internal functions */
+static int itemsort(vscalar **ip1, vscalar **ip2);
 
 /* Set map style variables */
 void
@@ -136,4 +175,171 @@ set_link_vars(void)
 
     SET_STRING(link_inout_string);
     SET_STRING(link_updown_string);
+}
+
+/* Print the map */
+void
+print_map(int dnum, vlist *sections)
+{
+    driver drv = drivers[dnum];
+    mapfuncs *func = drv.mfunc;
+
+    vhash *sect, *room, *link, *join;
+    vlist *sects, *list;
+    vscalar *elt;
+    int num = 1;
+
+    if (func == NULL)
+        fatal("no map driver for %s output", drv.name);
+
+    sects = vh_pget(map, "SECTS");
+    vl_foreach(elt, sects) {    
+        sect = vs_pget(elt);
+        if (sections != NULL && !vl_iget(sections, num++))
+            vh_istore(sect, "NOPRINT", 1);
+    }
+
+    set_map_vars();
+
+    if (func->map_start != NULL)
+        func->map_start();
+
+    vl_foreach(elt, sects) {
+        sect = vs_pget(elt);
+
+        if (vh_iget(sect, "NOPRINT"))
+            continue;
+
+        if (func->map_section != NULL)
+            func->map_section(sect);
+
+        if (func->map_room != NULL) {
+            list = vh_pget(sect, "ROOMS");
+            vl_foreach(elt, list) {
+                room = vs_pget(elt);
+                set_style_list(vh_pget(room, "STYLE"));
+                set_room_vars();
+                func->map_room(room);
+            }
+        }
+
+        if (func->map_link != NULL) {
+            list = vh_pget(sect, "LINKS");
+            vl_foreach(elt, list) {
+                link = vs_pget(elt);
+
+                if (vh_iget(link, "HIDDEN"))
+                    continue;
+
+                if (vh_iget(link, "NOLINK"))
+                    continue;
+
+                set_style_list(vh_pget(link, "STYLE"));
+                set_link_vars();
+                func->map_link(link);
+            }
+        }
+
+        if (func->map_endsection != NULL)
+            func->map_endsection();
+    }
+
+    if (func->map_finish != NULL)
+        func->map_finish();
+
+    if (func->map_join != NULL) {
+        vl_foreach(elt, joins) {
+            join = vs_pget(elt);
+
+            if (vh_iget(join, "HIDDEN"))
+                continue;
+
+            set_style_list(vh_pget(join, "STYLE"));
+            func->map_join(join);
+        }
+    }
+}
+
+/* Print items table */
+void
+print_items(int dnum)
+{
+    driver drv = drivers[dnum];
+    itemfuncs *func = drv.ifunc;
+    vlist *items, *sorted;
+    vscalar *elt;
+    vhash *item;
+
+    items = vh_pget(map, "ITEMS");
+
+    if (func == NULL)
+        fatal("no item driver for %s output", drv.name);
+
+    if (func->item_start != NULL)
+        func->item_start();
+
+    if (func->item_entry != NULL) {
+        sorted = vl_sort(items, itemsort);
+
+        vl_foreach(elt, sorted) {
+            item = vs_pget(elt);
+            set_style_list(vh_pget(item, "STYLE"));
+            func->item_entry(item);
+        }
+
+        vl_destroy(sorted);
+    }
+
+    if (func->item_finish != NULL)
+        func->item_finish();
+}
+
+/* Print task table */
+void
+print_tasks(int dnum)
+{
+    driver drv = drivers[dnum];
+    taskfuncs *func = drv.tfunc;
+    vscalar *elt;
+    vlist *tasks;
+    vhash *task;
+
+    tasks = vh_pget(map, "TASKS");
+
+    if (func == NULL)
+        fatal("no task driver for %s output", drv.name);
+
+    if (func->task_start != NULL)
+        func->task_start();
+
+    if (func->task_entry != NULL) {
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            set_style_list(vh_pget(task, "STYLE"));
+            func->task_entry(task);
+        }
+    }
+
+    if (func->task_finish != NULL)
+        func->task_finish();
+}
+
+/* Item sort function */
+static int
+itemsort(vscalar **ip1, vscalar **ip2)
+{
+    vhash *i1 = vs_pget(*ip1);
+    vhash *i2 = vs_pget(*ip2);
+    vhash *ir1, *ir2;
+    int cmp;
+
+    /* First, by item name */
+    cmp = strcmp(vh_sgetref(i1, "DESC"), vh_sgetref(i2, "DESC"));
+    if (cmp) return cmp;
+
+    /* Next, by room name */
+    ir1 = vh_pget(i1, "ROOM");
+    ir2 = vh_pget(i2, "ROOM");
+    return strcmp((ir1 == NULL ? "" : vh_sgetref(ir1, "DESC")),
+                  (ir2 == NULL ? "" : vh_sgetref(ir2, "DESC")));
 }

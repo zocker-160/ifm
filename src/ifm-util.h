@@ -3,15 +3,6 @@
 #ifndef IFM_UTIL_H
 #define IFM_UTIL_H
 
-/* Windows stuff */
-#ifdef _WIN32
-# define INITFILE "ifm.ini"
-# define PATHSEP ";"
-#else
-# define INITFILE ".ifmrc"
-# define PATHSEP ":"
-#endif
-
 /* Direction stuff */
 struct d_info {
     char *sname, *lname;

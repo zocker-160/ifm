@@ -33,9 +33,6 @@ static char *graph_attr = "";
 static char *node_attr = "";
 static char *link_attr = "";
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static void print_label(char *string);
 
@@ -83,6 +80,7 @@ dot_task_finish(void)
     char *node, *name;
     int cluster = 0;
     vscalar *elt;
+    V_BUF_DECL;
     vgraph *g;
 
     /* Build directed graph */
@@ -142,11 +140,11 @@ dot_task_finish(void)
             printf("%s [", node);
 
             if (show_rooms || strlen(name) == 0)
-                strcpy(buf, vh_sgetref(step, "DESC"));
+                V_BUF_SET(vh_sgetref(step, "DESC"));
             else
-                sprintf(buf, "%s\\n[%s]", vh_sgetref(step, "DESC"), name);
+                V_BUF_SET2("%s\\n[%s]", vh_sgetref(step, "DESC"), name);
 
-            print_label(buf);
+            print_label(V_BUF_VAL);
             printf("];\n");
         }
 

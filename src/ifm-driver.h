@@ -31,6 +31,17 @@ typedef struct errfuncs_st {
     void (*error)(char *file, int line, char *msg);
 } errfuncs;
 
+typedef struct driver_st {
+    char *name, *desc;
+    mapfuncs  *mfunc;
+    itemfuncs *ifunc;
+    taskfuncs *tfunc;
+    errfuncs  *efunc;
+} driver;
+
+/* Driver list */
+extern driver drivers[];
+
 /* Control variables */
 extern char *room_text_font, *room_text_colour, *room_colour;
 extern char *room_border_colour, *room_shadow_colour, *item_text_font;
@@ -55,5 +66,8 @@ extern int show_map_border;
 extern void set_map_vars(void);
 extern void set_room_vars(void);
 extern void set_link_vars(void);
+extern void print_map(int dnum, vlist *sections);
+extern void print_items(int dnum);
+extern void print_tasks(int dnum);
 
 #endif

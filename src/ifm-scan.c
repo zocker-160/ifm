@@ -585,7 +585,7 @@ static vbuffer *sbuf = NULL;
 
 /* Internal functions */
 static void parse_prep_line(char *str);
-#line 589 "lex.yy.c"
+#line 589 "ifm-scan.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -742,7 +742,7 @@ YY_DECL
 #line 35 "ifm-scan.l"
 
 
-#line 746 "lex.yy.c"
+#line 746 "ifm-scan.c"
 
 	if ( yy_init )
 		{
@@ -1320,7 +1320,7 @@ YY_RULE_SETUP
 #line 194 "ifm-scan.l"
 ECHO;
 	YY_BREAK
-#line 1324 "lex.yy.c"
+#line 1324 "ifm-scan.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2215,30 +2215,19 @@ int main()
 static void
 parse_prep_line(char *str)
 {
+    int flag, line;
     vlist *tokens;
-    int flag;
+    char *file;
 
     tokens = vl_split(str, " \t\"");
-    if (vl_length(tokens) < 2)
+    if (vl_length(tokens) >= 2) {
+        line = vl_iget(tokens, 1) - 1;
+        file = vl_sgetref(tokens, 2);
+        flag = vl_iget(tokens, 3);
+        vl_destroy(tokens);
+    } else {
         return;
-
-    line_number = vl_iget(tokens, 1) - 1;
-    strcpy(ifm_input, vl_sgetref(tokens, 2));
-    flag = vl_iget(tokens, 3);
-    vl_destroy(tokens);
-
-    switch (flag) {
-    case 0:
-        debug("switching to file: %s, line %d",
-              ifm_input, line_number);
-        break;
-    case 1:
-        debug("including file: %s, line %d",
-              ifm_input, line_number);
-        break;
-    case 2:
-        debug("returning to file: %s, line %d",
-              ifm_input, line_number);
-        break;
     }
+
+    switch_file(file, line, flag);
 }

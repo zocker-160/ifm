@@ -105,17 +105,17 @@ void
 tk_map_section(vhash *sect)
 {
     char *title = vh_sgetref(sect, "TITLE");
-    static char buf[BUFSIZ];
     static int num = 0;
+    V_BUF_DECL;
 
     num++;
 
     if (strlen(title) == 0)
-        sprintf(buf, "Map section %d", num);
+        V_BUF_SET1("Map section %d", num);
     else
-        strcpy(buf, title);
+        V_BUF_SET(title);
 
-    put_string("AddSect {%s} %d %d\n", buf,
+    put_string("AddSect {%s} %d %d\n", V_BUF_VAL,
                vh_iget(sect, "XLEN"),
                vh_iget(sect, "YLEN"));
 }

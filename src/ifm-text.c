@@ -39,9 +39,6 @@ static int total = 0;
 /* Total distance travelled */
 static int travel = 0;
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Item functions */
 void
 text_item_entry(vhash *item)
@@ -52,6 +49,7 @@ text_item_entry(vhash *item)
     vscalar *elt;
     vlist *list;
     char *title;
+    V_BUF_DECL;
 
     if (count++ == 0) {
         if (vh_exists(map, "TITLE"))
@@ -85,12 +83,12 @@ text_item_entry(vhash *item)
         vl_foreach(elt, list) {
             task = vs_pget(elt);
             if ((room = vh_pget(task, "ROOM")) == NULL)
-                strcpy(buf, vh_sgetref(task, "DESC"));
+                V_BUF_SET(vh_sgetref(task, "DESC"));
             else
-                sprintf(buf, "%s (%s)",
-                        vh_sgetref(task, "DESC"),
-                        vh_sgetref(room, "DESC"));
-            put_string("      %s\n", buf);
+                V_BUF_SET2("%s (%s)",
+                           vh_sgetref(task, "DESC"),
+                           vh_sgetref(room, "DESC"));
+            put_string("      %s\n", V_BUF_VAL);
         }
     }
 
@@ -99,12 +97,12 @@ text_item_entry(vhash *item)
         vl_foreach(elt, list) {
             task = vs_pget(elt);
             if ((room = vh_pget(task, "ROOM")) == NULL)
-                strcpy(buf, vh_sgetref(task, "DESC"));
+                V_BUF_SET(vh_sgetref(task, "DESC"));
             else
-                sprintf(buf, "%s (%s)",
-                        vh_sgetref(task, "DESC"),
-                        vh_sgetref(room, "DESC"));
-            put_string("      %s\n", buf);
+                V_BUF_SET2("%s (%s)",
+                           vh_sgetref(task, "DESC"),
+                           vh_sgetref(room, "DESC"));
+            put_string("      %s\n", V_BUF_VAL);
         }
     }
 

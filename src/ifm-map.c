@@ -43,9 +43,6 @@ vlist *sectnames = NULL;	/* List of section names */
 /* Internal stuff */
 static vhash *rpos = NULL;      /* Room positions */
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static void put_room_at(vhash *room, int sect, int x, int y);
 static vhash *room_at(int sect, int x, int y);
@@ -92,8 +89,10 @@ init_map(void)
 static void
 put_room_at(vhash * room, int sect, int x, int y)
 {
-    sprintf(buf, "%d,%d,%d", sect, x, y);
-    vh_pstore(rpos, buf, room);
+    V_BUF_DECL;
+
+    V_BUF_SET3("%d,%d,%d", sect, x, y);
+    vh_pstore(rpos, V_BUF_VAL, room);
     vh_istore(room, "X", x);
     vh_istore(room, "Y", y);
 }
@@ -233,8 +232,10 @@ resolve_tags(void)
 static vhash *
 room_at(int sect, int x, int y)
 {
-    sprintf(buf, "%d,%d,%d", sect, x, y);
-    return vh_pget(rpos, buf);
+    V_BUF_DECL;
+
+    V_BUF_SET3("%d,%d,%d", sect, x, y);
+    return vh_pget(rpos, V_BUF_VAL);
 }
 
 /* Set/unset a room exit */
@@ -242,6 +243,7 @@ void
 room_exit(vhash *room, int xoff, int yoff, int flag)
 {
     vhash *flags;
+    V_BUF_DECL;
     int num;
 
     if (xoff == 0 && yoff == 0)
@@ -255,12 +257,12 @@ room_exit(vhash *room, int xoff, int yoff, int flag)
         vh_pstore(room, "EXIT", flags);
     }
 
-    sprintf(buf, "%d,%d", xoff, yoff);
+    V_BUF_SET2("%d,%d", xoff, yoff);
 
-    num = vh_iget(flags, buf);
+    num = vh_iget(flags, V_BUF_VAL);
     num = V_MAX(num, 0);
 
-    vh_istore(flags, buf, (flag ? -1 : num + 1));
+    vh_istore(flags, V_BUF_VAL, (flag ? -1 : num + 1));
 }
 
 /* Set a tag table entry */

@@ -6,7 +6,15 @@
 #include <vars.h>
 
 #include "ifm-gpp.h"
+#include "ifm-main.h"
 #include "ifm-util.h"
+
+/* GPP program */
+#ifdef CYGWIN
+#define GPP "gpp.exe"
+#else
+#define GPP "gpp"
+#endif
 
 /* Standard GPP arguments */
 #define U1 ""
@@ -49,10 +57,7 @@ static char *gpp_args[] = {
 };
 
 /* The command buffer */
-static char gpp_cmd[BUFSIZ];
-
-/* Scribble buffer */
-static char buf[BUFSIZ];
+V_NBUF_DECL(gbuf);
 
 /* Close GPP */
 void
@@ -65,18 +70,20 @@ gpp_close(FILE *fp)
 char *
 gpp_command(void)
 {
-    return gpp_cmd;
+    return V_NBUF_VAL(gbuf);
 }
 
 /* Define a GPP token */
 void
 gpp_define(char *var, char *val)
 {
+    V_BUF_DECL;
+
     if (val == NULL) {
         gpp_option("-D", var);
     } else {
-        sprintf(buf, "%s=%s", var, val);
-        gpp_option("-D", buf);
+        V_BUF_SET2("%s=%s", var, val);
+        gpp_option("-D", V_BUF_VAL);
     }
 }
 
@@ -85,9 +92,10 @@ void
 gpp_include(char *paths)
 {
     char *path;
+    V_BUF_DECL;
 
-    strcpy(buf, paths);
-    path = strtok(buf, PATHSEP);
+    paths = V_BUF_SET(paths);
+    path = strtok(paths, PATHSEP);
 
     while (path != NULL) {
 	gpp_option("-I", path);
@@ -99,12 +107,15 @@ gpp_include(char *paths)
 int
 gpp_init(void)
 {
+    char *path;
     int i;
 
-    if (v_exists(GPPPATH))
-        strcpy(gpp_cmd, GPPPATH);
-    else
-        strcpy(gpp_cmd, "gpp");
+    if ((path = find_file(GPP)) != NULL) {
+        V_NBUF_SET(gbuf, path);
+    } else {
+        err("can't find '%s' in search path", GPP);
+        return 0;
+    }
 
     for (i = 0; gpp_args[i] != NULL; i++)
         gpp_option(gpp_args[i], NULL);
@@ -116,23 +127,24 @@ gpp_init(void)
 FILE *
 gpp_open(char *file)
 {
-    static char buf[BUFSIZ];
+    V_BUF_DECL;
+    char *cmd;
+
+    cmd = V_NBUF_VAL(gbuf);
+    V_BUF_SET(cmd);
 
     if (file != NULL)
-        sprintf(buf, "%s '%s'", gpp_cmd, file);
-    else
-        strcpy(buf, gpp_cmd);
+        V_BUF_ADD1(" '%s'", file);
 
-    return popen(buf, "r");
+    return popen(V_BUF_VAL, "r");
 }
 
 /* Set a GPP option */
 void
 gpp_option(char *opt, char *arg)
 {
-    strcat(gpp_cmd, " ");
-    strcat(gpp_cmd, opt);
+    V_NBUF_ADD1(gbuf, " %s", opt);
 
     if (arg != NULL)
-	strcat(gpp_cmd, arg);
+        V_NBUF_ADD(gbuf, arg);
 }

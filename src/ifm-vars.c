@@ -42,9 +42,6 @@ static vhash *rstyles = NULL;
 /* Style list */
 static vlist *style_list = NULL;
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static vhash *read_colour_defs(FILE *fp);
 static char *var_encode(char *driver, char *var);
@@ -85,6 +82,7 @@ load_styles(void)
 {
     vscalar *elt;
     vlist *list;
+    V_BUF_DECL;
     char *name;
 
     if (rstyles == NULL)
@@ -96,8 +94,8 @@ load_styles(void)
         if (vh_exists(styles, name))
             continue;
 
-        sprintf(buf, "%s.ifm", name);
-        parse_input(buf, 1, 0);
+        V_BUF_SET1("%s.ifm", name);
+        parse_input(V_BUF_VAL, 1, 0);
 
         if (!vh_exists(styles, name))
             warn("style '%s' referenced but not defined", name);
@@ -139,33 +137,31 @@ static vhash *
 read_colour_defs(FILE *fp)
 {
     int red, green, blue, pos;
-    vbuffer *val;
+    char *line, name[100];
     vhash *defs;
+    V_BUF_DECL;
 
     defs = vh_create();
-    val = vb_create();
 
-    while (fgets(buf, BUFSIZ, fp) != NULL) {
+    while ((line = V_BUF_FGETS(fp)) != NULL) {
         /* Get RGB values */
-        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
+        V_BUF_CHOP;
+        if (sscanf(line, "%d %d %d", &red, &green, &blue) != 3)
             continue;
 
         /* Get offset of colour name */
-        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
+        if ((pos = strspn(line, "0123456789 \t\n")) != 0)
+            strcpy(name, &line[pos]);
+        else
             continue;
 
         /* Scale RGB values */
-        vb_empty(val);
-        vb_printf(val, "%.3g", red / 255.0);
-        vb_printf(val, " %.3g", green / 255.0);
-        vb_printf(val, " %.3g", blue / 255.0);
+        V_BUF_SET3("%.3g %.3g %.3g",
+                   red / 255.0, green / 255.0, blue / 255.0);
 
         /* Add colour */
-        v_chop(buf);
-        vh_sstore(defs, &buf[pos], vb_get(val));
+        vh_sstore(defs, name, V_BUF_VAL);
     }
-
-    vb_destroy(val);
 
     return defs;
 }
@@ -266,17 +262,17 @@ var_colour(char *id)
 static char *
 var_encode(char *driver, char *var)
 {
-    static char encbuf[BUFSIZ];
+    V_BUF_DECL;
 
     if (driver == NULL)
         driver = "global";
 
     if (strchr(var, '.') != NULL)
-        strcpy(encbuf, var);
+        V_BUF_SET(var);
     else
-        sprintf(encbuf, "%s.%s", driver, var);
+        V_BUF_SET2("%s.%s", driver, var);
 
-    return encbuf;
+    return V_BUF_VAL;
 }
 
 /* Return value of a variable */

@@ -21,101 +21,34 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-/* Output drivers */
-#include "ifm-ps.h"
-#include "ifm-fig.h"
-#include "ifm-text.h"
-#include "ifm-tk.h"
-#include "ifm-raw.h"
-#include "ifm-rec.h"
-#include "ifm-dot.h"
-
-static struct driver_st {
-    char *name, *desc;
-    mapfuncs  *mfunc;
-    itemfuncs *ifunc;
-    taskfuncs *tfunc;
-    errfuncs  *efunc;
-} drivers[] = {
-    { "ps", "PostScript",
-      &ps_mapfuncs, NULL, NULL, NULL },
-
-    { "fig", "Fig drawing commands",
-      &fig_mapfuncs, NULL, NULL, NULL },
-
-    { "text", "Nicely-formatted ASCII text",
-      NULL, &text_itemfuncs, &text_taskfuncs, NULL },
-
-    { "rec", "Recording of game commands",
-      NULL, NULL, &rec_taskfuncs, NULL },
-
-    { "dot", "Graph of task dependencies",
-      NULL, NULL, &dot_taskfuncs, NULL },
-
-    { "raw", "Raw ASCII text fields",
-      &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL },
-
-    { "tk", "Tcl/Tk program commands (tkifm)",
-      &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs }
-};
-
-#define NUM_DRIVERS (int) (sizeof(drivers) / sizeof(drivers[0]))
-
-#define PRINT_MSG(type, msg) \
-        fprintf(stderr, "%s: %s", progname, #type);                     \
-        if (strlen(ifm_input) > 0) {                                    \
-            fprintf(stderr, ": %s", ifm_input);                         \
-            if (line_number > 0)                                        \
-                fprintf(stderr, ", line %d", line_number);              \
-        }                                                               \
-        fprintf(stderr, ": %s\n", buf)
-
-#define F_NONE -1
+/* Output types */
+#define O_NONE  0x0             /* No output */
+#define O_MAP   0x1             /* Map */
+#define O_ITEMS 0x2             /* Item list */
+#define O_TASKS 0x4             /* Task list */
 
 /* Max. errors before aborting */
 #define MAX_ERRORS 10
 
-/* What's my name? */
-char *progname;
+char *ifm_format = NULL;        /* Output format name */
 
-/* Input filename */
-char ifm_input[BUFSIZ];
+int line_number;                /* Current line number */
 
-/* Current line number */
-int line_number;
+vlist *ifm_search = NULL;       /* Search path */
+vlist *ifm_styles = NULL;       /* Global styles */
 
-/* Search path */
-vlist *ifm_search = NULL;
+static char *progname;          /* Program name */
+static char ifm_input[BUFSIZ];  /* Input filename */
 
-/* Global styles */
-vlist *ifm_styles = NULL;
+static int ifm_driver = -1;     /* Output driver ID */
+static int ifm_errors = 0;      /* No. of errors */
+static int prep_only = 0;       /* Whether to only preprocess */
+static int warning_flag = 1;    /* Whether to print warnings */
 
-/* No. of errors */
-static int ifm_errors = 0;
-
-/* Whether to print warnings */
-static int warning_flag = 1;
-
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
-/* Output format ID */
-static int ifm_fmt = F_NONE;
-
-/* Output format name */
-char *ifm_format = NULL;
-
-/* List of map sections to output */
-static vlist *sections = NULL;
-
-/* Whether to only preprocess */
-static int prep_only = 0;
+static vlist *sections = NULL;  /* List of map sections to output */
 
 /* Internal functions */
-static void print_map(void);
-static void print_items(void);
-static void print_tasks(void);
-static int itemsort(vscalar **ip1, vscalar **ip2);
+static void message(char *type, char *msg);
 static void print_version(void);
 static int select_format(char *str, int output);
 static void show_info(char *type);
@@ -123,7 +56,7 @@ static void show_maps(void);
 static void show_path(void);
 static void usage(void);
 
-/* Show options */
+/* Info options */
 static struct show_st {
     char *name, *desc;
     void (*func)(void);
@@ -138,11 +71,12 @@ static struct show_st {
 int
 main(int argc, char *argv[])
 {
-    char *env, *file, *info = NULL, *spec, *fmt = NULL;
+    char *env, *file, *info = NULL, *spec, *fmt = NULL, *home;
     int output = O_NONE, initfile = 1;
     vlist *args, *list;
     vscalar *elt;
     vhash *opts;
+    V_BUF_DECL;
 
 #ifdef BISON_DEBUG
     extern int yydebug;
@@ -220,8 +154,10 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "help"))
         usage();
 
-    if (vh_exists(opts, "version"))
+    if (vh_exists(opts, "version")) {
         print_version();
+        return 0;
+    }
 
     if (vh_exists(opts, "map")) {
         output |= O_MAP;
@@ -238,7 +174,7 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "format")) {
         fmt = vh_sgetref(opts, "format");
-        ifm_fmt = select_format(fmt, 0);
+        ifm_driver = select_format(fmt, 0);
     }
 
     if (vh_exists(opts, "nowarn"))
@@ -255,9 +191,7 @@ main(int argc, char *argv[])
             ref_style(vs_sgetref(elt));
     }
 
-    /* Set up preprocessor stuff */
-    gpp_init();
-
+    /* Set search path */
     ifm_search = vl_split(IFMPATH, PATHSEP);
 
     if ((env = getenv("IFMPATH")) != NULL) {
@@ -269,6 +203,11 @@ main(int argc, char *argv[])
     if ((list = vh_pget(opts, "I")) != NULL)
         while (vl_length(list) > 0)
             vl_sunshift(ifm_search, vl_spop(list));
+
+    /* Set up preprocessor */
+    gpp_init();
+    if (ifm_errors)
+        return 1;
 
     vl_foreach(elt, ifm_search)
         gpp_include(vs_sgetref(elt));
@@ -287,6 +226,7 @@ main(int argc, char *argv[])
 
     /* Set internal debugging options */
     switch (vh_iget(opts, "DEBUG")) {
+
 #ifdef FLEX_DEBUG
     case 1:
         yy_flex_debug = 1;
@@ -298,6 +238,7 @@ main(int argc, char *argv[])
         yydebug = 1;
         break;
 #endif
+
     default:
         break;
     }
@@ -312,9 +253,10 @@ main(int argc, char *argv[])
         return 1;
 
     /* Parse personal init file if available */
-    if (initfile && getenv("HOME") != NULL) {
-        sprintf(buf, "%s/%s", getenv("HOME"), INITFILE);
-        if (!parse_input(buf, 0, 0))
+    if (initfile) {
+        home = getenv("HOME");
+        V_BUF_SET2("%s/%s", home != NULL ? home : ".", INITFILE);
+        if (!parse_input(V_BUF_VAL, 0, 0))
             return 1;
     }
 
@@ -352,8 +294,8 @@ main(int argc, char *argv[])
     }
 
     /* Set output format if not already specified */
-    if (output != O_NONE && ifm_fmt == F_NONE)
-        ifm_fmt = select_format(NULL, output);
+    if (output != O_NONE && ifm_driver < 0)
+        ifm_driver = select_format(NULL, output);
 
     /* Open output file if required */
     if (vh_exists(opts, "output")) {
@@ -378,14 +320,15 @@ main(int argc, char *argv[])
     /* Set up room exits */
     setup_exits();
 
-    /* Set up sections */
+    /* Set up map sections */
     setup_sections();
 
-    /* Set up tasks */
+    /* Connect rooms together */
     connect_rooms();
     if (ifm_errors)
         return 1;
 
+    /* Set up tasks */
     setup_tasks();
     if (ifm_errors)
         return 1;
@@ -400,174 +343,28 @@ main(int argc, char *argv[])
     }
 
     /* Do what's required */
-    if (ifm_fmt != F_NONE)
-        ifm_format = drivers[ifm_fmt].name;
+    if (ifm_driver >= 0)
+        ifm_format = drivers[ifm_driver].name;
 
     /* Just show info if required */
-    if (info != NULL)
+    if (info == NULL) {
+        if (output == O_NONE && !TASK_VERBOSE)
+            printf("Syntax appears OK\n");
+
+        if (output & O_MAP)
+            print_map(ifm_driver, sections);
+
+        if (output & O_ITEMS)
+            print_items(ifm_driver);
+
+        if (output & O_TASKS)
+            print_tasks(ifm_driver);
+    } else {
         show_info(info);
-
-    if (output == O_NONE && !TASK_VERBOSE)
-        printf("Syntax appears OK\n");
-
-    if (output & O_MAP)
-        print_map();
-
-    if (output & O_ITEMS)
-        print_items();
-
-    if (output & O_TASKS)
-        print_tasks();
+    }
 
     /* Er... that's it */
     return 0;
-}
-
-/* Print the map */
-static void
-print_map(void)
-{
-    struct driver_st drv = drivers[ifm_fmt];
-    mapfuncs *func = drv.mfunc;
-
-    vhash *sect, *room, *link, *join;
-    vlist *sects, *list;
-    vscalar *elt;
-    int num = 1;
-
-    if (func == NULL)
-        fatal("no map driver for %s output", drv.name);
-
-    sects = vh_pget(map, "SECTS");
-    vl_foreach(elt, sects) {    
-        sect = vs_pget(elt);
-        if (sections != NULL && !vl_iget(sections, num++))
-            vh_istore(sect, "NOPRINT", 1);
-    }
-
-    set_map_vars();
-
-    if (func->map_start != NULL)
-        (*func->map_start)();
-
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
-
-        if (vh_iget(sect, "NOPRINT"))
-            continue;
-
-        if (func->map_section != NULL)
-            (*func->map_section)(sect);
-
-        if (func->map_room != NULL) {
-            list = vh_pget(sect, "ROOMS");
-            vl_foreach(elt, list) {
-                room = vs_pget(elt);
-                set_style_list(vh_pget(room, "STYLE"));
-                set_room_vars();
-                (*func->map_room)(room);
-            }
-        }
-
-        if (func->map_link != NULL) {
-            list = vh_pget(sect, "LINKS");
-            vl_foreach(elt, list) {
-                link = vs_pget(elt);
-
-                if (vh_iget(link, "HIDDEN"))
-                    continue;
-
-                if (vh_iget(link, "NOLINK"))
-                    continue;
-
-                set_style_list(vh_pget(link, "STYLE"));
-                set_link_vars();
-                (*func->map_link)(link);
-            }
-        }
-
-        if (func->map_endsection != NULL)
-            (*func->map_endsection)();
-    }
-
-    if (func->map_finish != NULL)
-        (*func->map_finish)();
-
-    if (func->map_join != NULL) {
-        vl_foreach(elt, joins) {
-            join = vs_pget(elt);
-
-            if (vh_iget(join, "HIDDEN"))
-                continue;
-
-            set_style_list(vh_pget(join, "STYLE"));
-            (*func->map_join)(join);
-        }
-    }
-}
-
-/* Print items table */
-static void
-print_items(void)
-{
-    struct driver_st drv = drivers[ifm_fmt];
-    itemfuncs *func = drv.ifunc;
-    vlist *items, *sorted;
-    vscalar *elt;
-    vhash *item;
-
-    items = vh_pget(map, "ITEMS");
-
-    if (func == NULL)
-        fatal("no item driver for %s output", drv.name);
-
-    if (func->item_start != NULL)
-        (*func->item_start)();
-
-    if (func->item_entry != NULL) {
-        sorted = vl_sort(items, itemsort);
-
-        vl_foreach(elt, sorted) {
-            item = vs_pget(elt);
-            set_style_list(vh_pget(item, "STYLE"));
-            (*func->item_entry)(item);
-        }
-
-        vl_destroy(sorted);
-    }
-
-    if (func->item_finish != NULL)
-        (*func->item_finish)();
-}
-
-/* Print task table */
-static void
-print_tasks(void)
-{
-    struct driver_st drv = drivers[ifm_fmt];
-    taskfuncs *func = drv.tfunc;
-    vscalar *elt;
-    vlist *tasks;
-    vhash *task;
-
-    tasks = vh_pget(map, "TASKS");
-
-    if (func == NULL)
-        fatal("no task driver for %s output", drv.name);
-
-    if (func->task_start != NULL)
-        (*func->task_start)();
-
-    if (func->task_entry != NULL) {
-        vl_foreach(elt, tasks) {
-            task = vs_pget(elt);
-            set_style_list(vh_pget(task, "STYLE"));
-            (*func->task_entry)(task);
-        }
-    }
-
-    if (func->task_finish != NULL)
-        (*func->task_finish)();
 }
 
 /* Parse input from a file */
@@ -620,26 +417,6 @@ parse_input(char *file, int libflag, int required)
     return (ifm_errors == 0);
 }
 
-/* Item sort function */
-static int
-itemsort(vscalar **ip1, vscalar **ip2)
-{
-    vhash *i1 = vs_pget(*ip1);
-    vhash *i2 = vs_pget(*ip2);
-    vhash *ir1, *ir2;
-    int cmp;
-
-    /* First, by item name */
-    cmp = strcmp(vh_sgetref(i1, "DESC"), vh_sgetref(i2, "DESC"));
-    if (cmp) return cmp;
-
-    /* Next, by room name */
-    ir1 = vh_pget(i1, "ROOM");
-    ir2 = vh_pget(i2, "ROOM");
-    return strcmp((ir1 == NULL ? "" : vh_sgetref(ir1, "DESC")),
-                  (ir2 == NULL ? "" : vh_sgetref(ir2, "DESC")));
-}
-
 /* Select an output format */
 static int
 select_format(char *str, int output)
@@ -649,7 +426,7 @@ select_format(char *str, int output)
     if (str != NULL)
         len = strlen(str);
 
-    for (i = 0; i < NUM_DRIVERS; i++) {
+    for (i = 0; drivers[i].name != NULL; i++) {
         if (str == NULL) {
             if (output & O_MAP)
                 if (drivers[i].mfunc != NULL)
@@ -673,16 +450,34 @@ select_format(char *str, int output)
         }
     }
 
-    if (str == NULL) {
+    if (str == NULL)
         fatal("internal: no output format found");
-    } else {
-        if (nmatch == 0)
-            fatal("unknown output format: %s", str);
-        else if (nmatch > 1)
-            fatal("ambiguous output format: %s", str);
-    }
+    else if (nmatch == 0)
+        fatal("unknown output format: %s", str);
+    else if (nmatch > 1)
+        fatal("ambiguous output format: %s", str);
 
     return match;
+}
+
+/* Switch to new input file */
+void
+switch_file(char *file, int line, int flag)
+{
+    strcpy(ifm_input, file);
+    line_number = line;
+
+    switch (flag) {
+    case 0:
+        debug("switching to file: %s, line %d", file, line);
+        break;
+    case 1:
+        debug("including file: %s, line %d", file, line);
+        break;
+    case 2:
+        debug("returning to file: %s, line %d", file, line);
+        break;
+    }
 }
 
 /* Parser-called parse error */
@@ -700,19 +495,21 @@ void
 err(char *fmt, ...)
 {
     errfuncs *func = NULL;
+    V_BUF_DECL;
+    char *msg;
 
     ifm_errors++;
-    V_VPRINT(buf, fmt);
+    V_BUF_FMT(fmt, msg);
 
-    if (ifm_fmt >= 0)
-        func = drivers[ifm_fmt].efunc;
+    if (ifm_driver >= 0)
+        func = drivers[ifm_driver].efunc;
 
     if (func == NULL) {
-        PRINT_MSG(error, buf);
+        message("error", msg);
         if (ifm_errors >= MAX_ERRORS)
             fatal("too many errors.  Goodbye!");
     } else {
-        (*func->error)(ifm_input, line_number, buf);
+        func->error(ifm_input, line_number, msg);
     }
 }
 
@@ -721,63 +518,83 @@ void
 warn(char *fmt, ...)
 {
     errfuncs *func = NULL;
+    V_BUF_DECL;
+    char *msg;
 
     if (!warning_flag)
         return;
 
-    V_VPRINT(buf, fmt);
+    V_BUF_FMT(fmt, msg);
 
-    if (ifm_fmt >= 0)
-        func = drivers[ifm_fmt].efunc;
+    if (ifm_driver >= 0)
+        func = drivers[ifm_driver].efunc;
 
-    if (func == NULL) {
-        PRINT_MSG(warning, buf);
-    } else {
-        (*func->warning)(ifm_input, line_number, buf);
-    }
+    if (func == NULL)
+        message("warning", msg);
+    else
+        func->warning(ifm_input, line_number, msg);
 }
 
 /* Give a debugging message */
 void
 debug(char *fmt, ...)
 {
+    V_BUF_DECL;
+    char *msg;
+
     if (getenv("IFM_DEBUG")) {
-        V_VPRINT(buf, fmt);
-        fprintf(stderr, "IFM: %s\n", buf);
+        V_BUF_FMT(fmt, msg);
+        fprintf(stderr, "IFM: %s\n", msg);
     }
+}
+
+/* Give a general message */
+static void
+message(char *type, char *msg)
+{
+    fprintf(stderr, "%s: %s", progname, type);
+
+    if (strlen(ifm_input) > 0) {
+        fprintf(stderr, ": %s", ifm_input);
+        if (line_number > 0)
+            fprintf(stderr, ", line %d", line_number);
+    }
+
+    fprintf(stderr, ": %s\n", msg);
 }
 
 /* Give a *fatal* error */
 void
 fatal(char *fmt, ...)
 {
-    V_VPRINT(buf, fmt);
-    fprintf(stderr, "%s: error: %s\n", progname, buf);
+    V_BUF_DECL;
+    char *msg;
+
+    V_BUF_FMT(fmt, msg);
+    fprintf(stderr, "%s: error: %s\n", progname, msg);
     exit(1);
 }
 
-/* Print program version and exit */
+/* Print program version */
 static void
 print_version(void)
 {
     printf("IFM version %s\n", VERSION);
-    printf("Copyright (C) Glenn Hutchings <%s>\n", PACKAGE_BUGREPORT);
-    printf("\n");
+    printf("Copyright (C) Glenn Hutchings <%s>\n\n", PACKAGE_BUGREPORT);
+
     printf("This program is free software; you can redistribute it and/or modify\n");
     printf("it under the terms of the GNU General Public License as published by\n");
     printf("the Free Software Foundation; either version 2, or (at your option)\n");
-    printf("any later version.\n");
-    printf("\n");
+    printf("any later version.\n\n");
+
     printf("This program is distributed in the hope that it will be useful,\n");
     printf("but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
     printf("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
-    printf("GNU General Public License for more details.\n");
-    printf("\n");
+    printf("GNU General Public License for more details.\n\n");
+
     printf("You should have received a copy of the GNU General Public License\n");
     printf("along with this program; if not, write to the Free Software\n");
     printf("Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n");
-
-    exit(0);
 }
 
 /* Show some information */
@@ -800,7 +617,6 @@ show_info(char *type)
         fatal("ambiguous info type: %s", type);
 
     showopts[match].func();
-    exit(0);
 }
 
 /* Print map sections */
@@ -812,6 +628,7 @@ show_maps(void)
     vscalar *elt;
     char *title;
     vhash *sect;
+    V_BUF_DECL;
 
     set_map_vars();
 
@@ -821,12 +638,10 @@ show_maps(void)
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
 
-        if (vh_exists(sect, "TITLE")) {
+        if (vh_exists(sect, "TITLE"))
             title = vh_sgetref(sect, "TITLE");
-        } else {
-            sprintf(buf, "Map section %d", num);
-            title = buf;
-        }
+        else
+            title = V_BUF_SET1("Map section %d", num);
 
         rooms = vh_pget(sect, "ROOMS");
         xlen = vh_iget(sect, "XLEN");
@@ -856,7 +671,7 @@ usage()
     v_usage("Usage: %s [options] [file...]", progname);
 
     printf("\nOutput formats (may be abbreviated):\n");
-    for (i = 0; i < NUM_DRIVERS; i++)
+    for (i = 0; drivers[i].name != NULL; i++)
         printf("    %-15s     %s\n", drivers[i].name, drivers[i].desc);
 
     printf("\nShow options (may be abbreviated):\n");
