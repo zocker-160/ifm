@@ -47,6 +47,7 @@ extern vlist *ifm_search;
 extern char *ifm_format;
 
 /* Advertised functions */
+extern int parse_input(char *file, int libflag, int required);
 extern void yyerror(char *msg);
 extern void debug(char *fmt, ...);
 extern void err(char *fmt, ...);

@@ -68,6 +68,15 @@ static struct driver_st {
 # endif
 #endif
 
+#define PRINT_MSG(type, msg) \
+        fprintf(stderr, "%s: %s", progname, #type);                     \
+        if (strlen(ifm_input) > 0) {                                    \
+            fprintf(stderr, ": %s", ifm_input);                         \
+            if (line_number > 0)                                        \
+                fprintf(stderr, ", line %d", line_number);              \
+        }                                                               \
+        fprintf(stderr, ": %s\n", buf)
+
 #define F_NONE -1
 
 /* Max. errors before aborting */
@@ -111,7 +120,6 @@ static void print_map(void);
 static void print_items(void);
 static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
-static int parse_input(char *file, int libflag, int required);
 static void print_version(void);
 static int select_format(char *str, int output);
 static void show_info(char *type);
@@ -278,6 +286,11 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    /* Load style definitions */
+    load_styles();
+    if (ifm_errors)
+        return 1;
+
     /* Set output format if not already specified */
     if (output != O_NONE && ifm_fmt == F_NONE)
         ifm_fmt = select_format(NULL, output);
@@ -372,7 +385,7 @@ print_map(void)
             list = vh_pget(sect, "ROOMS");
             vl_foreach(elt, list) {
                 room = vs_pget(elt);
-                set_style(vh_sgetref(room, "STYLE"));
+                set_style_list(vh_pget(room, "STYLE"));
                 (*func->map_room)(room);
             }
         }
@@ -385,7 +398,7 @@ print_map(void)
                     continue;
                 if (vh_iget(link, "NOLINK"))
                     continue;
-                set_style(vh_sgetref(link, "STYLE"));
+                set_style_list(vh_pget(link, "STYLE"));
                 (*func->map_link)(link);
             }
         }
@@ -402,7 +415,7 @@ print_map(void)
             join = vs_pget(elt);
             if (vh_iget(join, "HIDDEN"))
                 continue;
-            set_style(vh_sgetref(join, "STYLE"));
+            set_style_list(vh_pget(join, "STYLE"));
             (*func->map_join)(join);
         }
     }
@@ -431,7 +444,7 @@ print_items(void)
 
         vl_foreach(elt, sorted) {
             item = vs_pget(elt);
-            set_style(vh_sgetref(item, "STYLE"));
+            set_style_list(vh_pget(item, "STYLE"));
             (*func->item_entry)(item);
         }
 
@@ -463,7 +476,7 @@ print_tasks(void)
     if (func->task_entry != NULL) {
         vl_foreach(elt, tasks) {
             task = vs_pget(elt);
-            set_style(vh_sgetref(task, "STYLE"));
+            set_style_list(vh_pget(task, "STYLE"));
             (*func->task_entry)(task);
         }
     }
@@ -473,26 +486,29 @@ print_tasks(void)
 }
 
 /* Parse input from a file */
-static int
+int
 parse_input(char *file, int libflag, int required)
 {
     static int parses = 0;
     extern FILE *yyin;
 
+    line_number = 0;
+
     if (file == NULL || STREQ(file, "-")) {
         strcpy(ifm_input, "<stdin>");
         yyin = stdin;
     } else if ((yyin = open_file(file, libflag, required)) == NULL) {
+        strcpy(ifm_input, "");
         return 1;
     }
 
-    ifm_errors = 0;
     line_number = 1;
+    ifm_errors = 0;
     if (parses++)
         yyrestart(yyin);
-
     yyparse();
     line_number = 0;
+    strcpy(ifm_input, "");
 
     return (ifm_errors == 0);
 }
@@ -592,13 +608,7 @@ err(char *fmt, ...)
         func = drivers[ifm_fmt].efunc;
 
     if (func == NULL) {
-        if (line_number > 0)
-            fprintf(stderr, "%s: error: %s, line %d: %s\n",
-                    progname, ifm_input, line_number, buf);
-        else
-            fprintf(stderr, "%s: error: %s: %s\n",
-                    progname, ifm_input, buf);
-
+        PRINT_MSG(error, buf);
         if (ifm_errors >= MAX_ERRORS)
             fatal("too many errors.  Goodbye!");
     } else {
@@ -621,12 +631,7 @@ warn(char *fmt, ...)
         func = drivers[ifm_fmt].efunc;
 
     if (func == NULL) {
-        if (line_number > 0)
-            fprintf(stderr, "%s: warning: %s, line %d: %s\n",
-                    progname, ifm_input, line_number, buf);
-        else
-            fprintf(stderr, "%s: warning: %s: %s\n",
-                    progname, ifm_input, buf);
+        PRINT_MSG(warning, buf);
     } else {
         (*func->warning)(ifm_input, line_number, buf);
     }
