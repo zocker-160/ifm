@@ -51,6 +51,8 @@ vhash *lasttask = NULL;         /* Last task mentioned */
 vlist *taskorder = NULL;        /* Ordered task list */
 vlist *sectnames = NULL;	/* List of section names */
 
+int mapnum = 0;                 /* Current map section number */
+
 /* Add a direction to the current direction list */
 void
 add_dir(int dir)
@@ -102,7 +104,7 @@ get_offset(int dir, int *xoff, int *yoff)
 
 /* Initialise the map */
 void
-init_map()
+init_map(void)
 {
     map = vh_create();
     rooms = vl_create();
@@ -175,7 +177,7 @@ resolve_tag_list(char *type, vlist *list, vhash *table)
 
 /* Resolve all tags */
 void
-resolve_tags()
+resolve_tags(void)
 {
     vhash *room, *item, *link, *join, *task;
     vlist *list;
@@ -251,7 +253,7 @@ set_tag(char *type, char *tag, vhash *val, vhash *table)
 
 /* Set up sections */
 void
-setup_sections()
+setup_sections(void)
 {
     int minx, miny, maxx, maxy, x, y, first, i;
     vhash *sect, *room, *link;

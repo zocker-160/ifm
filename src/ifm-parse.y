@@ -287,7 +287,7 @@ task_attr	: TAG IDENT
 		}
 		;
 
-ctrl_stmt       : TITLE STRING ';'
+ctrl_stmt       : TITLE var ';'
                 {
                     set_var("default", "global", "title", $2);
                 }

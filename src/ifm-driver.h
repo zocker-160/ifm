@@ -10,8 +10,6 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
-#ifndef CPROTO
-
 #ifdef TEXT
 #include "text.drv"
 #endif
@@ -54,5 +52,4 @@ struct driver_st {
 #endif
 };
 
-#endif /* !CPROTO */
 #endif /* DRIVER_H */

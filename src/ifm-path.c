@@ -14,7 +14,7 @@
 
 /* Connect rooms as a directed graph */
 void
-connect_rooms()
+connect_rooms(void)
 {
     vhash *room, *link, *join, *reach, *from, *to;
     vlist *rlist;

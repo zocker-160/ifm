@@ -20,7 +20,7 @@ static char buf[BUFSIZ];
 
 /* Add a new task */
 void
-add_task()
+add_task(void)
 {
     if (curtask == NULL)
         return;
@@ -56,7 +56,7 @@ add_task_list(char *tag)
 
 /* Build the initial task list */
 void
-build_tasks()
+build_tasks(void)
 {
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
     vlist *list, *itasks, *rlist;
@@ -224,7 +224,7 @@ do_task(vhash *task, vhash *from, vhash *to)
 
 /* Create the ordered task list */
 void
-order_tasks()
+order_tasks(void)
 {
     vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task, *dstep;
     int drop, pri, priority, tasksleft;
@@ -341,7 +341,7 @@ order_tasks()
 
 /* Set list of following tasks */
 void
-set_task_after()
+set_task_after(void)
 {
     if (curtask == NULL)
 	curtask = vh_create();

@@ -107,7 +107,7 @@ get_var(char *id)
 
 /* Print currently defined variables */
 void
-print_vars()
+print_vars(void)
 {
     vlist *entries1, *entries2, *tables = vh_sortkeys(vars, NULL);
     char *table1, *table2, *var;
