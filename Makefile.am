@@ -5,7 +5,7 @@ SUBDIRS			= @BUILD@
 DIST_SUBDIRS		= lib src doc tests scr2ifm tkifm
 EXTRA_DIST		= README.src README.win32 README.maps
 
-dist-hook:;		cp -rp config contrib $(distdir)
+dist-hook:;		cp -rp $(srcdir)/config $(srcdir)/contrib $(distdir)
 
 ## Stuff for Win32 distribution.
 
