@@ -46,34 +46,74 @@ static int total = 0;
 /* Total distance travelled */
 static int travel = 0;
 
+/* Scribble buffer */
+static char buf[BUFSIZ];
+
 /* Item functions */
 void
 text_item_entry(vhash *item)
 {
-    vlist *notes = vh_pget(item, "NOTE");
     vhash *room = vh_pget(item, "ROOM");
+    vlist *notes = vh_pget(item, "NOTE");
     static int count = 0;
     vscalar *elt;
+    vlist *tasks;
+    vhash *task;
+    char *title;
 
     if (count++ == 0) {
-        char *title = "Interactive Fiction game";
-        if (VAR_DEF("title"))
-            title = var_string("title");
+        if (vh_exists(map, "TITLE"))
+            title = vh_sgetref(map, "TITLE");
+        else
+            title = "Interactive Fiction game";
         put_string("Item list for %s\n", title);
     }
 
     put_string("\n%s:\n", vh_sgetref(item, "DESC"));
-    if (room == NULL) {
+    if (room == NULL)
         printf("   carried at the start of the game\n");
-    } else {
-        printf("   found in %s\n", vh_sgetref(room, "DESC"));
-        if (vh_iget(item, "HIDDEN"))
-            printf("   not immediately obvious\n");
-    }
+    else
+        printf("   %s in %s\n",
+               (vh_iget(item, "HIDDEN") ? "hidden" : "seen"),
+               vh_sgetref(room, "DESC"));
 
     if (vh_exists(item, "SCORE"))
         printf("   scores %d points when picked up\n",
                vh_iget(item, "SCORE"));
+
+    if (vh_exists(item, "LEAVE"))
+        printf("   may have to be dropped when moving\n");
+
+    if (vh_exists(item, "FINISH"))
+        printf("   finishes the game when picked up\n");
+
+    if ((tasks = vh_pget(item, "RTASKS")) != NULL) {
+        printf("   obtained after:\n");
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            if ((room = vh_pget(task, "ROOM")) == NULL)
+                strcpy(buf, vh_sgetref(task, "DESC"));
+            else
+                sprintf(buf, "%s (%s)",
+                        vh_sgetref(task, "DESC"),
+                        vh_sgetref(room, "DESC"));
+            put_string("      %s\n", buf);
+        }
+    }
+
+    if ((tasks = vh_pget(item, "TASKS")) != NULL) {
+        printf("   needed for:\n");
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            if ((room = vh_pget(task, "ROOM")) == NULL)
+                strcpy(buf, vh_sgetref(task, "DESC"));
+            else
+                sprintf(buf, "%s (%s)",
+                        vh_sgetref(task, "DESC"),
+                        vh_sgetref(room, "DESC"));
+            put_string("      %s\n", buf);
+        }
+    }
 
     if (notes != NULL) {
         vl_foreach(elt, notes)
@@ -93,12 +133,14 @@ text_task_entry(vhash *task)
     static int count = 0;
     int type, score;
     vscalar *elt;
+    char *title;
 
     if (count == 0) {
-        char *title = "Interactive Fiction game";
-        if (VAR_DEF("title"))
-            title = var_string("title");
-        put_string("High-level walkthrough for %s\n", title);
+        if (vh_exists(map, "TITLE"))
+            title = vh_sgetref(map, "TITLE");
+        else
+            title = "Interactive Fiction game";
+        put_string("Item list for %s\n", title);
     }
 
     type = vh_iget(task, "TYPE");
