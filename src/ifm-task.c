@@ -288,12 +288,21 @@ setup_tasks(void)
             }
         }
 
-        /* Required tasks must be done before getting this item */
+        /* Deal with 'after' tasks */
         if ((list = vh_pget(item, "AFTER")) != NULL) {
             vl_foreach(elt, list) {
                 task = vs_pget(elt);
                 step = vh_pget(task, "STEP");
                 task_pair(step, istep);
+            }
+        }
+
+        /* Deal with 'before' tasks */
+        if ((list = vh_pget(item, "BEFORE")) != NULL) {
+            vl_foreach(elt, list) {
+                task = vs_pget(elt);
+                step = vh_pget(task, "STEP");
+                task_pair(istep, step);
             }
         }
     }
@@ -305,10 +314,11 @@ setup_tasks(void)
 
         /* Deal with 'next' tasks */
         if ((otask = vh_pget(tstep, "NEXT")) != NULL) {
-            if (vh_exists(otask, "FOLLOW"))
+            if (vh_exists(otask, "FOLLOW")
+                && vh_pget(otask, "FOLLOW") != task)
                 err("more than one task requires `%s' to be done next",
                     vh_sgetref(otask, "DESC"));
-            vh_istore(otask, "FOLLOW", 1);
+            vh_pstore(otask, "FOLLOW", task);
             step = vh_pget(otask, "STEP");
             vh_istore(tstep, "UNSAFE", 1);
             task_pair(tstep, step);
@@ -316,10 +326,11 @@ setup_tasks(void)
 
         /* Deal with 'prev' tasks */
         if ((otask = vh_pget(tstep, "PREV")) != NULL) {
-            if (vh_exists(task, "FOLLOW"))
+            if (vh_exists(task, "FOLLOW")
+                && vh_pget(task, "FOLLOW") != otask)
                 err("more than one task requires `%s' to be done next",
                     vh_sgetref(task, "DESC"));
-            vh_istore(task, "FOLLOW", 1);
+            vh_pstore(task, "FOLLOW", otask);
             step = vh_pget(otask, "STEP");
             vh_pstore(step, "NEXT", task);
             vh_istore(step, "UNSAFE", 1);
