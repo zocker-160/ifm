@@ -794,15 +794,10 @@ setup_tasks(void)
                 if (room != NULL) {
                     get = vh_pget(oitem, "STEP");
                     order_tasks(get, istep);
+                    add_list(item, "RTASKS", get);
                 }
 
-                /* Record dependent tasks for this item */
-                itasks = vh_pget(oitem, "TASKS");
-                if (itasks == NULL) {
-                    itasks = vl_create();
-                    vh_pstore(oitem, "TASKS", itasks);
-                }
-                vl_ppush(itasks, istep);
+                add_list(oitem, "TASKS", istep);
             }
         }
 
@@ -811,6 +806,7 @@ setup_tasks(void)
             vl_foreach(elt, list) {
                 task = vs_pget(elt);
                 step = vh_pget(task, "STEP");
+                add_list(item, "RTASKS", step);
                 order_tasks(step, istep);
             }
         }
@@ -820,6 +816,7 @@ setup_tasks(void)
             vl_foreach(elt, list) {
                 task = vs_pget(elt);
                 step = vh_pget(task, "STEP");
+                add_list(item, "RTASKS", step);
                 order_tasks(istep, step);
             }
         }
@@ -848,13 +845,7 @@ setup_tasks(void)
                     order_tasks(get, tstep);
                 }
 
-                /* Record dependent tasks for this item */
-                itasks = vh_pget(item, "TASKS");
-                if (itasks == NULL) {
-                    itasks = vl_create();
-                    vh_pstore(item, "TASKS", itasks);
-                }
-                vl_ppush(itasks, tstep);
+                add_list(item, "TASKS", tstep);
             }
         }
 
@@ -865,6 +856,7 @@ setup_tasks(void)
                 room = vh_pget(item, "ROOM");
                 if (room != NULL) {
                     get = vh_pget(item, "STEP");
+                    add_list(item, "RTASKS", tstep);
                     order_tasks(tstep, get);
                 }
             }
@@ -876,6 +868,7 @@ setup_tasks(void)
                 room = vh_pget(item, "ROOM");
                 if (room != NULL) {
                     get = vh_pget(item, "STEP");
+                    add_list(item, "RTASKS", tstep);
                     order_tasks(tstep, get);
                 }
             }
