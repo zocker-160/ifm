@@ -690,7 +690,7 @@ show_info(char *type)
 static void
 show_path(void)
 {
-    printf("%s\n", vl_join(ifm_search, "\n"));
+    printf("%s\n", vl_join(ifm_search, " "));
 }
 
 /* Print a usage message and exit */
