@@ -43,6 +43,18 @@ fi
 dnl Check for executable suffix.
 AC_CYGWIN
 
+dnl Check whether to install vars library.
+AC_ARG_ENABLE(vars-install,
+[  --enable-vars-install   Install vars support library],
+[case "${enableval}" in
+  yes) install_vars=yes ;;
+  no)  install_vars=no  ;;
+  *)   AC_MSG_ERROR(bad value ${enableval} for --enable-vars-install) ;;
+esac],[install_vars=no])
+
+AC_CACHE_CHECK(whether to install support library, ac_cv_install_vars,
+[ac_cv_install_vars=$install_vars])
+
 dnl Add common Makefile rules.
 common_rules=$srcdir/config/Makefile.add
 AC_SUBST_FILE(common_rules)
