@@ -305,7 +305,7 @@ drop_item(vhash *item, vhash *room, vlist *until, int print)
 static void
 filter_tasks(void)
 {
-    int canfilter, filter, filtered, alldone;
+    int canfilter, filter, filtered, numfiltered = 0, alldone;
     vhash *task, *otask, *item;
     vscalar *elt;
     vlist *list;
@@ -386,10 +386,14 @@ filter_tasks(void)
             if (canfilter && filter) {
                 vh_istore(task, "DONE", 1);
                 filtered++;
+                numfiltered++;
                 DEBUG1(3, "ignore task: %s", vh_sgetref(task, "DESC"));
             }
         }
     } while (filtered);
+
+    if (numfiltered)
+        modify_path();
 }
 
 /* Move to a room to do something */
