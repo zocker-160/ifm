@@ -83,7 +83,9 @@ ps_map_start(void)
     printf("/origmapheight %d def\n", height);
 
     printf("/titlefont /%s def\n", get_string("title_font", "Times-Bold"));
-    printf("/titlefontsize %g def\n", get_real("title_fontsize", 14));
+    printf("/titlefontsize %g def\n", get_real("title_fontsize", 16));
+
+    printf("/border %s def\n", get_int("border", 0) ? "true" : "false");
 
     printf("%%%%EndProlog\n");
 }
