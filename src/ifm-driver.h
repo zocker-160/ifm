@@ -11,15 +11,11 @@
 #define DRIVER_H
 
 #ifdef TEXT
-#include "text.drv"
+#include "drv-text.c"
 #endif
 
 #ifdef GROFF
-#include "groff.drv"
-#endif
-
-#ifdef TK
-#include "tk.drv"
+#include "drv-groff.c"
 #endif
 
 #define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
@@ -41,13 +37,6 @@ struct driver_st {
     {
         "groff", "Groff with pic, tbl and -me macros",
         &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs
-    },
-#endif
-
-#ifdef TK
-    {
-        "tk", "Interface to tkifm graphical display",
-        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs
     },
 #endif
 };
