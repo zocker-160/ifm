@@ -489,10 +489,6 @@ link_attr	: DIR dir_list
 		{
                     vh_istore(curlink, "SPECIAL", 1);
 		}
-		| HIDDEN
-		{
-                    vh_istore(curlink, "HIDDEN", 1);
-		}
                 | NEED item_list
                 {
                     SET_LIST(curlink, "NEED", curitems);
