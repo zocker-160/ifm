@@ -28,7 +28,7 @@
 				      va_end(ap); \
 			        }
 
-#define NUM_DRIVERS sizeof(drivers) / sizeof(drivers[0]);
+#define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
 
 /* What's my name? */
 char *progname;
