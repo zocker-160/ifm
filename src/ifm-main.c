@@ -28,6 +28,8 @@
 				      va_end(ap); \
 			        }
 
+#define NUM_DRIVERS sizeof(drivers) / sizeof(drivers[0]);
+
 /* What's my name? */
 char *progname;
 
@@ -47,14 +49,19 @@ static char buf[BUFSIZ];
 int ifm_debug = 0;
 
 /* Local functions */
+static void draw_map(int fmt);
+static void draw_items(int fmt);
+static void draw_tasks(int fmt);
 static int itemsort(vscalar **ip1, vscalar **ip2);
+static int select_format(char *str);
+static int default_format(int output);
 static void usage(void);
 
 /* Main routine */
 int
 main(int argc, char *argv[])
 {
-    int c, format, output = O_NONE;
+    int c, format = -1, output = O_NONE;
     extern void yyparse();
     extern char *optarg;
 
@@ -154,6 +161,26 @@ main(int argc, char *argv[])
         order_tasks();
     }
 
+    /* Set output format if not already specified */
+    if (output != O_NONE && format < 0) {
+        switch (output) {
+        case O_MAP:
+            strcpy(buf, "map_output");
+            break;
+        case O_ITEMS:
+            strcpy(buf, "item_output");
+            break;
+        case O_TASKS:
+            strcpy(buf, "task_output");
+            break;
+        }
+
+        if (vh_exists(vars, buf))
+            format = select_format(vh_sget(vars, buf));
+        else
+            format = default_format(output);
+    }
+
     /* Do what's required */
     switch (output) {
     case O_NONE:
@@ -175,7 +202,7 @@ main(int argc, char *argv[])
 }
 
 /* Draw the map */
-void
+static void
 draw_map(int fmt)
 {
     struct driver_st drv = drivers[fmt];
@@ -225,7 +252,7 @@ draw_map(int fmt)
 }
 
 /* Draw items table */
-void
+static void
 draw_items(int fmt)
 {
     struct driver_st drv = drivers[fmt];
@@ -259,7 +286,7 @@ draw_items(int fmt)
 }
 
 /* Draw task table */
-void
+static void
 draw_tasks(int fmt)
 {
     struct driver_st drv = drivers[fmt];
@@ -313,13 +340,12 @@ itemsort(vscalar **ip1, vscalar **ip2)
 }
 
 /* Select an output format */
-int
+static int
 select_format(char *str)
 {
-    int nd = sizeof(drivers) / sizeof(drivers[0]);
     int i, match, nmatch = 0, len = strlen(str);
 
-    for (i = 0; i < nd; i++) {
+    for (i = 0; i < NUM_DRIVERS; i++) {
         if (!strcmp(drivers[i].name, str))
             return i;
         if (!strncmp(drivers[i].name, str, len)) {
@@ -334,6 +360,33 @@ select_format(char *str)
         fatal("ambiguous output format: %s", str);
 
     return match;
+}
+
+/* Return default output format */
+static int
+default_format(int output)
+{
+    int i;
+
+    for (i = 0; i < NUM_DRIVERS; i++) {
+        switch (output) {
+        case O_MAP:
+            if (drivers[i].mfunc != NULL)
+                return i;
+            break;
+        case O_ITEMS:
+            if (drivers[i].ifunc != NULL)
+                return i;
+            break;
+        case O_TASKS:
+            if (drivers[i].tfunc != NULL)
+                return i;
+            break;
+        }
+    }
+
+    fatal("internal: no output format found");
+    return -1;
 }
 
 /* Parser-called parse error */
