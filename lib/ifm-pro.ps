@@ -59,7 +59,7 @@
 	titlestring
 	pagewidth 2 div
 	pageheight pagemargin sub titlefontsize add
-	centredtext
+	text
     } if
 
     % Calculate font scaling factor.
@@ -72,7 +72,7 @@
 /map {				% STRING X Y map
     % Draw map title.
     mapfont mapfontsize selectfont
-    pagepos centredtext
+    pagepos text
 } def
 
 % Draw a room. 
@@ -191,7 +191,7 @@
  		(U/D)
  	    }{
  		(I/O)
- 	    } ifelse ln-xmid ln-ymid pagepos centredtext
+ 	    } ifelse ln-xmid ln-ymid pagepos text
  	} if
 
 	% Draw arrow if oneway.
@@ -256,7 +256,7 @@
 	    bt-textheight 2 div sub
 
 	    % Draw it.
-	    0 exch centredtext
+	    0 exch text
 	} for
     grestore
 } def
@@ -294,6 +294,8 @@
 /breakline {			% STRING WIDTH PROC breakline
     /bl-proc exch def
     /bl-linewidth exch def
+
+    % Text string needs trailing space for filling to work properly.
     addspace /bl-textstring exch def
 
     % Get width of a space in current font.
@@ -368,12 +370,21 @@
 } bind def
 
 % Draw centred text.
-/centredtext {			% STRING X Y centredtext
+/text {				% STRING X Y text
     gsave
+	% Move to text centre.
 	translate
 	dup stringwidth pop neg 2 div
 	currentfontsize neg 3 div
-	moveto show 
+	moveto
+
+	% Draw text outline in background.
+	gsave
+	    dup false charpath pathbbox 1 setgray rectangle
+	grestore
+
+	% Draw text.
+	show
     grestore
 } bind def
 
@@ -383,6 +394,22 @@
     dup as-str exch 0 exch putinterval
     length as-str exch 32 put as-str
 } def
+
+% Draw a filled rectangle.
+/rectangle {			% LLX LLY URX URY rectangle
+    /rc-ury exch def
+    /rc-urx exch def
+    /rc-lly exch def
+    /rc-llx exch def
+
+    gsave
+	newpath rc-llx rc-lly moveto
+	rc-urx rc-lly lineto
+	rc-urx rc-ury lineto
+	rc-urx neg rc-ury lineto
+	closepath fill
+    grestore
+} bind def
 
 % Select a font.
 /selectfont {			% FONT SIZE selectfont
