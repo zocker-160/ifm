@@ -446,6 +446,7 @@ new_task(int type, vhash *data)
         if (vh_exists(data, "CMD"))
             vh_pstore(step, "CMD", vh_pget(data, "CMD"));
 
+        vh_istore(step, "HIDDEN", vh_iget(data, "HIDDEN"));
         vh_pstore(step, "DROP", vh_pget(data, "DROP"));
         vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
         vh_pstore(step, "DROPROOM", vh_pget(data, "DROPROOM"));
