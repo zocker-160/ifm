@@ -457,10 +457,12 @@ room            : ID
                 }
                 | LAST
                 {
-                    if (lastroom == NULL)
+                    if (lastroom == NULL) {
                         err("no room referred to by `last'");
-                    else
-                        $$ = itroom = vs_pcreate(lastroom);
+                    } else {
+                        $$ = vs_pcreate(lastroom);
+                        itroom = vs_copy($$);
+                    }                        
                 }
                 ;
 
@@ -601,10 +603,12 @@ item            : ID
                 }
                 | LAST
                 {
-                    if (lastitem == NULL)
+                    if (lastitem == NULL) {
                         err("no item referred to by `last'");
-                    else
-                        $$ = ititem = vs_pcreate(lastitem);
+                    } else {
+                        $$ = vs_pcreate(lastitem);
+                        ititem = vs_copy($$);
+                    }
                 }
                 ;
 
@@ -999,10 +1003,12 @@ task            : ID
                 }
                 | LAST
                 {
-                    if (lasttask == NULL)
+                    if (lasttask == NULL) {
                         err("no task referred to by `last'");
-                    else
-                        $$ = ittask = vs_pcreate(lasttask);
+                    } else {
+                        $$ = vs_pcreate(lasttask);
+                        ittask = vs_copy($$);
+                    }
                 }
                 ;
 
