@@ -7,8 +7,8 @@ map-nolink.ifm task-attr1.ifm task-attr2.ifm task-attr3.ifm		    \
 task-before1.ifm task-before2.ifm task-cmd.ifm task-drop1.ifm		    \
 task-drop2.ifm task-drop3.ifm task-drop4.ifm task-finish.ifm		    \
 task-follow1.ifm task-follow2.ifm task-follow3.ifm task-give1.ifm	    \
-task-give2.ifm task-hidden.ifm task-leave1.ifm task-leave2.ifm		    \
-task-lose.ifm task-nolink.ifm task-note.ifm task-path.ifm task-simple.ifm   \
+task-give2.ifm task-nocmd.ifm task-leave1.ifm task-leave2.ifm task-lose.ifm \
+task-nolink.ifm task-nopath.ifm task-note.ifm task-path.ifm task-simple.ifm \
 task-unsafe.ifm
 
 IFM		= $(top_srcdir)/src/ifm
@@ -23,7 +23,7 @@ EXP		= $(SRCS:.ifm=.exp)
 
 EXTRA_DIST	= README $(TESTS) $(EXP)
 
-SUFFIXES	= .ifm .test .task .prof .tk .ps
+SUFFIXES	= .ifm .test .task .prof .tk .ps .rec
 
 .ifm.prof:;	time $(IFM) -tasks $<
 
@@ -32,6 +32,8 @@ SUFFIXES	= .ifm .test .task .prof .tk .ps
 .ifm.tk:;	$(TKIFM) $<
 
 .ifm.ps:;	$(IFM) -map -format ps $< > $@
+
+.ifm.rec:;	$(IFM) -tasks -format rec $< > $@
 
 tests:		$(SRCS)
 		$(MAKETEST) $(SRCS)
