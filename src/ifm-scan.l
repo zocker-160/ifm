@@ -22,14 +22,25 @@
 #include "ifm-util.h"
 #include "ifm-parse.h"
 
+#define MAX_INCLUDE 100
+
 #define yywrap() 1
+
+/* Include file stack */
+static vlist *istack = NULL;
+
+/* Include level */
+static int ilevel = 0;
 
 /* Internal string buffer */
 static vbuffer *sbuf = NULL;
 
-/* Current line number */
-extern int line_number;
+/* Internal functions */
+static void push_include(char *file, int libflag);
+static void pop_include(void);
 %}
+
+%state INC
 
 LETTER		[A-Za-z_]
 DIGIT		[0-9]
@@ -37,13 +48,12 @@ INTEGER         {DIGIT}+
 REAL		{DIGIT}*\.{DIGIT}+
 ALNUM		{LETTER}|{DIGIT}
 ID		{LETTER}{ALNUM}*
-WHITE		[ \t\f]*
 
 %%
 
 #.*		; /* Ignore comments */
 
-{WHITE}		; /* Strip whitespace */
+[ \t\f]+	; /* Strip whitespace */
 
 \n              {
 		    line_number++;
@@ -158,6 +168,29 @@ WHITE		[ \t\f]*
 "w"		{ return WEST; }
 "west"		{ return WEST; }
 
+^[ \t]*"include" {
+                    BEGIN(INC);
+                }
+
+<INC>\"[^\"]+\"[ \t]*$ {
+                    v_chop(yytext);
+                    push_include(&yytext[1], 0);
+                    BEGIN(INITIAL);
+                }
+
+<INC>\<[^>]+\>[ \t]*$ {
+                    v_chop(yytext);
+                    push_include(&yytext[1], 1);
+                    BEGIN(INITIAL);
+                }
+
+<<EOF>>         {
+                    if (ilevel == 0)
+                        yyterminate();
+                    else
+                        pop_include();
+                }
+
 {ID}		{
 		    yylval.sval = v_strdup(yytext);
 		    return ID;
@@ -176,3 +209,59 @@ WHITE		[ \t\f]*
 .		{ return yytext[0]; }
 
 %%
+
+/* Push include level */
+static void
+push_include(char *file, int libflag)
+{
+#ifdef FLEX_SCANNER
+    YY_BUFFER_STATE buffer;
+    vhash *idata;
+    FILE *fp;
+
+    /* Sanity check */
+    if (ilevel == MAX_INCLUDE)
+        fatal("include files nested too deeply (> %d)", MAX_INCLUDE);
+
+    /* Store current include level */
+    idata = vh_create();
+    vh_sstore(idata, "FILE", ifm_input);
+    vh_istore(idata, "LINE", line_number);
+    vh_pstore(idata, "BUFFER", YY_CURRENT_BUFFER);
+
+    /* Push it onto include stack */
+    if (istack == NULL)
+        istack = vl_create();
+    vl_ppush(istack, idata);
+    ilevel++;
+
+    /* Go to new include file */
+    fp = open_file(file, libflag);
+    buffer = yy_create_buffer(fp, YY_BUF_SIZE);
+    yy_switch_to_buffer(buffer);
+    line_number = 1;
+#else
+    warn("this version of IFM doesn't support `include'");
+#endif
+}
+
+/* Pop include level */
+static void
+pop_include(void)
+{
+#ifdef FLEX_SCANNER
+    YY_BUFFER_STATE buffer;
+    vhash *idata;
+
+    ilevel--;
+    idata = vl_ppop(istack);
+    strcpy(ifm_input, vh_sgetref(idata, "FILE"));
+    line_number = vh_iget(idata, "LINE");
+
+    yy_delete_buffer(YY_CURRENT_BUFFER);
+    buffer = vh_pget(idata, "BUFFER");
+    yy_switch_to_buffer(buffer);
+
+    vh_destroy(idata);
+#endif
+}
