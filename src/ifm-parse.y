@@ -696,7 +696,7 @@ link_attr	: DIR dir_list
                 | STYLE style_list
 		| SPECIAL
 		{
-                    obsolete("`special' attribute", "`style \"special\"'");
+                    obsolete("`special' attribute", "`style special'");
                     add_attr(curobj, "STYLE", "special");
                     ref_style("special");
 		}
