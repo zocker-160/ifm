@@ -1,4 +1,4 @@
-# Test of task 'do' keyword.
+# Test of recursive 'do'.
 
 room "Room 1";
 task "Cut hole in door" do open_door;

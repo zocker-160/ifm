@@ -1,7 +1,7 @@
 #! /bin/sh
 
 $BUILDDIR/src/ifm -I$SRCDIR/lib -w -task -format raw 2>&1 > $BUILDDIR/tests/task-do2.out <<END
-# Test of task 'do' keyword.
+# Test of recursive 'do'.
 
 room "Room 1";
 task "Cut hole in door" do open_door;
