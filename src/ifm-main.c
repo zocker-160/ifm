@@ -65,9 +65,10 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int c, i, output = O_NONE, format = -1;
+    int c, i, output = O_NONE, format = -1, print = 0;
     extern void yyparse();
     extern char *optarg;
+    extern int opterr;
     vhash *symtab;
     vscalar *fmt;
 
@@ -80,7 +81,8 @@ main(int argc, char *argv[])
     progname = argv[0];
 
     /* Parse command-line arguments */
-    while ((c = getopt(argc, argv, "f:himo:tvD:")) != EOF) {
+    opterr = 0;
+    while ((c = getopt(argc, argv, "f:himo:ptvD:")) != EOF) {
 	switch (c) {
         case 'm':
             output = O_MAP;
@@ -93,6 +95,9 @@ main(int argc, char *argv[])
             break;
         case 'f':
             format = select_format(optarg);
+            break;
+        case 'p':
+            print = 1;
             break;
 	case 'v':
 	    verbose_flag = 1;
@@ -116,7 +121,7 @@ main(int argc, char *argv[])
             fatal("no compiled-in debugging support");
 #endif
         default:
-	    fatal("Type `%s -h' for help", progname);
+	    fatal("invalid option\nType `%s -h' for help", progname);
             break;
 	}
     }
@@ -207,6 +212,9 @@ main(int argc, char *argv[])
     ifm_format = drivers[format].name;
 
     /* Do what's required */
+    if (print)
+        print_vars();
+
     switch (output) {
     case O_NONE:
         printf("Syntax appears OK\n");
@@ -511,6 +519,7 @@ usage()
     fprintf(stderr, fmt, "-t",         "print task table");
     fprintf(stderr, fmt, "-f format",  "select output format");
     fprintf(stderr, fmt, "-o file",    "write output to file");
+    fprintf(stderr, fmt, "-p",         "print parameters"); 
     fprintf(stderr, fmt, "-v",         "be verbose about things");
     fprintf(stderr, fmt, "-h",         "this usage message");
 

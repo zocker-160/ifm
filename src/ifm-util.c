@@ -86,6 +86,40 @@ get_var(char *id)
     return var;
 }
 
+/* Print currently defined variables */
+void
+print_vars()
+{
+    vlist *entries1, *entries2, *tables = vh_sortkeys(vars, NULL);
+    char *table1, *table2, *var;
+    vhash *symtab1, *symtab2;
+    vscalar *elt;
+
+    FOREACH(elt, tables) {
+        table1 = vs_sval(elt);
+        symtab1 = vh_pget(vars, table1);
+        entries1 = vh_sortkeys(symtab1, NULL);
+
+        FOREACH(elt, entries1) {
+            table2 = vs_sval(elt);
+            symtab2 = vh_pget(symtab1, table2);
+            entries2 = vh_sortkeys(symtab2, NULL);
+
+            FOREACH(elt, entries2) {
+                var = vs_sval(elt);
+                printf("%s %s %s = %s\n", table1, table2,
+                       var, vh_sget(symtab2, var));
+            }
+
+            vl_destroy(entries2);
+        }
+
+        vl_destroy(entries1);
+    }
+
+    vl_destroy(tables);
+}
+
 /* Set a scalar variable */
 void
 set_var(char *table1, char *table2, char *var, vscalar *val)
