@@ -39,6 +39,9 @@
 #define WARN_IGNORED(attr) \
         warn("attribute `%s' ignored -- no implicit link", #attr)
 
+#define CHANGE_ERROR(attr) \
+        err("can't modify `%s' attribute", #attr)
+
 static vhash *curroom = NULL;   /* Current room */
 static vhash *curlink = NULL;   /* Current link */
 static vhash *curitem = NULL;   /* Current item */
@@ -145,6 +148,7 @@ room_stmt	: ROOM STRING
                     /* Build implicit link (if any) */
                     if ((dirs = vh_pget(curroom, "DIR")) != NULL) {
                         link = vh_create();
+                        vh_pstore(curroom, "LINK", link);
 
                         vh_pstore(link, "FROM", near);
                         vh_pstore(link, "TO", curroom);
@@ -216,26 +220,33 @@ room_attr	: TAG ID
                     if (!modify)
                         set_tag("room", $2, curroom, roomtags);
                     else
-                        err("can't change room tag name");
+                        CHANGE_ERROR(tag);
 		}
 		| DIR dir_list FROM ID
 		{
                     vhash *room;
 
-                    implicit = 1;
+                    if (!modify) {
+                        implicit = 1;
 
-                    vh_pstore(curroom, "DIR", curdirs);
-                    curdirs = NULL;
+                        vh_pstore(curroom, "DIR", curdirs);
+                        curdirs = NULL;
 
-                    room = vh_pget(roomtags, $4);
-                    if (room != NULL)
-                        vh_pstore(curroom, "NEAR", room);
-                    else
-                        err("room tag `%s' not yet defined", $4);
+                        room = vh_pget(roomtags, $4);
+                        if (room != NULL)
+                            vh_pstore(curroom, "NEAR", room);
+                        else
+                            err("room tag `%s' not yet defined", $4);
+                    } else {
+                        CHANGE_ERROR(from);
+                    }
 		}
 		| DIR dir_list
 		{
                     implicit = 1;
+
+                    if (modify && !vh_exists(curroom, "DIR"))
+                        CHANGE_ERROR(dir);
 
                     vh_pstore(curroom, "DIR", curdirs);
                     curdirs = NULL;
@@ -402,7 +413,7 @@ item_attr	: TAG ID
                     if (!modify)
                         set_tag("item", $2, curitem, itemtags);
                     else
-                        err("can't change item tag name");
+                        CHANGE_ERROR(tag);
 		}
 		| IN room
 		{
@@ -498,6 +509,10 @@ link_attr	: DIR dir_list
 		{
                     vh_istore(curlink, "SPECIAL", 1);
 		}
+		| HIDDEN
+		{
+                    vh_istore(curlink, "HIDDEN", 1);
+		}
                 | NEED item_list
                 {
                     SET_LIST(curlink, "NEED", curitems);
@@ -540,7 +555,7 @@ link_attr	: DIR dir_list
                     if (!modify)
                         set_tag("link", $2, curlink, linktags);
                     else
-                        err("can't change link tag name");
+                        CHANGE_ERROR(tag);
 		}
                 ; 
 
@@ -632,7 +647,7 @@ join_attr	: GO compass
                     if (!modify)
                         set_tag("join", $2, curjoin, jointags);
                     else
-                        err("can't change join tag name");
+                        CHANGE_ERROR(tag);
 		}
 		;
 
@@ -676,7 +691,7 @@ task_attr	: TAG ID
                     if (!modify)
                         set_tag("task", $2, curtask, tasktags);
                     else
-                        err("can't change task tag name");
+                        CHANGE_ERROR(tag);
 		}
 		| AFTER task_list
 		{
