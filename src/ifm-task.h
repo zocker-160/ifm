@@ -16,12 +16,6 @@ enum {
 };
 
 /* Advertised functions */
-extern void add_task(void);
-extern void add_task_list(char *tag);
-extern void set_task_after(void);
-extern void set_task_attr(char *attr, char *val);
-extern void set_task_items(char *attr);
-extern void set_task_tag(char *str);
 extern void setup_tasks(void);
 extern void solve_game(void);
 

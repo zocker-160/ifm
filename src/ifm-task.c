@@ -26,40 +26,6 @@ static void task_pair(vhash *before, vhash *after);
 static int task_possible(vhash *room, vhash *step);
 static vhash *task_step(int type, vhash *data);
 
-/* Add a new task */
-void
-add_task(void)
-{
-    if (curtask == NULL)
-        return;
-
-    if (vh_iget(curtask, "NOROOM")) {
-        vh_pstore(curtask, "IN", NULL);
-    } else if (!vh_exists(curtask, "IN")) {
-        vh_pstore(curtask, "IN", lastroom);
-    }
-
-    lasttask = curtask;
-    vl_ppush(tasks, curtask);
-    curtask = NULL;
-}
-
-/* Add a task to current task list */
-void
-add_task_list(char *tag)
-{
-    if (curtasks == NULL)
-        curtasks = vl_create();
-    if (tag == NULL) {
-        if (lasttask == NULL)
-            err("no last task");
-        else
-            vl_ppush(curtasks, lasttask);
-    } else {
-        vl_spush(curtasks, tag);
-    }
-}
-
 /* Flag a task as done */
 static void
 do_task(vhash *task, vhash *from, vhash *to)
@@ -129,44 +95,6 @@ do_task(vhash *task, vhash *from, vhash *to)
 
     /* Flag it as done */
     vh_istore(task, "DONE", 1);
-}
-
-/* Set list of following tasks */
-void
-set_task_after(void)
-{
-    if (curtask == NULL)
-	curtask = vh_create();
-    vh_pstore(curtask, "AFTER", curtasks);
-    curtasks = NULL;
-}
-
-/* Set a task attribute */
-void
-set_task_attr(char *attr, char *val)
-{
-    if (curtask == NULL)
-	curtask = vh_create();
-    vh_sstore(curtask, attr, val);
-}
-
-/* Set a task item list */
-void
-set_task_items(char *attr)
-{
-    if (curtask == NULL)
-	curtask = vh_create();
-    vh_pstore(curtask, attr, curitems);
-    curitems = NULL;
-}
-
-/* Set a task tag name */
-void
-set_task_tag(char *str)
-{
-    if (curtask == NULL)
-        curtask = vh_create();
-    set_tag("task", str, curtask, tasktags);
 }
 
 /* Build the initial task list */
