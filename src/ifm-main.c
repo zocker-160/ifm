@@ -301,16 +301,17 @@ main(int argc, char *argv[])
     /* Set up sections */
     setup_sections();
 
+    /* Set up tasks */
+    connect_rooms();
+    if (ifm_errors)
+        return 1;
+
+    setup_tasks();
+    if (ifm_errors)
+        return 1;
+
     /* Solve game if required */
     if (output == O_NONE || output & O_TASKS) {
-        connect_rooms();
-        if (ifm_errors)
-            return 1;
-
-        setup_tasks();
-        if (ifm_errors)
-            return 1;
-
         check_cycles();
         if (ifm_errors)
             return 1;
