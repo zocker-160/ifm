@@ -1,3 +1,8 @@
+% Ifm version 1.0, Copyright (C) 1997 G. Hutchings
+% Ifm comes with ABSOLUTELY NO WARRANTY.
+% This is free software, and you are welcome to redistribute it
+% under certain conditions; see the file COPYING for details.
+
 % Default IFM PostScript prolog.
 
 % Start a new page.
@@ -365,10 +370,10 @@
 % Draw centred text.
 /centredtext {			% STRING X Y centredtext
     gsave
-	translate		% move to text centre
-	dup stringwidth		% get string dimensions
-	pop neg 2 div currentfontsize 2 div neg % set offsets
-	moveto show		% draw it
+	translate
+	dup stringwidth pop neg 2 div
+	currentfontsize neg 3 div
+	moveto show 
     grestore
 } bind def
 
