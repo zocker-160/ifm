@@ -70,12 +70,12 @@ text_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
     static vhash *lastroom = NULL;
-    static vhash *lastitem = NULL;
     int dist, type, score;
     static int count = 0;
     static int flag = 0;
     char *note = NULL;
     vscalar *elt;
+    vhash *item;
 
     if (count++ == 0) {
         char *title = get_string("title", NULL);
@@ -100,15 +100,12 @@ text_task_entry(vhash *task)
     type = vh_iget(task, "TYPE");
     switch (type) {
     case T_GET:
-        lastitem = vh_pget(task, "DATA");
-        note = vh_sgetref(lastitem, "NOTE");
-        break;
-    case T_DROP:
-        if (lastroom == NULL || vh_pget(task, "DATA") == lastitem)
-            note = "this item isn't used yet";
+        item = vh_pget(task, "DATA");
+        note = vh_sgetref(item, "NOTE");
+        if (!vh_iget(item, "USED"))
+            printf("      note: This item isn't used yet\n");
         break;
     case T_USER:
-        lastitem = NULL;
         note = vh_sgetref(task, "NOTE");
         break;
     } 

@@ -105,6 +105,8 @@ build_tasks(void)
         if (list != NULL) {
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
+                vh_istore(item, "USED", 1);
+
                 room = vh_pget(item, "ROOM");
                 if (room != NULL) {
                     get = vh_pget(item, "STEP");
@@ -155,6 +157,8 @@ build_tasks(void)
         if (list != NULL) {
             vl_foreach(elt, list) {
                 oitem = vs_pget(elt);
+                vh_istore(oitem, "USED", 1);
+
                 room = vh_pget(oitem, "ROOM");
                 if (room != NULL) {
                     get = vh_pget(oitem, "STEP");
@@ -194,6 +198,7 @@ build_tasks(void)
             if (list != NULL) {
                 vl_foreach(elt, list) {
                     item = vs_pget(elt);
+                    vh_istore(item, "USED", 1);
                     vh_istore(item, "NEEDED", 1);
                     step = vh_pget(item, "STEP");
                     task_pair(step, step);
@@ -288,6 +293,7 @@ order_tasks(void)
         /* Check for dropping unneeded items */
         vl_foreach(elt, items) {
             item = vs_pget(elt);
+
             if (!vh_iget(item, "TAKEN"))
                 continue;
             if (vh_iget(item, "DROPPED"))
@@ -295,6 +301,8 @@ order_tasks(void)
             if (vh_iget(item, "NEEDED"))
                 continue;
             if (vh_iget(item, "KEEP"))
+                continue;
+            if (!vh_iget(item, "USED"))
                 continue;
 
             drop = 1;
