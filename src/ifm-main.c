@@ -15,7 +15,41 @@
 #include <math.h>
 #include "ifm.h"
 #include "ifm-parse.h"
-#include "ifm-driver.h"
+
+/* Output drivers */
+#include "ifm-ps.h"
+#include "ifm-groff.h"
+#include "ifm-raw.h"
+
+static struct driver_st {
+    char *name, *desc;
+    mapfuncs  *mfunc;
+    itemfuncs *ifunc;
+    taskfuncs *tfunc;
+} drivers[] = {
+#ifdef PS
+    {
+        "ps", "PostScript",
+        &ps_mapfuncs, NULL, NULL
+    },
+#endif
+
+#ifdef RAW
+    {
+        "raw", "Tab-delimited ASCII text fields",
+        NULL, &raw_itemfuncs, &raw_taskfuncs
+    },
+#endif
+
+#ifdef GROFF
+    {
+        "groff", "Groff with pic, tbl and -me macros",
+        &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs
+    },
+#endif
+};
+
+#define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
 
 /* Max. errors before aborting */
 #define MAX_ERRORS 10
@@ -40,8 +74,14 @@ int line_number = 1;
 /* No. of errors */
 int ifm_errors = 0;
 
+/* Whether to print warnings */
+int warning_flag = 1;
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
+
+/* Input filename */
+static char *ifm_input = NULL;
 
 /* Output format */
 char *ifm_format = NULL;
@@ -52,11 +92,15 @@ char *ifm_output = NULL;
 /* Debugging flag */
 int ifm_debug = 0;
 
+/* Parse function */
+extern void yyparse();
+
 /* Local functions */
 static void draw_map(int fmt);
 static void draw_items(int fmt);
 static void draw_tasks(int fmt);
 static int itemsort(vscalar **ip1, vscalar **ip2);
+static int parse_input(char *file, int required);
 static int select_format(char *str);
 static int default_format(int output);
 static void usage(void);
@@ -65,8 +109,7 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int i, output = O_NONE, format = -1;
-    extern void yyparse();
+    int i, output = O_NONE, format = -1, initfile = 1;
     vscalar *fmt;
     vhash *opts;
     vlist *args;
@@ -100,6 +143,12 @@ main(int argc, char *argv[])
     v_option('v', "verbose", V_OPT_FLAG, NULL,
              "Be verbose about things");
 
+    v_option('n', "noinit", V_OPT_FLAG, NULL,
+             "Don't read init file");
+
+    v_option('w', "nowarn", V_OPT_FLAG, NULL,
+             "Don't print warnings");
+
     v_option('h', "help", V_OPT_FLAG, NULL,
              "This help message");
 
@@ -129,6 +178,12 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "verbose"))
         verbose_flag = 1;
 
+    if (vh_exists(opts, "nowarn"))
+        warning_flag = 1;
+
+    if (vh_exists(opts, "noinit"))
+        initfile = 0;
+
     if ((file = vh_sgetref(opts, "output")) != NULL)
         if (freopen(file, "w", stdout) == NULL)
             fatal("can't open %s", file);
@@ -146,20 +201,21 @@ main(int argc, char *argv[])
 
     /* Last argument (if any) is input file */
     args = vh_pget(opts, "ARGS");
-    if (vl_length(args) > 0) {
+    if (vl_length(args) > 0)
         file = vl_sshift(args);
-        if (freopen(file, "r", stdin) == NULL)
-            fatal("can't open %s", file);
-    }
+    else
+        file = NULL;
 
     /* Initialise */
-    status("Running %s", progname);
     init_map();
 
+    /* Parse init file if available */
+    if (initfile && getenv("IFMINIT") != NULL)
+        if (!parse_input(getenv("IFMINIT"), 0))
+            return 1;
+
     /* Parse input */
-    status("Parsing input...");
-    yyparse();
-    if (ifm_errors > 0)
+    if (!parse_input(file, 1))
         return 1;
 
     /* Resolve tags */
@@ -239,7 +295,7 @@ draw_map(int fmt)
         fatal("no rooms found in input");
 
     if (func == NULL)
-        fatal("no map driver for %s", drv.name);
+        fatal("no map driver for %s output", drv.name);
 
     if (func->map_start != NULL)
         (*func->map_start)();
@@ -290,7 +346,7 @@ draw_items(int fmt)
     items = vh_pget(map, "ITEMS");
 
     if (func == NULL)
-        fatal("no item table driver for %s", drv.name);
+        fatal("no item table driver for %s output", drv.name);
 
     sorted = vl_sort(items, itemsort);
 
@@ -324,7 +380,7 @@ draw_tasks(int fmt)
     tasks = vh_pget(map, "TASKS");
 
     if (func == NULL)
-        fatal("no task table driver for %s", drv.name);
+        fatal("no task table driver for %s output", drv.name);
 
     if (func->task_start != NULL)
         (*func->task_start)(vh_sgetref(map, "TITLE"));
@@ -337,6 +393,36 @@ draw_tasks(int fmt)
 
     if (func->task_finish != NULL)
         (*func->task_finish)();
+}
+
+/* Parse input from a file */
+static int
+parse_input(char *file, int required)
+{
+    static int parses = 0;
+    extern FILE *yyin;
+
+    if (file != NULL) {
+        ifm_input = file;
+        if ((yyin = fopen(file, "r")) == NULL) {
+            if (required)
+                fatal("can't open %s", file);
+            else
+                return 1;
+        }
+    } else {
+        ifm_input = "<stdin>";
+        yyin = stdin;
+    }
+
+    ifm_errors = 0;
+    if (parses++)
+        yyrestart(yyin);
+
+    status("Parsing %s", ifm_input);
+    yyparse();
+
+    return (ifm_errors == 0);
 }
 
 /* Item sort function */
@@ -413,7 +499,8 @@ void
 yyerror(char *msg)
 {
     /* Write error message */
-    fprintf(stderr, "%s: error: line %d: %s\n", progname, line_number,
+    fprintf(stderr, "%s: error: %s, line %d: %s\n",
+            progname, ifm_input, line_number,
 	    (!strcmp(msg, "parse error") ? "syntax error" : msg));
 
     /* Increment errors and abort if necessary */
@@ -453,9 +540,11 @@ err(char *fmt, ...)
 void
 warn(char *fmt, ...)
 {
-    VPRINT(buf, fmt);
-    fprintf(stderr, "%s: warning: line %d: %s\n",
-	    progname, line_number, buf);
+    if (warning_flag) {
+        VPRINT(buf, fmt);
+        fprintf(stderr, "%s: warning: %s, line %d: %s\n",
+                progname, ifm_input, line_number, buf);
+    }
 }
 
 /* Give a non-line-specific error */
@@ -463,7 +552,7 @@ void
 error(char *fmt, ...)
 {
     VPRINT(buf, fmt);
-    fprintf(stderr, "%s: error: %s\n", progname, buf);
+    fprintf(stderr, "%s: error: %s: %s\n", progname, ifm_input, buf);
 
     /* Increment errors and abort if necessary */
     if (++ifm_errors >= MAX_ERRORS)
@@ -474,8 +563,15 @@ error(char *fmt, ...)
 void
 warning(char *fmt, ...)
 {
-    VPRINT(buf, fmt);
-    fprintf(stderr, "%s: warning: %s\n", progname, buf);
+    if (warning_flag) {
+        VPRINT(buf, fmt);
+        if (ifm_input != NULL)
+            fprintf(stderr, "%s: warning: %s: %s\n",
+                    progname, ifm_input, buf);
+        else
+            fprintf(stderr, "%s: warning: %s\n",
+                    progname, buf);
+    }
 }
 
 /* Give a *fatal* error */
