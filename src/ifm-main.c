@@ -65,7 +65,7 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int i, output = O_NONE, format = -1, print = 0;
+    int i, output = O_NONE, format = -1;
     extern void yyparse();
     vscalar *fmt;
     vhash *opts;
@@ -82,14 +82,26 @@ main(int argc, char *argv[])
     progname = argv[0];
 
     /* Define options */
-    v_option('m', "map", V_OPT_FLAG, NULL,     "print map");
-    v_option('i', "items", V_OPT_FLAG, NULL,   "print item table");
-    v_option('t', "tasks", V_OPT_FLAG, NULL,   "print task table");
-    v_option('f', "format", V_OPT_ARG, "fmt",  "select output format");
-    v_option('o', "output", V_OPT_ARG, "file", "write output to file");
-    v_option('p', "print", V_OPT_FLAG, NULL,   "print parameters");
-    v_option('v', "verbose", V_OPT_FLAG, NULL, "be verbose about things");
-    v_option('h', "help", V_OPT_FLAG, NULL,    "this help message");
+    v_option('m', "map", V_OPT_FLAG, NULL,
+             "Print map");
+
+    v_option('i', "items", V_OPT_FLAG, NULL,
+             "Print item table");
+
+    v_option('t', "tasks", V_OPT_FLAG, NULL,
+             "Print task table");
+
+    v_option('f', "format", V_OPT_ARG, "fmt",
+             "Select output format");
+
+    v_option('o', "output", V_OPT_ARG, "file",
+             "Write output to file");
+
+    v_option('v', "verbose", V_OPT_FLAG, NULL,
+             "Be verbose about things");
+
+    v_option('h', "help", V_OPT_FLAG, NULL,
+             "This help message");
 
 #ifdef DEBUG
     v_option('D', "debug", V_OPT_ARG, "flag", NULL);
@@ -113,9 +125,6 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "format"))
         format = select_format(vh_sgetref(opts, "format"));
-
-    if (vh_exists(opts, "print"))
-        print = 1;
 
     if (vh_exists(opts, "verbose"))
         verbose_flag = 1;
@@ -205,9 +214,6 @@ main(int argc, char *argv[])
 
     if (output & O_TASKS)
         draw_tasks(format);
-
-    if (print)
-        print_vars();
 
     /* Er... that's it */
     return 0;

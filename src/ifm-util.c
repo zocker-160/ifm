@@ -95,13 +95,6 @@ get_var(char *id)
     return NULL;
 }
 
-/* Print currently defined variables */
-void
-print_vars(void)
-{
-    /* FINISH ME */
-}
-
 /* Set a scalar variable */
 void
 set_var(char *driver, char *type, char *var, vscalar *val)
@@ -178,10 +171,14 @@ static vlist *
 var_decode(char *code)
 {
     static vlist *list = NULL;
+    vscalar *val;
 
     if (list != NULL)
         vl_destroy(list);
     list = vl_split(code, NULL);
+
+    val = vh_get(vars, code);
+    vl_push(list, vs_copy(val));
 
     return list;
 }
