@@ -1,0 +1,62 @@
+=head1 NAME
+
+tkifm -- simple graphical front end to ifm(1)
+
+=head1 SYNOPSIS
+
+tkifm [file]
+
+=head1 DESCRIPTION
+
+B<tkifm> is a graphical front end to ifm(1), the Interactive Fiction
+Mapper, written in Tcl/Tk.  It provides a text editing window in which you
+map out your game using B<ifm> commands, and a set of menus to view
+things.  The various features are as follows:
+
+=over 4
+
+=item Text editing window
+
+This is the main window, where you type B<ifm> commands.  It provides all
+the usual text editing command bindings that come with the Tcl/Tk text
+widget.
+
+=item File menu
+
+The standard set of file commands: Open, Save, Save-as, Quit.  Also, a
+command called Redraw, which invokes B<ifm> on the current file again.  You
+must use this after doing any changes to your map, or the changes won't be
+seen in the other menus.  Any errors or warnings that occur when invoking
+B<ifm> will be displayed in a dialog.  Note that Redraw, if successful,
+will also destroy all other windows.
+
+=item Map menu
+
+For each map section in your map, a menu entry appears here.  Selecting it
+will draw the appropriate map in another window.
+
+=item Item menu
+
+This contains a single menu item, which displays a list of items in another
+window.
+
+=item Task menu
+
+This contains a single menu item, which displays a high-level walkthrough
+of the game in another window.
+
+=back
+
+=head1 RESTRICTIONS
+
+It's very simple.
+
+=head1 SEE ALSO
+
+ifm(1)
+
+=head1 AUTHOR
+
+Glen Hutchings
+
+=cut
