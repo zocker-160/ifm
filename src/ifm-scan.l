@@ -82,24 +82,29 @@ WHITE		[ \t\f]*
 		}
 
 "after"         { return AFTER; }
+"all"           { return ALL; }
 "any"           { return ANY; }
 "before"        { return BEFORE; }
 "cmd"           { return CMD; }
 "d"		{ return DOWN; }
 "dir"		{ return DIR; }
 "down"		{ return DOWN; }
+"drop"          { return DROP; }
 "e"		{ return EAST; }
 "east"		{ return EAST; }
+"except"	{ return EXCEPT; }
 "exit"		{ return EXIT; }
 "finish"        { return FINISH; }
 "follow"        { return FOLLOW; }
 "from"		{ return FROM; }
 "get"           { return GET; }
+"give"          { return GIVE; }
 "given"         { return GIVEN; }
 "go"		{ return GO; }
 "goto"		{ return GOTO; }
 "hidden"	{ return HIDDEN; }
 "in"		{ return IN; }
+"it"            { return IT; }
 "item"		{ return ITEM; }
 "join"		{ return JOIN; }
 "keep"          { return KEEP; }
