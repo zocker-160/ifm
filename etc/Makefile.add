@@ -1,0 +1,34 @@
+# Common makefile rules.
+
+CONFIG		= sed -e 's/%V%/$(VERSION)/g'
+
+TROFF		= groff -man
+NROFF		= groff -Tascii -man.nopage
+
+INFOIZE		= infoize -v -d30 -l2
+
+PMFLAGS		= -r "Version $(VERSION)" -c "IF Mapping Tools"
+
+.SUFFIXES:	.pod .1 .doc .txt .html .info .ps .cat .inf
+
+.pod.1:;	pod2man $(PMFLAGS) $< > $@
+
+.1.doc:;	$(NROFF) $< > $@
+
+.1.txt:;	$(NROFF) -P-fbuo $< > $@
+
+.pod.inf:;	$(CONFIG) $< | pod2inf > $@
+
+.inf.info:;	if test -f $*.key; then \
+			$(INFOIZE) -i $* -o $@ -k $*.key $<; \
+		else \
+			$(INFOIZE) -i $* -o $@ $<; \
+		fi
+
+.1.ps:;		$(TROFF) $< > $@
+
+.pod.html:;	pod2html $< > $@
+
+.doc.cat:;	rm -f $(mandir)/cat1/$*.z
+		cp $< $(mandir)/cat1/$*
+		pack -f $(mandir)/cat1/$*
