@@ -930,9 +930,8 @@ setup_tasks(void)
 void
 solve_game(void)
 {
-    int drop, dropped, tasksleft, status, ignore = 0;
     vhash *step, *trystep, *item, *task, *next;
-    vlist *itasks;
+    int count, tasksleft, status, ignore = 0;
     vscalar *elt;
 
     /* Don't bother if no tasks */
@@ -963,9 +962,9 @@ solve_game(void)
         init_path(location);
 
         /* Check for dropping unneeded items */
-        if (next == NULL) {
+        if (next == NULL && !vh_iget(location, "NODROP")) {
             while (1) {
-                dropped = 0;
+                count = 0;
 
                 vl_foreach(elt, items) {
                     item = vs_pget(elt);
@@ -982,26 +981,13 @@ solve_game(void)
                     if (want_item(item))
                         continue;
 
-                    drop = 1;
-                    itasks = vh_pget(item, "TASKS");
-                    if (itasks != NULL) {
-                        vl_foreach(elt, itasks) {
-                            if (!drop)
-                                continue;
-                            task = vs_pget(elt);
-                            if (!vh_iget(task, "DONE"))
-                                drop = 0;
-                        }
-                    }
-
-                    if (drop) {
-                        step = new_task(T_DROP, item);
-                        do_task(step, 1);
-                        dropped = 1;
-                    }
+                    /* Nah, dump it */
+                    step = new_task(T_DROP, item);
+                    do_task(step, 1);
+                    count++;
                 }
 
-                if (!dropped)
+                if (count == 0)
                     break;
             }
         }
@@ -1053,9 +1039,8 @@ solve_game(void)
             next = vh_pget(step, "NEXT");
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
-            if (!ignore)
-                warn_failure();
-            else
+            warn_failure();
+            if (ignore)
                 solver_msg(2, "%d ignored tasks\n", ignore);
             break;
         } else {
@@ -1199,12 +1184,11 @@ task_status(vhash *room, vhash *step)
 static int
 want_item(vhash *item)
 {
-    vlist *ktasks, *kitems;
-    vhash *kitem, *ktask;
-    int wanted = 0;
+    vhash *kitem, *task, *step;
+    vlist *tasks, *kitems;
     vscalar *elt;
 
-    /* Yes if needed for paths */
+    /* Yes if needed for movement */
     if (vh_iget(item, "NEEDED"))
         return 1;
 
@@ -1216,24 +1200,34 @@ want_item(vhash *item)
     if ((kitems = vh_pget(item, "KEEP_WITH")) != NULL) {
         vl_foreach(elt, kitems) {
             kitem = vs_pget(elt);
-            if (!vh_exists(kitem, "TAKEN") || vh_iget(kitem, "TAKEN"))
-                wanted = 1;
+            if (!vh_exists(kitem, "TAKEN") || vh_iget(kitem, "TAKEN")) {
+                vl_break(kitems);
+                return 1;
+            }
         }
-
-        if (wanted)
-            return 1;
     }
 
     /* Yes if at least one 'keep until' task isn't done yet */
-    if ((ktasks = vh_pget(item, "KEEP_UNTIL")) != NULL) {
-        vl_foreach(elt, ktasks) {
-            ktask = vs_pget(elt);
-            if (!vh_iget(ktask, "DONE"))
-                wanted = 1;
+    if ((tasks = vh_pget(item, "KEEP_UNTIL")) != NULL) {
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            step = vh_pget(task, "STEP");
+            if (!vh_iget(step, "DONE")) {
+                vl_break(tasks);
+                return 1;
+            }
         }
+    }
 
-        if (wanted)
-            return 1;
+    /* Yes if it's needed for at least one task */
+    if ((tasks = vh_pget(item, "TASKS")) != NULL) {
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            if (!vh_iget(task, "DONE")) {
+                vl_break(tasks);
+                return 1;
+            }
+        }
     }
 
     /* Otherwise, no */
@@ -1262,7 +1256,10 @@ warn_failure(void)
         tdesc = vh_sgetref(step, "DESC");
 
         /* Build failure reason */
-        if (require_task(step) != NULL) {
+        if (vh_iget(step, "IGNORED")) {
+            strcpy(buf, "ignored");
+            rdesc = NULL;
+        } else if (require_task(step) != NULL) {
             strcpy(buf, "requires previous task to be done first");
             rdesc = NULL;
         } else {

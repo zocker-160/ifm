@@ -76,7 +76,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH IGNORE REQUIRE
+%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH IGNORE REQUIRE NODROP
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -199,6 +199,8 @@ room_stmt	: ROOM string
                                   vh_iget(curobj, "ONEWAY"));
                         vh_istore(link, "SPECIAL",
                                   vh_iget(curobj, "SPECIAL"));
+                        vh_istore(link, "NODROP",
+                                  vh_iget(curobj, "NODROP"));
                         vh_istore(link, "NOLINK",
                                   vh_iget(curobj, "NOLINK"));
                         vh_istore(link, "NOPATH",
@@ -359,6 +361,10 @@ room_attr	: TAG ID
 		| ONEWAY
 		{
                     vh_istore(curobj, "ONEWAY", 1);
+		}
+		| NODROP
+		{
+                    vh_istore(curobj, "NODROP", 1);
 		}
 		| NOLINK
 		{

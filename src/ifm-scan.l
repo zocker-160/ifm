@@ -130,6 +130,7 @@ VAR             \${ID}
 "n"		{ return NORTH; }
 "ne"		{ return NORTHEAST; }
 "need"		{ return NEED; }
+"nodrop"        { return NODROP; }
 "nolink"        { return NOLINK; }
 "nopath"        { return NOPATH; }
 "none"          { return NONE; }
