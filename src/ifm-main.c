@@ -146,9 +146,11 @@ main(int argc, char *argv[])
 
     /* Last argument (if any) is input file */
     args = vh_pget(opts, "ARGS");
-    file = vl_sshift(args);
-    if (file != NULL && freopen(file, "r", stdin) == NULL)
-	fatal("can't open %s", file);
+    if (vl_length(args) > 0) {
+        file = vl_sshift(args);
+        if (freopen(file, "r", stdin) == NULL)
+            fatal("can't open %s", file);
+    }
 
     /* Initialise */
     status("Running %s", progname);
