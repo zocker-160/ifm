@@ -76,7 +76,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH IGNORE
+%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH IGNORE REQUIRE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -132,6 +132,14 @@ ctrl_stmt       : TITLE string ';'
                     if (sectnames == NULL)
                         sectnames = vl_create();
                     vl_spush(sectnames, $2);
+                }
+                | REQUIRE exp ';'
+                {
+                    float version;
+                    sscanf(VERSION, "%f", &version);
+                    if ($2 - version > 0.001)
+                        fatal("version %g of IFM is required (this is %s)",
+                              $2, VERSION);
                 }
                 ;
 
@@ -1022,6 +1030,7 @@ set_var         : ID '=' exp in_style ';'
                 | ID ID '=' exp in_style ';'
                 {
                     var_set($1, $2, vs_dcreate($4));
+                    obsolete("variable assignment", "dotted notation");
                 }
                 | ID '=' STRING in_style ';'
                 {
@@ -1030,6 +1039,7 @@ set_var         : ID '=' exp in_style ';'
                 | ID ID '=' STRING in_style ';'
                 {
                     var_set($1, $2, vs_screate($4));
+                    obsolete("variable assignment", "dotted notation");
                 }
                 | ID '=' UNDEF in_style ';'
                 {
@@ -1038,6 +1048,7 @@ set_var         : ID '=' exp in_style ';'
                 | ID ID '=' UNDEF in_style ';'
                 {
                     var_set($1, $2, NULL);
+                    obsolete("variable assignment", "dotted notation");
                 }
                 ;
 

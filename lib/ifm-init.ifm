@@ -11,15 +11,17 @@
 ##################################################################
 
 # The default values are designed to give nice results in all
-# formats.  The default for PostScript and Fig is to produce maps
-# for monochrome printing on A4 paper.
+# formats.  The default for PostScript is to produce maps for
+# monochrome printing on one or more pages of A4 paper.  The
+# default for Fig is to produce one big page (which can be split
+# into multiple pages later).
 
 # The map output formats differ in their treatment of fonts.  In
 # PostScript and Fig, the font and font size are specified
 # separately, via the *_font and *_fontsize variables.  In Tk,
 # they are both specified together, via the *_fontdef variables.
 
-# In PostScript output, a font size represents the maximum
+# In PostScript and Fig output, a font size represents the maximum
 # desired size -- the actual size may be scaled down in order to
 # fit the text into an enclosing space (e.g. a room box).
 
@@ -110,7 +112,7 @@ link_text_font = "Times-Roman";
 link_text_fontsize = 6;
 link_text_fontdef = "Times 8 bold";
 link_text_colour = "black";
-tk link_text_colour = "red";
+tk.link_text_colour = "red";
 
 # Text strings indicating up/down/in/out on links.
 link_updown_string = "U/D";

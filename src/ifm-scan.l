@@ -141,6 +141,7 @@ VAR             \${ID}
 "oneway"	{ return ONEWAY; }
 "out"		{ return OUT; }
 "puzzle"	{ return PUZZLE; }
+"require"       { return REQUIRE; }
 "room"		{ return ROOM; }
 "s"		{ return SOUTH; }
 "safe"		{ return SAFE; }
@@ -188,6 +189,11 @@ VAR             \${ID}
                     else
                         pop_include();
                 }
+
+{ID}\.{ID}	{
+		    yylval.sval = v_strdup(yytext);
+		    return ID;
+		}
 
 {ID}		{
 		    yylval.sval = v_strdup(yytext);

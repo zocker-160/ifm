@@ -26,7 +26,7 @@
 
 (defconst ifm-special-regexp
   (regexp-opt '("endstyle" "style" "title" "map" "include" "start" "finish"
-		"safe" "ignore")
+		"safe" "ignore" "require")
 	      'words)
   "Regexp matching special keywords in IFM mode.")
 
