@@ -53,7 +53,7 @@ ID		{LETTER}{ALNUM}*
 
 #.*		; /* Ignore comments */
 
-[ \t\f]+	; /* Strip whitespace */
+[ \t\f\r]+	; /* Strip whitespace */
 
 \n              {
 		    line_number++;
