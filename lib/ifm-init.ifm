@@ -118,19 +118,6 @@ link_updown_string = "U/D";
 link_inout_string = "I/O";
 
 ##################################################################
-# Predefined styles
-##################################################################
-
-# These styles are for backward compatibility.
-
-# Room 'puzzle' style (was previously the 'puzzle' attribute).
-room_colour = "grey" in style "puzzle";
-
-# Link 'special' style (was previously the 'special' attribute).
-ps link_dashed = 1 in style "special";
-tk link_colour = "blue" in style "special";
-
-##################################################################
 # PostScript setup variables
 ##################################################################
 
