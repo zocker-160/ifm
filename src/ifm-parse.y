@@ -39,11 +39,7 @@
 #define CHANGE_ERROR(attr) \
         err("can't modify `%s' attribute", #attr)
 
-static vhash *curroom = NULL;   /* Current room */
-static vhash *curlink = NULL;   /* Current link */
-static vhash *curitem = NULL;   /* Current item */
-static vhash *curjoin = NULL;   /* Current join */
-static vhash *curtask = NULL;   /* Current task */
+static vhash *curobj = NULL;    /* Current object */
 
 static vlist *currooms = NULL;  /* Current room list */
 static vlist *curitems = NULL;  /* Current item list */
@@ -143,11 +139,11 @@ ctrl_stmt       : TITLE string ';'
 
 room_stmt	: ROOM string
 		{
-                    curroom = vh_create();
-		    vh_sstore(curroom, "DESC", $2);
-                    vh_istore(curroom, "ID", ++roomid);
-                    vh_pstore(curroom, "STYLE", current_styles());
-                    vh_pstore(curroom, "LINK_STYLE", current_styles());
+                    curobj = vh_create();
+		    vh_sstore(curobj, "DESC", $2);
+                    vh_istore(curobj, "ID", ++roomid);
+                    vh_pstore(curobj, "STYLE", current_styles());
+                    vh_pstore(curobj, "LINK_STYLE", current_styles());
                     implicit = 0;
                     modify = 0;
 		}
@@ -158,13 +154,13 @@ room_stmt	: ROOM string
                     char *str;
 
                     /* Build new room */
-                    vl_ppush(rooms, curroom);
+                    vl_ppush(rooms, curobj);
 
                     if (startroom == NULL)
-                        startroom = curroom;
+                        startroom = curobj;
 
                     /* Put it on appropriate section */
-                    if ((near = vh_pget(curroom, "NEAR")) != NULL)
+                    if ((near = vh_pget(curobj, "NEAR")) != NULL)
                         sect = vh_pget(near, "SECT");
 
                     if (sect == NULL) {
@@ -175,49 +171,49 @@ room_stmt	: ROOM string
                         vh_pstore(sect, "LINKS", vl_create());
                     }
 
-                    vh_pstore(curroom, "SECT", sect);
+                    vh_pstore(curobj, "SECT", sect);
                     list = vh_pget(sect, "ROOMS");
-                    vl_punshift(list, curroom);
+                    vl_punshift(list, curobj);
 
                     /* Build implicit link (if any) */
-                    if ((dirs = vh_pget(curroom, "DIR")) != NULL) {
+                    if ((dirs = vh_pget(curobj, "DIR")) != NULL) {
                         link = vh_create();
-                        vh_pstore(curroom, "LINK", link);
+                        vh_pstore(curobj, "LINK", link);
 
                         vh_pstore(link, "FROM", near);
-                        vh_pstore(link, "TO", curroom);
+                        vh_pstore(link, "TO", curobj);
 
                         vh_istore(link, "GO",
-                                  vh_iget(curroom, "GO"));
+                                  vh_iget(curobj, "GO"));
                         vh_istore(link, "ONEWAY",
-                                  vh_iget(curroom, "ONEWAY"));
+                                  vh_iget(curobj, "ONEWAY"));
                         vh_istore(link, "SPECIAL",
-                                  vh_iget(curroom, "SPECIAL"));
+                                  vh_iget(curobj, "SPECIAL"));
                         vh_istore(link, "NOLINK",
-                                  vh_iget(curroom, "NOLINK"));
+                                  vh_iget(curobj, "NOLINK"));
                         vh_istore(link, "NOPATH",
-                                  vh_iget(curroom, "NOPATH"));
+                                  vh_iget(curobj, "NOPATH"));
                         vh_istore(link, "LEN",
-                                  vh_iget(curroom, "LEN"));
+                                  vh_iget(curobj, "LEN"));
                         vh_pstore(link, "BEFORE",
-                                  vh_pget(curroom, "LINK_BEFORE"));
+                                  vh_pget(curobj, "LINK_BEFORE"));
                         vh_pstore(link, "AFTER",
-                                  vh_pget(curroom, "LINK_AFTER"));
+                                  vh_pget(curobj, "LINK_AFTER"));
                         vh_pstore(link, "NEED",
-                                  vh_pget(curroom, "LINK_NEED"));
+                                  vh_pget(curobj, "LINK_NEED"));
                         vh_pstore(link, "LEAVE",
-                                  vh_pget(curroom, "LINK_LEAVE"));
+                                  vh_pget(curobj, "LINK_LEAVE"));
                         vh_istore(link, "LEAVEALL",
-                                  vh_iget(curroom, "LINK_LEAVEALL"));
+                                  vh_iget(curobj, "LINK_LEAVEALL"));
                         vh_pstore(link, "STYLE",
-                                  vh_pget(curroom, "LINK_STYLE"));
+                                  vh_pget(curobj, "LINK_STYLE"));
                         vh_pstore(link, "FROM_CMD",
-                                  vh_pget(curroom, "FROM_CMD"));
+                                  vh_pget(curobj, "FROM_CMD"));
                         vh_pstore(link, "TO_CMD",
-                                  vh_pget(curroom, "TO_CMD"));
+                                  vh_pget(curobj, "TO_CMD"));
 
-                        if (vh_exists(curroom, "TAG"))
-                            set_tag("link", vh_sgetref(curroom, "TAG"),
+                        if (vh_exists(curobj, "TAG"))
+                            set_tag("link", vh_sgetref(curobj, "TAG"),
                                     link, linktags);
 
                         vh_pstore(link, "DIR", dirs);
@@ -225,31 +221,31 @@ room_stmt	: ROOM string
                     }
 
                     /* Warn about ignored attributes */
-                    if (dirs == NULL || vh_iget(curroom, "NOLINK")) {
-                        if (vh_exists(curroom, "GO"))
+                    if (dirs == NULL || vh_iget(curobj, "NOLINK")) {
+                        if (vh_exists(curobj, "GO"))
                             WARN_IGNORED(go);
-                        if (vh_exists(curroom, "ONEWAY"))
+                        if (vh_exists(curobj, "ONEWAY"))
                             WARN_IGNORED(oneway);
-                        if (vh_exists(curroom, "LEN"))
+                        if (vh_exists(curobj, "LEN"))
                             WARN_IGNORED(length);
-                        if (vh_exists(curroom, "NOPATH"))
+                        if (vh_exists(curobj, "NOPATH"))
                             WARN_IGNORED(nopath);
-                        if (vh_exists(curroom, "TO_CMD"))
+                        if (vh_exists(curobj, "TO_CMD"))
                             WARN_IGNORED(cmd);
                     }
 
-                    if (dirs == NULL && vh_iget(curroom, "NOLINK"))
+                    if (dirs == NULL && vh_iget(curobj, "NOLINK"))
                         WARN_IGNORED(nolink);
 
-                    lastroom = curroom;
+                    lastroom = curobj;
                     RESET_IT;
                 }
                 | ROOM ID
                 {
                     modify = 1;
-                    if ((curroom = vh_pget(roomtags, $2)) == NULL) {
+                    if ((curobj = vh_pget(roomtags, $2)) == NULL) {
                         err("room tag `%s' not yet defined", $2);
-                        curroom = vh_create();
+                        curobj = vh_create();
                     }
                 }
                 room_attrs ';'
@@ -265,7 +261,7 @@ room_attrs	: /* empty */
 room_attr	: TAG ID
 		{
                     if (!modify)
-                        set_tag("room", $2, curroom, roomtags);
+                        set_tag("room", $2, curobj, roomtags);
                     else
                         CHANGE_ERROR(tag);
 		}
@@ -276,12 +272,12 @@ room_attr	: TAG ID
                     if (!modify) {
                         implicit = 1;
 
-                        vh_pstore(curroom, "DIR", curdirs);
+                        vh_pstore(curobj, "DIR", curdirs);
                         curdirs = NULL;
 
                         room = vh_pget(roomtags, $4);
                         if (room != NULL)
-                            vh_pstore(curroom, "NEAR", room);
+                            vh_pstore(curobj, "NEAR", room);
                         else
                             err("room tag `%s' not yet defined", $4);
                     } else {
@@ -292,16 +288,16 @@ room_attr	: TAG ID
 		{
                     implicit = 1;
 
-                    if (modify && !vh_exists(curroom, "DIR"))
+                    if (modify && !vh_exists(curobj, "DIR"))
                         CHANGE_ERROR(dir);
 
-                    vh_pstore(curroom, "DIR", curdirs);
+                    vh_pstore(curobj, "DIR", curdirs);
                     curdirs = NULL;
 
                     if (lastroom == NULL)
                         err("no last room");
                     else
-                        vh_pstore(curroom, "NEAR", lastroom);
+                        vh_pstore(curobj, "NEAR", lastroom);
 		}
 		| EXIT dir_list
 		{
@@ -310,7 +306,7 @@ room_attr	: TAG ID
 
                     vl_foreach(elt, curdirs) {
                         dir = vs_iget(elt);
-                        room_exit(curroom, dirinfo[dir].xoff,
+                        room_exit(curobj, dirinfo[dir].xoff,
                                   dirinfo[dir].yoff, 1);
                     }
 
@@ -325,7 +321,7 @@ room_attr	: TAG ID
                     vl_foreach(elt, currooms) {
                         tag = vs_sgetref(elt);
                         link = vh_create();
-                        vh_pstore(link, "FROM", curroom);
+                        vh_pstore(link, "FROM", curobj);
                         vh_sstore(link, "TO", tag);
                         vl_ppush(links, link);
                     }
@@ -342,7 +338,7 @@ room_attr	: TAG ID
                     vl_foreach(elt, currooms) {
                         tag = vs_sgetref(elt);
                         join = vh_create();
-                        vh_pstore(join, "FROM", curroom);
+                        vh_pstore(join, "FROM", curobj);
                         vh_sstore(join, "TO", tag);
                         vl_ppush(joins, join);
                     }
@@ -352,100 +348,86 @@ room_attr	: TAG ID
 		}
 		| GO otherdir
 		{
-                    vh_istore(curroom, "GO", $2);
+                    vh_istore(curobj, "GO", $2);
 		}
 		| ONEWAY
 		{
-                    vh_istore(curroom, "ONEWAY", 1);
+                    vh_istore(curobj, "ONEWAY", 1);
 		}
 		| NOLINK
 		{
-                    vh_istore(curroom, "NOLINK", 1);
+                    vh_istore(curobj, "NOLINK", 1);
 		}
 		| NOPATH
 		{
-                    vh_istore(curroom, "NOPATH", 1);
+                    vh_istore(curobj, "NOPATH", 1);
 		}
+		| START
+		{
+                    startroom = curobj;
+		}
+                | FINISH
+                {
+                    vh_istore(curobj, "FINISH", 1);
+                }
+                | NEED item_list
+                {
+                    SET_LIST(curobj, ATTR(NEED), curitems);
+                }
+		| BEFORE task_list
+		{
+                    SET_LIST(curobj, ATTR(BEFORE), curtasks);
+		}
+		| AFTER task_list
+		{
+                    SET_LIST(curobj, ATTR(AFTER), curtasks);
+		}
+                | LEAVE item_list_all
+                {
+                    if (curitems != NULL)
+                        SET_LIST(curobj, ATTR(LEAVE), curitems);
+                    vh_istore(curobj, ATTR(LEAVEALL), allflag);
+                }
+		| LENGTH integer
+		{
+                    vh_istore(curobj, "LEN", $2);
+		}
+		| SCORE integer
+		{
+                    vh_istore(curobj, "SCORE", $2);
+		}
+                | CMD string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curobj, "TO_CMD", $2);
+                }
+                | CMD TO string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curobj, "TO_CMD", $3);
+                }
+                | CMD FROM string_repeat
+                {
+                    while (repeat-- > 0)
+                        add_attr(curobj, "FROM_CMD", $3);
+                }
+		| NOTE string
+		{
+                    add_attr(curobj, "NOTE", $2);
+		}
+                | STYLE style_list
 		| SPECIAL
 		{
                     obsolete("`special' attribute", "`style special'");
-                    add_attr(curroom, ATTR(STYLE), "special");
+                    add_attr(curobj, ATTR(STYLE), "special");
                     ref_style("special");
 		}
 		| PUZZLE
 		{
                     obsolete("`puzzle' attribute", "`style puzzle'");
-                    add_attr(curroom, ATTR(STYLE), "puzzle");
+                    add_attr(curobj, ATTR(STYLE), "puzzle");
                     ref_style("puzzle");
 		}
-		| START
-		{
-                    startroom = curroom;
-		}
-                | FINISH
-                {
-                    vh_istore(curroom, "FINISH", 1);
-                }
-                | NEED item_list
-                {
-                    SET_LIST(curroom, ATTR(NEED), curitems);
-                }
-		| BEFORE task_list
-		{
-                    SET_LIST(curroom, ATTR(BEFORE), curtasks);
-		}
-		| AFTER task_list
-		{
-                    SET_LIST(curroom, ATTR(AFTER), curtasks);
-		}
-                | LEAVE item_list_all
-                {
-                    if (curitems != NULL)
-                        SET_LIST(curroom, ATTR(LEAVE), curitems);
-                    vh_istore(curroom, ATTR(LEAVEALL), allflag);
-                }
-		| LENGTH integer
-		{
-                    vh_istore(curroom, "LEN", $2);
-		}
-		| SCORE integer
-		{
-                    vh_istore(curroom, "SCORE", $2);
-		}
-                | CMD string_repeat
-                {
-                    while (repeat-- > 0)
-                        add_attr(curroom, "TO_CMD", $2);
-                }
-                | CMD TO string_repeat
-                {
-                    while (repeat-- > 0)
-                        add_attr(curroom, "TO_CMD", $3);
-                }
-                | CMD FROM string_repeat
-                {
-                    while (repeat-- > 0)
-                        add_attr(curroom, "FROM_CMD", $3);
-                }
-		| NOTE string
-		{
-                    add_attr(curroom, "NOTE", $2);
-		}
-                | STYLE ID
-                {
-                    add_attr(curroom, ATTR(STYLE), $2);
-                    ref_style($2);
-                }
-                | STYLE PUZZLE
-                {
-                    add_attr(curroom, ATTR(STYLE), "puzzle");
-                    ref_style("puzzle");
-                }
-                | STYLE SPECIAL
-                {
-                    add_attr(curroom, ATTR(STYLE), "special");
-                    ref_style("special");
-                }
 		;
 
 room_list	: room_elt
@@ -486,27 +468,27 @@ room            : ID
 
 item_stmt	: ITEM string
                 {
-                    curitem = vh_create();
-                    vh_sstore(curitem, "DESC", $2);
-                    vh_istore(curitem, "ID", ++itemid);
-                    vh_pstore(curitem, "STYLE", current_styles());
+                    curobj = vh_create();
+                    vh_sstore(curobj, "DESC", $2);
+                    vh_istore(curobj, "ID", ++itemid);
+                    vh_pstore(curobj, "STYLE", current_styles());
                     modify = 0;
                 }
                 item_attrs ';'
 		{
-                    if (!vh_exists(curitem, "IN"))
-                        vh_pstore(curitem, "IN", lastroom);
+                    if (!vh_exists(curobj, "IN"))
+                        vh_pstore(curobj, "IN", lastroom);
 
-                    lastitem = curitem;
-                    vl_ppush(items, curitem);
+                    lastitem = curobj;
+                    vl_ppush(items, curobj);
                     RESET_IT;
 		}
                 | ITEM ID
                 {
                     modify = 1;
-                    if ((curitem = vh_pget(itemtags, $2)) == NULL) {
+                    if ((curobj = vh_pget(itemtags, $2)) == NULL) {
                         err("item tag `%s' not yet defined", $2);
-                        curitem = vh_create();
+                        curobj = vh_create();
                     }
                 }
                 item_attrs ';'
@@ -522,70 +504,56 @@ item_attrs	: /* empty */
 item_attr	: TAG ID
 		{
                     if (!modify)
-                        set_tag("item", $2, curitem, itemtags);
+                        set_tag("item", $2, curobj, itemtags);
                     else
                         CHANGE_ERROR(tag);
 		}
 		| IN room
 		{
-                    vh_store(curitem, "IN", $2);
+                    vh_store(curobj, "IN", $2);
 		}
 		| NOTE string
 		{
-                    add_attr(curitem, "NOTE", $2);
+                    add_attr(curobj, "NOTE", $2);
 		}
 		| HIDDEN
 		{
-                    vh_istore(curitem, "HIDDEN", 1);
+                    vh_istore(curobj, "HIDDEN", 1);
 		}
 		| GIVEN         /* obsolete */
 		{
                     obsolete("`given' attribute", "task `give' attribute");
-                    vh_istore(curitem, "GIVEN", 1);
+                    vh_istore(curobj, "GIVEN", 1);
 		}
 		| LOST
 		{
-                    vh_istore(curitem, "LOST", 1);
+                    vh_istore(curobj, "LOST", 1);
 		}
 		| KEEP
 		{
-                    vh_istore(curitem, "KEEP", 1);
+                    vh_istore(curobj, "KEEP", 1);
 		}
                 | NEED item_list
                 {
-                    SET_LIST(curitem, "NEED", curitems);
+                    SET_LIST(curobj, "NEED", curitems);
                 }
                 | BEFORE task_list
                 {
-                    SET_LIST(curitem, "BEFORE", curtasks);
+                    SET_LIST(curobj, "BEFORE", curtasks);
                 }
                 | AFTER task_list
                 {
-                    SET_LIST(curitem, "AFTER", curtasks);
+                    SET_LIST(curobj, "AFTER", curtasks);
                 }
 		| SCORE integer
 		{
-                    vh_istore(curitem, "SCORE", $2);
+                    vh_istore(curobj, "SCORE", $2);
 		}
                 | FINISH
                 {
-                    vh_istore(curitem, "FINISH", 1);
+                    vh_istore(curobj, "FINISH", 1);
                 }
-                | STYLE ID
-                {
-                    add_attr(curitem, "STYLE", $2);
-                    ref_style($2);
-                }
-                | STYLE PUZZLE
-                {
-                    add_attr(curitem, "STYLE", "puzzle");
-                    ref_style("puzzle");
-                }
-                | STYLE SPECIAL
-                {
-                    add_attr(curitem, "STYLE", "special");
-                    ref_style("special");
-                }
+                | STYLE style_list
 		;
 
 item_list	: item_elt
@@ -631,23 +599,23 @@ item            : ID
 
 link_stmt	: LINK room TO room
                 {
-                    curlink = vh_create();
-                    vh_store(curlink, "FROM", $2);
-                    vh_store(curlink, "TO", $4);
-                    vh_pstore(curlink, "STYLE", current_styles());
+                    curobj = vh_create();
+                    vh_store(curobj, "FROM", $2);
+                    vh_store(curobj, "TO", $4);
+                    vh_pstore(curobj, "STYLE", current_styles());
                     modify = 0;
                 }
                 link_attrs ';'
 		{
-                    vl_ppush(links, curlink);
+                    vl_ppush(links, curobj);
                     RESET_IT;
 		}
                 | LINK ID
                 {
                     modify = 1;
-                    if ((curlink = vh_pget(linktags, $2)) == NULL) {
+                    if ((curobj = vh_pget(linktags, $2)) == NULL) {
                         err("link tag `%s' not yet defined", $2);
-                        curlink = vh_create();
+                        curobj = vh_create();
                     }
                 }
                 link_attrs ';'
@@ -662,90 +630,76 @@ link_attrs	: /* empty */
 
 link_attr	: DIR dir_list
 		{
-                    vh_pstore(curlink, "DIR", curdirs);
+                    vh_pstore(curobj, "DIR", curdirs);
                     curdirs = NULL;
 		}
 		| GO otherdir
 		{
-                    vh_istore(curlink, "GO", $2);
+                    vh_istore(curobj, "GO", $2);
 		}
 		| ONEWAY
 		{
-                    vh_istore(curlink, "ONEWAY", 1);
-		}
-		| SPECIAL
-		{
-                    obsolete("`special' attribute", "`style \"special\"'");
-                    add_attr(curlink, "STYLE", "special");
-                    ref_style("special");
+                    vh_istore(curobj, "ONEWAY", 1);
 		}
 		| HIDDEN
 		{
-                    vh_istore(curlink, "HIDDEN", 1);
+                    vh_istore(curobj, "HIDDEN", 1);
 		}
 		| NOPATH
 		{
-                    vh_istore(curlink, "NOPATH", 1);
+                    vh_istore(curobj, "NOPATH", 1);
 		}
                 | NEED item_list
                 {
-                    SET_LIST(curlink, "NEED", curitems);
+                    SET_LIST(curobj, "NEED", curitems);
                 }
 		| BEFORE task_list
 		{
-                    SET_LIST(curlink, "BEFORE", curtasks);
+                    SET_LIST(curobj, "BEFORE", curtasks);
 		}
 		| AFTER task_list
 		{
-                    SET_LIST(curlink, "AFTER", curtasks);
+                    SET_LIST(curobj, "AFTER", curtasks);
 		}
                 | LEAVE item_list_all
                 {
                     if (curitems != NULL)
-                        SET_LIST(curlink, "LEAVE", curitems);
-                    vh_istore(curlink, "LEAVEALL", allflag);
+                        SET_LIST(curobj, "LEAVE", curitems);
+                    vh_istore(curobj, "LEAVEALL", allflag);
                 }
 		| LENGTH integer
 		{
-                    vh_istore(curlink, "LEN", $2);
+                    vh_istore(curobj, "LEN", $2);
 		}
                 | CMD string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curlink, "TO_CMD", $2);
+                        add_attr(curobj, "TO_CMD", $2);
                 }
                 | CMD TO string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curlink, "TO_CMD", $3);
+                        add_attr(curobj, "TO_CMD", $3);
                 }
                 | CMD FROM string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curlink, "FROM_CMD", $3);
+                        add_attr(curobj, "FROM_CMD", $3);
                 }
                 | TAG ID
 		{
                     if (!modify)
-                        set_tag("link", $2, curlink, linktags);
+                        set_tag("link", $2, curobj, linktags);
                     else
                         CHANGE_ERROR(tag);
 		}
-                | STYLE ID
-                {
-                    add_attr(curlink, "STYLE", $2);
-                    ref_style($2);
-                }
-                | STYLE PUZZLE
-                {
-                    add_attr(curlink, "STYLE", "puzzle");
-                    ref_style("puzzle");
-                }
-                | STYLE SPECIAL
-                {
-                    add_attr(curlink, "STYLE", "special");
+                | STYLE style_list
+		| SPECIAL
+		{
+                    obsolete("`special' attribute", "`style \"special\"'");
+                    add_attr(curobj, "STYLE", "special");
                     ref_style("special");
-                }
+		}
                 ; 
 
 /************************************************************************/
@@ -754,23 +708,23 @@ link_attr	: DIR dir_list
 
 join_stmt	: JOIN room TO room
                 {
-                    curjoin = vh_create();
-                    vh_store(curjoin, "FROM", $2);
-                    vh_store(curjoin, "TO", $4);
-                    vh_pstore(curjoin, "STYLE", current_styles());
+                    curobj = vh_create();
+                    vh_store(curobj, "FROM", $2);
+                    vh_store(curobj, "TO", $4);
+                    vh_pstore(curobj, "STYLE", current_styles());
                     modify = 0;
                 }
                 join_attrs ';'
 		{
-                    vl_ppush(joins, curjoin);
+                    vl_ppush(joins, curobj);
                     RESET_IT;
 		}
                 | JOIN ID
                 {
                     modify = 1;
-                    if ((curjoin = vh_pget(jointags, $2)) == NULL) {
+                    if ((curobj = vh_pget(jointags, $2)) == NULL) {
                         err("join tag `%s' not yet defined", $2);
-                        curjoin = vh_create();
+                        curobj = vh_create();
                     }
                 }
                 join_attrs ';'
@@ -785,83 +739,69 @@ join_attrs	: /* empty */
 
 join_attr	: GO compass
 		{
-                    vh_istore(curjoin, "GO", $2);
+                    vh_istore(curobj, "GO", $2);
 		}
                 | GO otherdir
 		{
-                    vh_istore(curjoin, "GO", $2);
+                    vh_istore(curobj, "GO", $2);
 		}
 		| ONEWAY
 		{
-                    vh_istore(curjoin, "ONEWAY", 1);
+                    vh_istore(curobj, "ONEWAY", 1);
 		}
 		| HIDDEN
 		{
-                    vh_istore(curjoin, "HIDDEN", 1);
+                    vh_istore(curobj, "HIDDEN", 1);
 		}
 		| NOPATH
 		{
-                    vh_istore(curjoin, "NOPATH", 1);
+                    vh_istore(curobj, "NOPATH", 1);
 		}
                 | NEED item_list
                 {
-                    SET_LIST(curjoin, "NEED", curitems);
+                    SET_LIST(curobj, "NEED", curitems);
                 }
 		| BEFORE task_list
 		{
-                    SET_LIST(curjoin, "BEFORE", curtasks);
+                    SET_LIST(curobj, "BEFORE", curtasks);
 		}
 		| AFTER task_list
 		{
-                    SET_LIST(curjoin, "AFTER", curtasks);
+                    SET_LIST(curobj, "AFTER", curtasks);
 		}
                 | LEAVE item_list_all
                 {
                     if (curitems != NULL)
-                        SET_LIST(curjoin, "LEAVE", curitems);
-                    vh_istore(curjoin, "LEAVEALL", allflag);
+                        SET_LIST(curobj, "LEAVE", curitems);
+                    vh_istore(curobj, "LEAVEALL", allflag);
                 }
 		| LENGTH integer
 		{
-                    vh_istore(curjoin, "LEN", $2);
+                    vh_istore(curobj, "LEN", $2);
 		}
                 | CMD string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curjoin, "TO_CMD", $2);
+                        add_attr(curobj, "TO_CMD", $2);
                 }
                 | CMD TO string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curjoin, "TO_CMD", $3);
+                        add_attr(curobj, "TO_CMD", $3);
                 }
                 | CMD FROM string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curjoin, "FROM_CMD", $3);
+                        add_attr(curobj, "FROM_CMD", $3);
                 }
                 | TAG ID
 		{
                     if (!modify)
-                        set_tag("join", $2, curjoin, jointags);
+                        set_tag("join", $2, curobj, jointags);
                     else
                         CHANGE_ERROR(tag);
 		}
-                | STYLE ID
-                {
-                    add_attr(curjoin, "STYLE", $2);
-                    ref_style($2);
-                }
-                | STYLE PUZZLE
-                {
-                    add_attr(curjoin, "STYLE", "puzzle");
-                    ref_style("puzzle");
-                }
-                | STYLE SPECIAL
-                {
-                    add_attr(curjoin, "STYLE", "special");
-                    ref_style("special");
-                }
+                | STYLE style_list
 		;
 
 /************************************************************************/
@@ -870,28 +810,28 @@ join_attr	: GO compass
 
 task_stmt	: TASK string
                 {
-                    curtask = vh_create();
-                    vh_sstore(curtask, "DESC", $2);
-                    vh_pstore(curtask, "STYLE", current_styles());
+                    curobj = vh_create();
+                    vh_sstore(curobj, "DESC", $2);
+                    vh_pstore(curobj, "STYLE", current_styles());
                     modify = 0;
                 }
                 task_attrs ';'
 		{
-                    if (vh_iget(curtask, "NOROOM"))
-                        vh_pstore(curtask, "IN", NULL);
-                    else if (!vh_exists(curtask, "IN"))
-                        vh_pstore(curtask, "IN", lastroom);
+                    if (vh_iget(curobj, "NOROOM"))
+                        vh_pstore(curobj, "IN", NULL);
+                    else if (!vh_exists(curobj, "IN"))
+                        vh_pstore(curobj, "IN", lastroom);
 
-                    lasttask = curtask;
-                    vl_ppush(tasks, curtask);
+                    lasttask = curobj;
+                    vl_ppush(tasks, curobj);
                     RESET_IT;
 		}
                 | TASK ID
                 {
                     modify = 1;
-                    if ((curtask = vh_pget(tasktags, $2)) == NULL) {
+                    if ((curobj = vh_pget(tasktags, $2)) == NULL) {
                         err("task tag `%s' not yet defined", $2);
-                        curtask = vh_create();
+                        curobj = vh_create();
                     }
                 }
                 task_attrs ';'
@@ -907,127 +847,113 @@ task_attrs	: /* empty */
 task_attr	: TAG ID
 		{
                     if (!modify)
-                        set_tag("task", $2, curtask, tasktags);
+                        set_tag("task", $2, curobj, tasktags);
                     else
                         CHANGE_ERROR(tag);
 		}
 		| AFTER task_list
 		{
-                    SET_LIST(curtask, "AFTER", curtasks);
+                    SET_LIST(curobj, "AFTER", curtasks);
 		}
 		| NEED item_list
 		{
-                    SET_LIST(curtask, "NEED", curitems);
+                    SET_LIST(curobj, "NEED", curitems);
 		}
 		| GIVE item_list
 		{
-                    SET_LIST(curtask, "GIVE", curitems);
+                    SET_LIST(curobj, "GIVE", curitems);
 		}
 		| GET item_list
 		{
-                    SET_LIST(curtask, "GET", curitems);
+                    SET_LIST(curobj, "GET", curitems);
 		}
 		| DROP item_list_all
 		{
                     if (curitems != NULL)
-                        SET_LIST(curtask, "DROP", curitems);
-                    vh_istore(curtask, "DROPALL", allflag);
+                        SET_LIST(curobj, "DROP", curitems);
+                    vh_istore(curobj, "DROPALL", allflag);
 		}
 		| DROP item_list_all UNTIL task_list
 		{
                     if (curitems != NULL)
-                        SET_LIST(curtask, "DROP", curitems);
-                    vh_istore(curtask, "DROPALL", allflag);
-                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+                        SET_LIST(curobj, "DROP", curitems);
+                    vh_istore(curobj, "DROPALL", allflag);
+                    SET_LIST(curobj, "DROPUNTIL", curtasks);
 		}
 		| DROP item_list_all IN room
 		{
                     if (curitems != NULL)
-                        SET_LIST(curtask, "DROP", curitems);
-                    vh_istore(curtask, "DROPALL", allflag);
-                    vh_store(curtask, "DROPROOM", $4);
+                        SET_LIST(curobj, "DROP", curitems);
+                    vh_istore(curobj, "DROPALL", allflag);
+                    vh_store(curobj, "DROPROOM", $4);
 		}
 		| DROP item_list_all IN room UNTIL task_list
 		{
                     if (curitems != NULL)
-                        SET_LIST(curtask, "DROP", curitems);
-                    vh_istore(curtask, "DROPALL", allflag);
-                    vh_store(curtask, "DROPROOM", $4);
-                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+                        SET_LIST(curobj, "DROP", curitems);
+                    vh_istore(curobj, "DROPALL", allflag);
+                    vh_store(curobj, "DROPROOM", $4);
+                    SET_LIST(curobj, "DROPUNTIL", curtasks);
 		}
 		| DROP IN room
 		{
-                    vh_store(curtask, "DROPROOM", $3);
+                    vh_store(curobj, "DROPROOM", $3);
 		}
 		| DROP IN room UNTIL task_list
 		{
-                    vh_store(curtask, "DROPROOM", $3);
-                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+                    vh_store(curobj, "DROPROOM", $3);
+                    SET_LIST(curobj, "DROPUNTIL", curtasks);
 		}
                 | DROP UNTIL task_list
                 {
-                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+                    SET_LIST(curobj, "DROPUNTIL", curtasks);
                 }
 		| LOSE item_list
 		{
-                    SET_LIST(curtask, "LOSE", curitems);
+                    SET_LIST(curobj, "LOSE", curitems);
 		}
                 | GOTO room
                 {
-                    vh_store(curtask, "GOTO", $2);
+                    vh_store(curobj, "GOTO", $2);
                 }
                 | FOLLOW task
                 {
-                    vh_store(curtask, "FOLLOW", $2);
+                    vh_store(curobj, "FOLLOW", $2);
                 }
 		| IN room
 		{
-                    vh_store(curtask, "IN", $2);
+                    vh_store(curobj, "IN", $2);
 		}
 		| IN ANY
 		{
-                    vh_istore(curtask, "NOROOM", 1);
+                    vh_istore(curobj, "NOROOM", 1);
 		}
                 | SAFE
                 {
-                    vh_istore(curtask, "SAFE", 1);
+                    vh_istore(curobj, "SAFE", 1);
                 }
 		| SCORE integer
 		{
-                    vh_istore(curtask, "SCORE", $2);
+                    vh_istore(curobj, "SCORE", $2);
 		}
                 | FINISH
                 {
-                    vh_istore(curtask, "FINISH", 1);
+                    vh_istore(curobj, "FINISH", 1);
                 }
                 | CMD string_repeat
                 {
                     while (repeat-- > 0)
-                        add_attr(curtask, "CMD", $2);
+                        add_attr(curobj, "CMD", $2);
                 }
                 | CMD NONE
                 {
-                    add_attr(curtask, "CMD", NULL);
+                    add_attr(curobj, "CMD", NULL);
                 }
 		| NOTE string
 		{
-                    add_attr(curtask, "NOTE", $2);
+                    add_attr(curobj, "NOTE", $2);
 		}
-                | STYLE ID
-                {
-                    add_attr(curtask, "STYLE", $2);
-                    ref_style($2);
-                }
-                | STYLE PUZZLE
-                {
-                    add_attr(curtask, "STYLE", "puzzle");
-                    ref_style("puzzle");
-                }
-                | STYLE SPECIAL
-                {
-                    add_attr(curtask, "STYLE", "special");
-                    ref_style("special");
-                }
+                | STYLE style_list
 		;
 
 task_list	: task_elt
@@ -1162,6 +1088,27 @@ style_stmt      : STYLE ID ';'
                     pop_style(NULL);
                 }
 		;
+
+style_list      : style_elt
+                | style_list style_elt
+                ;
+
+style_elt       : ID
+                {
+                    add_attr(curobj, ATTR(STYLE), $1);
+                    ref_style($1);
+                }
+                | PUZZLE
+                {
+                    add_attr(curobj, ATTR(STYLE), "puzzle");
+                    ref_style("puzzle");
+                }
+                | SPECIAL
+                {
+                    add_attr(curobj, ATTR(STYLE), "special");
+                    ref_style("special");
+                }
+                ;
 
 /************************************************************************/
 /* Directions
