@@ -1,5 +1,5 @@
-#LyX 1.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 218
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
 \textclass article
 \language english
 \inputencoding auto
@@ -12,6 +12,8 @@
 \paperpackage a4
 \use_geometry 1
 \use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
 \paperorientation portrait
 \leftmargin 30mm
 \topmargin 30mm
@@ -447,11 +449,15 @@ boxes-and-lines
 \layout Standard
 \added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
 
-\begin_inset Figure size 178 68
-file map
-width 4 60
-flags 9
-
+\begin_inset Graphics FormatVersion 1
+	filename map.eps
+	display color
+	size_type 1
+	width 60col%
+	rotateOrigin center
+	lyxsize_type 0
+	lyxwidth 178pt
+	lyxheight 68pt
 \end_inset 
 
 
@@ -938,47 +944,12 @@ Here's the completed map description for the above example, with a few other
  items thrown in:
 \layout LyX-Code
 
-# Example map.
-\layout LyX-Code
 
-\layout LyX-Code
+\begin_inset Include \verbatiminput{../maps/example.ifm}
 
-room "Kitchen" tag Kitchen;
-\layout LyX-Code
+\end_inset 
 
-  item "spoon" note "Stirs tea";
-\layout LyX-Code
 
-  item "sink"; item "monkey";
-\layout LyX-Code
-
-\layout LyX-Code
-
-room "Garage" dir s go down;
-\layout LyX-Code
-
-  item "monkey wrench" note "For wrenching monkey out of sink";
-\layout LyX-Code
-
-\layout LyX-Code
-
-room "Lounge" dir e from Kitchen;
-\layout LyX-Code
-
-  item "TV set";
-\layout LyX-Code
-
-\layout LyX-Code
-
-room "Dining Room" dir s link Kitchen;
-\layout LyX-Code
-
-  item "table"; item "chair";
-\layout LyX-Code
-
-\layout LyX-Code
-
-room "Study" dir e n oneway;
 \layout Standard
 
 See Section\SpecialChar ~
@@ -1805,22 +1776,22 @@ Scan the sorted task list to find the nearest possible task.
  the current room to the task room via a path which doesn't require items
  not yet collected, or tasks not yet done, or which involves dropping needed
  items on the way.
-\newline 
+\begin_deeper 
+\layout Standard
 
-\newline 
 Priority is given to safe tasks.
  For a task to be safe, it must (a) not have previously been marked unsafe
- (e.g.
- because it closes off map connections) and (b) there must be a return path
- from the task room back to the current one.
+ (e.g.\SpecialChar ~
+because it closes off map connections) and (b) there must be a return
+ path from the task room back to the current one.
  The second condition is to avoid taking a one-way trip before preparing
  properly.
-\newline 
+\layout Standard
 
-\newline 
 If there are any safe tasks, the nearest one will be done next regardless
  of how close an unsafe task is.
  If there are no safe task, the nearest unsafe task will be chosen.
+\end_deeper 
 \layout Enumerate
 
 If there was a possible task, do it and remove it from the list.
@@ -2308,9 +2279,9 @@ rec
 ) This output produces a list of commands suitable for feeding to IF interpreter
 s in playback mode.
  All the commands in the output are converted to uppercase.
-\newline 
+\begin_deeper 
+\layout Standard
 
-\newline 
 In order for this to work properly, you have to give commands that the game
  will understand.
  The 
@@ -2332,9 +2303,8 @@ cmd\SpecialChar ~
 none
 \family default 
 .
-\newline 
+\layout Standard
 
-\newline 
 Of course, a recording will only play back properly in an interpreter if
  it provides correct game commands.
  Random events can't be dealt with by IFM, and will probably cause playback
@@ -2347,6 +2317,7 @@ frotz
 \family default 
 ).
  This should eliminate most (but not all) of the problems of randomness.
+\end_deeper 
 \layout List
 \labelwidthstring MMMMMMMMMMMMMM
 
@@ -4580,12 +4551,12 @@ Whenever a number is expected in IFM input, you can supply an arithmetic
 \added_space_top medskip \added_space_bottom medskip \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="2" rows="9" columns="2">
-<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
-<column alignment="center" valignment="top" leftline="false" rightline="false" width="" special="">
-<column alignment="left" valignment="top" leftline="false" rightline="false" width="" special="">
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<lyxtabular version="3" rows="9" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4595,7 +4566,7 @@ Whenever a number is expected in IFM input, you can supply an arithmetic
 ( expr )
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4604,8 +4575,8 @@ parentheses
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4615,7 +4586,7 @@ parentheses
 expr ^ expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4624,8 +4595,8 @@ exponentiation
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4635,7 +4606,7 @@ exponentiation
 + expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4644,8 +4615,8 @@ unary plus
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4655,7 +4626,7 @@ unary plus
 - expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4664,8 +4635,8 @@ unary minus
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4675,7 +4646,7 @@ unary minus
 expr * expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4684,8 +4655,8 @@ multiply
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4695,7 +4666,7 @@ multiply
 expr / expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4704,8 +4675,8 @@ divide
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4715,7 +4686,7 @@ divide
 expr % expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4724,8 +4695,8 @@ remainder
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4735,7 +4706,7 @@ remainder
 expr + expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4744,8 +4715,8 @@ addition
 \end_inset 
 </cell>
 </row>
-<row topline="false" bottomline="false" newpage="false">
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
@@ -4755,7 +4726,7 @@ addition
 expr - expr
 \end_inset 
 </cell>
-<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
