@@ -14,9 +14,14 @@
 
 /* List of drivers to include */
 #define GROFF
+#define TEXT
 
 #ifdef GROFF
 #include "groff.drv"
+#endif
+
+#ifdef TEXT
+#include "text.drv"
 #endif
 
 struct driver_st {
@@ -29,6 +34,13 @@ struct driver_st {
     {
         "groff", "Groff with pic, tbl and -me macros",
         &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs
+    },
+#endif
+
+#ifdef TEXT
+    {
+        "text", "Tab-delimited ASCII text fields",
+        NULL, &text_itemfuncs, &text_taskfuncs
     },
 #endif
 };
