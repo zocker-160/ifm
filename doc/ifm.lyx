@@ -2,7 +2,7 @@
 \lyxformat 220
 \textclass article
 \begin_preamble
-\usepackage{color}
+\input{macros.tex}
 \end_preamble
 \language english
 \inputencoding auto
@@ -19,9 +19,9 @@
 \use_numerical_citations 0
 \paperorientation portrait
 \leftmargin 30mm
-\topmargin 30mm
+\topmargin 20mm
 \rightmargin 30mm
-\bottommargin 30mm
+\bottommargin 20mm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -34,10 +34,47 @@
 
 \layout Title
 
-IFM -- Interactive Fiction Mapper
-\layout Author
 
-Glenn Hutchings 
+\begin_inset Graphics FormatVersion 1
+	filename cover.eps
+	display none
+	size_type 2
+	scale 70
+	rotateOrigin center
+	lyxsize_type 0
+	lyxscale 50
+
+\end_inset 
+
+
+\layout Date
+
+\SpecialChar ~
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+titlepage
+\end_inset 
+
+
+\layout Quote
+\pagebreak_top \align center 
+Copyright © 2002 Glenn Hutchings
+\layout Quote
+
+Permission is granted to copy, distribute and/or modify this document under
+ the terms of the GNU Free Documentation License, Version 1.1 or any later
+ version published by the Free Software Foundation; with no Invariant Sections,
+ with no Front-Cover Texts, and with no Back-Cover Texts.
+ A copy of the license is included in the section entitled "GNU Free Documentati
+on License."
 \layout Standard
 \pagebreak_top 
 
@@ -54,8 +91,29 @@ Glenn Hutchings
 \end_inset 
 
 
-\layout Section
+\layout Standard
+
+
+\begin_inset FloatList table
+
+\end_inset 
+
+
+\layout Standard
 \pagebreak_top 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+maintext
+\end_inset 
+
+
+\layout Section
+
 Introduction
 \begin_inset LatexCommand \label{sec:introduction}
 
@@ -73,7 +131,6 @@ IFM is a language for keeping track of your progress through an Interactive
  You can record each room you visit and its relation to other rooms, the
  initial locations of useful items you find, and the tasks you need to perform
  in order to solve the game.
- This manual refers to version 4.2 of IFM.
 \layout Standard
 
 The IFM mapping commands are designed so that you can easily add to the
@@ -111,294 +168,26 @@ walkthrough
 \layout Standard
 
 Several output formats are available, including PostScript, Fig and ASCII
- text -- see Section 
-\begin_inset LatexCommand \ref{sec:output-formats}
+ text --- these are described in Section 
+\begin_inset LatexCommand \ref{sec:using-ifm}
 
 \end_inset 
 
 .
  Some of the output formats have a set of variables which control the appearance
- of the output -- see Section 
+ of the output --- see Section 
 \begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
 .
-\layout Subsection
-
-Running IFM
-\begin_inset LatexCommand \label{sec:operation}
-
-\end_inset 
-
-
-\layout Standard
-
-IFM is run from the command line.
- The general form of the command is:
-\layout LyX-Code
-
-ifm [options] [file]
-\layout Standard
-
-On startup, IFM does the following.
- Firstly, the system initialization file is read.
- This sets defaults used by everyone.
- This file is called 
-\family typewriter 
-ifm-init.ifm
-\family default 
-, and is found by searching a standard set of directories.
- You can override this search path by setting the environment variable 
-\family typewriter 
-IFMPATH
-\family default 
- to be a colon-separated list of directories.
-\layout Standard
-
-Then, if you have a personal initialization file, that is read.
- This file is found in the directory specified by your 
-\family typewriter 
-HOME
-\family default 
- environment variable.
- On Unix systems it is called 
-\family typewriter 
-.ifmrc
-\family default 
-, and on Win32 systems it is called 
-\family typewriter 
-ifm.ini
-\family default 
-.
- You can use this file to customize the default variable settings for different
- types of output.
-\layout Standard
-
-Then input from the file(s) on the command-line is read.
- If no files were specified, stdin is read.
- A filename equal to 
-\family typewriter 
--
-\family default 
- also indicates that stdin should be read at that point.
-\layout Standard
-
-If any of the 
-\family typewriter 
--map
-\family default 
-, 
-\family typewriter 
--items
-\family default 
-, 
-\family typewriter 
--tasks
-\family default 
- or 
-\family typewriter 
--show
-\family default 
- options was specified, the appropriate output is produced.
- If not, only a syntax check of the input is done.
-\layout Standard
-
-When producing output, the output format specified by the 
-\family typewriter 
--format
-\family default 
- option is used.
- If this was not specified, the first format in the list which supports
- this type of output is chosen.
-\layout Standard
-
-Some of the output formats use additional library files to do their work.
- For example, the PostScript output format adds a standard 
-\begin_inset Quotes eld
-\end_inset 
-
-prologue
-\begin_inset Quotes srd
-\end_inset 
-
- file to all output.
- These files are found using the same search path as the system initialization
- file (see above).
-\layout Standard
-
-Here's a list of the command-line options (which can be abbreviated):
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--m,\SpecialChar ~
--map
-\family default 
- Draw a map of the game.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--i,\SpecialChar ~
--items
-\family default 
- Print a list of items which appear in the game.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--t,\SpecialChar ~
--tasks
-\family default 
- Print a list of tasks required to solve the game.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--f,\SpecialChar ~
--format
-\family default 
- format Specify the output format (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:output-formats}
-
-\end_inset 
-
-).
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--o,\SpecialChar ~
--output
-\family default 
-\SpecialChar ~
-
-\family typewriter 
-FILE
-\family default 
- Write to the specified file, instead of stdout.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--s,\SpecialChar ~
--set\SpecialChar ~
-VAR=VALUE
-\family default 
- Set a global customization variable.
- This overrides any settings in the input files.
- This option may be repeated.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--w,\SpecialChar ~
--nowarn
-\family default 
- Don't print warnings.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--I,\SpecialChar ~
--include\SpecialChar ~
-DIR
-\family default 
- Prepend the specified directory to the library and include file search
- path.
- This option may be repeated.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--show
-\family default 
-\SpecialChar ~
-
-\family typewriter 
-TYPE
-\family default 
- Show one of several types of information, and exit.
- The 
-\family typewriter 
-TYPE
-\family default 
- argument can be one of:
-\begin_deeper 
-\layout List
-\labelwidthstring MMMM
-
-
-\family typewriter 
-maps
-\family default 
- Show a list of all the map sections defined in the input.
-\layout List
-\labelwidthstring MMMM
-
-
-\family typewriter 
-path
-\family default 
- Show the directories that are searched for library and include files.
-\layout List
-\labelwidthstring MMMM
-
-
-\family typewriter 
-vars
-\family default 
- Show a complete list of defined variables, in a format suitable for feeding
- back into IFM.
- See Section 
-\begin_inset LatexCommand \ref{sec:output-variables}
-
-\end_inset 
-
-.
-\end_deeper 
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--noinit
-\family default 
- Don't read your personal init file.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--version
-\family default 
- Print the program version.
-\layout List
-\labelwidthstring MMMMMMMMMMMM
-
-
-\family typewriter 
--help
-\family default 
- Just print some usage information.
 \layout Subsection
 
 History of IFM
 \layout Standard
 
 When I started playing IF games, years ago, I did what many other people
- did -- made a rough map on paper of where I'd explored, so I could see
+ did --- made a rough map on paper of where I'd explored, so I could see
  which directions I hadn't tried yet.
  Inevitably, the maps always fell off the page and turned into a complete
  mess.
@@ -413,8 +202,8 @@ My first attempt at solving this problem was to make use of the tools I
  found a use for them yet.
 \layout Standard
 
-As it stood, this worked quite well -- it produced nice maps and lists of
- items so I could see where I'd got to.
+As it stood, this worked quite well --- it produced nice maps and lists
+ of items so I could see where I'd got to.
  The only problem was that it was just as tedious making maps this way as
  on paper, since I had to work out the offset of each room relative to a
  fixed origin.
@@ -424,7 +213,7 @@ Eventually I decided that enough was enough.
  I wanted to be able to add stuff to the map as I played the game, without
  having to worry about offsets or anything irrelevant like that.
  Hence the main design criteria for IFM.
- The other criteria were easy -- an input language, for flexibility and
+ The other criteria were easy --- an input language, for flexibility and
  extendability, and a program for converting files in this language into
  different types of output.
 \layout Standard
@@ -434,31 +223,22 @@ Partway through writing the initial version of IFM, I had the idea that
  found so far, but what's been done to solve the game.
  The concept of tasks appeared, which immediately tripled the size of the
  program and caused all sorts of headaches.
- But eventually it got to the stage where it might be worth releasing.
 \layout Standard
 
-A program lives or dies by the people who actually use it, and IFM is no
- exception.
- Very soon after adding it to the IF archive, I got a lot of feedback from
- one Dave Chapeskie (
+Eventually it got to the stage where it might be worth releasing, so in
+ June 1998 the first version appeared in the IF archive.
+ Very soon after that, I got a lot of feedback from one Dave Chapeskie (
 \family typewriter 
 dchapes@ddm.on.ca
 \family default 
 ), who made a lot of great suggestions for improvements and new features.
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Incidentally, he also has a web page dedicated to IFM, at 
-\begin_inset LatexCommand \url{www.sentex.net/~dchapes/ifm}
+ He also very kindly started up a Web page for IFM maps; you can find it
+ at 
+\begin_inset LatexCommand \url{http://www.sentex.net/~dchapes/ifm}
 
 \end_inset 
 
 .
-\end_inset 
-
-
 \layout Standard
 
 And now, finally, it's finished and I can go back to that IF game I was
@@ -474,7 +254,7 @@ Making Maps
 \layout Standard
 
 This section gives you a tour of the main commands for making maps.
- It's not complete -- see Section 
+ It's not complete; see Section 
 \begin_inset LatexCommand \ref{sec:language}
 
 \end_inset 
@@ -494,14 +274,20 @@ boxes-and-lines
 \begin_inset Quotes srd
 \end_inset 
 
- method.
- An example is shown in Figure\SpecialChar ~
+ method; an example is shown in Figure\SpecialChar ~
 
 \begin_inset LatexCommand \ref{fig:example-map}
 
 \end_inset 
 
 .
+ This is the style of map that IFM produces.
+ Rooms are represented as boxes on a square grid, and links between the
+ rooms are drawn as lines connecting them.
+ Links emanate from rooms in any of the eight standard compass directions,
+ and also follow the grid.
+ In the following sections, we'll introduce the IFM commands that can be
+ used to draw this example map.
 \begin_inset Float figure
 placement htbp
 wide false
@@ -536,17 +322,6 @@ Infocom-style map
 \end_inset 
 
 
-\layout Standard
-
-This is the style of map that IFM produces.
- Rooms are represented as boxes on a square grid, and links between the
- rooms are drawn as lines connecting them.
- Links emanate from rooms in any of the eight standard compass directions,
- and also follow the grid.
-\layout Standard
-
-In the following sections, we'll introduce the IFM commands used to draw
- the example map above.
 \layout Subsection
 
 Adding Rooms
@@ -598,7 +373,7 @@ where you are
 \end_inset 
 
  is always the last room mentioned).
- You need a way of referring to the kitchen again -- to do that, you add
+ You need a way of referring to the kitchen again --- to do that, you add
  a 
 \begin_inset Quotes sld
 \end_inset 
@@ -682,7 +457,7 @@ This is indicated on the map by an arrow.
 Adding Links
 \layout Standard
 
-The map as it stands is not complete -- the diagonal link between the kitchen
+The map as it stands is not complete --- the diagonal link between the kitchen
  and the dining room is missing (because you didn't go that way in visiting
  the kitchen or the dining room).
  To add it, you need to modify the dining room command like this:
@@ -818,7 +593,7 @@ Map Sections
 \layout Standard
 
 In IFM, rooms are divided into groups called 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 map sections
@@ -856,13 +631,13 @@ flattened out
 .
 \layout Itemize
 
-The game might naturally divide into sections -- a prologue, middle-game
+The game might naturally divide into sections --- a prologue, middle-game
  and end-game, for example.
 \layout Standard
 
 IFM manages independent map sections automatically, by deciding which rooms
  are on which section.
- No special command is needed to start a new map section -- simply define
+ No special command is needed to start a new map section --- simply define
  a room which has no connection to any previous room, by leaving out the
  
 \family typewriter 
@@ -909,15 +684,15 @@ room "Basement" join Ground_Floor;
 \layout Standard
 
 The 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 joined
 \begin_inset Quotes srd
 \end_inset 
 
- status of the two rooms is indicated on the map, the exact manner depending
- on the output format.
+ status of the two rooms is indicated after their description text; the
+ default is to use an increasing number.
 \layout Standard
 
 Each map section can be given a title using the 
@@ -935,7 +710,7 @@ This names the next map section that hasn't been named.
 \family typewriter 
 map
 \family default 
- commands as you have map sections, although this isn't enforced -- any
+ commands as you have map sections, although this isn't enforced --- any
  names that are missing will be assigned default names, and extra names
  will be ignored.
  It's conventional to give a 
@@ -1029,7 +804,7 @@ Here's the completed map description for the above example, with a few other
 
 See Section\SpecialChar ~
 
-\begin_inset LatexCommand \ref{sec:map-output}
+\begin_inset LatexCommand \ref{sec:using-ifm}
 
 \end_inset 
 
@@ -1104,11 +879,11 @@ Solving the Game
 
 \layout Standard
 
-As well as making a map of your game, IFM can be used to record the steps
- you took to solve it.
- The IFM program can then calculate a (fairly) optimal solution.
+As well as making a map of your game, you can record the steps you took
+ to solve it.
+ IFM can then calculate a (fairly) optimal solution.
  This section is a guide to how to do it.
- Again, it's not a complete specification -- see Section\SpecialChar ~
+ Again, it's not a complete specification --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:language}
 
@@ -1138,7 +913,7 @@ Most tasks need to be done in a certain room.
 in
 \family default 
  clause, just as for items.
- Some tasks can be done anywhere -- you can say 
+ Some tasks can be done anywhere --- you can say 
 \family typewriter 
 in\SpecialChar ~
 any
@@ -1148,7 +923,7 @@ any
 \layout Standard
 
 The game solver in IFM divides tasks into two fundamental types: 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 safe
@@ -1156,7 +931,7 @@ safe
 \end_inset 
 
  and 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 unsafe
@@ -1168,6 +943,9 @@ unsafe
  solving the game is impossible.
  The game solver avoids doing unsafe tasks until it really has to.
 \layout Subsection
+
+Task Dependencies
+\layout Subsubsection
 
 Requiring Tasks
 \layout Standard
@@ -1205,7 +983,7 @@ task "Press incinerator start switch" tag press_switch;
 task "Put the fluffy bunny in the incinerator" after last;
 \layout Standard
 
-Alternatively, you could merge the two into a single task -- the simplicity
+Alternatively, you could merge the two into a single task --- the simplicity
  or complexity of tasks is up to you.
 \layout Standard
 
@@ -1213,7 +991,7 @@ The
 \family typewriter 
 after
 \family default 
- clause only says that a task will come after another -- it doesn't specify
+ clause only says that a task will come after another --- it doesn't specify
  how soon after.
  But in some situations it is essential that a task immediately follows
  a specific previous task, without deviation.
@@ -1257,10 +1035,10 @@ Of course, you can only have a single task in a
 \family typewriter 
 follow
 \family default 
- clause -- the immediately preceding task.
+ clause --- the immediately preceding task.
  It is an error for two or more tasks to try to immediately follow the same
  task.
-\layout Subsection
+\layout Subsubsection
 
 Requiring Items
 \layout Standard
@@ -1281,7 +1059,7 @@ Here,
 bunny
 \family default 
  is the tag name of the corresponding item.
- You can list more than one item tag -- e.g.\SpecialChar ~
+ You can list more than one item tag --- e.g.\SpecialChar ~
 
 \family typewriter 
 need bunny asbestos_gloves
@@ -1289,19 +1067,19 @@ need bunny asbestos_gloves
 .
 \layout Standard
 
-Note that you don't need to add tasks to get required items yourself --
+Note that you don't need to add tasks to get required items yourself ---
  the game solver does that automatically.
  It knows it has to get all the items which appear in 
 \family typewriter 
 need
 \family default 
  clauses.
-\layout Subsection
+\layout Subsubsection
 
 Obtaining Items
 \layout Standard
 
-Some tasks need to be done before you can get an item.
+Sometimes a task need to be done before you can get an item.
  One way to indicate this is with the task 
 \family typewriter 
 get
@@ -1349,8 +1127,8 @@ before
 item "precious diamond" before trigger_alarm;
 \layout Standard
 
-Some items can only be picked up if you're already carrying another -- use
- the 
+Some items can only be picked up if you're already carrying another ---
+ use the 
 \family typewriter 
 need
 \family default 
@@ -1360,7 +1138,7 @@ need
 item "hot coal" need tongs;
 \layout Standard
 
-Sometimes, doing a task not only allows you to get an item, but also puts
+Sometimes doing a task not only allows you to get an item, but also puts
  it in your inventory.
  You can say that using the 
 \family typewriter 
@@ -1377,12 +1155,133 @@ Note that
 give
 \family default 
  overrides all other restrictions placed on getting items.
+ If another task was previously required in order to get the item, and that
+ task serves no other useful purpose, it will now be ignored.
 \layout Subsection
+
+Handling Items
+\layout Subsubsection
+
+Inventory Items
+\begin_inset LatexCommand \label{sec:inventory}
+
+\end_inset 
+
+
+\layout Standard
+
+Items can be split into two types: useful and useless.
+ A useful item one that is needed by at least one task, or is required in
+ order to be able to move somewhere; all other items are useless.
+ The game solver will try to go and get all useful items, and will ignore
+ the useless ones.
+ It keeps track of the items it's carrying, and knows when a useful item
+ is no longer needed.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+It has a magic crystal ball that can see into the future.
+\end_inset 
+
+ At that point, it will be dropped.
+\layout Standard
+
+If the solver obtains a useless item (via a task 
+\family typewriter 
+get
+\family default 
+ or 
+\family typewriter 
+give
+\family default 
+ clause, or an item 
+\family typewriter 
+need
+\family default 
+ clause) it will never drop it.
+ This is just a default; you can change it by setting the variable 
+\family typewriter 
+keep_unused_items
+\family default 
+ to zero.
+ In that case, useless items will be dropped as soon as possible.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The reason for the default is that useless items obtained in this way probably
+ 
+\emph on 
+do
+\emph default 
+ have a purpose --- you just don't know what it is yet.
+ This is relevant when you're creating a recording from a partially-played
+ game; see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:recording}
+
+\end_inset 
+
+ for details.
+\end_inset 
+
+
+\layout Standard
+
+If you want to make sure that an item is never dropped in any circumstance,
+ you can mark it with the 
+\family typewriter 
+keep
+\family default 
+ attribute.
+ This is handy for items that act as general containers for other items.
+\layout Standard
+
+Sometimes a useful item needs to be kept for longer than usual.
+ In the hot coal example above, the tongs would be dropped as soon as the
+ coal was picked up, leaving you with a burnt hand.
+ What's needed here is to carry the tongs for as long as you have the coal.
+ You can use the 
+\family typewriter 
+keep\SpecialChar ~
+with
+\family default 
+ clause to say that:
+\layout LyX-Code
+
+item "hot coal" tag coal need tongs;
+\layout LyX-Code
+
+item "tongs" tag tongs keep with coal;
+\layout Standard
+
+Now the tongs won't be dropped until after the coal is, even if they have
+ no other use.
+ Similarly, there's also a 
+\family typewriter 
+keep\SpecialChar ~
+until
+\family default 
+ clause, which keeps an item until a specific task is done.
+ 
+\layout Standard
+
+Finally, if a room has the attribute 
+\family typewriter 
+nodrop
+\family default 
+ set, no items will be voluntarily dropped in that room.
+ Any items which need to be dropped will then be dropped after the next
+ task that happens in a room where dropping is allowed.
+\layout Subsubsection
 
 Losing Items
 \layout Standard
 
-Some tasks cause items to be destroyed.
+Sometimes, doing a task causes items to be destroyed.
  You can say that with the 
 \family typewriter 
 lose
@@ -1396,7 +1295,7 @@ task "Light bonfire" need match lose match;
 This naturally implies that all other tasks which need the item must be
  done before the task that destroys it.
  A 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 drop
@@ -1415,17 +1314,20 @@ it
 \layout LyX-Code
 
 task "Light bonfire" need match lose it;
-\layout Subsection
+\layout Subsubsection
 
 Dropping Items
-\layout Comment
-
-Need to mention keep, keep with and keep until here.
 \layout Standard
 
-Normally, you don't have to add explicit drop-item tasks -- IFM knows when
- an item is no longer useful, and drops it automatically.
- But sometimes items need to be dropped only temporarily.
+As mentioned in Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:inventory}
+
+\end_inset 
+
+, IFM knows when a useful item is no longer needed, and drops it automatically.
+ But sometimes items need to be dropped temporarily, even though they're
+ needed later.
  You can do that using the 
 \family typewriter 
 drop
@@ -1438,9 +1340,9 @@ task "Throw spear at tree stump" need spear drop it;
 
 In this example, the spear is dropped in the same room that the task was
  done in.
- If you ever need the spear for anything else, it will be picked up by the
- game solver.
- Note that an item will only be dropped if it is being carried -- mentioning
+ If you ever need the spear for anything else, it will be picked up again
+ by the game solver.
+ Note that an item will only be dropped if it is being carried --- mentioning
  an item in a 
 \family typewriter 
 drop
@@ -1495,7 +1397,7 @@ task "Put coin in slot" give chocolate drop coin until open_machine;
 
 A task which drops items will be marked unsafe if there is no path back
  to the dropped items.
-\layout Subsection
+\layout Subsubsection
 
 Leaving Items
 \layout Standard
@@ -1560,7 +1462,21 @@ When finding a solution, the game solver will carry items until it is forced
  If it is trying to do a task which requires items, it will choose a route
  to get to the task room which doesn't involve dropping any of the needed
  items.
+\layout Standard
+
+Note that the 
+\family typewriter 
+leave
+\family default 
+ clause overrides the room 
+\family typewriter 
+nodrop
+\family default 
+ attribute; items will be dropped even in those rooms.
 \layout Subsection
+
+Moving Around
+\layout Subsubsection
 
 Limiting Movement
 \layout Standard
@@ -1613,11 +1529,11 @@ In this case it is the link between the two rooms that is blocked off until
  the candle is obtained.
  If the 
 \family typewriter 
-dir
+need
 \family default 
  clause had appeared before the 
 \family typewriter 
-need
+dir
 \family default 
  clause, the restriction would apply to the room itself (i.e.\SpecialChar ~
 no entering the
@@ -1652,14 +1568,17 @@ Sometimes in a game there is the situation where a path is closed off and,
  A single link or join can't represent this.
  However, there's nothing to stop you from using two or more joins between
  the same rooms.
- If you mark them with the 'hidden' attribute, they won't appear on the
- map either.
+ If you mark them with the 
+\family typewriter 
+hidden
+\family default 
+ attribute, they won't appear on the map either.
  For example, this line could be added to the previous example to provide
  an escape route:
 \layout LyX-Code
 
 join Vault to Entrance go e after disable_alarm hidden;
-\layout Subsection
+\layout Subsubsection
 
 Movement Tasks
 \layout Standard
@@ -1682,7 +1601,7 @@ join Debris_Room to Building after examine_wall cmd "XYZZY";
 \layout Standard
 
 Yet another way of moving around is a one-off event that 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 teleports
@@ -1694,14 +1613,27 @@ teleports
 \family typewriter 
 goto
 \family default 
- clause, and supplying the tag name of the destination room.
+ clause,
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+All the best languages have a 
+\family typewriter 
+goto
+\family default 
+ statement, you know.
+\end_inset 
+
+ and supplying the tag name of the destination room.
  For example:
 \layout LyX-Code
 
 task "Get captured by goblins" goto Dungeon;
 \layout Standard
 
-As soon as the task is done, you teleport to the new location -- no intervening
+As soon as the task is done, you teleport to the new location --- no intervening
  rooms are visited.
  Note that because each task is only done once, this method of travel can
  only be used once.
@@ -1718,7 +1650,7 @@ leave
 before
 \emph default 
  teleporting you to the new location (so if you drop items in the 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 current room
@@ -1727,6 +1659,9 @@ current room
 
 , you will be teleported away from the dropped items).
 \layout Subsection
+
+Other Game Features
+\layout Subsubsection
 
 Scoring Points
 \layout Standard
@@ -1738,32 +1673,16 @@ Many games have some sort of scoring system, whereby you get points for
 score
 \family default 
  clause, which can apply to rooms, items or tasks.
- It takes one integer argument -- a score value.
+ It takes one integer argument --- a score value.
  For rooms, it's the score you get when visiting it for the first time.
  For items, it's the score for first picking it up.
  For tasks, it's the score for doing that task.
-\layout Standard
-
-If an item has a score, but is given to the player via a task 
+ If an item has a score, but is given to the player via a task 
 \family typewriter 
 give
 \family default 
  clause, then its score is added to the score for that task instead.
- If an item has a score and also has the (obsolete) 
-\family typewriter 
-given
-\family default 
- attribute, the score won't be registered at all.
- So don't use 
-\family typewriter 
-given
-\family default 
- -- use the task 
-\family typewriter 
-give
-\family default 
- clause instead.
-\layout Subsection
+\layout Subsubsection
 
 Finishing the Game
 \layout Standard
@@ -1792,17 +1711,30 @@ Finding a Solution
 Here's what the game solver does in order to come up with a solution to
  the game.
  First, extra internal tasks are generated.
- These are tasks to (a) get items which are scored, (b) get items which
- are required for explicitly-mentioned tasks to be done, (c) get items which
- are needed to go in certain directions, and (d) go to rooms which are scored.
+ These are tasks to:
+\layout Itemize
+
+get items which are required for explicitly-mentioned tasks to be done,
+\layout Itemize
+
+get items which are required to get other items,
+\layout Itemize
+
+get items which are needed to go in certain directions,
+\layout Itemize
+
+get items which are scored,
+\layout Itemize
+
+go to rooms which are scored.
 \layout Standard
 
 Next, all the rooms are connected using their links and joins.
  This means that for each room, a list is made of all other rooms reachable
  in one move.
- Note that it is possible for some rooms to be unreachable -- for example,
+ Note that it is possible for some rooms to be unreachable --- for example,
  all rooms in a section where there is no 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 join
@@ -1814,7 +1746,7 @@ join
 
 Then the task dependencies are calculated.
  A dependency is where one task must be done before another.
- The task dependencies are examined to see if there are any cycles -- that
+ The task dependencies are examined to see if there are any cycles --- that
  is, chains of tasks where each one must be done before the next, and the
  last must be done before the first.
  If there are any, then the game is unsolvable, since none of the tasks
@@ -1822,7 +1754,7 @@ Then the task dependencies are calculated.
 \layout Standard
 
 If there are no cyclic dependencies, the task list is 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 traversed
@@ -1831,7 +1763,7 @@ traversed
 
  to find a sequence which solves the game while satisfying the task dependencies.
  The start room is the room which was first mentioned in the input (but
- this can be changed -- see Section\SpecialChar ~
+ this can be changed --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:language}
 
@@ -1841,6 +1773,28 @@ traversed
  While there are tasks left in the task list, the following steps are performed:
 \layout Enumerate
 
+The inventory is examined to see if there are any unwanted items; if so,
+ and dropping items in the current room is allowed, they are dropped.
+ An item is wanted if at least one of the following is true:
+\begin_deeper 
+\layout Enumerate
+
+it's needed for movement,
+\layout Enumerate
+
+it's needed for a task that hasn't been done yet,
+\layout Enumerate
+
+it's being kept unconditionally,
+\layout Enumerate
+
+it's being kept with another item that's carried,
+\layout Enumerate
+
+it's being kept until a certain task is done.
+\end_deeper 
+\layout Enumerate
+
 The map is traversed to find the distances of all rooms from the current
  room.
  Then the task list is sorted in order of ascending distance of the rooms
@@ -1848,22 +1802,33 @@ The map is traversed to find the distances of all rooms from the current
  Tasks which can be done in any room count as having distance zero.
 \layout Enumerate
 
-Scan the sorted task list to find the nearest possible task.
- For a task to be possible, the player must (a) have all required items,
- (b) have done all required previous tasks, and (c) be able to get from
- the current room to the task room via a path which doesn't require items
- not yet collected, or tasks not yet done, or which involves dropping needed
- items on the way.
+The sorted task list is scanned to find the nearest possible task.
+ For a task to be possible, the player must:
 \begin_deeper 
+\layout Enumerate
+
+have all required items,
+\layout Enumerate
+
+have done all required previous tasks,
+\layout Enumerate
+
+be able to get from the current room to the task room via a path which doesn't
+ require items not yet collected, or tasks not yet done, or which involves
+ dropping needed items on the way.
 \layout Standard
 
 Priority is given to safe tasks.
- For a task to be safe, it must (a) not have previously been marked unsafe
- (e.g.\SpecialChar ~
-because it closes off map connections) and (b) there must be a return
- path from the task room back to the current one.
- The second condition is to avoid taking a one-way trip before preparing
- properly.
+ For a task to be safe,
+\layout Enumerate
+
+it must not have previously been marked unsafe (e.g.\SpecialChar ~
+because it closes off
+ map connections),
+\layout Enumerate
+
+there must be a return path from the task room back to the current one.
+ This is to avoid taking a one-way trip before preparing properly.
 \layout Standard
 
 If there are any safe tasks, the nearest one will be done next regardless
@@ -1876,35 +1841,6 @@ If there was a possible task, do it and remove it from the list.
  Move to the room the task was done in (if any).
  If not, then the game is unsolvable.
  Give up.
-\layout Standard
-
-The game solver automatically keeps track of which items the player is carrying,
- and knows when an item will no longer be needed -- that's when all tasks
- requiring that item have been done.
- When that happens, a 
-\begin_inset Quotes sld
-\end_inset 
-
-drop
-\begin_inset Quotes srd
-\end_inset 
-
- task for the item is done.
- An exception is items which are needed to move in a certain direction (see
- the last example above).
- In that case the item is never dropped, since the game solver can't rule
- out having to go that way again.
-\layout Standard
-
-Some items, although they have no direct game-solving function, need to
- be carried throughout the game -- e.g.\SpecialChar ~
-some sort of container for carrying
- other things.
- You can mark such items with the 
-\family typewriter 
-keep
-\family default 
- attribute -- then they will never be dropped.
 \layout Subsection
 
 Tweaking the Solution
@@ -1913,7 +1849,7 @@ Tweaking the Solution
 There will be some situations (quite a few, actually) where the game solver
  doesn't do things the way you want it to.
  This section gives a few tips, and some new keywords, for modifying things.
-\layout Subsubsection*
+\layout Subsubsection
 
 Making things safe
 \layout Standard
@@ -1954,7 +1890,7 @@ all_tasks_safe
 all
 \emph default 
  tasks will be considered safe.
-\layout Subsubsection*
+\layout Subsubsection
 
 Changing path lengths
 \layout Standard
@@ -1997,14 +1933,14 @@ In this way, by choosing an appropriate number for the length, you make
 length
 \family default 
  attribute doesn't affect map drawing at all.
-\layout Subsubsection*
+\layout Subsubsection
 
 Closing off paths
 \layout Standard
 
 There may be times when you want a map connection to appear on the map,
- but not be used in solving the game -- for example, it may be certain death
- to go that way.
+ but not be used in solving the game --- for example, it may be certain
+ death to go that way.
  You can use the 
 \family typewriter 
 nopath
@@ -2016,7 +1952,26 @@ nopath
 Another use for this attribute is to force the game solver to do things
  in a different order.
  This might be preferable to adding fake task dependencies.
-\layout Subsubsection*
+\layout Subsubsection
+
+Ignoring parts of the solution
+\layout Standard
+
+Sometimes it's useful to be able to ignore certain parts of the solution
+ --- for example, if you want to generate a sequence of game commands that
+ get you to a particular position as quickly as possible.
+ To that end, you can mark tasks and items with the 
+\family typewriter 
+ignore
+\family default 
+ attribute.
+ An ignored task will never be attempted, and an ignored item will never
+ be picked up.
+ This means that anything dependent on those tasks or items will not be
+ done either.
+ The game will very probably be unsolvable as a result, unless you've ignored
+ an unused item.
+\layout Subsubsection
 
 Keeping fixes together
 \layout Standard
@@ -2077,7 +2032,7 @@ which modifies the task at the bottom of the chute to (a) require the burger
 \layout Standard
 
 This way of modifying previous objects applies all types of object, even
- links and joins -- these can be tagged too, in the normal way.
+ links and joins --- these can be tagged too, in the normal way.
  The single exception is the implicit link created by the room 
 \family typewriter 
 dir
@@ -2101,9 +2056,9 @@ room "Level B" tag LB dir e;
 \layout LyX-Code
 
 link LB length 50;
-\layout Subsubsection*
+\layout Subsubsection
 
-Debugging
+Displaying solver messages
 \layout Standard
 
 Finally, you can gain an insight into what the game solver's up to by setting
@@ -2136,9 +2091,9 @@ Random events.
  There's no way to address this problem, but then again, hand-written walkthroug
 hs have the same difficulty.
  However, if you're trying to tailor recording output so that it will play
- back properly in an interpreter, there is a workaround -- see Section\SpecialChar ~
+ back properly in an interpreter, there is a workaround --- see Section\SpecialChar ~
 
-\begin_inset LatexCommand \ref{sec:task-output}
+\begin_inset LatexCommand \ref{sec:recording}
 
 \end_inset 
 
@@ -2150,7 +2105,7 @@ Carrying capacity.
  This might be addressed in a future version, but inventory-juggling puzzles
  are out of fashion these days (if they were ever in) so this is not much
  of a problem.
- Some games provide you with an item that can carry stuff for you -- if
+ Some games provide you with an item that can carry stuff for you --- if
  so, a workaround is to add some special tasks that periodically put everything
  you're carrying into it.
 \layout Standard
@@ -2170,7 +2125,7 @@ length
 \emph on 
 all
 \emph default 
- set it -- and to the same value.
+ set it --- and to the same value.
  Otherwise IFM will give an error.
 \layout Itemize
 
@@ -2186,11 +2141,11 @@ follow
  unsafe too (so the solver will avoid trying the first, knowing it'll be
  forced to do something distasteful later).
  However, some tasks are not known to be unsafe until just before they might
- be done -- specifically, those for which there is no return path.
+ be done --- specifically, those for which there is no return path.
  This is because whether there's a return path depends on where you are
  now.
  So a 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 follow
@@ -2215,178 +2170,748 @@ need
  This sort of path should be invalid, but isn't.
 \layout Section
 \pagebreak_top 
-Output Formats
-\begin_inset LatexCommand \label{sec:output-formats}
+Using IFM
+\begin_inset LatexCommand \label{sec:using-ifm}
 
 \end_inset 
 
 
-\layout Standard
-
-IFM has three different types of output (a map, a list of items, and a list
- of tasks) and several different output formats.
- Not all types of output are produced by each output format.
 \layout Subsection
 
-Map Output
-\begin_inset LatexCommand \label{sec:map-output}
-
-\end_inset 
-
-
+Running the Program
 \layout Standard
 
-Maps are drawn in the classic Infocom style.
- Rooms are drawn as boxes, and links as are drawn as lines (oneway with
- an arrow).
- Joins are marked by adding a 
+IFM is run from the command line.
+ The general form of the command is:
+\layout LyX-Code
+
+ifm [options] [file]
+\layout Standard
+
+On startup, IFM does the following.
+ Firstly, the system initialization file is read.
+ This sets defaults used by everyone.
+ This file is called 
+\family typewriter 
+ifm-init.ifm
+\family default 
+, and is found by searching a standard set of directories.
+ You can override this search path by setting the environment variable 
+\family typewriter 
+IFMPATH
+\family default 
+ to be a colon-separated list of directories.
+\layout Standard
+
+Then, if you have a personal initialization file, that is read.
+ This file is found in the directory specified by your 
+\family typewriter 
+HOME
+\family default 
+ environment variable.
+ On Unix-like systems it is called 
+\family typewriter 
+.ifmrc
+\family default 
+, and on Win32 systems it is called 
+\family typewriter 
+ifm.ini
+\family default 
+.
+ You can use this file to customize the default variable settings for different
+ types of output.
+\layout Standard
+
+Then input from the file(s) on the command-line is read.
+ If no files were specified, stdin is read.
+ A filename equal to 
+\family typewriter 
+-
+\family default 
+ also indicates that stdin should be read at that point.
+\layout Standard
+
+If any of the 
+\family typewriter 
+-map
+\family default 
+, 
+\family typewriter 
+-items
+\family default 
+, 
+\family typewriter 
+-tasks
+\family default 
+ or 
+\family typewriter 
+-show
+\family default 
+ options was specified, the appropriate output is produced.
+ If not, only a syntax check of the input is done.
+\layout Standard
+
+When producing output, the output format specified by the 
+\family typewriter 
+-format
+\family default 
+ option is used.
+ If this was not specified, the first format in the list which supports
+ this type of output is chosen.
+\layout Standard
+
+Some of the output formats use additional library files to do their work.
+ For example, the PostScript output format prepends a standard 
 \begin_inset Quotes eld
 \end_inset 
 
-join number
+prologue
 \begin_inset Quotes srd
 \end_inset 
 
- to the room text of the joined rooms.
- Non-hidden items can be shown in their initial rooms.
+ file to all output.
+ These files are found using the same search path as the system initialization
+ file (see above).
 \layout Standard
 
-The following output formats produce maps:
+Here's a list of the command-line options (which can be abbreviated):
 \layout List
-\labelwidthstring MMMMMMMMM
+\labelwidthstring MMMMMMM
 
-PostScript\SpecialChar ~
-(
+
+\family typewriter 
+-m,\SpecialChar ~
+-map[=SECTIONS]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Draw a map of the game.
+ You can optionally specify a list of the map sections to print.
+ The list is a comma-separated set of map section numbers (starting from
+ 1) and can include ranges.
+ For example, the argument 
+\family typewriter 
+1,3-5
+\family default 
+ would print map sections 1, 3, 4 and 5.
+ If the list isn't specified, all sections are printed.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-i,\SpecialChar ~
+-items
+\family default 
+ Print a list of items which appear in the game.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-t,\SpecialChar ~
+-tasks
+\family default 
+ Print a list of tasks required to solve the game.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-f,\SpecialChar ~
+-format
+\family default 
+\SpecialChar ~
+
+\family typewriter 
+FORMAT
+\family default 
+ \SpecialChar ~
+
+\newline 
+Specify the output format.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-o,\SpecialChar ~
+-output
+\family default 
+\SpecialChar ~
+
+\family typewriter 
+FILE
+\family default 
+ \SpecialChar ~
+
+\newline 
+Write to the specified file, instead of stdout.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-S,\SpecialChar ~
+-style\SpecialChar ~
+STYLE
+\family default 
+ \SpecialChar ~
+
+\newline 
+Set a global style.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:customization}
+
+\end_inset 
+
+ for more details.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-s,\SpecialChar ~
+-set\SpecialChar ~
+VAR=VALUE
+\family default 
+ \SpecialChar ~
+
+\newline 
+Set a customization variable.
+ This overrides any settings in the input files.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-w,\SpecialChar ~
+-nowarn
+\family default 
+ Don't print warnings.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-I,\SpecialChar ~
+-include\SpecialChar ~
+DIR
+\family default 
+ \SpecialChar ~
+
+\newline 
+Prepend the specified directory to the library and include file search path.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-show
+\family default 
+\SpecialChar ~
+
+\family typewriter 
+TYPE
+\family default 
+ Show one of several types of information, and exit.
+ The 
+\family typewriter 
+TYPE
+\family default 
+ argument can be one of:
+\begin_deeper 
+\layout List
+\labelwidthstring MMMM
+
+
+\family typewriter 
+maps
+\family default 
+ Show a list of all the map sections defined in the input.
+ This is useful for finding the numbers of the map sections you want to
+ print.
+\layout List
+\labelwidthstring MMMM
+
+
+\family typewriter 
+path
+\family default 
+ Show the directories that are searched for library and include files.
+\layout List
+\labelwidthstring MMMM
+
+
+\family typewriter 
+vars
+\family default 
+ Show a complete list of defined variables, in a format suitable for feeding
+ back into IFM.
+ See Section 
+\begin_inset LatexCommand \ref{sec:output-variables}
+
+\end_inset 
+
+.
+\end_deeper 
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-noinit
+\family default 
+ Don't read your personal init file.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-version
+\family default 
+ Print the program version.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-help
+\family default 
+ Just print some usage information.
+\layout Subsection
+
+Types of Output
+\layout Standard
+
+IFM has three different types of output (a map, a list of items, and a list
+ of tasks) and several different output formats, which are described in
+ the following sections.
+ Not all types of output are produced by each output format.
+ Table\SpecialChar ~
+
+\begin_inset LatexCommand \ref{tab:output-formats}
+
+\end_inset 
+
+ shows what's available for each format.
+\begin_inset Float table
+placement htbp
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="8">
+<features>
+<column alignment="right" valignment="top" width="0pt">
+<column alignment="center" valignment="top" leftline="true" width="0pt">
+<column alignment="center" valignment="top" leftline="true" width="0pt">
+<column alignment="center" valignment="top" leftline="true" width="0pt">
+<column alignment="center" valignment="top" leftline="true" width="0pt">
+<column alignment="center" valignment="top" leftline="true" width="0pt">
+<column alignment="center" valignment="top" leftline="true" width="0pt">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0pt">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PostScript
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Fig
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tk
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Text
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Rec
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Dot
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Raw
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Map
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Items
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tasks
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Caption
+
+IFM output formats
+\begin_inset LatexCommand \label{tab:output-formats}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+All the map output formats display map sections in the same way, so that
+ what you get with one format looks much the same as another.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Well, that's the goal anyway.
+ But there are still some very minor differences.
+\end_inset 
+
+
+\layout Subsubsection
+
+PostScript Maps (
 \family typewriter 
 ps
 \family default 
-) This produces PostScript output suitable for printing.
- Several map sections may be printed per page.
+)
+\layout Standard
+
+This produces a PostScript map suitable for printing.
+ Several map sections may be printed per page, and the maps are printed
+ over as many pages as it takes.
  Automatic packing is done to try to get a good fit on the page.
  Also, portrait or landscape is chosen depending on whichever gives the
  best fit.
  Fonts of room and item text are scaled to fit them in the room boxes, if
  required.
-\begin_deeper 
-\layout Standard
+\layout Subsubsection
 
-To view the PostScript file on-screen, you'll need a PostScript previewer.
- I recommend Ghostview, which is free and is available for most systems.
- This can also print the map on your printer, even if the printer doesn't
- normally print PostScript files.
-\end_deeper 
-\layout List
-\labelwidthstring MMMMMMMMM
-
-Fig\SpecialChar ~
-(
+Fig Maps (
 \family typewriter 
 fig
 \family default 
-) This produces output which can be read (and edited) by Xfig, and any other
- programs which understand Fig format.
- Several map sections may be packed onto a single page, in a similar manner
- to PostScript.
-\layout List
-\labelwidthstring MMMMMMMMM
+)
+\layout Standard
 
-Tk\SpecialChar ~
-commands\SpecialChar ~
-(
+This produces a map which can be read (and edited) by Xfig, and any other
+ programs which understand Fig format.
+ The map sections are packed to get a best fit automatically, in a similar
+ manner to PostScript, but since Fig has no concept of pages, it is most
+ useful when you're printing each map section individually.
+ There's a utility program called 
 \family typewriter 
-tk
+ifm2dev
 \family default 
-) This produces commands for input to 
+ which automatically does this --- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:ifm2dev}
+
+\end_inset 
+
+.
+\layout Standard
+
+Fig format is also useful if you want to print poster-sized maps over several
+ pages.
+ The 
+\family typewriter 
+-M
+\family default 
+ option of 
+\family typewriter 
+fig2dev
+\family default 
+ (part of the 
+\family typewriter 
+transfig
+\family default 
+ package) will automatically do this.
+\layout Subsubsection
+
+Tk Drawing Commands (
+\family typewriter 
+tk)
+\layout Standard
+
+This produces map commands for input to 
 \family typewriter 
 tkifm
 \family default 
-, a simple graphical interface to IFM.
- It isn't very useful to produce this output yourself -- 
+, a simple graphical interface to IFM (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:tkifm}
+
+\end_inset 
+
+).
+ It isn't very useful to produce this output yourself --- 
 \family typewriter 
 tkifm
 \family default 
  does that internally to build its map pictures.
  But you can control its display by setting variables in the usual way.
-\layout List
-\labelwidthstring MMMMMMMMM
+\layout Subsubsection
 
-Raw\SpecialChar ~
-data\SpecialChar ~
-(
-\family typewriter 
-raw
-\family default 
-) This produces raw data intended for use by other programs.
- Each entry consists of a number of data lines, and is separated from other
- entries by a blank line.
- Each data line consists of an attribute, a colon, and its value.
- The attributes should be self-explanatory.
-\layout Subsection
-
-Item Output
-\layout Standard
-
-The following output formats produce item lists:
-\layout List
-\labelwidthstring MMMMMMMMMM
-
-ASCII\SpecialChar ~
-text\SpecialChar ~
-(
+ASCII Text (
 \family typewriter 
 text
 \family default 
-) This produces human-readable output.
+)
+\layout Standard
+
+This produces human-readable output for items and tasks.
  The output should be fairly self-explanatory.
-\layout List
-\labelwidthstring MMMMMMMMMM
+\layout Subsubsection
 
-Raw\SpecialChar ~
-data\SpecialChar ~
-(
+Recording Commands (
 \family typewriter 
-raw
+rec
 \family default 
-) This produces raw data intended for use by other programs.
- Each entry consists of a number of data lines, and is separated from other
- entries by a blank line.
- Each data line consists of an attribute, a colon, and its value.
- The attributes should be self-explanatory.
-\layout Subsection
-
-Task Output
-\begin_inset LatexCommand \label{sec:task-output}
+)
+\begin_inset LatexCommand \label{sec:recording}
 
 \end_inset 
 
 
 \layout Standard
 
-The following output formats produce task lists:
-\layout List
-\labelwidthstring MMMMMMMMMMMMMM
-
-ASCII\SpecialChar ~
-text\SpecialChar ~
-(
-\family typewriter 
-text
-\family default 
-) This produces human-readable output.
- The output should be fairly self-explanatory.
-\layout List
-\labelwidthstring MMMMMMMMMMMMMM
-
-Recording\SpecialChar ~
-commands\SpecialChar ~
-(
-\family typewriter 
-rec
-\family default 
-) This output produces a list of commands suitable for feeding to IF interpreter
-s in playback mode.
+This output produces a list of commands suitable for feeding to IF interpreters
+ in playback mode.
  All the commands in the output are converted to uppercase.
-\begin_deeper 
 \layout Standard
 
 In order for this to work properly, you have to give commands that the game
@@ -2401,7 +2926,15 @@ cmd
 cmd
 \family default 
  attribute, so you have to make sure that the item description is recognized
- by the game (for get and drop commands).
+ by the game (for 
+\family typewriter 
+get
+\family default 
+ and 
+\family typewriter 
+drop
+\family default 
+ commands).
  Also, if a task is implicitly done in the game without you having to type
  any commands (e.g.\SpecialChar ~
 visiting a room), you can indicate this by using 
@@ -2424,35 +2957,35 @@ frotz
 \family default 
 ).
  This should eliminate most (but not all) of the problems of randomness.
-\end_deeper 
-\layout List
-\labelwidthstring MMMMMMMMMMMMMM
+\layout Subsubsection
 
-Task\SpecialChar ~
-dependencies\SpecialChar ~
-(
+Task Dependencies (
 \family typewriter 
 dot
 \family default 
-) This produces a graph of the dependencies of tasks on each other, in Graphviz
+)
+\layout Standard
+
+This produces a graph of the dependencies of tasks on each other, in Graphviz
  (dot) format.
- You'll need to have Graphviz installed in order to display the graph (you
+ You'll need to have Graphviz installed in order to display the graph; you
  can get it from 
 \begin_inset LatexCommand \url{www.graphviz.org}
 
 \end_inset 
 
-).
-\layout List
-\labelwidthstring MMMMMMMMMMMMMM
+.
+\layout Subsubsection
 
-Raw\SpecialChar ~
-data\SpecialChar ~
-(
+Raw Data (
 \family typewriter 
 raw
 \family default 
-) This produces raw data intended for use by other programs.
+)
+\layout Standard
+
+This produces raw data for all output formats, intended for use by other
+ programs (and the IFM regression test suite).
  Each entry consists of a number of data lines, and is separated from other
  entries by a blank line.
  Each data line consists of an attribute, a colon, and its value.
@@ -2460,12 +2993,18 @@ raw
 \layout Subsection
 
 Customization
+\begin_inset LatexCommand \label{sec:customization}
+
+\end_inset 
+
+
 \layout Standard
 
-You can change the appearance of many map features according to your taste.
+You can change the appearance of many output features according to your
+ taste.
  You do this by setting the values of the variables that control those features.
- This section tells you how to use variables -- for a complete list of the
- customization variables available, see Section\SpecialChar ~
+ This section tells you how to use variables --- for a complete list of
+ the customization variables available, see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:output-variables}
 
@@ -2489,17 +3028,33 @@ room_colour = "beige";
 
 Setting a variable like this will affect all output formats.
  But in some cases you don't want to do that.
- A good example is the one above -- if you don't have a colour printer,
+ A good example is the one above --- if you don't have a colour printer,
  you may not want to have beige rooms printed (they'll come out greyish).
  To get around that, you can set variables that are specific to a particular
  output format:
 \layout LyX-Code
 
-tk room_colour = "beige";
+tk.room_colour = "beige";
 \layout Standard
 
-This says to set the variable to "beige" only if producing Tk output.
- The default for all other formats is still "white".
+This says to set the variable to 
+\begin_inset Quotes eld
+\end_inset 
+
+beige
+\begin_inset Quotes erd
+\end_inset 
+
+ only if producing Tk output.
+ The default for all other formats is still 
+\begin_inset Quotes eld
+\end_inset 
+
+white
+\begin_inset Quotes erd
+\end_inset 
+
+.
 \layout Standard
 
 You can also customize the appearance of individual rooms and links on the
@@ -2537,7 +3092,15 @@ room "At End Of Road";
 room "Inside Building" dir e go in style Water;
 \layout Standard
 
-then the room "Inside Building" will be drawn with a light blue background.
+then the room 
+\begin_inset Quotes eld
+\end_inset 
+
+Inside Building
+\begin_inset Quotes erd
+\end_inset 
+
+ will be drawn with a light blue background.
  You can customize individual links in a similar manner.
 \layout Standard
 
@@ -2557,7 +3120,7 @@ If a style only changes a single variable, this may be more convenient.
 \layout Standard
 
 If you assign a style (say, called 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 newstyle
@@ -2571,7 +3134,7 @@ newstyle.ifm
 \family default 
  using the standard search path.
  If the file exists, it is expected to define style 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 newstyle
@@ -2579,14 +3142,32 @@ newstyle
 \end_inset 
 
 .
- For example, you could put the "Water" style definition above into a file
- called 
+ For example, you could put the 
+\begin_inset Quotes eld
+\end_inset 
+
+Water
+\begin_inset Quotes erd
+\end_inset 
+
+ style definition above into a file called 
 \family typewriter 
 Water.ifm
 \family default 
  somewhere on the IFM search path, and it would be read automatically.
  This is useful if, for example, you want to use the same style in several
  different maps.
+\layout Standard
+
+You can define global styles using the 
+\family typewriter 
+-style
+\family default 
+ command-line option; these apply to all IFM objects.
+ Global styles are most useful when setting variables that affect the overall
+ appearance of the output, in conjunction with the file search method described
+ above (e.g.\SpecialChar ~
+a file containing general colour and font definitions).
 \layout Subsection
 
 Output Variables
@@ -2598,11 +3179,9 @@ Output Variables
 \layout Standard
 
 There are many variables available for customizing output.
- At the moment, only map output can be customized.
-\layout Standard
-
-The names, descriptions and default values of the customization variables
- are all contained in the IFM initialization file.
+ Most of them are for customizing map output.
+ Their names, descriptions and default values are all contained in the IFM
+ initialization file.
  You can change this file to set global defaults for everybody, or alternatively
  set your own preferences in your personal init file.
 \layout Standard
@@ -2611,47 +3190,192 @@ Here's the original initialization file that came bundled with IFM.
 \layout LyX-Code
 
 
+\size small 
+
 \begin_inset Include \verbatiminput{../lib/ifm-init.ifm}
 
 \end_inset 
 
 
+\layout Subsection
+
+Predefined Styles
 \layout Standard
 
-Previous versions of IFM had two object attributes which are now implemented
- as display styles: the room 
+IFM comes with a few predefined style files, as shown in Table\SpecialChar ~
+
+\begin_inset LatexCommand \ref{tab:styles}
+
+\end_inset 
+
+.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+If you create any generally useful or nice-looking styles, you might want
+ to send me a copy so I can include them with the next version of IFM.
+\end_inset 
+
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+scope
+\begin_inset Quotes erd
+\end_inset 
+
+ field indicates which type of IFM object it applies to.
+ Styles that have global scope can meaningfully be used by the 
+\family typewriter 
+-style
+\family default 
+ command-line option.
+\begin_inset Float table
+placement htbp
+wide false
+collapsed true
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="3">
+<features>
+<column alignment="left" valignment="top" leftline="true" width="0pt">
+<column alignment="left" valignment="top" leftline="true" width="0pt">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0pt">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+Style
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+Scope
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+Description
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+helvetica
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Global
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Use Helvetica fonts everywhere
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
 \family typewriter 
 puzzle
-\family default 
- attribute, and the link 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Room
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mark room as containing a puzzle
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
 \family typewriter 
 special
-\family default 
- attribute.
- Here's the 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
 \family typewriter 
-puzzle
-\family default 
- style:
-\layout LyX-Code
+Link
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
 
+\layout Standard
 
-\begin_inset Include \verbatiminput{../lib/puzzle.ifm}
+Mark link as being special in some way
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
 
 \end_inset 
 
 
-\layout Standard
+\layout Caption
 
-And here's the 
-\family typewriter 
-special
-\family default 
- style:
-\layout LyX-Code
+Predefined styles
+\begin_inset LatexCommand \label{tab:styles}
 
+\end_inset 
 
-\begin_inset Include \verbatiminput{../lib/special.ifm}
 
 \end_inset 
 
@@ -2664,6 +3388,9 @@ Language
 \end_inset 
 
 
+\layout Standard
+
+This section gives a complete detailed description of the IFM language.
 \layout Subsection
 
 Symbols
@@ -2727,7 +3454,7 @@ Rod"
 " Block"
 \layout Standard
 
-You can continue strings on several lines -- a newline-and-whitespace sequence
+You can continue strings on several lines --- a newline-and-whitespace sequence
  is translated into a single space, just like in TADS and Inform.
 \layout Standard
 
@@ -2735,7 +3462,7 @@ Note that dollars (
 \family typewriter 
 $
 \family default 
-) are special inside strings -- they mark the start of a variable substitution.
+) are special inside strings --- they mark the start of a variable substitution.
  See Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:variables}
@@ -2842,7 +3569,7 @@ B
 Format
 \layout Standard
 
-IFM generally has a free-format layout -- i.e.\SpecialChar ~
+IFM generally has a free-format layout --- i.e.\SpecialChar ~
 whitespace may be placed anywhere
  to increase readability.
  The only exception is inside quoted strings, where spaces are significant.
@@ -2891,6 +3618,31 @@ map
 map
 \family default 
  commands and their local variables at the start of the input.
+\layout Standard
+
+If your map uses features that are only present in later versions of IFM,
+ you can indicate that up front by using the command
+\layout LyX-Code
+
+require NUMBER;
+\layout Standard
+
+Then, if the IFM version number is less than this number, parsing will abort
+ immediately, avoiding lots of potentially confusing syntax errors.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+There's no point in requiring any version less than 5.0, since that's when
+ the 
+\family typewriter 
+require
+\family default 
+ syntax was added.
+\end_inset 
+
+
 \layout Subsection
 
 Tags
@@ -2898,7 +3650,7 @@ Tags
 
 All IFM objects may be given tag names, so that you can refer to them in
  other commands.
- Tags for different types of object are independent -- for example, you
+ Tags for different types of object are independent --- for example, you
  could have a room and an item with the same tag.
  However, tags for similar objects must be unique.
 \layout Standard
@@ -2922,7 +3674,7 @@ ID
 
 \end_inset 
 
-) -- these tags must be defined before being used.
+) --- these tags must be defined before being used.
 \layout Standard
 
 The special tag 
@@ -2980,7 +3732,7 @@ ID
 \family default 
  is the tag name of the object.
  Note that the tag must be defined earlier in the file than it is used.
-\layout Subsection
+\layout Subsubsection
 
 Rooms
 \begin_inset LatexCommand \label{sec:rooms}
@@ -3034,7 +3786,7 @@ Specify the position of the room relative to the room with the given tag
 from
 \family default 
  clause is specified, the last defined room is used instead.
- There can be more than one direction given -- the new room is placed relative
+ There can be more than one direction given --- the new room is placed relative
  to the previous one using them.
  Following a direction with a number means to repeat it that many times.
 \begin_deeper 
@@ -3070,7 +3822,7 @@ ID\SpecialChar ~
 
 \family default 
 Specify other rooms that this room links to.
- Note that this creates a link with no special attributes -- use the standalone
+ Note that this creates a link with no special attributes --- use the standalone
  
 \family typewriter 
 link
@@ -3096,7 +3848,7 @@ ID\SpecialChar ~
 
 \family default 
 Specify rooms on other map sections that this room joins to.
- Note that this creates a join with no special attributes -- use the standalone
+ Note that this creates a join with no special attributes --- use the standalone
  
 \family typewriter 
 join
@@ -3352,7 +4104,7 @@ NUMBER \SpecialChar ~
 Indicate that the direction link to this room has the specified length (default
  1).
  This only affects the calculation of the nearest task when solving the
- game -- see Section\SpecialChar ~
+ game --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:tasks}
 
@@ -3376,6 +4128,14 @@ start
 finish
 \family default 
  Indicate that entering this room finishes the game.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+nodrop
+\family default 
+ Indicate that no items should be voluntarily dropped in this room.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -3420,7 +4180,7 @@ Add a list of display styles to the room (and also the implicit link, if
 \end_inset 
 
 .
-\layout Subsection
+\layout Subsubsection
 
 Items
 \begin_inset LatexCommand \label{sec:items}
@@ -3505,9 +4265,48 @@ keep
 \family default 
  Indicate that this item shouldn't ever be dropped (no "drop" task should
  be generated).
-\layout Comment
+\layout List
+\labelwidthstring 00.00.0000
 
-Add keep with and keep until here.
+
+\family typewriter 
+keep\SpecialChar ~
+with\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the item shouldn't be dropped until all the other specified
+ items have left the inventory.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+keep\SpecialChar ~
+until\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the item shouldn't be dropped until all the other specified
+ tasks have been done.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+ignore
+\family default 
+ Indicate that this item should be ignored when trying to find a solution
+ (i.e.\SpecialChar ~
+never go out of your way to pick it up).
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -3517,12 +4316,11 @@ given
 \family default 
  Indicate that this item didn't have to be picked up when it entered the
  inventory (no "get" task should be generated).
- This attribute is obsolete -- you should use the task 
+ This attribute is obsolete --- you should use the task 
 \family typewriter 
 give
 \family default 
- clause instead (see Section\SpecialChar ~
-
+ clause instead (see Section 
 \begin_inset LatexCommand \ref{sec:tasks}
 
 \end_inset 
@@ -3630,7 +4428,7 @@ Add a list of display styles to the item.
 \end_inset 
 
 .
-\layout Subsection
+\layout Subsubsection
 
 Links
 \begin_inset LatexCommand \label{sec:links}
@@ -3786,7 +4584,7 @@ NUMBER
 \newline 
 Indicate that this link has the specified length (default 1).
  This only affects the calculation of the nearest task when solving the
- game -- see Section\SpecialChar ~
+ game --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:tasks}
 
@@ -3900,7 +4698,7 @@ Add a list of display styles to the link.
 \end_inset 
 
 .
-\layout Subsection
+\layout Subsubsection
 
 Joins
 \begin_inset LatexCommand \label{sec:joins}
@@ -4041,7 +4839,7 @@ NUMBER
 \newline 
 Indicate that this join has the specified length (default 1).
  This only affects the calculation of the nearest task when solving the
- game -- see Section\SpecialChar ~
+ game --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:tasks}
 
@@ -4155,7 +4953,7 @@ Add a list of display styles to the join.
 \end_inset 
 
 .
-\layout Subsection
+\layout Subsubsection
 
 Tasks
 \begin_inset LatexCommand \label{sec:tasks}
@@ -4368,9 +5166,17 @@ ID
 \family typewriter 
 safe
 \family default 
- Mark this task as safe -- i.e.\SpecialChar ~
+ Mark this task as safe --- i.e.\SpecialChar ~
 one that can't cause the game solver to get
  stuck.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+ignore
+\family default 
+ Don't ever do this task when solving the game.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -4469,14 +5275,14 @@ Various aspects of output are controlled by variables.
  These are set using the following syntax:
 \layout LyX-Code
 
-[FORMAT] IDENT = NUMBER | STRING | undef [in style ID];
+[FORMAT.]IDENT = NUMBER | STRING | undef [in style ID];
 \layout Standard
 
 
 \family typewriter 
 FORMAT
 \family default 
-, if specified, is the name of a specific output format -- the variable
+, if specified, is the name of a specific output format --- the variable
  then applies only to that output format.
  
 \family typewriter 
@@ -4509,7 +5315,7 @@ $
 \layout Standard
 
 All strings that are printed by IFM output formats undergo variable substitution
- -- that is, parts of the string which look like variable references get
+ --- that is, parts of the string which look like variable references get
  the value of the variable inserted.
  If you want a literal 
 \family typewriter 
@@ -4528,11 +5334,11 @@ ${this}
 \family default 
 .
  Note that variable substitution only happens when the string is output
- -- this happens after all other processing, so it is the final value of
+ --- this happens after all other processing, so it is the final value of
  the variable that will be substituted.
 \layout Standard
 
-Variables can have "aliases" -- that is, other names.
+Variables can have "aliases" --- that is, other names.
  A variable alias is set using the syntax
 \layout LyX-Code
 
@@ -4563,7 +5369,7 @@ Some output formats use variables so that you can customize them.
  They expect certain variables to be defined, and give an error if they
  aren't.
  The default values for these variables are set in the initialization file
- -- see Section\SpecialChar ~
+ --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:output-variables}
 
@@ -4580,12 +5386,18 @@ Styles
 
 \layout Standard
 
-Display styles change how individual things are shown when output.
- Currently, only map output for rooms and links is affected by styles.
-\layout Standard
+A 
+\begin_inset Quotes eld
+\end_inset 
 
-IFM keeps track of the currently active list of display styles, and there
- are two commands which change this list.
+style
+\begin_inset Quotes erd
+\end_inset 
+
+ defines a set of variables with particular values, so that those values
+ can be referred to together.
+ IFM keeps track of the currently active list of styles, and there are two
+ commands which change this list.
  The command
 \layout LyX-Code
 
@@ -4602,7 +5414,7 @@ pushes the specified style onto the style list.
 in\SpecialChar ~
 style
 \family default 
- clause -- see Section\SpecialChar ~
+ clause --- see Section\SpecialChar ~
 
 \begin_inset LatexCommand \ref{sec:variables}
 
@@ -4895,7 +5707,7 @@ and
 include <file>
 \layout Standard
 
-The first form looks for the exact file name -- either absolute or relative
+The first form looks for the exact file name --- either absolute or relative
  to the current directory.
  The second form does a directory search to find the file, using the IFM
  search path (which can be set via the 
@@ -5180,7 +5992,15 @@ You've given two or more tasks an identical
 follow
 \family default 
  tag.
- Only one task can "follow" a given task.
+ Only one task can 
+\begin_inset Quotes eld
+\end_inset 
+
+follow
+\begin_inset Quotes erd
+\end_inset 
+
+ a given task.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -5251,9 +6071,9 @@ dir
 oneway
 \family default 
 ).
- Most likely you're putting the attribute in the wrong place -- if you want,
- say, a join to have one of these attributes, you must define it using the
- standalone 
+ Most likely you're putting the attribute in the wrong place --- if you
+ want, say, a join to have one of these attributes, you must define it using
+ the standalone 
 \family typewriter 
 join
 \family default 
@@ -5358,6 +6178,28 @@ The game is unsolvable according to the current set of tasks.
 
 \family typewriter 
 warning:\SpecialChar ~
+can't\SpecialChar ~
+solve\SpecialChar ~
+game\SpecialChar ~
+([num]\SpecialChar ~
+tasks\SpecialChar ~
+ignored)
+\family default 
+ \SpecialChar ~
+
+\newline 
+The game is unsolvable because you're explicitly ignoring tasks and/or items,
+ using the 
+\family typewriter 
+ignore
+\family default 
+ attribute.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
 no\SpecialChar ~
 matching\SpecialChar ~
 style\SpecialChar ~
@@ -5438,7 +6280,7 @@ name.ifm
 
 \family typewriter 
 warning:\SpecialChar ~
-[keyword]\SpecialChar ~
+[syntax]\SpecialChar ~
 is\SpecialChar ~
 obsolete\SpecialChar ~
 --\SpecialChar ~
@@ -5449,24 +6291,120 @@ instead
  \SpecialChar ~
 
 \newline 
-You've used an obsolete keyword.
+You've used an obsolete syntax.
  Consult the documentation and then try the suggested alternative instead.
- Note that multiple uses of an obsolete keyword only result in a single
+ Note that multiple uses of the same obsolete syntax only result in a single
  warning.
 \layout Section
 \pagebreak_top 
 Other IFM Programs
 \layout Standard
 
-There are a couple of other programs bundled with IFM, which you might find
+There are several other programs bundled with IFM, which you might find
  useful.
+\layout Subsection
+
+
+\family typewriter 
+ifm2dev
+\family default 
+ --- convert IFM maps to various other formats
+\begin_inset LatexCommand \label{sec:ifm2dev}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+ifm2dev
+\family default 
+ is a front end to 
+\family typewriter 
+fig2dev
+\family default 
+, which converts diagrams in Fig format to various other formats.
+ 
+\family typewriter 
+ifm2dev
+\family default 
+ converts each map section and writes them to separate files.
+ The command format is:
+\layout LyX-Code
+
+ifm2dev [-o template] [fig2dev-options] [-- ifm-options] file
+\layout Standard
+
+The 
+\family typewriter 
+-o
+\family default 
+ option sets the file template for the output files.
+ It must contain an integer format indicator (e.g.\SpecialChar ~
+
+\family typewriter 
+%d
+\family default 
+); this is replaced with the map section number in filenames.
+ If not set, it defaults to 
+\family typewriter 
+prefix-%02d.suffix
+\family default 
+, where 
+\family typewriter 
+prefix
+\family default 
+ is the file prefix of the input file (with 
+\family typewriter 
+.ifm
+\family default 
+ removed), and 
+\family typewriter 
+suffix
+\family default 
+ is the suffix appropriate for the type of output.
+\layout Standard
+
+All 
+\family typewriter 
+fig2dev
+\family default 
+ output options are passed through without change.
+ You can use the 
+\family typewriter 
+-L
+\family default 
+ option of 
+\family typewriter 
+fig2dev
+\family default 
+ to set the output format.
+ See the 
+\family typewriter 
+fig2dev
+\family default 
+ manpage for details.
+\layout Standard
+
+You can supply options to IFM by first giving the end-of-options indicator
+ (
+\family typewriter 
+--
+\family default 
+) and then the options.
 \layout Subsection
 
 
 \family typewriter 
 tkifm
 \family default 
- -- create maps interactively
+ --- create maps interactively
+\begin_inset LatexCommand \label{sec:tkifm}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -5489,8 +6427,8 @@ window This is the main window, where you type IFM commands.
 \labelwidthstring MMMMMMMMMM
 
 File\SpecialChar ~
-menu The standard set of file commands: New, Open, Save, Save-As, Print
- (to PostScript), Quit.
+menu The standard set of file commands: New, Open, Save, Save-As, Export
+ (to PostScript or Fig), Quit.
  There's also a command called Redraw, which invokes IFM on the current
  file again.
  Normally you don't have to use this (it's done whenever you open a new
@@ -5643,7 +6581,12 @@ Any errors or warnings that occur when invoking IFM will be displayed in
 \family typewriter 
 scr2ifm
 \family default 
- -- convert transcripts to IFM map
+ --- convert transcripts to IFM map
+\begin_inset LatexCommand \label{sec:scr2ifm}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -5652,7 +6595,7 @@ scr2ifm
 \family default 
  reads one or more transcripts of an Interactive Fiction game and produces
  a map of it in IFM format.
- It works on Infocom-style transcripts -- those produced by Inform- and
+ It works on Infocom-style transcripts --- those produced by Inform- and
  TADS-generated games (and of course Infocom games themselves).
  The idea is that you play your game in a carefree manner, without worrying
  about mapping anything, and after the session use 
@@ -5777,12 +6720,12 @@ When the current room changes.
  When you enter a new room, a short room title is printed (for example,
  "West of House").
  The program looks for these short titles in the text that follows a command.
- First, a line is checked for an invalid format -- things that never appear
+ First, a line is checked for an invalid format --- things that never appear
  in a title (e.g.\SpecialChar ~
 "?" or "!").
- Then the word count is checked -- titles are hardly ever more than 7 or
+ Then the word count is checked --- titles are hardly ever more than 7 or
  8 words long.
- Finally the maximum length of an uncapitalized word is examined -- this
+ Finally the maximum length of an uncapitalized word is examined --- this
  is almost always 3 or less in titles (the length of "the").
 \layout Itemize
 
@@ -5871,7 +6814,7 @@ scr2ifm
 \emph on 
 all
 \emph default 
- mazes -- the 
+ mazes --- the 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -5897,7 +6840,7 @@ Some games will be more amenable to
 \family typewriter 
 scr2ifm
 \family default 
- than others -- in general the ones with reasonable map connections, where
+ than others --- in general the ones with reasonable map connections, where
  each connection makes sense in relation to the others.
  For these games, the order in which rooms are visited will probably make
  no difference to the resulting map.
@@ -5905,7 +6848,7 @@ scr2ifm
 Colossal Cave, above ground) the order of visiting
  makes a big difference.
  In these cases, it's probably best to avoid trying to get all the connections
- on the map -- you'll spew forth lots of IFM warnings otherwise, and the
+ on the map --- you'll spew forth lots of IFM warnings otherwise, and the
  map will look awful.
  Sometimes it's worth having a second attempt at a transcript, choosing
  different directions to go in, to see if it improves things.
@@ -6427,7 +7370,7 @@ The previous four commands declare the given items to the program.
 
 \layout Standard
 
-Note that in this game we don't go in all possible directions -- there's
+Note that in this game we don't go in all possible directions --- there's
  no logic to the connections, and it'd just make a complete mess on the
  map.
 \layout LyX-Code
@@ -6442,7 +7385,7 @@ Note that in this game we don't go in all possible directions -- there's
 
 \layout Standard
 
-That last command declared a task -- again, you don't have to bother with
+That last command declared a task --- again, you don't have to bother with
  this if you don't want to.
 \layout LyX-Code
 
@@ -6467,7 +7410,7 @@ Oops! Stumbled into the dark by mistake.
 
 \layout Standard
 
-Goodness me! That was unexpected -- we've been teleported.
+Goodness me! That was unexpected --- we've been teleported.
  The link almost certainly won't look good on the map.
  We have the option of UNDOing, right now, or fixing the map later.
  Let's do the latter.
@@ -6539,7 +7482,7 @@ we get the following map:
 
 Printed, it looks like Figure\SpecialChar ~
 
-\begin_inset LatexCommand \ref{fig:scr2ifm-map}
+\begin_inset LatexCommand \vref{fig:scr2ifm-map}
 
 \end_inset 
 
@@ -6601,4 +7544,12 @@ and
 One-way links.
  These aren't detected, so you'll have to add the appropriate IFM attribute
  yourself (in a command file, or by fixing the map directly).
+\layout Standard
+\pagebreak_top \start_of_appendix 
+
+\begin_inset Include \include{gfdl.lyx}
+
+\end_inset 
+
+
 \the_end
