@@ -19,6 +19,7 @@
 
 #include "ifm-map.h"
 #include "ifm-util.h"
+#include "ifm-vars.h"
 
 #define SET_LIST(object, attr, list) \
         { \
@@ -85,18 +86,25 @@ static int repeat = 0;          /* String repeat count */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE
+%token        NOPATH NONE ALIAS
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
 
 %token <ival> INTEGER
 %token <dval> REAL
-%token <sval> STRING ID
+%token <sval> STRING ID VAR
 
-%type  <ival> compass otherdir
-%type  <sval> string_repeat
-%type  <vval> var room item task
+%type  <ival> compass otherdir integer
+%type  <sval> string string_repeat
+%type  <vval> room item task
+%type  <dval> exp
+
+%right        '='
+%left	      '+' '-'
+%left	      '*' '/' '%'
+%left	      PLUS MINUS
+%right	      '^'
 
 %%
 
@@ -122,11 +130,11 @@ stmt		: ctrl_stmt
 /* Control commands
 /************************************************************************/
 
-ctrl_stmt       : TITLE STRING ';'
+ctrl_stmt       : TITLE string ';'
                 {
-                    var_set(NULL, "title", vs_screate($2));
+                    vh_sstore(map, "TITLE", $2);
                 }
-                | MAP STRING ';'
+                | MAP string ';'
                 {
                     if (sectnames == NULL)
                         sectnames = vl_create();
@@ -138,7 +146,7 @@ ctrl_stmt       : TITLE STRING ';'
 /* Rooms
 /************************************************************************/
 
-room_stmt	: ROOM STRING
+room_stmt	: ROOM string
 		{
                     curroom = vh_create();
 		    vh_sstore(curroom, "DESC", $2);
@@ -394,11 +402,11 @@ room_attr	: TAG ID
                         SET_LIST(curroom, ATTR(LEAVE), curitems);
                     vh_istore(curroom, ATTR(LEAVEALL), allflag);
                 }
-		| LENGTH INTEGER
+		| LENGTH integer
 		{
                     vh_istore(curroom, "LEN", $2);
 		}
-		| SCORE INTEGER
+		| SCORE integer
 		{
                     vh_istore(curroom, "SCORE", $2);
 		}
@@ -417,7 +425,7 @@ room_attr	: TAG ID
                     while (repeat-- > 0)
                         add_attr(curroom, "FROM_CMD", $3);
                 }
-		| NOTE STRING
+		| NOTE string
 		{
                     add_attr(curroom, "NOTE", $2);
 		}
@@ -459,7 +467,7 @@ room            : ID
 /* Items
 /************************************************************************/
 
-item_stmt	: ITEM STRING
+item_stmt	: ITEM string
                 {
                     curitem = vh_create();
                     vh_sstore(curitem, "DESC", $2);
@@ -504,7 +512,7 @@ item_attr	: TAG ID
 		{
                     vh_store(curitem, "IN", $2);
 		}
-		| NOTE STRING
+		| NOTE string
 		{
                     add_attr(curitem, "NOTE", $2);
 		}
@@ -537,7 +545,7 @@ item_attr	: TAG ID
                 {
                     SET_LIST(curitem, "AFTER", curtasks);
                 }
-		| SCORE INTEGER
+		| SCORE integer
 		{
                     vh_istore(curitem, "SCORE", $2);
 		}
@@ -661,7 +669,7 @@ link_attr	: DIR dir_list
                         SET_LIST(curlink, "LEAVE", curitems);
                     vh_istore(curlink, "LEAVEALL", allflag);
                 }
-		| LENGTH INTEGER
+		| LENGTH integer
 		{
                     vh_istore(curlink, "LEN", $2);
 		}
@@ -761,7 +769,7 @@ join_attr	: GO compass
                         SET_LIST(curjoin, "LEAVE", curitems);
                     vh_istore(curjoin, "LEAVEALL", allflag);
                 }
-		| LENGTH INTEGER
+		| LENGTH integer
 		{
                     vh_istore(curjoin, "LEN", $2);
 		}
@@ -793,7 +801,7 @@ join_attr	: GO compass
 /* Tasks
 /************************************************************************/
 
-task_stmt	: TASK STRING
+task_stmt	: TASK string
                 {
                     curtask = vh_create();
                     vh_sstore(curtask, "DESC", $2);
@@ -916,7 +924,7 @@ task_attr	: TAG ID
                 {
                     vh_istore(curtask, "SAFE", 1);
                 }
-		| SCORE INTEGER
+		| SCORE integer
 		{
                     vh_istore(curtask, "SCORE", $2);
 		}
@@ -933,7 +941,7 @@ task_attr	: TAG ID
                 {
                     add_attr(curtask, "CMD", NULL);
                 }
-		| NOTE STRING
+		| NOTE string
 		{
                     add_attr(curtask, "NOTE", $2);
 		}
@@ -975,20 +983,81 @@ task            : ID
 /* Variables
 /************************************************************************/
 
-vars_stmt       : ID '=' var ';'
+vars_stmt       : ID '=' exp ';'
                 {
-                    var_set(NULL, $1, $3);
+                    var_set(NULL, $1, vs_dcreate($3));
                 }
-                | ID ID '=' var ';'
+                | ID ID '=' exp ';'
                 {
-                    var_set($1, $2, $4);
+                    var_set($1, $2, vs_dcreate($4));
+                }
+                | ID '=' STRING ';'
+                {
+                    var_set(NULL, $1, vs_screate($3));
+                }
+                | ID ID '=' STRING ';'
+                {
+                    var_set($1, $2, vs_screate($4));
+                }
+                | ID '=' UNDEF ';'
+                {
+                    var_set(NULL, $1, NULL);
+                }
+                | ID ID '=' UNDEF ';'
+                {
+                    var_set($1, $2, NULL);
+                }
+                | ID ALIAS ID ';'
+                {
+                    var_alias($1, $3);
+                }
+                | ID ALIAS UNDEF ';'
+                {
+                    var_alias($1, NULL);
                 }
 		;
 
-var             : INTEGER       { $$ = vs_icreate($1); }
-                | REAL          { $$ = vs_dcreate($1); }
-                | STRING        { $$ = vs_screate($1); }
-                | UNDEF         { $$ = NULL; }
+exp             : INTEGER               { $$ = $1; }
+                | REAL                  { $$ = $1; }
+                | VAR                   { $$ = var_real($1); }
+                | '+' exp %prec PLUS    { $$ = $2; }
+                | '-' exp %prec MINUS   { $$ = -$2; }
+                | exp '+' exp           { $$ = $1 + $3; }
+                | exp '-' exp           { $$ = $1 - $3; }
+                | exp '*' exp           { $$ = $1 * $3; }
+                | exp '/' exp           { $$ = $1 / $3; }
+                | exp '^' exp           { $$ = pow($1, $3); }
+                | exp '%' exp           { $$ = fmod($1, $3); }
+                | '(' exp ')'           { $$ = $2; }
+                ;
+
+integer         : exp                   { $$ = (int) $1; }
+                ;
+
+string          : STRING                { $$ = $1; }
+                | VAR                   { $$ = var_string($1); }
+                ;
+
+string_repeat   : string
+                {
+                    $$ = $1;
+                    repeat = 1;
+                }
+                | string integer
+                {
+                    $$ = $1;
+                    repeat = $2;
+                    if ($2 <= 0)
+                        err("invalid repeat count");
+                }
+                | string TIMES integer /* obsolete */
+                {
+                    $$ = $1;
+                    repeat = $3;
+                    if ($3 <= 0)
+                        err("invalid repeat count");
+                    obsolete("`times' keyword", "just the repeat count");
+                }
                 ;
 
 /************************************************************************/
@@ -1005,7 +1074,7 @@ dir_elt		: compass
                         curdirs = vl_create();
                     vl_ipush(curdirs, $1);
 		}
-                | compass INTEGER
+                | compass integer
                 {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -1014,7 +1083,7 @@ dir_elt		: compass
                     while ($2-- > 0)
                         vl_ipush(curdirs, $1);
                 }
-                | compass TIMES INTEGER /* obsolete */
+                | compass TIMES integer /* obsolete */
                 {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -1041,31 +1110,5 @@ otherdir	: IN            { $$ = D_IN;   }
 		| UP            { $$ = D_UP;   }
 		| DOWN          { $$ = D_DOWN; }
 		;
-
-/************************************************************************/
-/* Miscellaneous
-/************************************************************************/
-
-string_repeat   : STRING
-                {
-                    $$ = $1;
-                    repeat = 1;
-                }
-                | STRING INTEGER
-                {
-                    $$ = $1;
-                    repeat = $2;
-                    if ($2 <= 0)
-                        err("invalid repeat count");
-                }
-                | STRING TIMES INTEGER /* obsolete */
-                {
-                    $$ = $1;
-                    repeat = $3;
-                    if ($3 <= 0)
-                        err("invalid repeat count");
-                    obsolete("`times' keyword", "just the repeat count");
-                }
-                ;
 
 %%
