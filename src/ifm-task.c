@@ -626,7 +626,7 @@ order_tasks(vhash *before, vhash *after)
         if (after != before) {
             depend = vh_pget(after, "DEPEND");
             vl_ppush(depend, before);
-            solver_msg(2, "task order: do `%s' before `%s'",
+            solver_msg(2, "task order: do '%s' before '%s'",
                        vh_sgetref(before, "DESC"),
                        vh_sgetref(after, "DESC"));
         }
@@ -705,7 +705,7 @@ setup_tasks(void)
         if ((otask = vh_pget(task, "FOLLOW")) != NULL) {
             step = vh_pget(otask, "STEP");
             if (vh_exists(step, "NEXT") && vh_pget(step, "NEXT") != tstep)
-                err("more than one task needs to follow `%s' immediately",
+                err("more than one task needs to follow '%s' immediately",
                     vh_sgetref(otask, "DESC"));
             order_tasks(step, tstep);
             vh_pstore(step, "NEXT", tstep);

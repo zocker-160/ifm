@@ -119,7 +119,7 @@ gpp_open(char *file)
     static char buf[BUFSIZ];
 
     if (file != NULL)
-        sprintf(buf, "%s %s", gpp_cmd, file);
+        sprintf(buf, "%s '%s'", gpp_cmd, file);
     else
         strcpy(buf, gpp_cmd);
 

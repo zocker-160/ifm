@@ -15,7 +15,7 @@
 #include "ifm-util.h"
 
 #define WARN_CROSS(room, from, to) \
-        warn("room `%s' crossed by link line between `%s' and `%s'", \
+        warn("room '%s' crossed by link line between '%s' and '%s'", \
              vh_sgetref(room, "DESC"), \
              vh_sgetref(from, "DESC"), \
              vh_sgetref(to, "DESC"))
@@ -117,7 +117,7 @@ resolve_tag(char *type, vscalar *elt, vhash *table)
     if (hash != NULL) {
         vs_pstore(elt, hash);
     } else {
-        err("%s tag `%s' not defined", type, tag);
+        err("%s tag '%s' not defined", type, tag);
         vh_pstore(table, tag, table);
     }
 }
@@ -271,7 +271,7 @@ set_tag(char *type, char *tag, vhash *val, vhash *table)
 	vh_pstore(table, tag, val);
 	vh_sstore(val, "TAG", tag);
     } else {
-	err("%s tag `%s' already defined", type, tag);
+	err("%s tag '%s' already defined", type, tag);
     }
 }
 
@@ -309,7 +309,7 @@ setup_exits(void)
             } else if (num > 1) {
                 sscanf(tag, "%d,%d", &x, &y);
                 dir = get_direction(x, y);
-                warn("room `%s' has multiple %s links",
+                warn("room '%s' has multiple %s links",
                      vh_sgetref(room, "DESC"),
                      dirinfo[dir].lname);
             }
@@ -349,13 +349,13 @@ setup_links(void)
 
         /* Check rooms are linkable */
 	if (vh_pget(to, "SECT") != sect) {
-	    err("can't link `%s' to `%s' -- different map sections",
+	    err("can't link '%s' to '%s' -- different map sections",
                 fname, tname);
 	    continue;
 	}
 
         if (from == to && vh_pget(link, "DIR") == NULL) {
-            err("can't link `%s' to itself without at least one direction",
+            err("can't link '%s' to itself without at least one direction",
                 fname);
             continue;
         }
@@ -439,7 +439,7 @@ setup_links(void)
 
             /* Check it's on the grid */
             if (xoff != 0 && yoff != 0 && abs(xoff) != abs(yoff)) {
-                warn("link from `%s' to `%s' outside grid",
+                warn("link from '%s' to '%s' outside grid",
                      fname, tname);
             } else {
                 /* Unitize direction */
@@ -523,7 +523,7 @@ setup_rooms(void)
 		}
 
 		if ((other = room_at(num, x, y)) != NULL)
-		    warn("rooms `%s' and `%s' overlap",
+		    warn("rooms '%s' and '%s' overlap",
                          vh_sgetref(room, "DESC"),
                          vh_sgetref(other, "DESC"));
 

@@ -22,7 +22,7 @@
 
 #define VAR_CHECK(id, var)                                              \
         if ((var = var_get(id)) == NULL)                                \
-            fatal("variable `%s' is not defined", id)
+            fatal("variable '%s' is not defined", id)
 
 #define ALPHA(c) (c == '_' || isalpha(c))
 #define ALNUM(c) (c == '_' || isalnum(c))
@@ -100,7 +100,7 @@ load_styles(void)
         parse_input(buf, 1, 0);
 
         if (!vh_exists(styles, name))
-            warn("style `%s' referenced but not defined", name);
+            warn("style '%s' referenced but not defined", name);
     }
 }
 
@@ -246,10 +246,10 @@ var_colour(char *id)
         file = var_string("colour_file");
 
         if ((path = find_file(file)) == NULL)
-            fatal("can't locate colour definitions file `%s'", file);
+            fatal("can't locate colour definitions file '%s'", file);
 
         if ((fp = fopen(path, "r")) == NULL)
-            fatal("can't open `%s'", path);
+            fatal("can't open '%s'", path);
 
         defs = read_colour_defs(fp);
         fclose(fp);
@@ -257,7 +257,7 @@ var_colour(char *id)
 
     /* Look up colour name */
     if (!vh_exists(defs, name))
-        fatal("colour `%s' is not defined", name);
+        fatal("colour '%s' is not defined", name);
 
     return vh_sgetref(defs, name);
 }
@@ -377,7 +377,7 @@ var_print(vhash *vars, char *style)
     printf("\n");
 
     if (style != NULL)
-        printf("# Style `%s' variables.\n", style);
+        printf("# Style '%s' variables.\n", style);
     else
         printf("# General variables.\n");
 

@@ -215,7 +215,7 @@ main(int argc, char *argv[])
 
     /* Parse command-line arguments */
     if ((opts = vh_getopt(argc, argv)) == NULL)
-        v_die("Type `%s -help' for help", progname);
+        v_die("Type '%s -help' for help", progname);
 
     if (vh_exists(opts, "help"))
         usage();
@@ -592,9 +592,9 @@ parse_input(char *file, int libflag, int required)
             return 1;
 
         if (path == NULL)
-            fatal("can't locate file `%s'", file);
+            fatal("can't locate file '%s'", file);
         else if (!v_exists(path))
-            fatal("file `%s' not found", path);
+            fatal("file '%s' not found", path);
 
         strcpy(ifm_input, path);
     }

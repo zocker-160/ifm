@@ -37,10 +37,10 @@
 #define RESET_VAR(var) if (var != NULL) { vs_destroy(var); var = NULL; }
 
 #define WARN_IGNORED(attr)                                              \
-        warn("attribute `%s' ignored -- no implicit link", #attr)
+        warn("attribute '%s' ignored -- no implicit link", #attr)
 
 #define CHANGE_ERROR(attr)                                              \
-        err("can't modify `%s' attribute", #attr)
+        err("can't modify '%s' attribute", #attr)
 
 static vhash *curobj = NULL;    /* Current object */
 
@@ -257,7 +257,7 @@ room_stmt	: ROOM string
                 {
                     modify = 1;
                     if ((curobj = vh_pget(roomtags, $2)) == NULL) {
-                        err("room tag `%s' not yet defined", $2);
+                        err("room tag '%s' not yet defined", $2);
                         curobj = vh_create();
                     }
                 }
@@ -292,7 +292,7 @@ room_attr	: TAG ID
                         if (room != NULL)
                             vh_pstore(curobj, "NEAR", room);
                         else
-                            err("room tag `%s' not yet defined", $4);
+                            err("room tag '%s' not yet defined", $4);
                     } else {
                         CHANGE_ERROR(from);
                     }
@@ -451,14 +451,14 @@ room            : ID
                 | IT
                 {
                     if (itroom == NULL)
-                        err("no room referred to by `it'");
+                        err("no room referred to by 'it'");
                     else
                         $$ = vs_copy(itroom);
                 }
                 | LAST
                 {
                     if (lastroom == NULL) {
-                        err("no room referred to by `last'");
+                        err("no room referred to by 'last'");
                     } else {
                         $$ = vs_pcreate(lastroom);
                         itroom = vs_copy($$);
@@ -491,7 +491,7 @@ item_stmt	: ITEM string
                 {
                     modify = 1;
                     if ((curobj = vh_pget(itemtags, $2)) == NULL) {
-                        err("item tag `%s' not yet defined", $2);
+                        err("item tag '%s' not yet defined", $2);
                         curobj = vh_create();
                     }
                 }
@@ -526,7 +526,7 @@ item_attr	: TAG ID
 		}
 		| GIVEN         /* obsolete */
 		{
-                    obsolete("`given' attribute", "task `give' attribute");
+                    obsolete("'given' attribute", "task 'give' attribute");
                     vh_istore(curobj, "GIVEN", 1);
 		}
 		| LOST
@@ -597,14 +597,14 @@ item            : ID
                 | IT
                 {
                     if (ititem == NULL)
-                        err("no item referred to by `it'");
+                        err("no item referred to by 'it'");
                     else
                         $$ = vs_copy(ititem);
                 }
                 | LAST
                 {
                     if (lastitem == NULL) {
-                        err("no item referred to by `last'");
+                        err("no item referred to by 'last'");
                     } else {
                         $$ = vs_pcreate(lastitem);
                         ititem = vs_copy($$);
@@ -633,7 +633,7 @@ link_stmt	: LINK room TO room
                 {
                     modify = 1;
                     if ((curobj = vh_pget(linktags, $2)) == NULL) {
-                        err("link tag `%s' not yet defined", $2);
+                        err("link tag '%s' not yet defined", $2);
                         curobj = vh_create();
                     }
                 }
@@ -736,7 +736,7 @@ join_stmt	: JOIN room TO room
                 {
                     modify = 1;
                     if ((curobj = vh_pget(jointags, $2)) == NULL) {
-                        err("join tag `%s' not yet defined", $2);
+                        err("join tag '%s' not yet defined", $2);
                         curobj = vh_create();
                     }
                 }
@@ -843,7 +843,7 @@ task_stmt	: TASK string
                 {
                     modify = 1;
                     if ((curobj = vh_pget(tasktags, $2)) == NULL) {
-                        err("task tag `%s' not yet defined", $2);
+                        err("task tag '%s' not yet defined", $2);
                         curobj = vh_create();
                     }
                 }
@@ -997,14 +997,14 @@ task            : ID
                 | IT
                 {
                     if (ittask == NULL)
-                        err("no task referred to by `it'");
+                        err("no task referred to by 'it'");
                     else
                         $$ = vs_copy(ittask);
                 }
                 | LAST
                 {
                     if (lasttask == NULL) {
-                        err("no task referred to by `last'");
+                        err("no task referred to by 'last'");
                     } else {
                         $$ = vs_pcreate(lasttask);
                         ittask = vs_copy($$);
@@ -1121,7 +1121,7 @@ dir_elt		: compass
                         err("invalid repeat count");
                     while ($3-- > 0)
                         vl_ipush(curdirs, $1);
-                    obsolete("`times' keyword", "just the repeat count");
+                    obsolete("'times' keyword", "just the repeat count");
                 }
 		;
 
@@ -1184,7 +1184,7 @@ string_repeat   : string
                     repeat = $3;
                     if ($3 <= 0)
                         err("invalid repeat count");
-                    obsolete("`times' keyword", "just the repeat count");
+                    obsolete("'times' keyword", "just the repeat count");
                 }
                 ;
 

@@ -116,7 +116,7 @@ connect_rooms(void)
         if (TASK_VERBOSE) {
             indent(1);
             list = vh_pget(reach, "CMD");
-            printf("link `%s' to `%s' (%s)",
+            printf("link '%s' to '%s' (%s)",
                    vh_sgetref(from, "DESC"),
                    vh_sgetref(to, "DESC"),
                    vl_join(list, ". "));
@@ -158,7 +158,7 @@ connect_rooms(void)
             if (TASK_VERBOSE) {
                 indent(1);
                 list = vh_pget(reach, "CMD");
-                printf("link `%s' to `%s' (%s)",
+                printf("link '%s' to '%s' (%s)",
                        vh_sgetref(to, "DESC"),
                        vh_sgetref(from, "DESC"),
                        vl_join(list, ". "));
@@ -212,7 +212,7 @@ connect_rooms(void)
         if (TASK_VERBOSE) {
             indent(1);
             list = vh_pget(reach, "CMD");
-            printf("join `%s' to `%s' (%s)",
+            printf("join '%s' to '%s' (%s)",
                    vh_sgetref(from, "DESC"),
                    vh_sgetref(to, "DESC"),
                    vl_join(list, ". "));
@@ -253,7 +253,7 @@ connect_rooms(void)
             if (TASK_VERBOSE) {
                 indent(1);
                 list = vh_pget(reach, "CMD");
-                printf("join `%s' to `%s' (%s)",
+                printf("join '%s' to '%s' (%s)",
                        vh_sgetref(to, "DESC"),
                        vh_sgetref(from, "DESC"),
                        vl_join(list, ". "));
@@ -289,7 +289,7 @@ find_path(vhash *step, vhash *from, vhash *to)
 
     if (TASK_VERBOSE) {
         indent(3);
-        printf("find path: `%s' to `%s'",
+        printf("find path: '%s' to '%s'",
                vh_sgetref(from, "DESC"),
                vh_sgetref(to, "DESC"));
     }
@@ -512,7 +512,7 @@ link_rooms(vhash *from, vhash *to, vhash *reach)
     vl_foreach(elt, list) {
         relt = vs_pget(elt);
         if (len != vh_iget(relt, "LEN"))
-            err("links between `%s' and `%s' have differing lengths",
+            err("links between '%s' and '%s' have differing lengths",
                 vh_sgetref(from, "DESC"), vh_sgetref(to, "DESC"));
     }
 
@@ -667,7 +667,7 @@ use_link(char *fnode, char *tnode, vscalar *s)
                     if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
                         room = vg_node_pget(graph, tnode);
-                        printf("blocked link: %s (done `%s')\n",
+                        printf("blocked link: %s (done '%s')\n",
                                vh_sgetref(room, "DESC"),
                                vh_sgetref(task, "DESC"));
                     }
@@ -690,7 +690,7 @@ use_link(char *fnode, char *tnode, vscalar *s)
                     if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
                         room = vg_node_pget(graph, tnode);
-                        printf("blocked link: %s (not done `%s')\n",
+                        printf("blocked link: %s (not done '%s')\n",
                                vh_sgetref(room, "DESC"),
                                vh_sgetref(task, "DESC"));
                     }
@@ -769,7 +769,7 @@ use_node(char *node, vscalar *s, double dist)
             if (vh_iget(tstep, "DONE")) {
                 if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
-                    printf("blocked room: %s (done `%s')\n",
+                    printf("blocked room: %s (done '%s')\n",
                            vh_sgetref(room, "DESC"),
                            vh_sgetref(task, "DESC"));
                 }
@@ -787,7 +787,7 @@ use_node(char *node, vscalar *s, double dist)
             if (!vh_iget(tstep, "DONE")) {
                 if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
-                    printf("blocked room: %s (not done `%s')\n",
+                    printf("blocked room: %s (not done '%s')\n",
                            vh_sgetref(room, "DESC"),
                            vh_sgetref(task, "DESC"));
                 }

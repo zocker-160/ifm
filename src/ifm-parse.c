@@ -117,10 +117,10 @@
 #define RESET_VAR(var) if (var != NULL) { vs_destroy(var); var = NULL; }
 
 #define WARN_IGNORED(attr)                                              \
-        warn("attribute `%s' ignored -- no implicit link", #attr)
+        warn("attribute '%s' ignored -- no implicit link", #attr)
 
 #define CHANGE_ERROR(attr)                                              \
-        err("can't modify `%s' attribute", #attr)
+        err("can't modify '%s' attribute", #attr)
 
 static vhash *curobj = NULL;    /* Current object */
 
@@ -1308,7 +1308,7 @@ case 17:
 {
                     modify = 1;
                     if ((curobj = vh_pget(roomtags, yyvsp[0].sval)) == NULL) {
-                        err("room tag `%s' not yet defined", yyvsp[0].sval);
+                        err("room tag '%s' not yet defined", yyvsp[0].sval);
                         curobj = vh_create();
                     }
                 ;
@@ -1343,7 +1343,7 @@ case 22:
                         if (room != NULL)
                             vh_pstore(curobj, "NEAR", room);
                         else
-                            err("room tag `%s' not yet defined", yyvsp[0].sval);
+                            err("room tag '%s' not yet defined", yyvsp[0].sval);
                     } else {
                         CHANGE_ERROR(from);
                     }
@@ -1541,7 +1541,7 @@ case 49:
 #line 452 "ifm-parse.y"
 {
                     if (itroom == NULL)
-                        err("no room referred to by `it'");
+                        err("no room referred to by 'it'");
                     else
                         yyval.vval = vs_copy(itroom);
                 ;
@@ -1550,7 +1550,7 @@ case 50:
 #line 459 "ifm-parse.y"
 {
                     if (lastroom == NULL) {
-                        err("no room referred to by `last'");
+                        err("no room referred to by 'last'");
                     } else {
                         yyval.vval = vs_pcreate(lastroom);
                         itroom = vs_copy(yyval.vval);
@@ -1583,7 +1583,7 @@ case 53:
 {
                     modify = 1;
                     if ((curobj = vh_pget(itemtags, yyvsp[0].sval)) == NULL) {
-                        err("item tag `%s' not yet defined", yyvsp[0].sval);
+                        err("item tag '%s' not yet defined", yyvsp[0].sval);
                         curobj = vh_create();
                     }
                 ;
@@ -1624,7 +1624,7 @@ case 60:
 case 61:
 #line 528 "ifm-parse.y"
 {
-                    obsolete("`given' attribute", "task `give' attribute");
+                    obsolete("'given' attribute", "task 'give' attribute");
                     vh_istore(curobj, "GIVEN", 1);
 		;
     break;}
@@ -1719,7 +1719,7 @@ case 80:
 #line 598 "ifm-parse.y"
 {
                     if (ititem == NULL)
-                        err("no item referred to by `it'");
+                        err("no item referred to by 'it'");
                     else
                         yyval.vval = vs_copy(ititem);
                 ;
@@ -1728,7 +1728,7 @@ case 81:
 #line 605 "ifm-parse.y"
 {
                     if (lastitem == NULL) {
-                        err("no item referred to by `last'");
+                        err("no item referred to by 'last'");
                     } else {
                         yyval.vval = vs_pcreate(lastitem);
                         ititem = vs_copy(yyval.vval);
@@ -1757,7 +1757,7 @@ case 84:
 {
                     modify = 1;
                     if ((curobj = vh_pget(linktags, yyvsp[0].sval)) == NULL) {
-                        err("link tag `%s' not yet defined", yyvsp[0].sval);
+                        err("link tag '%s' not yet defined", yyvsp[0].sval);
                         curobj = vh_create();
                     }
                 ;
@@ -1883,7 +1883,7 @@ case 105:
 {
                     modify = 1;
                     if ((curobj = vh_pget(jointags, yyvsp[0].sval)) == NULL) {
-                        err("join tag `%s' not yet defined", yyvsp[0].sval);
+                        err("join tag '%s' not yet defined", yyvsp[0].sval);
                         curobj = vh_create();
                     }
                 ;
@@ -2013,7 +2013,7 @@ case 126:
 {
                     modify = 1;
                     if ((curobj = vh_pget(tasktags, yyvsp[0].sval)) == NULL) {
-                        err("task tag `%s' not yet defined", yyvsp[0].sval);
+                        err("task tag '%s' not yet defined", yyvsp[0].sval);
                         curobj = vh_create();
                     }
                 ;
@@ -2210,7 +2210,7 @@ case 160:
 #line 998 "ifm-parse.y"
 {
                     if (ittask == NULL)
-                        err("no task referred to by `it'");
+                        err("no task referred to by 'it'");
                     else
                         yyval.vval = vs_copy(ittask);
                 ;
@@ -2219,7 +2219,7 @@ case 161:
 #line 1005 "ifm-parse.y"
 {
                     if (lasttask == NULL) {
-                        err("no task referred to by `last'");
+                        err("no task referred to by 'last'");
                     } else {
                         yyval.vval = vs_pcreate(lasttask);
                         ittask = vs_copy(yyval.vval);
@@ -2333,7 +2333,7 @@ case 181:
                         err("invalid repeat count");
                     while (yyvsp[0].ival-- > 0)
                         vl_ipush(curdirs, yyvsp[-2].ival);
-                    obsolete("`times' keyword", "just the repeat count");
+                    obsolete("'times' keyword", "just the repeat count");
                 ;
     break;}
 case 182:
@@ -2467,7 +2467,7 @@ case 211:
                     repeat = yyvsp[0].ival;
                     if (yyvsp[0].ival <= 0)
                         err("invalid repeat count");
-                    obsolete("`times' keyword", "just the repeat count");
+                    obsolete("'times' keyword", "just the repeat count");
                 ;
     break;}
 }
