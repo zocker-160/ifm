@@ -108,3 +108,4 @@ There are many variables available for customizing the different sorts of
 output.  Their names, descriptions and default values are all contained in
 the default B<IFM> initialization file, which is reproduced below.
 
+=display ../lib/ifm-init.ifm
