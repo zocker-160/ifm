@@ -1,5 +1,5 @@
 ****************************************************************************
-* Version 5.0                                                     Jul 2002 *
+* Version 5.0                                                     Nov 2002 *
 ****************************************************************************
 
 Additions
@@ -49,16 +49,6 @@ Additions
 * There's a new 'require' keyword, which lets you say that a certain
   version of IFM (or later) is required for a map.
 
-* The command-line option `-debug' has been removed; its functionality has
-  been replaced by a control variable.
-
-* The old 'puzzle' and 'special' attributes have finally been removed; if
-  you have any old maps which use these, you must replace them with the
-  corresponding styles instead.
-
-* The GNU Emacs IFM mode in the 'contrib' directory now has font lock
-  support.
-
 Changes
 =======
 
@@ -66,8 +56,18 @@ Changes
   applies to both the room and the implicit link, so it's now independent
   of its position relative to the 'dir' clause.
 
+* The command-line option `-debug' has been removed; its functionality has
+  been replaced by a control variable.
+
+* The old 'puzzle' and 'special' attributes have finally been removed; if
+  you have any old maps which use these, you must replace them with the
+  corresponding styles instead.
+
 * Documentation is now distributed in HTML and PDF formats, instead of GNU
   Info.
+
+* The GNU Emacs IFM mode in the 'contrib' directory now has font lock
+  support.
 
 Bug fixes
 =========
