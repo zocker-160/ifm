@@ -57,6 +57,7 @@ dnl Write Makefiles.
 AC_OUTPUT(
 Makefile
 src/Makefile
+fig/Makefile
 lib/Makefile
 doc/Makefile
 maps/Makefile

@@ -71,28 +71,11 @@ tkifm = @tkifm@
 
 AUTOMAKE_OPTIONS = foreign check-news
 
-SUBDIRS = vars src lib doc maps progs tests
+SUBDIRS = vars fig src lib doc maps progs tests
 
-EXTRA_DIST = README.unix README.win32 README.maps README.vars
+EXTRA_DIST = README.unix README.maps
 
-ZIPDIR = ../ifm
-
-EXE = ifm.exe
-
-FILES = README README.win32 README.maps NEWS COPYING
-
-PROGS = src/$(EXE) progs/tkifm.tcl progs/scr2ifm.pl
-
-DLL = $(bindir)/cygwin1.dll
-
-DOCS = progs/tkifm.txt progs/tkifm.html progs/scr2ifm.txt	progs/scr2ifm.html
-
-
-LIBS = lib/*.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
-
-MAPS = maps/*.ifm maps/README
-
-ZIPFILES = $(IFM) $(LIB) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
+EXTRA_DIRS = etc contrib win32
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ./etc/config.h
@@ -379,61 +362,38 @@ installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-dist-hook: dist-config dist-header dist-extra dist-touch dist-cleanup
+dist-hook: dist-prepare dist-extra dist-config dist-header dist-touch \
+	   dist-cleanup
+
+dist-prepare:
+	cd $(top_srcdir)/win32; $(MAKE) clean
 
 dist-config:
-	cp -rp $(top_srcdir)/etc $(distdir)
-	rm -rf $(distdir)/etc/CVS
 	rm -f $(distdir)/etc/*header*
 
 dist-extra:
-	cp -rp $(top_srcdir)/contrib $(distdir)
-	rm -rf $(distdir)/contrib/CVS
+	for dir in $(EXTRA_DIRS); do					\
+	   cp -rp $(top_srcdir)/$$dir $(distdir);			\
+	   rm -rf $(distdir)/$$dir/CVS;					\
+	   rm -f $(distdir)/$$dir/.cvsignore;				\
+	done
 
 dist-header:
-	addheader=$(top_srcdir)/etc/add-header; \
-	for dir in src lib progs; do \
-	   if test -f $$addheader; then \
-	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir; \
+	addheader=$(top_srcdir)/etc/add-header;				\
+	for dir in src lib progs; do					\
+	   if test -f $$addheader; then					\
+	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir;		\
 	   fi; \
 	done
 
 dist-touch:
-	for file in src/ifm-scan.c src/ifm-parse.c src/ifm-parse.h; do \
-	   touch $(distdir)/$$file; \
+	for file in src/ifm-scan.c src/ifm-parse.c src/ifm-parse.h; do	\
+	   touch $(distdir)/$$file;					\
 	done
 
 dist-cleanup:
 	rm -f $(distdir)/etc/config.h
 	rm -f $(distdir)/etc/stamp-h
-
-.PHONY: ziptest
-
-zip:; $(MAKE) all zipdir
-
-ziptest:; $(MAKE) ZIPDIR=ziptest EXE=ifm DLL="" zipdir
-
-zipdir:
-	rm -rf $(ZIPDIR)
-	mkdir $(ZIPDIR)
-	cp $(FILES) $(ZIPDIR)
-	for i in README NEWS COPYING; do \
-		mv $(ZIPDIR)/$$i $(ZIPDIR)/$$i.txt; \
-	done
-	mv $(ZIPDIR)/README.win32 $(ZIPDIR)/WIN32.txt
-	mv $(ZIPDIR)/README.maps $(ZIPDIR)/MAPS.txt
-	mkdir $(ZIPDIR)/progs
-	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
-	strip $(ZIPDIR)/progs/$(EXE)
-	mkdir $(ZIPDIR)/docs
-	cp -r doc/html $(ZIPDIR)/docs
-	cp $(DOCS) $(ZIPDIR)/docs
-	mkdir $(ZIPDIR)/lib
-	cp $(LIBS) $(ZIPDIR)/lib
-	mkdir $(ZIPDIR)/maps
-	cp $(MAPS) $(ZIPDIR)/maps
-	mv $(ZIPDIR)/maps/README $(ZIPDIR)/maps/README.txt
-	chmod -R +w $(ZIPDIR)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
