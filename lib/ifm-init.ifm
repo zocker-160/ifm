@@ -179,7 +179,7 @@ link_line_width = 1;		# ps fig tk
 link_colour = "black";		# ps fig tk
 
 # Size of oneway link arrows, as a proportion of the allocated room space.
-link_arrow_size = 0.15;		# ps tk
+link_arrow_size = 0.1;		# ps tk
 
 # Whether to draw link lines as splines.
 link_spline = 1;		# fig tk
