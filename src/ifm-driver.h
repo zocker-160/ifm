@@ -10,8 +10,12 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
-#ifdef TEXT
-#include "drv-text.c"
+#ifdef PS
+#include "drv-ps.c"
+#endif
+
+#ifdef RAW
+#include "drv-raw.c"
 #endif
 
 #ifdef GROFF
@@ -26,10 +30,17 @@ struct driver_st {
     itemfuncs *ifunc;
     taskfuncs *tfunc;
 } drivers[] = {
-#ifdef TEXT
+#ifdef PS
     {
-        "text", "Tab-delimited ASCII text fields",
-        NULL, &text_itemfuncs, &text_taskfuncs
+        "ps", "PostScript",
+        &ps_mapfuncs, NULL, NULL
+    },
+#endif
+
+#ifdef RAW
+    {
+        "raw", "Tab-delimited ASCII text fields",
+        NULL, &raw_itemfuncs, &raw_taskfuncs
     },
 #endif
 
