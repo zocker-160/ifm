@@ -30,6 +30,8 @@ INCLUDES	= -I$(IFMLIBDIR) \
 		  -DSYSINIT=\"$(pkgdatadir)/ifm-init.ifm\" \
 		  -DPS -DTEXT -DTK -DRAW -DREC
 
+$(bin_PROGRAMS): $(IFMLIBDIR)/libvars.a
+
 ifm-parse.h:	ifm-parse.c
 
 lint:;		lint -habx $(DEFS) $(INCLUDES) *.c
