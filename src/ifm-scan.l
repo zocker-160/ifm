@@ -91,6 +91,7 @@ WHITE		[ \t\f]*
 "e"		{ return EAST; }
 "east"		{ return EAST; }
 "exit"		{ return EXIT; }
+"finish"        { return FINISH; }
 "follow"        { return FOLLOW; }
 "from"		{ return FROM; }
 "get"           { return GET; }
