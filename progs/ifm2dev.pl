@@ -32,7 +32,7 @@ foreach $opt (keys %opts) {
 }
 
 # Parse any extra IFM arguments.
-$ifmopts = 'sI';
+$ifmopts = 'sSI';
 getopt($ifmopts, \%ifmopts);
 
 # Build IFM command.
@@ -43,7 +43,7 @@ foreach $opt (keys %ifmopts) {
 }
 
 # Get IFM file.
-$file = shift(@ARGV) or die "$0: error: no map file specified\n";
+$file = shift(@ARGV) or die "$0: error: no IFM file specified\n";
 
 # Get no. of map sections to output.
 @data = `$ifm -show maps $file`;
