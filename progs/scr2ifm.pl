@@ -43,7 +43,7 @@ use Getopt::Std;
 $name_maxwords = 8;
 $name_maxuncap = 3;
 $name_invalid = '[.!?]';
-$name_remove = '\s+\(.+\)$';
+$name_remove = '\s+\(.+\)';
 
 # Default room description recognition parameters.
 $desc_minwords = 20;
@@ -62,7 +62,7 @@ $cmd_ignore = '^unscript$';
 $0 =~ s-.*/--;
 &getopts('c:hilo:w') or die "Type `$0 -h' for help\n";
 &usage if $opt_h;
-
+    
 # Read IFM command file if required.
 if ($opt_c) {
     open(CMD, $opt_c) or die "Can't open $opt_c: $!\n";
@@ -72,10 +72,20 @@ if ($opt_c) {
 	next if /^\s*#/;
 	next if /^\s*$/;
 
-	if (/^\s*\$/) {
-	    # Perl variable.
-	    eval;
+	if (/eval\s+(.+)/) {
+	    # Perl expression.
+	    eval $1;
 	    &error("%s: %s", $opt_c, $@) if $@;
+	} elsif (/option\s+(.+)/) {
+	    # Set command-line option.
+	    eval '$opt_' . $1 . ' = 1';
+	    &error("%s: %s", $opt_c, $@) if $@;
+	} elsif (/isroom\s+(.+)/) {
+	    # Extra strings that are room names.
+	    $isroom{$1}++;
+	} elsif (/usename\s+(.+)/) {
+	    # Room name to be used.
+	    $usename{$1}++;
 	} else {
 	    # IFM command.
 	    push(@ifmcmds, $_);
@@ -159,6 +169,7 @@ foreach $move (@moves) {
 	# Check for room name.
 	if (!$roomflag && !$blank && &roomname($_)) {
 	    $roomflag++;
+	    s/$name_remove//o if $name_remove;
 	    $name = $_;
 	    next;
 	}
@@ -338,6 +349,9 @@ sub roomname {
     # Remove unwanted stuff.
     $line =~ s/$name_remove//go;
 
+    # User override.
+    return 1 if $isroom{$line};
+
     # Quick check for invalid format.
     return 0 if $name_invalid && $line =~ /$name_invalid/io;
     return 0 unless $line =~ /[A-Za-z]/;
@@ -362,7 +376,7 @@ sub roomname {
 # Add a new room to the room list.
 sub newroom {
     my ($move, $name, $desc, $dir, $from, $go, $cmd) = @_;
-    my $tag = &roomtag($name);
+    my $tag = &newtag("room", $name);
 
     my $room = {};
     push(@rooms, $room);
@@ -389,6 +403,9 @@ sub newroom {
 	$roommap{$from}{$dir} = $tag;
 	$linkmap{$from}{$tag} = $room;
     }
+
+    &warning("more than one room with name `$name'")
+	if $seenroom{$name}++;
 
     return $tag;
 }
@@ -457,7 +474,7 @@ sub findroom {
     foreach $room (@rooms) {
 	undef $score;
 
-	if ($desc) {
+	if ($desc && !$usename{$name}) {
 	    # We have a description -- try exact match first.
 	    $score += 10 if $room->{DESC} eq $desc;
 
@@ -537,24 +554,31 @@ sub choosedir {
     return $best;
 }
 
-# Make a room tag from its name.
-sub roomtag {
-    my $name = shift;
+# Make a new tag and return it.
+sub newtag {
+    my ($type, $name) = @_;
     my $prefix;
 
-    # Build prefix from initials of capitalized words.
-    for (split(' ', $name)) {
-	$prefix .= $1 if /^([A-Z])/;
+    # Build prefix.
+    if ($type eq "room") {
+	for (split(' ', $name)) {
+	    $prefix .= $1 if /^([A-Z])/;
+	}
+    } else {
+	$prefix = ucfirst $name;
+	$prefix =~ s/[^A-Za-z0-9]/_/g;
     }
 
     # Make it unique.
     my $tag = $prefix;
     my $num = 1;
-    while ($tagused{$tag}) {
-	$tag = $prefix . ++$num;
+    while ($tagused{$type}{$tag}) {
+	$tag = $prefix;
+	$tag .= "_" unless $type eq "room";
+	$tag .= ++$num;
     }
 
-    $tagused{$tag}++;
+    $tagused{$type}{$tag}++;
     return $tag;
 }
 
@@ -566,25 +590,25 @@ sub ifmcmd {
 
     $cmd =~ s/\s*;\s*$//;
 
-    if ($cmd =~ /^title\s+"(.+)"/) {
+    if ($cmd =~ /^title\s+"(.+?)"/) {
 	# Set title.
 	$title = $1;
-    } elsif ($cmd =~ /^map\s+"(.+)"/) {
+    } elsif ($cmd =~ /^map\s+"(.+?)"/) {
 	# Start new map section in this room.
 	$move->{MAP} = $1;
 	my $dir = $room->{DIR};
 
 	if ($dir) {
-	    my $go = $room->{GO};
 	    my @list = split(' ', $dir);
-	    $dir = shift @list;
-	    $cmd = $room->{CMD};
-	    &newjoin($move, $room->{FROM}, $room->{TAG}, $dir, $go, $cmd);
+	    my $go = shift @list;
+	    $go = $rdirmap{$go};
+	    $go = $room->{GO} if $room->{GO};
+	    &newjoin($move, $room->{FROM}, $room->{TAG}, $go, $room->{CMD});
 	}
 
 	$room->{JOIN}++;
 	$needmap++;
-    } elsif ($cmd =~ /^(\S+)\s+"(.+)"\s*(.*)/) {
+    } elsif ($cmd =~ /^(\S+)\s+"(.+?)"\s*(.*)/) {
 	# Define object.
 	my $obj = {};
 
@@ -602,8 +626,7 @@ sub ifmcmd {
 	}
 
 	if ($obj->{ATTR} !~ /\btag\b/) {
-	    my $tag = $obj->{NAME};
-	    $tag =~ s/[^A-Za-z0-9]/_/g;
+	    my $tag = &newtag($obj->{TYPE}, $obj->{NAME});
 	    $obj->{ATTR} .= " " if $obj->{ATTR};
 	    $obj->{ATTR} .= "tag $tag";
 	}
