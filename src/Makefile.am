@@ -26,7 +26,7 @@ ifm_LDADD = -lfig -lvars -lm
 
 ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
 
-YFLAGS = -d -v
+AM_YFLAGS = -d -v
 
 SYSDEF = -DSYSINIT=\"ifm-init.ifm\"
 

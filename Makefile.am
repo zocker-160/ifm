@@ -6,6 +6,8 @@ SUBDIRS = vars fig gpp src lib doc progs demos tests
 
 EXTRA_DIRS = etc contrib win32
 
+EXTRA_DIST = ANNOUNCE
+
 dist-hook: dist-prepare dist-extra dist-config dist-header dist-touch \
 	   dist-cleanup
 

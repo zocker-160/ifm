@@ -1,14 +1,13 @@
 dnl Configuration template for IFM.
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(src/ifm-main.c)
+AC_INIT(ifm, 5.0, zondo@pillock.freeserve.co.uk)
+AC_CONFIG_SRCDIR(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(etc)
 
 AM_INIT_AUTOMAKE(ifm, 5.0)
 AM_CONFIG_HEADER(etc/config.h)
 AC_CONFIG_SUBDIRS(vars)
-
-AC_DEFINE(EMAIL, "zondo@pillock.freeserve.co.uk")
 
 dnl Checks for programs.
 AC_PROG_CC

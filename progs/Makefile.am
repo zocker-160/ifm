@@ -26,7 +26,7 @@ ifm2tex: ifm2tex.pl
 	cat $< >> $@
 	chmod +x $@
 
-CLEANFILES = $(bin_SCRIPTS) *.tex *.aux *.dvi *.lo* *.ps *.toc
+CLEANFILES = $(bin_SCRIPTS) *.tex *.aux *.dvi *.lo* *.eps *.ps *.toc
 
 test:;	perl ifm2tex.pl -m test.ifm
 	for i in 1 2 3; do latex test.tex; done
