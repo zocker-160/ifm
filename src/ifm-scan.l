@@ -30,7 +30,7 @@ DIGIT		[0-9]
 INTEGER         {DIGIT}+
 REAL		{DIGIT}*\.{DIGIT}+
 ALNUM		{LETTER}|{DIGIT}
-IDENT		{LETTER}{ALNUM}*
+ID		{LETTER}{ALNUM}*
 WHITE		[ \t\f]*
 
 %%
@@ -142,11 +142,9 @@ WHITE		[ \t\f]*
 "w"		{ return WEST; }
 "west"		{ return WEST; }
 
-{IDENT}		{
-		    if (yyleng >= BUFSIZ)
-			yyerror("identifier too long");
+{ID}		{
 		    yylval.sval = v_strdup(yytext);
-		    return IDENT;
+		    return ID;
 		}
 
 {REAL}          {

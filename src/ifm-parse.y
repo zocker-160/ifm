@@ -31,8 +31,25 @@
 #define WARN_IGNORED(attr) \
         warn("attribute `%s' ignored -- no `dir' link", #attr)
 
-/* Modification flag */
-static int modify;
+static vhash *curroom = NULL;   /* Current room */
+static vhash *curlink = NULL;   /* Current link */
+static vhash *curitem = NULL;   /* Current item */
+static vhash *curjoin = NULL;   /* Current join */
+static vhash *curtask = NULL;   /* Current task */
+
+static vlist *curdirs = NULL;   /* Current direction list */
+
+static vlist *curitems = NULL;  /* Current item list */
+static vlist *curlinks = NULL;  /* Current link list */
+static vlist *curjoins = NULL;  /* Current join list */
+static vlist *curtasks = NULL;  /* Current task list */
+
+static vhash *lastroom = NULL;  /* Last room visited */
+static vhash *lastitem = NULL;  /* Last item mentioned */
+static vhash *lasttask = NULL;  /* Last task mentioned */
+
+static int modify;              /* Modification flag */
+static int implicit;            /* Implicit-link flag */
 %}
 
 %union {
@@ -52,9 +69,9 @@ static int modify;
 
 %token <dval> REAL
 
-%token <sval> STRING IDENT
+%token <sval> STRING ID
 
-%type  <ival> go_flag dir
+%type  <ival> go dir
 
 %type  <vval> var
 
@@ -77,6 +94,7 @@ room_stmt	: ROOM STRING
 		{
                     curroom = vh_create();
 		    vh_sstore(curroom, "DESC", $2);
+                    implicit = 0;
                     modify = 0;
 		}
                 room_attrs ';'
@@ -146,7 +164,7 @@ room_stmt	: ROOM STRING
 
                     lastroom = curroom;
                 }
-                | ROOM IDENT
+                | ROOM ID
                 {
                     modify = 1;
                     if ((curroom = vh_pget(roomtags, $2)) == NULL) {
@@ -161,16 +179,18 @@ room_attrs	: /* empty */
 		| room_attrs room_attr
 		;
 
-room_attr	: TAG IDENT
+room_attr	: TAG ID
 		{
                     if (!modify)
                         set_tag("room", $2, curroom, roomtags);
                     else
                         err("can't change room tag name");
 		}
-		| DIR dir_list FROM IDENT
+		| DIR dir_list FROM ID
 		{
                     vhash *room;
+
+                    implicit = 1;
 
                     vh_pstore(curroom, "DIR", curdirs);
                     curdirs = NULL;
@@ -183,6 +203,8 @@ room_attr	: TAG IDENT
 		}
 		| DIR dir_list
 		{
+                    implicit = 1;
+
                     vh_pstore(curroom, "DIR", curdirs);
                     curdirs = NULL;
 
@@ -238,7 +260,7 @@ room_attr	: TAG IDENT
                     vl_destroy(curjoins);
                     curjoins = NULL;
 		}
-		| GO go_flag
+		| GO go
 		{
                     vh_istore(curroom, "GO", $2);
 		}
@@ -264,26 +286,22 @@ room_attr	: TAG IDENT
                 }
                 | NEED item_list
                 {
-                    char *attr = (vh_exists(curroom, "DIR") ?
-                                  "LINK_NEED" : "NEED");
+                    char *attr = (implicit ? "LINK_NEED" : "NEED");
                     SET_LIST(curroom, attr, curitems);
                 }
 		| BEFORE task_list
 		{
-                    char *attr = (vh_exists(curroom, "DIR") ?
-                                  "LINK_BEFORE" : "BEFORE");
+                    char *attr = (implicit ? "LINK_BEFORE" : "BEFORE");
                     SET_LIST(curroom, attr, curtasks);
 		}
 		| AFTER task_list
 		{
-                    char *attr = (vh_exists(curroom, "DIR") ?
-                                  "LINK_AFTER" : "AFTER");
+                    char *attr = (implicit ? "LINK_AFTER" : "AFTER");
                     SET_LIST(curroom, attr, curtasks);
 		}
                 | LEAVE item_list
                 {
-                    char *attr = (vh_exists(curroom, "DIR") ?
-                                  "LINK_LEAVE" : "LEAVE");
+                    char *attr = (implicit ? "LINK_LEAVE" : "LEAVE");
                     SET_LIST(curroom, attr, curitems);
                 }
 		| LENGTH INTEGER
@@ -321,7 +339,7 @@ item_stmt	: ITEM STRING
                     lastitem = curitem;
                     vl_ppush(items, curitem);
 		}
-                | ITEM IDENT
+                | ITEM ID
                 {
                     modify = 1;
                     if ((curitem = vh_pget(itemtags, $2)) == NULL) {
@@ -336,14 +354,14 @@ item_attrs	: /* empty */
 		| item_attrs item_attr
 		;
 
-item_attr	: TAG IDENT
+item_attr	: TAG ID
 		{
                     if (!modify)
                         set_tag("item", $2, curitem, itemtags);
                     else
                         err("can't change item tag name");
 		}
-		| IN IDENT
+		| IN ID
 		{
                     vh_sstore(curitem, "IN", $2);
 		}
@@ -389,7 +407,7 @@ item_attr	: TAG IDENT
                 }
 		;
 
-link_stmt	: LINK IDENT TO IDENT
+link_stmt	: LINK ID TO ID
                 {
                     curlink = vh_create();
                     vh_sstore(curlink, "FROM", $2);
@@ -400,7 +418,7 @@ link_stmt	: LINK IDENT TO IDENT
 		{
                     vl_ppush(links, curlink);
 		}
-                | LINK IDENT
+                | LINK ID
                 {
                     modify = 1;
                     if ((curlink = vh_pget(linktags, $2)) == NULL) {
@@ -420,7 +438,7 @@ link_attr	: DIR dir_list
                     vh_pstore(curlink, "DIR", curdirs);
                     curdirs = NULL;
 		}
-		| GO go_flag
+		| GO go
 		{
                     vh_istore(curlink, "GO", $2);
 		}
@@ -463,7 +481,7 @@ link_attr	: DIR dir_list
                     else
                         vh_sstore(curlink, "FROM_CMD", $2);
                 }
-                | TAG IDENT
+                | TAG ID
 		{
                     if (!modify)
                         set_tag("link", $2, curlink, linktags);
@@ -472,7 +490,7 @@ link_attr	: DIR dir_list
 		}
                 ; 
 
-join_stmt	: JOIN IDENT TO IDENT
+join_stmt	: JOIN ID TO ID
                 {
                     curjoin = vh_create();
                     vh_sstore(curjoin, "FROM", $2);
@@ -483,7 +501,7 @@ join_stmt	: JOIN IDENT TO IDENT
 		{
                     vl_ppush(joins, curjoin);
 		}
-                | JOIN IDENT
+                | JOIN ID
                 {
                     modify = 1;
                     if ((curjoin = vh_pget(jointags, $2)) == NULL) {
@@ -498,7 +516,7 @@ join_attrs	: /* empty */
 		| join_attrs join_attr
 		;
 
-join_attr	: GO go_flag
+join_attr	: GO go
 		{
                     vh_istore(curjoin, "GO", $2);
 		}
@@ -537,7 +555,7 @@ join_attr	: GO go_flag
                     else
                         vh_sstore(curjoin, "FROM_CMD", $2);
                 }
-                | TAG IDENT
+                | TAG ID
 		{
                     if (!modify)
                         set_tag("join", $2, curjoin, jointags);
@@ -562,7 +580,7 @@ task_stmt	: TASK STRING
                     lasttask = curtask;
                     vl_ppush(tasks, curtask);
 		}
-                | TASK IDENT
+                | TASK ID
                 {
                     modify = 1;
                     if ((curtask = vh_pget(tasktags, $2)) == NULL) {
@@ -577,7 +595,7 @@ task_attrs	: /* empty */
 		| task_attrs task_attr
 		;
 
-task_attr	: TAG IDENT
+task_attr	: TAG ID
 		{
                     if (!modify)
                         set_tag("task", $2, curtask, tasktags);
@@ -600,15 +618,15 @@ task_attr	: TAG IDENT
 		{
                     SET_LIST(curtask, "LOSE", curitems);
 		}
-                | GOTO IDENT
+                | GOTO ID
                 {
                     vh_sstore(curtask, "GOTO", $2);
                 }
-                | FOLLOW IDENT
+                | FOLLOW ID
                 {
                     vh_sstore(curtask, "FOLLOW", $2);
                 }
-		| IN IDENT
+		| IN ID
 		{
                     vh_sstore(curtask, "IN", $2);
 		}
@@ -645,35 +663,35 @@ ctrl_stmt       : TITLE var ';'
                     vl_spush(sectnames, $2);
                     mapnum++;
                 }
-                | IDENT '=' var ';'
+                | ID '=' var ';'
                 {
                     set_var(NULL, NULL, $1, $3);
                 }
-                | IDENT IDENT '=' var ';'
+                | ID ID '=' var ';'
                 {
                     set_var($1, NULL, $2, $4);
                 }
-                | MAP IDENT '=' var ';'
+                | MAP ID '=' var ';'
                 {
                     set_var(NULL, "map", $2, $4);
                 }
-                | ITEM IDENT '=' var ';'
+                | ITEM ID '=' var ';'
                 {
                     set_var(NULL, "item", $2, $4);
                 }
-                | TASK IDENT '=' var ';'
+                | TASK ID '=' var ';'
                 {
                     set_var(NULL, "task", $2, $4);
                 }
-                | IDENT MAP IDENT '=' var ';'
+                | ID MAP ID '=' var ';'
                 {
                     set_var($1, "map", $3, $5);
                 }
-                | IDENT ITEM IDENT '=' var ';'
+                | ID ITEM ID '=' var ';'
                 {
                     set_var($1, "item", $3, $5);
                 }
-                | IDENT TASK IDENT '=' var ';'
+                | ID TASK ID '=' var ';'
                 {
                     set_var($1, "task", $3, $5);
                 }
@@ -683,7 +701,7 @@ link_list	: link_elt
 		| link_list link_elt
 		;
 
-link_elt	: IDENT
+link_elt	: ID
 		{
                     if (curlinks == NULL)
                         curlinks = vl_create();
@@ -695,7 +713,7 @@ join_list	: join_elt
 		| join_list join_elt
 		;
 
-join_elt	: IDENT
+join_elt	: ID
 		{
                     if (curjoins == NULL)
                         curjoins = vl_create();
@@ -707,7 +725,7 @@ task_list	: task_elt
 		| task_list task_elt
 		;
 
-task_elt	: IDENT
+task_elt	: ID
 		{
                     if (curtasks == NULL)
                         curtasks = vl_create();
@@ -728,7 +746,7 @@ item_list	: item_elt
 		| item_list item_elt
 		;
 
-item_elt	: IDENT
+item_elt	: ID
 		{
                     if (curitems == NULL)
                         curitems = vl_create();
@@ -757,26 +775,26 @@ dir_elt		: dir
 		}
 		;
 
-dir		: NORTH		{ $$ = D_NORTH;	  }
-		| EAST		{ $$ = D_EAST;	  }
-		| SOUTH		{ $$ = D_SOUTH;	  }
-		| WEST		{ $$ = D_WEST;	  }
+dir		: NORTH		{ $$ = D_NORTH;	    }
+		| EAST		{ $$ = D_EAST;	    }
+		| SOUTH		{ $$ = D_SOUTH;	    }
+		| WEST		{ $$ = D_WEST;	    }
 		| NORTHEAST	{ $$ = D_NORTHEAST; }
 		| NORTHWEST	{ $$ = D_NORTHWEST; }
 		| SOUTHEAST	{ $$ = D_SOUTHEAST; }
 		| SOUTHWEST	{ $$ = D_SOUTHWEST; }
 		;
 
-go_flag		: IN            { $$ = D_IN;   }
+go		: IN            { $$ = D_IN;   }
 		| OUT           { $$ = D_OUT;  }
 		| UP            { $$ = D_UP;   }
 		| DOWN          { $$ = D_DOWN; }
                 | dir
 		;
 
-var             : INTEGER       { $$ = vs_istore(NULL, $1); }
-                | REAL          { $$ = vs_dstore(NULL, $1); }
-                | STRING        { $$ = vs_sstore(NULL, $1); }
+var             : INTEGER       { $$ = vs_icreate($1); }
+                | REAL          { $$ = vs_dcreate($1); }
+                | STRING        { $$ = vs_screate($1); }
                 | UNDEF         { $$ = NULL; }
                 ;
 
