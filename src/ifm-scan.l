@@ -106,7 +106,6 @@ WHITE		[ \t\f]*
 "s"		{ return SOUTH; }
 "score"         { return SCORE; }
 "se"		{ return SOUTHEAST; }
-"section"	{ return SECTION; }
 "south"		{ return SOUTH; }
 "southeast"	{ return SOUTHEAST; }
 "southwest"	{ return SOUTHWEST; }
@@ -115,7 +114,6 @@ WHITE		[ \t\f]*
 "sw"		{ return SOUTHWEST; }
 "tag"		{ return TAG; }
 "task"          { return TASK; }
-"title"		{ return TITLE; }
 "to"		{ return TO; }
 "u"		{ return UP; }
 "up"		{ return UP; }

@@ -24,8 +24,8 @@ static char buf[BUFSIZ];
 }
 
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
-%token	      AFTER NEED GET SCORE TITLE SECTION JOIN GO SPECIAL ANY LAST
-%token        GIVEN LOST KEEP START GOTO MAP
+%token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
+%token        GIVEN LOST KEEP
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -287,15 +287,7 @@ task_attr	: TAG IDENT
 		}
 		;
 
-ctrl_stmt	: TITLE STRING ';'
-		{
-		    set_main_title($2);
-		}
-		| SECTION STRING ';'
-		{
-		    set_section_title($2);
-		}
-                | IDENT '=' var ';'
+ctrl_stmt       : IDENT '=' var ';'
                 {
                     set_var("default", "global", $1, $3);
                 }

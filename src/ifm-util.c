@@ -13,6 +13,12 @@
 #include <math.h>
 #include "ifm.h"
 
+/* Hash of used variables */
+static vhash *used_vars = NULL;
+
+/* Scribble buffer */
+static char buf[BUFSIZ];
+
 /* Return an integer variable */
 int
 get_int(char *id, int def)
@@ -50,38 +56,51 @@ get_string(char *id, char *def)
 vscalar *
 get_var(char *id)
 {
+    char *fmt, *type;
     vhash *h1, *h2;
     vscalar *var;
 
     /* Try driver-based symbol table first */
     if (ifm_format != NULL) {
-        h1 = vh_pget(vars, ifm_format);
+        fmt = ifm_format;
+        h1 = vh_pget(vars, fmt);
 
         if (ifm_output != NULL) {
-            h2 = vh_pget(h1, ifm_output);
+            type = ifm_output;
+            h2 = vh_pget(h1, type);
             var = vh_get(h2, id);
         }
 
         if (var == NULL) {
-            h2 = vh_pget(h1, "global");
+            type = "global";
+            h2 = vh_pget(h1, type);
             var = vh_get(h2, id);
         }
     }
 
     /* If not, try main symbol table */
     if (var == NULL) {
-        h1 = vh_pget(vars, "default");
+        fmt = "default";
+        h1 = vh_pget(vars, fmt);
 
         if (ifm_output != NULL) {
-            h2 = vh_pget(h1, ifm_output);
+            type = ifm_output;
+            h2 = vh_pget(h1, type);
             var = vh_get(h2, id);
         }
 
         if (var == NULL) {
-            h2 = vh_pget(h1, "global");
+            type = "global";
+            h2 = vh_pget(h1, type);
             var = vh_get(h2, id);
         }
     }
+
+    /* Record used variable */
+    if (used_vars == NULL)
+        used_vars = vh_create();
+    sprintf(buf, "%s %s %s", fmt, type, id);
+    vh_istore(used_vars, buf, 1);
 
     return var;
 }
@@ -107,8 +126,11 @@ print_vars()
 
             FOREACH(elt, entries2) {
                 var = vs_sval(elt);
-                printf("%s %s %s = %s\n", table1, table2,
-                       var, vh_sget(symtab2, var));
+                sprintf(buf, "%s %s %s", table1, table2, var);
+                fprintf(stderr, "%s = %s", buf, vh_sget(symtab2, var));
+                if (used_vars != NULL && vh_iget(used_vars, buf))
+                    fprintf(stderr, " (used)");
+                fprintf(stderr, "\n");
             }
 
             vl_destroy(entries2);
@@ -128,7 +150,11 @@ set_var(char *table1, char *table2, char *var, vscalar *val)
 
     h1 = vh_pget(vars, table1);
 
-    if (h1 != NULL) {
+    if (STREQ(var, "section")) {
+        if (sectnames == NULL)
+            sectnames = vl_create();
+        vl_spush(sectnames, vs_sval(val));
+    } else if (h1 != NULL) {
         h2 = vh_pget(h1, table2);
         if (h2 != NULL)
             vh_store(h2, var, val);

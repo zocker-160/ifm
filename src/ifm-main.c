@@ -212,8 +212,6 @@ main(int argc, char *argv[])
     ifm_format = drivers[format].name;
 
     /* Do what's required */
-    if (print)
-        print_vars();
 
     switch (output) {
     case O_NONE:
@@ -229,6 +227,9 @@ main(int argc, char *argv[])
         draw_tasks(format);
         break;
     }
+
+    if (print)
+        print_vars();
 
     /* Er... that's it */
     return 0;
@@ -252,7 +253,7 @@ draw_map(int fmt)
         fatal("no map driver for %s", drv.name);
 
     if (func->map_start != NULL)
-        (*func->map_start)(vh_sget(map, "TITLE"));
+        (*func->map_start)();
 
     FOREACH(elt, sects) {
         sect = vs_pval(elt);

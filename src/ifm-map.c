@@ -237,22 +237,6 @@ resolve_tags()
     }
 }
 
-/* Set the main title */
-void
-set_main_title(char *str)
-{
-    vh_sstore(map, "TITLE", str);
-}
-
-/* Set a section title */
-void
-set_section_title(char *str)
-{
-    if (sectnames == NULL)
-	sectnames = vl_create();
-    vl_spush(sectnames, str);
-}
-
 /* Set a tag table entry */
 void
 set_tag(char *type, char *tag, vhash *val, vhash *table)
