@@ -82,12 +82,12 @@ text_task_entry(vhash *task)
 {
     vlist *notes = vh_pget(task, "NOTE");
     vhash *room = vh_pget(task, "ROOM");
+    vlist *cmds = vh_pget(task, "CMD");
     static vhash *lastroom = NULL;
     static int moved = 0;
     static int count = 0;
     int type, score;
     vscalar *elt;
-    vlist *cmds;
 
     if (count == 0) {
         char *title = get_string("title", NULL);
@@ -103,9 +103,10 @@ text_task_entry(vhash *task)
         if (!moved)
             printf("\n");
         printf("%s", vh_sgetref(task, "DESC"));
-        if ((cmds = vh_pget(task, "CMD")) != NULL)
+        if (cmds != NULL)
             printf(" (%s)", vl_join(cmds, ". "));
         printf("\n");
+
         travel++;
         moved++;
     } else {
@@ -115,6 +116,12 @@ text_task_entry(vhash *task)
             printf("\nFirstly:\n");
 
         printf("   %s\n", vh_sgetref(task, "DESC"));
+
+        if (cmds != NULL) {
+            vl_foreach(elt, cmds)
+                printf("      cmd: %s\n", vs_sgetref(elt));
+        }
+
         moved = 0;
     }
 
