@@ -526,14 +526,19 @@ proc TextWindow {title w text width height} {
     wm title $w $title
 
     # Set up text.
-    set t $w.text
-    set s $w.scroll
+    set f $w.frame
+    set t $f.text
+    set s $f.scroll
+
+    frame $f
+
     text $t -yscrollcommand "$s set" -setgrid true \
 	    -width $width -height $height \
 	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
 	    -bg $ifm(textbackground)
     scrollbar $s -command "$t yview"
 
+    pack $f
     pack $s -side right -fill y
     pack $t -expand yes -fill both
 
