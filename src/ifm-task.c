@@ -28,36 +28,20 @@ vlist *tasklist = NULL;
 static char buf[BUFSIZ];
 
 /* Internal functions */
+static void do_task(vhash *task);
+static void leave_item(vhash *item, vhash *room);
+static void moveto_room(vhash *task, vhash *from, vhash *to);
 static void task_pair(vhash *before, vhash *after);
 static int task_possible(vhash *room, vhash *step);
 static vhash *task_step(int type, vhash *data);
 
 /* Flag a task as done */
 static void
-do_task(vhash *task, vhash *from, vhash *to)
+do_task(vhash *task)
 {
-    vhash *item, *reach, *room, *mtask;
-    vlist *path, *list;
     vscalar *elt;
-    char *cmd;
-
-    /* Add movement tasks if required */
-    if (from != to && to != NULL) {
-        path = get_path(to);
-        vl_foreach(elt, path) {
-            reach = vs_pget(elt);
-            room = vh_pget(reach, "TO");
-            mtask = task_step(T_MOVE, room);
-            cmd = vh_sgetref(reach, "CMD");
-            vh_sstore(mtask, "CMD", cmd);
-            vl_ppush(taskorder, mtask);
-
-            if (ifm_verbose) {
-                indent(2);
-                printf("move to: %s\n", vh_sgetref(room, "DESC"));
-            }
-        }
-    }
+    vhash *item;
+    vlist *list;
 
     /* Do the task */
     if (ifm_verbose) {
@@ -74,6 +58,7 @@ do_task(vhash *task, vhash *from, vhash *to)
         break;
     case T_DROP:
         item = vh_pget(task, "DATA");
+        vh_istore(item, "TAKEN", 0);
         vh_istore(item, "DROPPED", 1);
         if (!vh_iget(item, "LOST"))
             vl_ppush(taskorder, task);
@@ -87,6 +72,7 @@ do_task(vhash *task, vhash *from, vhash *to)
     if ((list = vh_pget(task, "LOSE")) != NULL) {
         vl_foreach(elt, list) {
             item = vs_pget(elt);
+            vh_istore(item, "TAKEN", 0);
             vh_istore(item, "DROPPED", 1);
             if (ifm_verbose) {
                 indent(2);
@@ -101,6 +87,94 @@ do_task(vhash *task, vhash *from, vhash *to)
 
     /* Flag it as done */
     vh_istore(task, "DONE", 1);
+}
+
+/* Leave an item in a room and get it later */
+static void
+leave_item(vhash *item, vhash *room)
+{
+    vhash *tstep, *step;
+    vscalar *elt;
+    vlist *list;
+    int opt = 1;
+
+    /* Do nothing if not carrying it */
+    if (!vh_iget(item, "TAKEN"))
+        return;
+
+    /* Drop the item */
+    vh_pstore(item, "ROOM", room);
+    step = task_step(T_DROP, item);
+    do_task(step);
+
+    /* Create new task step to get it back */
+    step = task_step(T_GET, item);
+    task_pair(step, step);
+
+    /* Add new task dependencies */
+    if ((list = vh_pget(item, "TASKS")) != NULL) {
+        vl_foreach(elt, list) {
+            tstep = vs_pget(elt);
+            task_pair(step, tstep);
+            opt = 0;
+        }
+    }
+
+    /* Flag retrieval as optional if no other tasks need it */
+    if (opt)
+        vh_istore(step, "OPTIONAL", 1);
+}
+
+/* Move to a new room */
+static void
+moveto_room(vhash *task, vhash *from, vhash *to)
+{
+    vhash *item, *reach, *room, *mtask, *here;
+    vlist *path, *list;
+    vscalar *elt;
+    char *cmd;
+
+    /* Add movement tasks */
+    if (vh_iget(task, "BLOCK"))
+        path = vh_pget(task, "PATH");
+    else
+        path = get_path(to);
+
+    here = from;
+
+    vl_foreach(elt, path) {
+        reach = vs_pget(elt);
+        room = vh_pget(reach, "TO");
+
+        /* Leave items behind if required */
+        if ((list = vh_pget(reach, "LEAVE")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+                leave_item(item, here);
+            }
+        }
+
+        if ((list = vh_pget(room, "LEAVE")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+                leave_item(item, here);
+            }
+        }
+
+        /* Move to the next room */
+        mtask = task_step(T_MOVE, room);
+        cmd = vh_sgetref(reach, "CMD");
+        vh_sstore(mtask, "CMD", cmd);
+        vl_ppush(taskorder, mtask);
+        here = room;
+
+        if (ifm_verbose) {
+            indent(2);
+            printf("move to: %s\n", vh_sgetref(room, "DESC"));
+        }
+    }
+
+    vl_destroy(path);
 }
 
 /* Build the initial task list */
@@ -156,6 +230,16 @@ setup_tasks(void)
             }
         }
 
+        /* Flag items which might have to be left before entering room */
+        if ((list = vh_pget(room, "LEAVE")) != NULL) {
+            vl_foreach(elt, list) {
+                item = vs_pget(elt);
+                vh_istore(item, "LEAVE", 1);
+                step = vh_pget(item, "STEP");
+                vh_istore(step, "MODPATH", 1);
+            }
+        }
+
         /* Must get required items before visiting this room */
         if ((list = vh_pget(room, "NEED")) != NULL) {
             vl_foreach(elt, list) {
@@ -174,6 +258,16 @@ setup_tasks(void)
 
         vl_foreach(elt, rlist) {
             reach = vs_pget(elt);
+
+            /* Flag items which might have to be left before using link */
+            if ((list = vh_pget(reach, "LEAVE")) != NULL) {
+                vl_foreach(elt, list) {
+                    item = vs_pget(elt);
+                    vh_istore(item, "LEAVE", 1);
+                    step = vh_pget(item, "STEP");
+                    vh_istore(step, "MODPATH", 1);
+                }
+            }
 
             /* Flag 'before' tasks for this connection as unsafe */
             if ((list = vh_pget(reach, "BEFORE")) != NULL) {
@@ -420,7 +514,7 @@ solve_game(void)
 
                 if (drop) {
                     step = task_step(T_DROP, item);
-                    do_task(step, room, NULL);
+                    do_task(step);
                 }
             }
         }
@@ -437,8 +531,9 @@ solve_game(void)
             if (vh_iget(trystep, "DONE"))
                 continue;
 
-            /* Flag at least one task still to do */
-            tasksleft = 1;
+            /* If not optional, flag at least one task still to do */
+            if (!vh_iget(trystep, "OPTIONAL"))
+                tasksleft = 1;
 
             /* If there's a forced next task but this isn't it, skip it */
             if (next != NULL && trystep != next)
@@ -464,7 +559,9 @@ solve_game(void)
             /* Do the task */
             nextroom = vh_pget(step, "ROOM");
             gotoroom = vh_pget(step, "GOTO");
-            do_task(step, room, nextroom);
+            if (nextroom != NULL && room != nextroom)
+                moveto_room(step, room, nextroom);
+            do_task(step);
             if (nextroom != NULL)
                 room = nextroom;
             if (gotoroom != NULL)
@@ -532,8 +629,8 @@ task_pair(vhash *before, vhash *after)
 static int
 task_possible(vhash *room, vhash *step)
 {
-    int tmp1, tmp2, dist, len, safe, path = 1;
     vhash *before, *taskroom, *gotoroom;
+    int len = 0, safe;
     vscalar *elt;
     vlist *prev;
 
@@ -557,56 +654,55 @@ task_possible(vhash *room, vhash *step)
         printf("consider: %s\n", vh_sgetref(step, "DESC"));
     }
 
-    dist = len = 0;
     if (taskroom == NULL || taskroom == room) {
         /*
          * Task can be done anywhere, or in current room -- if it's a
          * goto-room task, you must be able to get there.
          */
         if (vh_iget(step, "TYPE") == T_GOTO)
-            path = find_path(room, gotoroom, &dist, &len);
+            len = find_path(step, room, gotoroom);
     } else {
         /*
          * Task must be done elsewhere -- there must be a path from
          * here to the task room.
          */
-        path = find_path(room, taskroom, &dist, &len);
+        len = find_path(step, room, taskroom);
     }
 
-    if (path) {
-        /* See whether task is safe */
-        if (vh_exists(step, "SAFE")) {
-            /* User says it's safe, and they know best */
-            safe = 1;
-        } else if (vh_exists(step, "UNSAFE")) {
-            /* It's been flagged unsafe already */
+    /* Abort if no path */
+    if (len == NOPATH)
+        return 0;
+
+    /* See whether task is safe */
+    if (vh_exists(step, "SAFE")) {
+        /* User says it's safe, and they know best */
+        safe = 1;
+    } else if (vh_exists(step, "UNSAFE")) {
+        /* It's been flagged unsafe already */
+        safe = 0;
+    } else {
+        /* If no return path, mark it as unsafe */
+        safe = 1;
+        if (gotoroom != NULL)
+            taskroom = gotoroom;
+        if (taskroom != NULL && find_path(NULL, taskroom, room) == NOPATH)
             safe = 0;
-        } else {
-            /* If no return path, mark it as unsafe */
-            safe = 1;
-            if (gotoroom != NULL)
-                taskroom = gotoroom;
-            if (taskroom != NULL
-                && !find_path(taskroom, room, &tmp1, &tmp2))
-                safe = 0;
-        }
-
-        /* Record stats */
-        vh_istore(step, "DIST", dist);
-        vh_istore(step, "SAFEFLAG", safe);
-
-        if (ifm_verbose) {
-            indent(2);
-            printf("possible: %s", vh_sgetref(step, "DESC"));
-            if (len > 0)
-                printf(" (distance %d)", len);
-            if (!safe)
-                printf(" (unsafe)");
-            printf("\n");
-        }
     }
 
-    return path;
+    /* Record safe flag */
+    vh_istore(step, "SAFEFLAG", safe);
+
+    if (ifm_verbose) {
+        indent(2);
+        printf("possible: %s", vh_sgetref(step, "DESC"));
+        if (len > 0)
+            printf(" (distance %d)", len);
+        if (!safe)
+            printf(" (unsafe)");
+        printf("\n");
+    }
+
+    return 1;
 }
 
 /* Create and return a new task step */
@@ -644,6 +740,7 @@ task_step(int type, vhash *data)
     case T_USER:
         room = vh_pget(data, "ROOM");
         strcpy(buf, desc);
+        vh_pstore(step, "NEED", vh_pget(data, "NEED"));
         vh_pstore(step, "NEXT", vh_pget(data, "NEXT"));
         vh_pstore(step, "PREV", vh_pget(data, "PREV"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));

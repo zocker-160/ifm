@@ -10,9 +10,11 @@
 #ifndef IFM_PATH_H
 #define IFM_PATH_H
 
+#define NOPATH -1
+
 /* Advertised functions */
 extern void connect_rooms(void);
-extern int find_path(vhash *from, vhash *to, int *dist, int *len);
+extern int find_path(vhash *step, vhash *from, vhash *to);
 extern vlist *get_path(vhash *room);
 extern void init_path(vhash *room);
 extern void modify_path(void);
