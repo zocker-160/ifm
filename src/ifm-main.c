@@ -68,6 +68,15 @@ static struct driver_st {
 
 #define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
 
+/* Init file */
+#ifndef INITFILE
+# ifdef _WIN32
+#  define INITFILE "ifm.ini"
+# else
+#  define INITFILE ".ifmrc"
+# endif
+#endif
+
 /* Max. errors before aborting */
 #define MAX_ERRORS 10
 
@@ -159,15 +168,11 @@ main(int argc, char *argv[])
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
-#ifdef INITFILE
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
-#endif
 
-#ifdef SYSINIT
     v_option('\0', "nosysinit", V_OPT_FLAG, NULL,
              "Don't read system init file");
-#endif
 
     v_option('v', "version", V_OPT_FLAG, NULL,
              "Print program version");
@@ -207,6 +212,9 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "noinit"))
         initfile = 0;
 
+    if (vh_exists(opts, "nosysinit"))
+        sysinit = 0;
+
     if ((file = vh_sgetref(opts, "output")) != NULL)
         if (freopen(file, "w", stdout) == NULL)
             fatal("can't open %s", file);
@@ -232,20 +240,16 @@ main(int argc, char *argv[])
     /* Initialise */
     init_map();
 
-#ifdef SYSINIT
     /* Parse system init file */
     if (sysinit && !parse_input(SYSINIT, 0))
         return 1;
-#endif
 
-#ifdef INITFILE
     /* Parse personal init file if available */
     if (initfile && getenv("HOME") != NULL) {
         sprintf(buf, "%s/%s", getenv("HOME"), INITFILE);
         if (!parse_input(buf, 0))
             return 1;
     }
-#endif
 
     /* Parse input */
     if (!parse_input(file, 1))
