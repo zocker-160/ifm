@@ -18,6 +18,8 @@
 #include "ifm-util.h"
 #include "ifm-parse.h"
 
+#define yywrap() 1
+
 /* Internal string buffer */
 static vbuffer *sbuf = NULL;
 
@@ -118,6 +120,7 @@ WHITE		[ \t\f]*
 "n"		{ return NORTH; }
 "ne"		{ return NORTHEAST; }
 "need"		{ return NEED; }
+"nolink"        { return NOLINK; }
 "north"		{ return NORTH; }
 "northeast"	{ return NORTHEAST; }
 "northwest"	{ return NORTHWEST; }
@@ -148,6 +151,7 @@ WHITE		[ \t\f]*
 "up"		{ return UP; }
 "w"		{ return WEST; }
 "west"		{ return WEST; }
+"x"             { return TIMES; }
 
 {ID}		{
 		    yylval.sval = v_strdup(yytext);
