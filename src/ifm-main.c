@@ -74,7 +74,6 @@ main(int argc, char *argv[])
 
 #ifdef DEBUG
     extern int yydebug;
-
     v_debug(V_DBG_PTRS);
 #endif
 
@@ -494,7 +493,7 @@ usage()
     v_usage("Usage: %s [options] [file]", progname);
     printf("\nOutput formats (may be abbreviated):\n");
     for (i = 0; i < NUM_DRIVERS; i++)
-        printf("  %-15s %s\n", drivers[i].name, drivers[i].desc);
+        printf("    %-15s    %s\n", drivers[i].name, drivers[i].desc);
 
     exit(0);
 }
