@@ -1,5 +1,5 @@
 ;;; ifm-mode.el --- IFM editing commands for Emacs.
-;;; Written by Glenn Hutchings (zondo@hunting2.demon.co.uk)
+;;; Written by Glenn Hutchings (zondo@pillock.freeserve.co.uk)
 
 (defvar ifm-mode-map nil
   "Keymap used in IFM mode.")
@@ -86,9 +86,9 @@ before doing anything else."
   ;; Activate syntax table.
   (if ifm-mode-syntax-table
       nil
-    (setq ifm-mode-syntax-table (copy-syntax-table))
-    ;;(modify-syntax-entry ?_ "w" ifm-mode-syntax-table)
-    (set-syntax-table ifm-mode-syntax-table))
+    (setq ifm-mode-syntax-table (make-syntax-table))
+    (modify-syntax-entry ?_ "w" ifm-mode-syntax-table))
+  (set-syntax-table ifm-mode-syntax-table)
   ;; Activate keymap.
   (use-local-map ifm-mode-map)
   (run-hooks 'ifm-mode-hook))
