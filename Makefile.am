@@ -2,9 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = vars src lib doc tests @tkifm@ @scr2ifm@
-
-DIST_SUBDIRS = vars src lib doc tests tkifm scr2ifm
+SUBDIRS = vars src lib doc tests progs
 
 EXTRA_DIST = README.unix README.win32 README.maps README.vars
 
@@ -21,7 +19,7 @@ dist-extra:
 
 dist-header:
 	addheader=$(top_srcdir)/etc/add-header; \
-	for dir in src lib tkifm scr2ifm; do \
+	for dir in src lib progs; do \
 	   if test -f $$addheader; then \
 	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir; \
 	   fi; \
@@ -45,12 +43,12 @@ EXE = ifm.exe
 
 FILES = README README.win32 README.maps NEWS COPYING
 
-PROGS = src/$(EXE) tkifm/tkifm.tcl scr2ifm/scr2ifm.pl
+PROGS = src/$(EXE) progs/tkifm.tcl progs/scr2ifm.pl
 
 DLL = $(bindir)/cygwin1.dll
 
-DOCS = doc/ifm.txt doc/ifm.html tkifm/tkifm.txt tkifm/tkifm.html	\
-scr2ifm/scr2ifm.txt scr2ifm/scr2ifm.html
+DOCS = doc/ifm.txt doc/ifm.html progs/tkifm.txt progs/tkifm.html	\
+progs/scr2ifm.txt progs/scr2ifm.html
 
 LIBS = lib/*.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
 
