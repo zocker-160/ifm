@@ -78,6 +78,8 @@ connect_rooms(void)
     /* Build link connections */
     vl_foreach(elt, links) {
         link = vs_pget(elt);
+        if (vh_iget(link, "NOLINK"))
+            continue;
 
         oneway = vh_iget(link, "ONEWAY");
         len = vh_iget(link, "LEN");
