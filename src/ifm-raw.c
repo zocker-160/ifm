@@ -85,9 +85,6 @@ raw_map_room(vhash *room)
     printf("id: %d\n", vh_iget(room, "ID"));
     printf("pos: %d %d\n", vh_iget(room, "X"), vh_iget(room, "Y"));
 
-    if (vh_iget(room, "PUZZLE"))
-        printf("puzzle: 1\n");
-
     if ((list = vh_pget(room, "ITEMS")) != NULL) {
         vl_foreach(elt, list) {
             item = vs_pget(elt);
@@ -121,9 +118,6 @@ raw_map_link(vhash *link)
     y = vh_pget(link, "Y");
     while (vl_length(x) > 0)
         printf("pos: %d %d\n", vl_ishift(x), vl_ishift(y));
-
-    if (vh_iget(link, "SPECIAL"))
-        printf("special: 1\n");
 
     if (vh_iget(link, "ONEWAY"))
         printf("oneway: 1\n");
