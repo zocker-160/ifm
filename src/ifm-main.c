@@ -269,7 +269,7 @@ main(int argc, char *argv[])
 
     /* Set output format if not already specified */
     if (output != O_NONE && format < 0) {
-        if ((fmt = get_var("output")) != NULL)
+        if ((fmt = get_var("format")) != NULL)
             format = select_format(vs_sget(fmt));
         else
             format = default_format(output);
