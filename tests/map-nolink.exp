@@ -1,0 +1,23 @@
+title: Interactive Fiction map
+
+room: Room 3
+id: 3
+pos: 2 0
+
+room: Room 2
+id: 2
+pos: 1 0
+
+room: Room 1
+id: 1
+pos: 0 0
+
+link: 2 3
+pos: 1 0
+pos: 2 0
+oneway: 1
+
+link: 2 1
+pos: 1 0
+pos: 0 0
+oneway: 1

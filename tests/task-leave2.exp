@@ -1,0 +1,11 @@
+task: Get large object
+room: Room 1
+
+task: Move to Room 4
+room: Room 4
+cmd: S
+
+task: Win the game
+room: Room 4
+
+task: Drop large object

@@ -1,0 +1,27 @@
+Item list for Interactive Fiction game
+
+Start: Start
+
+Move to Corridor (W)
+Move to Corridor (W)
+Move to Corridor (W)
+Move to Treasure Room (W)
+
+Treasure Room:
+   Get diamond
+      score: 1
+      note: Not used for anything yet
+
+Move to Corridor (E)
+Move to Corridor (N)
+Move to Corridor (E)
+Move to Start (E)
+Move to Bottom of Chute (S)
+
+Bottom of Chute:
+   Win the game
+      score: 10
+
+Total distance travelled: 9
+
+Total score: 11

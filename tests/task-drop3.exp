@@ -1,0 +1,22 @@
+task: Get thing
+room: Room 1
+
+task: Shazam!
+room: Room 1
+note: Moves you to Room 4
+
+task: Move to Room 3
+room: Room 3
+cmd: W
+
+task: Get thing
+room: Room 3
+
+task: Move to Room 2
+room: Room 2
+cmd: W
+
+task: Win
+room: Room 2
+
+task: Drop thing

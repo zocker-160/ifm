@@ -1,0 +1,28 @@
+task: Get thing1
+room: Room 1
+
+task: Get thing2
+room: Room 1
+
+task: Get thing3
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: E
+
+task: Drop some stuff
+room: Room 2
+
+task: Get thing2
+room: Room 2
+
+task: Get thing3
+room: Room 2
+
+task: Move to Room 3
+room: Room 3
+cmd: E
+
+task: Win
+room: Room 3

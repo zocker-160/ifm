@@ -1,0 +1,15 @@
+Item list for Interactive Fiction game
+
+Start: Room 1
+
+Move to Room 2 (go to other room)
+
+Room 2:
+   First thing
+
+Move to Room 1 (go to other room)
+
+Room 1:
+   Second thing
+
+Total distance travelled: 2

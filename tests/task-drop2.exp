@@ -1,0 +1,34 @@
+task: Get thing
+room: Room 1
+
+task: Do first thing
+tag: first
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: E
+
+task: Do second thing
+tag: second
+room: Room 2
+
+task: Move to Room 1
+room: Room 1
+cmd: W
+
+task: Get thing
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: E
+
+task: Move to Room 3
+room: Room 3
+cmd: E
+
+task: Win
+room: Room 3
+
+task: Drop thing

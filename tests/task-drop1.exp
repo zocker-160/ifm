@@ -1,0 +1,29 @@
+task: Twiddle thumbs
+room: Room 1
+
+task: Get ball
+room: Room 1
+
+task: Throw ball at ceiling
+room: Room 1
+note: Moves you to Room 2
+
+task: Move to Room 1
+room: Room 1
+cmd: N
+
+task: Get ceiling plaster
+room: Room 1
+note: Not used for anything yet
+
+task: Get ball
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: S
+
+task: Win
+room: Room 2
+
+task: Drop ball

@@ -1,0 +1,6 @@
+task: Move to R4
+room: R4
+cmd: SE
+
+task: Win
+room: R4

@@ -1,0 +1,24 @@
+Item list for Interactive Fiction game
+
+Room 1:
+   Get thing
+   Do first thing
+
+Move to Room 2 (E)
+
+Room 2:
+   Do second thing
+
+Move to Room 1 (W)
+
+Room 1:
+   Get thing
+
+Move to Room 2 (E)
+Move to Room 3 (E)
+
+Room 3:
+   Win
+   Drop thing
+
+Total distance travelled: 4

@@ -1,0 +1,12 @@
+task: Get thing 1
+room: Room 1
+
+task: Get thing 2
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: S
+
+task: Win
+room: Room 2

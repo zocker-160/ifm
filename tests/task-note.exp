@@ -1,0 +1,25 @@
+task: Move to Kitchen
+room: Kitchen
+cmd: S
+note: Funny smell here
+
+task: Move to Garage
+room: Garage
+cmd: S
+
+task: Do first
+tag: first
+room: Garage
+note: First task
+note: Another note
+
+task: Move to Kitchen
+room: Kitchen
+cmd: N
+
+task: Move to Start
+room: Start
+cmd: N
+
+task: Win
+room: Start

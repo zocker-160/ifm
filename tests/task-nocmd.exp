@@ -1,0 +1,12 @@
+task: Do first thing
+room: Start
+
+task: Move to Finish
+room: Finish
+cmd: S
+
+task: Visit finish room
+room: Finish
+
+task: Do second thing
+room: Finish

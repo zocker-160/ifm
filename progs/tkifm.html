@@ -1,0 +1,266 @@
+    <HTML> 
+	<HEAD> 
+	    <TITLE>tkifm -- simple graphical front end to ifm(1)
+
+</TITLE> 
+	</HEAD>
+
+	<BODY>
+
+<!-- INDEX BEGIN -->
+
+<UL>
+
+	<LI><A HREF="#NAME">NAME</A>
+	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A>
+	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A>
+	<LI><A HREF="#USING_YOUR_OWN_EDITOR">USING YOUR OWN EDITOR</A>
+	<LI><A HREF="#CUSTOMIZATION">CUSTOMIZATION</A>
+	<LI><A HREF="#ERRORS_AND_WARNINGS">ERRORS AND WARNINGS</A>
+	<LI><A HREF="#SEE_ALSO">SEE ALSO</A>
+	<LI><A HREF="#AUTHOR">AUTHOR</A>
+</UL>
+<!-- INDEX END -->
+
+<HR>
+<P>
+<H1><A NAME="NAME">NAME
+
+</A></H1>
+tkifm -- simple graphical front end to <CODE>ifm(1)</CODE>
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="SYNOPSIS">SYNOPSIS
+
+</A></H1>
+tkifm [file]
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="DESCRIPTION">DESCRIPTION
+
+</A></H1>
+<STRONG>tkifm</STRONG> is a graphical front end to <STRONG>IFM</STRONG>, the Interactive Fiction Mapper. It provides a text editing window in
+which you map out your game using <STRONG>IFM</STRONG> commands, and a set of menus to view things. The various features are as
+follows:
+
+
+<P>
+
+<DL>
+<DT><STRONG><A NAME="item_Text">Text editing window
+
+</A></STRONG><DD>
+This is the main window, where you type <STRONG>IFM</STRONG> commands. It provides all the usual text editing command bindings that come
+with the Tcl/Tk text widget.
+
+
+<P>
+
+<DT><STRONG><A NAME="item_File">File menu
+
+</A></STRONG><DD>
+The standard set of file commands: New, Open, Save, Save-As, Print (to
+PostScript), Quit. There's also a command called Redraw, which invokes
+<STRONG>IFM</STRONG> on the current file again. Normally you don't have to use this (it's done
+whenever you open a new file or save the current one), but if you change
+your initialization file (see below) the changes won't be noticed unless
+you do a Redraw.
+
+
+<P>
+
+<DT><STRONG><A NAME="item_Map">Map menu
+
+</A></STRONG><DD>
+For each map section in your map, a menu entry appears here. Selecting it
+will draw the appropriate map in another window.
+
+
+<P>
+
+<DT><STRONG><A NAME="item_Item">Item menu
+
+</A></STRONG><DD>
+This contains a single menu item, which displays a list of items in another
+window.
+
+
+<P>
+
+<DT><STRONG><A NAME="item_Task">Task menu
+
+</A></STRONG><DD>
+This contains two menu items: 'Task list (brief)', which displays a
+high-level walkthrough of the game in another window, and 'Task list
+(debugging)' which does the same but gives detailed information about what
+the game solver is up to.
+
+
+<P>
+
+<DT><STRONG><A NAME="item_Show">Show menu
+
+</A></STRONG><DD>
+This contains two menu items: 'Variables', which shows all the currently
+defined variables and their values, and 'Paths', which shows the file
+search path.
+
+
+<P>
+
+<DT><STRONG><A NAME="item_Help">Help menu
+
+</A></STRONG><DD>
+This displays a small info panel about the current <STRONG>IFM</STRONG> version, including copying restrictions.
+
+
+<P>
+
+</DL>
+<P>
+<HR>
+<H1><A NAME="USING_YOUR_OWN_EDITOR">USING YOUR OWN EDITOR
+
+</A></H1>
+If you'd like to use your own editor to edit <STRONG>IFM</STRONG> files, but still view results with <STRONG>tkifm</STRONG>, you can.  <STRONG>tkifm</STRONG> recognizes when the file it is visiting gets modified, and rereads it if
+so. If you like, you can also disable all <STRONG>tkifm</STRONG> file modification commands by setting the <CODE>ifm(edit)</CODE>
+variable to zero (see <A HREF="#CUSTOMIZATION">CUSTOMIZATION</A>). This is probably a good idea if using another editor, or else you might
+accidentally save from <STRONG>tkifm</STRONG> and lose all your changes.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="CUSTOMIZATION">CUSTOMIZATION
+
+</A></H1>
+On startup, <STRONG>tkifm</STRONG> reads an initialization file in your home directory (the one pointed at by
+the <STRONG>HOME</STRONG> environment variable). On Unix systems it is called <EM>.tkifmrc</EM>, and on Win32 systems it is called <EM>tkifm.ini</EM>. From there, using Tcl commands, you can set various things that affect
+the appearance of the program. Here's an example file showing the valid
+variables, their format and defaults.
+
+
+<P>
+
+<PRE>    # Example tkifm init file.
+</PRE>
+
+<P>
+
+<PRE>    # Whether to allow editing.
+    set ifm(edit) 1
+</PRE>
+
+<P>
+
+<PRE>    # Edit window dimensions.
+    set ifm(editwidth) 80
+    set ifm(editheight) 24
+</PRE>
+
+<P>
+
+<PRE>    # Editing font.
+    set ifm(editfont) {Courier 12 bold}
+</PRE>
+
+<P>
+
+<PRE>    # Edit window colours.
+    set ifm(editforeground) black
+    set ifm(editbackground) wheat
+</PRE>
+
+<P>
+
+<PRE>    # Item list window dimensions.
+    set ifm(itemwidth) 50
+    set ifm(itemheight) 30
+</PRE>
+
+<P>
+
+<PRE>    # Task list (brief) window dimensions.
+    set ifm(taskwidth) 50
+    set ifm(taskheight) 30
+</PRE>
+
+<P>
+
+<PRE>    # Task list (debugging) window dimensions.
+    set ifm(debugwidth) 80
+    set ifm(debugheight) 30
+</PRE>
+
+<P>
+
+<PRE>    # Variable window dimensions.
+    set ifm(varswidth) 50
+    set ifm(varsheight) 30
+</PRE>
+
+<P>
+
+<PRE>    # Text window font.
+    set ifm(textfont) {Times 12 bold}
+</PRE>
+
+<P>
+
+<PRE>    # Text window colours.
+    set ifm(textforeground) black
+    set ifm(textbackground) wheat
+</PRE>
+
+<P>
+
+<PRE>    # Whether to allow tearoff menus.
+    set ifm(tearoff) 1
+</PRE>
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="ERRORS_AND_WARNINGS">ERRORS AND WARNINGS
+
+</A></H1>
+Any errors or warnings that occur when invoking <STRONG>IFM</STRONG> will be displayed in a dialog. The current line of the text window will be
+changed to point at the error or warning line (if appropriate).
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="SEE_ALSO">SEE ALSO
+
+</A></H1>
+<CODE>ifm(1)</CODE>
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="AUTHOR">AUTHOR
+
+</A></H1>
+Glen Hutchings
+
+
+<P>
+
+</DL>
+    </BODY>
+
+    </HTML>

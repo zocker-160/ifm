@@ -1,0 +1,11 @@
+Item list for Interactive Fiction game
+
+Start: Lounge
+
+Move to Kitchen (E)
+
+Kitchen:
+   Get broom
+      note: Finishes the game
+
+Total distance travelled: 1

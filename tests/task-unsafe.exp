@@ -1,0 +1,44 @@
+task: Move to Corridor
+room: Corridor
+cmd: W
+
+task: Move to Corridor
+room: Corridor
+cmd: W
+
+task: Move to Corridor
+room: Corridor
+cmd: W
+
+task: Move to Treasure Room
+room: Treasure Room
+cmd: W
+
+task: Get diamond
+room: Treasure Room
+score: 1
+note: Not used for anything yet
+
+task: Move to Corridor
+room: Corridor
+cmd: E
+
+task: Move to Corridor
+room: Corridor
+cmd: N
+
+task: Move to Corridor
+room: Corridor
+cmd: E
+
+task: Move to Start
+room: Start
+cmd: E
+
+task: Move to Bottom of Chute
+room: Bottom of Chute
+cmd: S
+
+task: Win the game
+room: Bottom of Chute
+score: 10

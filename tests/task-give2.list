@@ -1,0 +1,13 @@
+Item list for Interactive Fiction game
+
+Room 1:
+   Say shazam
+      note: Gives magic wand
+      note: Not used for anything yet
+
+Move to Room 2 (S)
+
+Room 2:
+   Win
+
+Total distance travelled: 1

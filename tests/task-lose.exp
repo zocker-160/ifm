@@ -1,0 +1,11 @@
+task: Get dynamite
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: SE
+
+task: Scare granny with dynamite
+room: Room 2
+
+task: Explode

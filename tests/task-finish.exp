@@ -1,0 +1,7 @@
+task: Move to Kitchen
+room: Kitchen
+cmd: E
+
+task: Get broom
+room: Kitchen
+note: Finishes the game

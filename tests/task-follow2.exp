@@ -1,0 +1,37 @@
+task: Get hammer
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: N
+
+task: Room2
+tag: room2
+room: Room 2
+
+task: Get tongs
+room: Room 2
+
+task: Move to Room 1
+room: Room 1
+cmd: S
+
+task: Room1
+tag: room1
+room: Room 1
+
+task: Move to Room 2
+room: Room 2
+cmd: N
+
+task: Move to Room 3
+room: Room 3
+cmd: N
+
+task: Room3
+tag: room3
+room: Room 3
+
+task: Drop hammer
+
+task: Drop tongs

@@ -1,0 +1,14 @@
+task: Move to Room 3
+room: Room 3
+cmd: S
+
+task: Move to Room 4
+room: Room 4
+cmd: E
+
+task: Move to Room 2
+room: Room 2
+cmd: N
+
+task: Win
+room: Room 2

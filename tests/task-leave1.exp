@@ -1,0 +1,20 @@
+task: Get large object
+room: Room 1
+score: 1
+
+task: Move to Room 2
+room: Room 2
+cmd: E
+
+task: Move to Room 3
+room: Room 3
+cmd: S
+
+task: Move to Room 4
+room: Room 4
+cmd: W
+
+task: Win the game
+room: Room 4
+
+task: Drop large object

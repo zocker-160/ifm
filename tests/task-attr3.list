@@ -1,0 +1,22 @@
+Item list for Interactive Fiction game
+
+Bank Vault:
+   Open the glass case
+   Get diamond
+      score: 1
+
+Move to Control Room (S)
+
+Control Room:
+   Disable the alarm
+
+Move to Bank Vault (N)
+Move to Bank Entrance (?)
+
+Bank Entrance:
+   Escape with the diamond
+   Drop diamond
+
+Total distance travelled: 3
+
+Total score: 1

@@ -1,0 +1,20 @@
+Item list for Interactive Fiction game
+
+Start: Room 1
+
+Move to Room 2 (S)
+
+Room 2:
+   Ask man for thing
+      score: 15
+      note: Gives thing
+
+Move to Room 1 (N)
+
+Room 1:
+   Win
+   Drop thing
+
+Total distance travelled: 2
+
+Total score: 15

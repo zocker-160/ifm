@@ -1,0 +1,26 @@
+task: Move to Landing
+room: Landing
+cmd: U
+
+task: Move to Bedroom
+room: Bedroom
+cmd: E
+
+task: Tidy the room
+tag: tidy
+room: Bedroom
+
+task: Move to Landing
+room: Landing
+cmd: W
+
+task: Move to Lounge
+room: Lounge
+cmd: D
+
+task: Move to Kitchen
+room: Kitchen
+cmd: E
+
+task: Make the tea
+room: Kitchen

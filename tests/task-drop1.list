@@ -1,0 +1,22 @@
+Task list for Interactive Fiction game
+
+Room 1:
+   Twiddle thumbs
+   Get ball
+   Throw ball at ceiling
+      note: Moves you to Room 2
+
+Move to Room 1 (N)
+
+Room 1:
+   Get ceiling plaster
+      note: Not used for anything yet
+   Get ball
+
+Move to Room 2 (S)
+
+Room 2:
+   Win
+   Drop ball
+
+Total distance travelled: 2

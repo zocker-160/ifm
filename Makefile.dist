@@ -1,0 +1,12 @@
+# Stuff to rebuild distribution.
+
+ARGS = --disable-shared # --disable-default
+
+all:	make conf
+
+make:;	autoheader
+	aclocal
+	automake -v
+
+conf:;	autoconf
+	configure $(ARGS)

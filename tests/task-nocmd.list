@@ -1,0 +1,13 @@
+Item list for Interactive Fiction game
+
+Start:
+   Do first thing
+
+Move to Finish (S)
+
+Finish:
+   Visit finish room
+      no action required
+   Do second thing
+
+Total distance travelled: 1

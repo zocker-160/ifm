@@ -1,0 +1,17 @@
+task: Move to Room 2
+room: Room 2
+cmd: N
+
+task: Safe task
+room: Room 2
+
+task: Move to Room 1
+room: Room 1
+cmd: S
+
+task: Task 1
+room: Room 1
+
+task: Task 2
+tag: task2
+room: Room 1

@@ -1,0 +1,17 @@
+task: Move to Room 2
+room: Room 2
+cmd: S
+
+task: Ask man for thing
+room: Room 2
+score: 15
+note: Gives thing
+
+task: Move to Room 1
+room: Room 1
+cmd: N
+
+task: Win
+room: Room 1
+
+task: Drop thing

@@ -1,0 +1,12 @@
+task: Get gold bar
+room: Room 1
+score: 1
+note: Not used for anything yet
+
+task: Pull rope
+tag: pull
+room: Room 1
+
+task: Get rope
+room: Room 1
+note: Not used for anything yet

@@ -1,0 +1,17 @@
+Item list for Interactive Fiction game
+
+Room 1:
+   Get large object
+      score: 1
+
+Move to Room 2 (E)
+Move to Room 3 (S)
+Move to Room 4 (W)
+
+Room 4:
+   Win the game
+   Drop large object
+
+Total distance travelled: 3
+
+Total score: 1

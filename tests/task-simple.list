@@ -1,0 +1,18 @@
+Item list for Interactive Fiction game
+
+Start: Lounge
+
+Move to Landing (U)
+Move to Bedroom (E)
+
+Bedroom:
+   Tidy the room
+
+Move to Landing (W)
+Move to Lounge (D)
+Move to Kitchen (E)
+
+Kitchen:
+   Make the tea
+
+Total distance travelled: 5

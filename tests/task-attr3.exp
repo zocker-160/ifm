@@ -1,0 +1,28 @@
+task: Open the glass case
+tag: trigger_alarm
+room: Bank Vault
+
+task: Get diamond
+room: Bank Vault
+score: 1
+
+task: Move to Control Room
+room: Control Room
+cmd: S
+
+task: Disable the alarm
+tag: disable_alarm
+room: Control Room
+
+task: Move to Bank Vault
+room: Bank Vault
+cmd: N
+
+task: Move to Bank Entrance
+room: Bank Entrance
+cmd: ?
+
+task: Escape with the diamond
+room: Bank Entrance
+
+task: Drop diamond

@@ -1,0 +1,12 @@
+title: Interactive Fiction map
+
+room: Room 1
+id: 1
+pos: 0 0
+
+room: Room 2
+id: 2
+pos: 0 0
+
+join: 1 2
+go: N

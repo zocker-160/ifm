@@ -1,0 +1,17 @@
+#! /bin/sh
+
+$BUILDDIR/src/ifm -I$SRCDIR/lib -w -task -format raw 2>&1 > $BUILDDIR/tests/task-simple.out <<END
+# Test of simple tasks.
+
+room "Lounge" tag Lounge;
+
+room "Kitchen" dir e;
+task "Make the tea" after tidy;
+
+room "Landing" dir n from Lounge go up;
+
+room "Bedroom" dir e;
+task "Tidy the room" tag tidy;
+END
+
+cmp -s $SRCDIR/tests/task-simple.exp $BUILDDIR/tests/task-simple.out

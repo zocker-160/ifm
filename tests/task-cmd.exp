@@ -1,0 +1,15 @@
+task: Move to Room 2
+room: Room 2
+cmd: go to other room
+
+task: First thing
+tag: t1
+room: Room 2
+
+task: Move to Room 1
+room: Room 1
+cmd: go to other room
+
+task: Second thing
+tag: t2
+room: Room 1
