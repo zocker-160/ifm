@@ -457,6 +457,7 @@ itemsort(vscalar **ip1, vscalar **ip2)
     vhash *i1 = vs_pget(*ip1);
     vhash *i2 = vs_pget(*ip2);
     vhash *ir1, *ir2;
+    char *n1, *n2;
     int cmp;
 
     /* First, by item name */
@@ -471,7 +472,11 @@ itemsort(vscalar **ip1, vscalar **ip2)
     if (cmp) return cmp;
 
     /* Finally, by note */
-    return strcmp(vh_sgetref(i1, "NOTE"), vh_sgetref(i2, "NOTE"));
+    n1 = vh_sgetref(i1, "NOTE");
+    n2 = vh_sgetref(i2, "NOTE");
+
+    return strcmp((n1 == NULL ? "" : n1),
+                  (n2 == NULL ? "" : n2));
 }
 
 /* Select an output format */
