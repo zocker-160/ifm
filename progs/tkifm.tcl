@@ -3,27 +3,30 @@
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; see the file COPYING for details.
 
-# Global variables.
+# Global variables (internal).
 set ifm(mapcmd)  {ifm -map   -format tk}
 set ifm(itemcmd) {ifm -items -format tk}
 set ifm(taskcmd) {ifm -tasks -format tk}
 
+# Global variables (customizable).
 set ifm(editwidth) 80
 set ifm(editheight) 24
 set ifm(editfont) {Courier 12 bold}
+set ifm(editforeground) black
+set ifm(editbackground) wheat
 
 set ifm(textwidth) 50
-set ifm(textheight) 20
+set ifm(textheight) 30
 set ifm(textfont) {Times 12 bold}
+set ifm(textforeground) black
+set ifm(textbackground) wheat
 
-set ifm(file) "untitled.ifm"
-set ifm(path) "untitled.ifm"
+set ifm(untitled) "untitled.ifm"
 set ifm(filetypes) {{"IFM files" {.ifm}} {"All files" *}}
-set ifm(compiled) ""
 
 # Set up the main window.
-proc MainWindow {file} {
-    global ifm sects
+proc MainWindow {} {
+    global ifm
 
     wm protocol . WM_DELETE_WINDOW Quit
 
@@ -34,6 +37,7 @@ proc MainWindow {file} {
     set c $m.file
     menu $c
     $m add cascade -label "File" -menu $c -underline 0
+    $c add command -label "New"        -command New    -underline 0
     $c add command -label "Open..."    -command Open   -underline 0
     $c add command -label "Save"       -command Save   -underline 0
     $c add command -label "Save As..." -command SaveAs -underline 5
@@ -71,27 +75,70 @@ proc MainWindow {file} {
 
     text $t -yscrollcommand "$s set" -setgrid true \
 	    -width $ifm(editwidth) -height $ifm(editheight) \
-	    -wrap word -font $ifm(editfont)
+	    -wrap word -font $ifm(editfont) -fg $ifm(editforeground) \
+	    -bg $ifm(editbackground)
 
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
     set ifm(text) $t
 
-    # Read input.
-    if {$file != ""} {
-	Input $file
-	Compile $file
+    focus $ifm(text)
+}
+
+# Build the map.
+proc BuildMap {} {
+    global sectnum roomnum linknum joinnum itemnum tasknum
+    global sects rooms links joins tasks
+    global ifm
+
+    # Get map data.
+    set result [RunProgram $ifm(mapcmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Error [lindex $result 2]
+	return
     }
 
-    focus .
+    # Remove old windows.
+    if [info exists sects] {
+	foreach sect $sects {
+	    catch {destroy .$sect}
+	}
+    }
+
+    catch {destroy .items}
+    catch {destroy .tasks}
+
+    # Set up new maps.
+    set sects {}
+    set rooms {}
+    set links {}
+    set joins {}
+    set tasks {}
+
+    set sectnum 0
+    set roomnum 0
+    set linknum 0
+    set joinnum 0
+    set itemnum 0
+    set tasknum 0
+
+    eval $data
+
+    # Reconfigure map menu.
+    set c $ifm(mapmenu)
+    $c delete 0 end
+
+    foreach sect $sects {
+	$c add command -label [Get $sect title] -command "DrawMap $sect"
+    }
 }
 
 # Draw a map section.
 proc DrawMap {sect} {
     global ifm rooms links
-
-    InitMap
 
     # Get attributes.
     set title [Get $sect title]
@@ -226,6 +273,7 @@ proc ShowItems {} {
     global ifm
 
     # Get item data.
+    if {[MaybeSave] == 0} return
     set result [RunProgram $ifm(itemcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
@@ -247,7 +295,8 @@ proc ShowItems {} {
     set s $w.scroll
     text $t -yscrollcommand "$s set" -setgrid true \
 	    -width $ifm(textwidth) -height $ifm(textheight) \
-	    -wrap word -font $ifm(textfont)
+	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
+	    -bg $ifm(textbackground)
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
@@ -262,6 +311,7 @@ proc ShowTasks {} {
     global ifm
 
     # Get task data.
+    if {[MaybeSave] == 0} return
     set result [RunProgram $ifm(taskcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
@@ -293,87 +343,39 @@ proc ShowTasks {} {
     focus $w
 }
 
-# Initialise the map.
-proc InitMap {} {
+# Read IFM source.
+proc ReadFile {file} {
     global ifm
+	
+    SetFile $file
 
-    if {$ifm(compiled) == ""} {Compile $ifm(path)}
+    if [file exists $file] {
+	if [catch {set fd [open $file r]}] {
+	    Error "Can't open $file"
+	    return
+	}
+
+	set ifm(data) [read -nonewline $fd]
+	close $fd
+
+	$ifm(text) delete 0.0 end
+	$ifm(text) insert end $ifm(data)
+	$ifm(text) mark set insert 0.0
+	append ifm(data) "\n"
+
+	BuildMap
+    }
 }
 
-# Read IFM source.
-proc Input {file} {
+# Set the current file.
+proc SetFile {file} {
     global ifm
 
-    if [catch {set fd [open $file r]}] {
-	Error "Can't open $file"
-	return
-    }
-
-    set ifm(data) [read -nonewline $fd]
-    close $fd
-	
     set ifm(file) [file tail $file]
     set ifm(path) $file
-
-    $ifm(text) delete 0.0 end
-    $ifm(text) insert end $ifm(data)
-    $ifm(text) mark set insert 0.0
-    append ifm(data) "\n"
-
-    set ifm(compiled) ""
-
+    set ifm(data) "\n"
     wm iconname . $ifm(file)
     wm title . $ifm(file)
-}
-
-# Compile IFM source.
-proc Compile {file} {
-    global sectnum roomnum linknum joinnum itemnum tasknum
-    global sects rooms links joins tasks
-    global ifm
-
-    # Get map data.
-    set result [RunProgram $ifm(mapcmd) $file]
-    if [lindex $result 0] {
-	set ifm(compiled) [lindex $result 1]
-    } else {
-	Error [lindex $result 2]
-	return
-    }
-
-    # Remove old windows.
-    if [info exists sects] {
-	foreach sect $sects {
-	    catch {destroy .$sect}
-	}
-    }
-
-    catch {destroy .items}
-    catch {destroy .tasks}
-
-    # Set up new maps.
-    set sects {}
-    set rooms {}
-    set links {}
-    set joins {}
-    set tasks {}
-
-    set sectnum 0
-    set roomnum 0
-    set linknum 0
-    set joinnum 0
-    set itemnum 0
-    set tasknum 0
-
-    eval $ifm(compiled)
-
-    # Reconfigure map menu.
-    set c $ifm(mapmenu)
-    $c delete 0 end
-
-    foreach sect $sects {
-	$c add command -label [Get $sect title] -command "DrawMap $sect"
-    }
 }
 
 # Add a section.
@@ -427,65 +429,15 @@ proc AddLink {xlist ylist updown inout oneway special} {
     Set $var sect sect$sectnum
 }
 
-# Add a join.
-proc AddJoin {from to updown inout oneway} {
-    global joins joinnum
-    incr joinnum
-    set var join$joinnum
-    lappend joins $var
+# Start a new file.
+proc New {} {
+    global ifm
 
-    Set $var num $joinnum
-    Set $var from room$from
-    Set $var to room$to
-    Set $var updown $updown
-    Set $var inout $inout
-    Set $var oneway $oneway
-}
+    if {[MaybeSave] == 0} return
 
-# Add an item.
-proc AddItem {desc note roomnum hidden} {
-    global items itemnum
-    incr itemnum
-    set var item$itemnum
-    lappend items $var
-
-    if {$roomnum > 0} {
-	set room room$roomnum
-	Set $var room $room
-	set list [Get $room items]
-	lappend list $var
-	Set $room items $list
-    } else {
-	Set $var room ""
-    }
-
-    Set $var num $itemnum
-    Set $var desc $desc
-    Set $var note $note
-    Set $var hidden $hidden
-}
-
-# Add a task.
-proc AddTask {desc note roomnum score} {
-    global tasks tasknum
-    incr tasknum
-    set var task$tasknum
-    lappend tasks $var
-
-    if {$roomnum > 0} {
-	set room room$roomnum
-	Set $var room $room
-	set list [Get $room tasks]
-	lappend list $var
-	Set $room tasks $list
-    } else {
-	Set $var room ""
-    }
-
-    Set $var num $tasknum
-    Set $var desc $desc
-    Set $var note $note
-    Set $var score $score
+    SetFile "untitled.ifm"
+    $ifm(text) mark set insert 0.0
+    $ifm(text) delete 0.0 end
 }
 
 # Open a file and parse it.
@@ -494,11 +446,7 @@ proc Open {} {
 
     if {[MaybeSave] == 0} return
     set file [tk_getOpenFile -filetypes $ifm(filetypes)]
-
-    if [string length $file] {
-	Input $file
-	Compile $file
-    }
+    if [string length $file] {ReadFile $file}
 }
 
 # Save the current file.
@@ -545,16 +493,17 @@ proc MaybeSave {} {
 proc Redraw {} {
     global ifm
 
-    MaybeSave
-    Compile $ifm(path)
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} return
+	BuildMap
+    } else {
+	Message "You must save the current file first."
+    }
 }
 
 # Quit.
 proc Quit {} {
-    global ifm
-
-    if {[MaybeSave] == 0} return
-    destroy .
+    if [MaybeSave] {destroy .}
 }
 
 # Run a program and return its results.
@@ -649,12 +598,12 @@ proc Get {var attr} {
 set rcfile [file join $env(HOME) .tkifm]
 if [file readable $rcfile] {source $rcfile}
 
+# Boot up.
+MainWindow
+
 # Parse arguments.
 if {$argc == 1} {
-    set file [lindex $argv 0]
+    ReadFile [lindex $argv 0]
 } else {
-    set file ""
+    SetFile $ifm(untitled)
 }
-
-# Boot up.
-MainWindow $file
