@@ -637,7 +637,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-vars-install   Install vars support library
+  --enable-vars-install   install vars support library
 
 Some influential environment variables:
   CC          C compiler command
@@ -2949,26 +2949,11 @@ esac
 # Check whether --enable-vars-install or --disable-vars-install was given.
 if test "${enable_vars_install+set}" = set; then
   enableval="$enable_vars_install"
-  case "${enableval}" in
-  yes) install_vars=yes ;;
-  no)  install_vars=no  ;;
-  *)   { { echo "$as_me:2955: error: bad value ${enableval} for --enable-vars-install" >&5
-echo "$as_me: error: bad value ${enableval} for --enable-vars-install" >&2;}
-   { (exit 1); exit 1; }; } ;;
-esac
+  VARS_INSTALL=$enableval
 else
-  install_vars=no
+  VARS_INSTALL=no
 fi;
-
-echo "$as_me:2963: checking whether to install support library" >&5
-echo $ECHO_N "checking whether to install support library... $ECHO_C" >&6
-if test "${ac_cv_install_vars+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_cv_install_vars=$install_vars
-fi
-echo "$as_me:2970: result: $ac_cv_install_vars" >&5
-echo "${ECHO_T}$ac_cv_install_vars" >&6
+export VARS_INSTALL
 
 ac_config_files="$ac_config_files Makefile src/Makefile lib/Makefile doc/Makefile maps/Makefile progs/Makefile tests/Makefile"
 cat >confcache <<\_ACEOF
@@ -3050,7 +3035,7 @@ DEFS=-DHAVE_CONFIG_H
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
 ac_clean_files="$ac_clean_files $CONFIG_STATUS"
-{ echo "$as_me:3053: creating $CONFIG_STATUS" >&5
+{ echo "$as_me:3038: creating $CONFIG_STATUS" >&5
 echo "$as_me: creating $CONFIG_STATUS" >&6;}
 cat >$CONFIG_STATUS <<_ACEOF
 #! $SHELL
@@ -3226,7 +3211,7 @@ cat >>$CONFIG_STATUS <<\EOF
     echo "$ac_cs_version"; exit 0 ;;
   --he | --h)
     # Conflict between --help and --header
-    { { echo "$as_me:3229: error: ambiguous option: $1
+    { { echo "$as_me:3214: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -3245,7 +3230,7 @@ Try \`$0 --help' for more information." >&2;}
     ac_need_defaults=false;;
 
   # This is an error.
-  -*) { { echo "$as_me:3248: error: unrecognized option: $1
+  -*) { { echo "$as_me:3233: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -3296,7 +3281,7 @@ do
   "tests/Makefile" ) CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
   "etc/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS etc/config.h" ;;
-  *) { { echo "$as_me:3299: error: invalid argument: $ac_config_target" >&5
+  *) { { echo "$as_me:3284: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
   esac
@@ -3530,7 +3515,7 @@ done; }
   esac
 
   if test x"$ac_file" != x-; then
-    { echo "$as_me:3533: creating $ac_file" >&5
+    { echo "$as_me:3518: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
     rm -f "$ac_file"
   fi
@@ -3548,7 +3533,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:3551: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:3536: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -3561,7 +3546,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:3564: error: cannot find input file: $f" >&5
+           { { echo "$as_me:3549: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -3622,7 +3607,7 @@ for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
   * )   ac_file_in=$ac_file.in ;;
   esac
 
-  test x"$ac_file" != x- && { echo "$as_me:3625: creating $ac_file" >&5
+  test x"$ac_file" != x- && { echo "$as_me:3610: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
 
   # First look for the input files in the build tree, otherwise in the
@@ -3633,7 +3618,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:3636: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:3621: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -3646,7 +3631,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:3649: error: cannot find input file: $f" >&5
+           { { echo "$as_me:3634: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -3763,7 +3748,7 @@ cat >>$CONFIG_STATUS <<\EOF
   rm -f $tmp/in
   if test x"$ac_file" != x-; then
     if cmp -s $ac_file $tmp/config.h 2>/dev/null; then
-      { echo "$as_me:3766: $ac_file is unchanged" >&5
+      { echo "$as_me:3751: $ac_file is unchanged" >&5
 echo "$as_me: $ac_file is unchanged" >&6;}
     else
       ac_dir=`$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
@@ -3881,7 +3866,7 @@ if test "$no_recursion" != yes; then
     # parts of a large source tree are present.
     test -d $srcdir/$ac_subdir || continue
 
-    { echo "$as_me:3884: configuring in $ac_subdir" >&5
+    { echo "$as_me:3869: configuring in $ac_subdir" >&5
 echo "$as_me: configuring in $ac_subdir" >&6;}
     case $srcdir in
     .) ;;
@@ -3903,7 +3888,7 @@ done; }
 
        if test -d ./$ac_subdir; then :;
        else
-         { { echo "$as_me:3906: error: cannot create \`pwd\`/$ac_subdir" >&5
+         { { echo "$as_me:3891: error: cannot create \`pwd\`/$ac_subdir" >&5
 echo "$as_me: error: cannot create \`pwd\`/$ac_subdir" >&2;}
    { (exit 1); exit 1; }; }
        fi
@@ -3934,7 +3919,7 @@ echo "$as_me: error: cannot create \`pwd\`/$ac_subdir" >&2;}
     elif test -f $ac_sub_srcdir/configure.in; then
       ac_sub_configure=$ac_configure
     else
-      { echo "$as_me:3937: WARNING: no configuration information is in $ac_subdir" >&5
+      { echo "$as_me:3922: WARNING: no configuration information is in $ac_subdir" >&5
 echo "$as_me: WARNING: no configuration information is in $ac_subdir" >&2;}
       ac_sub_configure=
     fi
@@ -3948,12 +3933,12 @@ echo "$as_me: WARNING: no configuration information is in $ac_subdir" >&2;}
         ac_sub_cache_file=$ac_dots$cache_file ;;
       esac
 
-      { echo "$as_me:3951: running $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_sub_srcdir" >&5
+      { echo "$as_me:3936: running $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_sub_srcdir" >&5
 echo "$as_me: running $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_sub_srcdir" >&6;}
       # The eval makes quoting arguments work.
       eval $ac_sub_configure $ac_sub_configure_args \
            --cache-file=$ac_sub_cache_file --srcdir=$ac_sub_srcdir ||
-        { { echo "$as_me:3956: error: $ac_sub_configure failed for $ac_subdir" >&5
+        { { echo "$as_me:3941: error: $ac_sub_configure failed for $ac_subdir" >&5
 echo "$as_me: error: $ac_sub_configure failed for $ac_subdir" >&2;}
    { (exit 1); exit 1; }; }
     fi
