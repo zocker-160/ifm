@@ -36,4 +36,4 @@ SUFFIXES	= .ifm .test .task .prof .tk .ps .rec
 tests:		$(SRCS)
 		perl Maketests "$(IFM)" $(SRCS)
 
-clean:; 	rm -f *.out 
+CLEANFILES	= *.out
