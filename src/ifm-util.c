@@ -79,9 +79,9 @@ get_var(char *id)
                 if (n3 == 0 && ifm_format == NULL)
                     continue;
 
-                key = var_encode((n3 ? ifm_format : NULL),
-                                 (n2 ? ifm_output : NULL),
-                                 (n1 ? mapnum : 0), id);
+                key = var_encode((n3 ? NULL : ifm_format),
+                                 (n2 ? NULL : ifm_output),
+                                 (n1 ? 0 : mapnum), id);
                 if ((var = vh_get(vars, key)) != NULL) {
                     if (used_vars == NULL)
                         used_vars = vh_create();
