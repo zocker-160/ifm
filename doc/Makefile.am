@@ -20,7 +20,6 @@ doc: $(SRCS)
 		echo >> ifm.pod; \
 		$(CONFIG) $$i | podpp >> ifm.pod; \
 	done
-	@ $(MAKE) all
 
 ETAGS_ARGS = -l none -r '/^=head.[ \t]+\(.+\)/\1/' $(SRCS)
 
