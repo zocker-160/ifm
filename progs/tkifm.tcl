@@ -58,6 +58,7 @@ set ifm(untitled) "untitled.ifm"
 set ifm(ifmfiles) {{"IFM files" {.ifm}} {"All files" *}}
 set ifm(psfiles)  {{"PostScript files" {.ps}} {"All files" *}}
 set ifm(roomitemratio) 0.5
+set ifm(busycursor) watch
 
 # Room style variable names.
 set ifm(roomvars) {
@@ -562,11 +563,19 @@ proc BuildMap {} {
 
     # Remove old windows.
     if [info exists sects] {
-	foreach sect $sects {catch {destroy .$sect}}
+	foreach sect $sects {
+	    if [winfo exists .$sect] {
+		destroy .$sect
+		set num [Get $sect num]
+		set redraw($num) 1
+	    }
+	}
     }
 
     catch {destroy .items}
     catch {destroy .tasks}
+    catch {destroy .debug}
+    catch {destroy .vars}
 
     # Set up new maps.
     set sects {}
@@ -587,6 +596,7 @@ proc BuildMap {} {
 
     for {set i 1} {$i <= $sectnum} {incr i} {
 	$c add command -label [Get sect$i title] -command "DrawMap $i"
+	if [info exists redraw($i)] {DrawMap $i}
     }
 }
 
@@ -949,16 +959,24 @@ proc Truncate {link wid ht} {
 # Set busy state.
 proc Busy {} {
     global ifm
-    set ifm(oldcursor) [$ifm(text) cget -cursor]
-    $ifm(text) configure -cursor watch
-    update idletasks
+
+    set cursor [$ifm(text) cget -cursor]
+
+    if {$cursor != $ifm(busycursor)} {
+	set ifm(oldcursor) $cursor
+	$ifm(text) configure -cursor $ifm(busycursor)
+	update idletasks
+    }
 }
 
 # Set unbusy state.
 proc Unbusy {} {
     global ifm
-    $ifm(text) configure -cursor $ifm(oldcursor)
-    update idletasks
+
+    if [info exists ifm(oldcursor)] {
+	$ifm(text) configure -cursor $ifm(oldcursor)
+	update idletasks
+    }
 }
 
 # Ask a yes/no question.
