@@ -10,6 +10,8 @@
 #define FIG_TEXT_WSCALE 10
 #define FIG_TEXT_HSCALE 10
 
+#define FIG_UNDEF -1
+
 /* Orientation */
 enum {
     FIG_LANDSCAPE, FIG_PORTRAIT
