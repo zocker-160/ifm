@@ -389,10 +389,11 @@ resolve_tags(void)
         resolve_tag_list("item", vh_pget(join, "NEED"), itemtags);
     }
 
-    /* Resolve item tags and build room items lists */
+    /* Resolve item tags and build room item lists */
     vl_foreach(elt, items) {
         item = vs_pget(elt);
         resolve_tag("room", vh_get(item, "IN"), roomtags);
+        resolve_tag_list("task", vh_pget(item, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(item, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(item, "NEED"), itemtags);
 
@@ -451,6 +452,9 @@ setup_room_names(int jflag, int tflag)
     if (jflag) {
         vl_foreach(elt, joins) {
             join = vs_pget(elt);
+            if (vh_iget(join, "HIDDEN"))
+                continue;
+
             from = vh_pget(join, "FROM");
             to = vh_pget(join, "TO");
 
