@@ -25,6 +25,7 @@
 #include "ifm-path.h"
 #include "ifm-task.h"
 #include "ifm-util.h"
+#include "ifm-vars.h"
 
 /* Output drivers */
 #include "ifm-ps.h"
@@ -110,7 +111,7 @@ static void print_map(void);
 static void print_items(void);
 static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
-static int parse_input(char *file, int required);
+static int parse_input(char *file, int libflag, int required);
 static void print_path(void);
 static void print_version(void);
 static int select_format(char *str, int output);
@@ -120,9 +121,10 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int output = O_NONE, sysinit = 1, initfile = 1;
+    int output = O_NONE, initfile = 1;
     vlist *args, *list;
-    char *file, *env;
+    char *env, *file;
+    vscalar *elt;
     vhash *opts;
 
 #ifdef BISON_DEBUG
@@ -166,9 +168,6 @@ main(int argc, char *argv[])
 
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
-
-    v_option('\0', "nosysinit", V_OPT_FLAG, NULL,
-             "Don't read system init file");
 
     v_option('\0', "showpath", V_OPT_FLAG, NULL,
              "Print file search path");
@@ -220,9 +219,6 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "noinit"))
         initfile = 0;
 
-    if (vh_exists(opts, "nosysinit"))
-        sysinit = 0;
-
     if (vh_exists(opts, "debug"))
         ifm_debug = 1;
 
@@ -246,35 +242,37 @@ main(int argc, char *argv[])
         break;
     }
 
-    /* Last argument (if any) is input file */
-    args = vh_pget(opts, "ARGS");
-    if (vl_length(args) > 0)
-        file = vl_sshift(args);
-    else
-        file = NULL;
-
     /* Initialise */
     init_map();
 
     /* Parse system init file */
-    if (sysinit && !parse_input(SYSINIT, 0))
+    if (!parse_input(SYSINIT, 1, 1))
         return 1;
 
     /* Parse personal init file if available */
     if (initfile && getenv("HOME") != NULL) {
         sprintf(buf, "%s/%s", getenv("HOME"), INITFILE);
-        if (!parse_input(buf, 0))
+        if (!parse_input(buf, 0, 0))
             return 1;
     }
 
-    /* Parse input */
-    if (!parse_input(file, 1))
+    /* Parse input files (or stdin) */
+    args = vh_pget(opts, "ARGS");
+    if (vl_length(args) > 0) {
+        vl_foreach(elt, args) {
+            file = vs_sgetref(elt);
+            parse_input(file, 0, 1);
+        }
+    } else if (!parse_input(NULL, 0, 1)) {
         return 1;
+    }
 
     /* Set output format if not already specified */
     if (output != O_NONE && ifm_fmt == F_NONE) {
-        vscalar *var = get_var("format");
-        ifm_fmt = select_format(var != NULL ? vs_sget(var) : NULL, output);
+        char *str = NULL;
+        if (VAR_DEF("format"))
+            str = var_string("format");
+        ifm_fmt = select_format(str, output);
     }
 
     /* Resolve tags */
@@ -459,19 +457,14 @@ print_tasks(void)
 
 /* Parse input from a file */
 static int
-parse_input(char *file, int required)
+parse_input(char *file, int libflag, int required)
 {
     static int parses = 0;
     extern FILE *yyin;
 
     if (file != NULL) {
-        strcpy(ifm_input, file);
-        if ((yyin = fopen(file, "r")) == NULL) {
-            if (required)
-                fatal("can't open %s", file);
-            else
-                return 1;
-        }
+        if ((yyin = open_file(file, libflag, required)) == NULL)
+            return 1;
     } else {
         strcpy(ifm_input, "<stdin>");
         yyin = stdin;
@@ -669,7 +662,7 @@ usage()
 {
     int i;
 
-    v_usage("Usage: %s [options] [file]", progname);
+    v_usage("Usage: %s [options] [file...]", progname);
     printf("\nOutput formats (may be abbreviated):\n");
     for (i = 0; i < NUM_DRIVERS; i++)
         printf("    %-15s    %s\n", drivers[i].name, drivers[i].desc);
