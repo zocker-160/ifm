@@ -259,7 +259,8 @@ game solver.
 
 =item style ID [ID...]
 
-Add a list of display styles to the room.  See L<"Styles">.
+Add a list of display styles to the room (and also the implicit link, if
+any).  See L<"Styles">.
 
 =back
 

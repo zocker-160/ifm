@@ -1091,17 +1091,17 @@ style_list      : style_elt
 
 style_elt       : ID
                 {
-                    add_attr(curobj, ATTR(STYLE), $1);
+                    add_attr(curobj, "STYLE", $1);
                     ref_style($1);
                 }
                 | PUZZLE
                 {
-                    add_attr(curobj, ATTR(STYLE), "puzzle");
+                    add_attr(curobj, "STYLE", "puzzle");
                     ref_style("puzzle");
                 }
                 | SPECIAL
                 {
-                    add_attr(curobj, ATTR(STYLE), "special");
+                    add_attr(curobj, "STYLE", "special");
                     ref_style("special");
                 }
                 ;
