@@ -82,19 +82,16 @@ main(int argc, char *argv[])
 
     /* Parse command-line arguments */
     opterr = 0;
-    while ((c = getopt(argc, argv, "af:himo:ptvD:")) != EOF) {
+    while ((c = getopt(argc, argv, "f:himo:ptvD:")) != EOF) {
 	switch (c) {
         case 'm':
-            output = O_MAP;
+            output |= O_MAP;
             break;
         case 'i':
-            output = O_ITEMS;
+            output |= O_ITEMS;
             break;
         case 't':
-            output = O_TASKS;
-            break;
-        case 'a':
-            output = O_ALL;
+            output |= O_TASKS;
             break;
         case 'f':
             format = select_format(optarg);
@@ -181,7 +178,7 @@ main(int argc, char *argv[])
     setup_sections();
 
     /* Do task setup if required */
-    if (output == O_NONE || output == O_TASKS || output == O_ALL) {
+    if (output == O_NONE || output & O_TASKS) {
         /* Connect rooms */
         status("Connecting rooms...");
         connect_rooms();
@@ -194,17 +191,12 @@ main(int argc, char *argv[])
 
     /* Set output format if not already specified */
     if (output != O_NONE && format < 0) {
-        switch (output) {
-        case O_MAP:
+        if      (output & O_MAP)
             ifm_output = "map";
-            break;
-        case O_ITEMS:
+        else if (output & O_ITEMS)
             ifm_output = "item";
-            break;
-        case O_TASKS:
+        else if (output & O_TASKS)
             ifm_output = "task";
-            break;
-        }
 
         if ((fmt = get_var("output")) != NULL)
             format = select_format(vs_sval(fmt));
@@ -215,26 +207,17 @@ main(int argc, char *argv[])
     ifm_format = drivers[format].name;
 
     /* Do what's required */
-
-    switch (output) {
-    case O_NONE:
+    if (output == O_NONE)
         printf("Syntax appears OK\n");
-        break;
-    case O_MAP:
+
+    if (output & O_MAP)
         draw_map(format);
-        break;
-    case O_ITEMS:
+
+    if (output & O_ITEMS)
         draw_items(format);
-        break;
-    case O_TASKS:
+
+    if (output & O_TASKS)
         draw_tasks(format);
-        break;
-    case O_ALL:
-        draw_map(format);
-        draw_items(format);
-        draw_tasks(format);
-        break;
-    }
 
     if (print)
         print_vars();
@@ -304,8 +287,6 @@ draw_items(int fmt)
     vhash *item;
 
     items = vh_pget(map, "ITEMS");
-    if (vl_length(items) == 0)
-        fatal("no items found in input");
 
     if (func == NULL)
         fatal("no item table driver for %s", drv.name);
@@ -338,8 +319,6 @@ draw_tasks(int fmt)
     vhash *task;
 
     tasks = vh_pget(map, "TASKS");
-    if (vl_length(tasks) == 0)
-        fatal("no tasks found in input");
 
     if (func == NULL)
         fatal("no task table driver for %s", drv.name);
@@ -411,23 +390,15 @@ default_format(int output)
     int i;
 
     for (i = 0; i < NUM_DRIVERS; i++) {
-        switch (output) {
-        case O_MAP:
+        if (output & O_MAP)
             if (drivers[i].mfunc != NULL)
                 return i;
-            break;
-        case O_ITEMS:
+        if (output & O_ITEMS)
             if (drivers[i].ifunc != NULL)
                 return i;
-            break;
-        case O_TASKS:
+        if (output & O_TASKS)
             if (drivers[i].tfunc != NULL)
                 return i;
-            break;
-        case O_ALL:
-            return i;
-            break;
-        }
     }
 
     fatal("internal: no output format found");
@@ -529,7 +500,6 @@ usage()
     fprintf(stderr, fmt, "-m",         "print map");
     fprintf(stderr, fmt, "-i",         "print item table");
     fprintf(stderr, fmt, "-t",         "print task table");
-    fprintf(stderr, fmt, "-a",         "print all output");
     fprintf(stderr, fmt, "-f format",  "select output format");
     fprintf(stderr, fmt, "-o file",    "write output to file");
     fprintf(stderr, fmt, "-p",         "print parameters"); 
