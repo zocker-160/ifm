@@ -246,6 +246,7 @@ void
 room_exit(vhash *room, int xoff, int yoff, int flag)
 {
     vhash *flags;
+    int num;
 
     if (xoff == 0 && yoff == 0)
         fatal("internal: invalid direction offset");
@@ -260,10 +261,10 @@ room_exit(vhash *room, int xoff, int yoff, int flag)
 
     sprintf(buf, "%d,%d", xoff, yoff);
 
-    if (flag)
-        vh_istore(flags, buf, 1);
-    else
-        vh_delete(flags, buf);
+    num = vh_iget(flags, buf);
+    num = V_MAX(num, 0);
+
+    vh_istore(flags, buf, (flag ? -1 : num + 1));
 }
 
 /* Set a tag table entry */
@@ -283,10 +284,10 @@ void
 setup_exits(void)
 {
     vhash *room, *flags;
+    int x, y, num, dir;
     vlist *ex, *ey;
     vscalar *elt;
     char *tag;
-    int x, y;
 
     vl_foreach(elt, rooms) {
         room = vs_pget(elt);
@@ -296,16 +297,26 @@ setup_exits(void)
 
         ex = ey = NULL;
         vh_foreach(tag, elt, flags) {
-            if (ex == NULL) {
-                ex = vl_create();
-                ey = vl_create();
-                vh_pstore(room, "EX", ex);
-                vh_pstore(room, "EY", ey);
-            }
+            num = vs_iget(elt);
 
-            sscanf(tag, "%d,%d", &x, &y);
-            vl_ipush(ex, x);
-            vl_ipush(ey, y);
+            if (num < 0) {
+                if (ex == NULL) {
+                    ex = vl_create();
+                    ey = vl_create();
+                    vh_pstore(room, "EX", ex);
+                    vh_pstore(room, "EY", ey);
+                }
+
+                sscanf(tag, "%d,%d", &x, &y);
+                vl_ipush(ex, x);
+                vl_ipush(ey, y);
+            } else if (num > 1) {
+                sscanf(tag, "%d,%d", &x, &y);
+                dir = get_direction(x, y);
+                warn("room `%s' has multiple %s links",
+                     vh_sgetref(room, "DESC"),
+                     dirinfo[dir].lname);
+            }
         }
 
         vh_destroy(flags);
