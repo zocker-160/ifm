@@ -576,11 +576,22 @@ sort_tasks(vscalar **v1, vscalar **v2)
     int s1 = vh_iget(t1, "SORT");
     int s2 = vh_iget(t2, "SORT");
 
+    /* Try sort codes first */
     if (s1 < s2)
         return -1;
     else if (s1 > s2)
         return 1;
 
+    /* Try order of declaration */
+    s1 = vh_iget(t1, "COUNT");
+    s2 = vh_iget(t2, "COUNT");
+
+    if (s1 < s2)
+        return -1;
+    else if (s1 > s2)
+        return 1;
+
+    /* Shouldn't get here */
     return 0;
 }
 

@@ -489,6 +489,7 @@ new_task(int type, vhash *data)
 {
     char *desc = vh_sgetref(data, "DESC");
     int score = vh_iget(data, "SCORE");
+    static int count = 0;
     vhash *room, *step;
 
     step = vh_create();
@@ -554,6 +555,7 @@ new_task(int type, vhash *data)
     vh_sstore(step, "DESC", buf);
     vh_pstore(step, "ROOM", room);
     vh_istore(step, "SCORE", score);
+    vh_istore(step, "COUNT", ++count);
 
     return step;
 }
