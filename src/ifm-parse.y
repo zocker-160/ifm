@@ -100,18 +100,44 @@ static int repeat = 0;          /* String repeat count */
 
 %%
 
+/************************************************************************/
+/* Top-level
+/************************************************************************/
+
 stmt_list	: /* empty */
 		| stmt_list stmt
 		| stmt_list error
 		;
 
-stmt		: room_stmt
+stmt		: ctrl_stmt
+                | room_stmt
 		| item_stmt
 		| link_stmt
 		| join_stmt
 		| task_stmt
-		| ctrl_stmt
+		| vars_stmt
 		;
+
+/************************************************************************/
+/* Control commands
+/************************************************************************/
+
+ctrl_stmt       : TITLE STRING ';'
+                {
+                    set_var(NULL, NULL, "title", vs_screate($2));
+                }
+                | MAP STRING ';'
+                {
+                    if (sectnames == NULL)
+                        sectnames = vl_create();
+                    vl_spush(sectnames, $2);
+                    mapnum++;
+                }
+                ;
+
+/************************************************************************/
+/* Rooms
+/************************************************************************/
 
 room_stmt	: ROOM STRING
 		{
@@ -398,6 +424,42 @@ room_attr	: TAG ID
 		}
 		;
 
+room_list	: room_elt
+		| room_list room_elt
+		;
+
+room_elt	: room
+		{
+                    if (currooms == NULL)
+                        currooms = vl_create();
+                    vl_push(currooms, $1);
+		}
+		;
+
+room            : ID
+                {
+                    $$ = itroom = vs_screate($1);
+                }
+                | IT
+                {
+                    if (itroom == NULL)
+                        err("no room referred to by `it'");
+                    else
+                        $$ = vs_copy(itroom);
+                }
+                | LAST
+                {
+                    if (lastroom == NULL)
+                        err("no room referred to by `last'");
+                    else
+                        $$ = itroom = vs_pcreate(lastroom);
+                }
+                ;
+
+/************************************************************************/
+/* Items
+/************************************************************************/
+
 item_stmt	: ITEM STRING
                 {
                     curitem = vh_create();
@@ -451,7 +513,7 @@ item_attr	: TAG ID
 		{
                     vh_istore(curitem, "HIDDEN", 1);
 		}
-		| GIVEN
+		| GIVEN         /* obsolete */
 		{
                     obsolete("`given' attribute", "task `give' attribute");
                     vh_istore(curitem, "GIVEN", 1);
@@ -485,6 +547,47 @@ item_attr	: TAG ID
                     vh_istore(curitem, "FINISH", 1);
                 }
 		;
+
+item_list	: item_elt
+		| item_list item_elt
+		;
+
+item_list_all   : item_list                     { allflag = 0; }
+                | ALL                           { allflag = 1; }
+                | ALL EXCEPT item_list          { allflag = 1; }
+                ;
+
+item_elt	: item
+		{
+                    if (curitems == NULL)
+                        curitems = vl_create();
+                    vl_push(curitems, $1);
+		}
+		;
+
+item            : ID
+                {
+                    $$ = ititem = vs_screate($1);
+                }
+                | IT
+                {
+                    if (ititem == NULL)
+                        err("no item referred to by `it'");
+                    else
+                        $$ = vs_copy(ititem);
+                }
+                | LAST
+                {
+                    if (lastitem == NULL)
+                        err("no item referred to by `last'");
+                    else
+                        $$ = ititem = vs_pcreate(lastitem);
+                }
+                ;
+
+/************************************************************************/
+/* Links
+/************************************************************************/
 
 link_stmt	: LINK room TO room
                 {
@@ -587,6 +690,10 @@ link_attr	: DIR dir_list
 		}
                 ; 
 
+/************************************************************************/
+/* Joins
+/************************************************************************/
+
 join_stmt	: JOIN room TO room
                 {
                     curjoin = vh_create();
@@ -682,6 +789,10 @@ join_attr	: GO compass
                         CHANGE_ERROR(tag);
 		}
 		;
+
+/************************************************************************/
+/* Tasks
+/************************************************************************/
 
 task_stmt	: TASK STRING
                 {
@@ -829,18 +940,43 @@ task_attr	: TAG ID
 		}
 		;
 
-ctrl_stmt       : TITLE STRING ';'
+task_list	: task_elt
+		| task_list task_elt
+		;
+
+task_elt	: task
+		{
+                    if (curtasks == NULL)
+                        curtasks = vl_create();
+                    vl_push(curtasks, $1);
+		}
+		;
+
+task            : ID
                 {
-                    set_var(NULL, NULL, "title", vs_screate($2));
+                    $$ = ittask = vs_screate($1);
                 }
-                | MAP STRING ';'
+                | IT
                 {
-                    if (sectnames == NULL)
-                        sectnames = vl_create();
-                    vl_spush(sectnames, $2);
-                    mapnum++;
+                    if (ittask == NULL)
+                        err("no task referred to by `it'");
+                    else
+                        $$ = vs_copy(ittask);
                 }
-                | ID '=' var ';'
+                | LAST
+                {
+                    if (lasttask == NULL)
+                        err("no task referred to by `last'");
+                    else
+                        $$ = ittask = vs_pcreate(lasttask);
+                }
+                ;
+
+/************************************************************************/
+/* Variables
+/************************************************************************/
+
+vars_stmt       : ID '=' var ';'
                 {
                     set_var(NULL, NULL, $1, $3);
                 }
@@ -874,106 +1010,15 @@ ctrl_stmt       : TITLE STRING ';'
                 }
 		;
 
-room_list	: room_elt
-		| room_list room_elt
-		;
-
-room_elt	: room
-		{
-                    if (currooms == NULL)
-                        currooms = vl_create();
-                    vl_push(currooms, $1);
-		}
-		;
-
-room            : ID
-                {
-                    $$ = itroom = vs_screate($1);
-                }
-                | IT
-                {
-                    if (itroom == NULL)
-                        err("no room referred to by `it'");
-                    else
-                        $$ = vs_copy(itroom);
-                }
-                | LAST
-                {
-                    if (lastroom == NULL)
-                        err("no room referred to by `last'");
-                    else
-                        $$ = itroom = vs_pcreate(lastroom);
-                }
+var             : INTEGER       { $$ = vs_icreate($1); }
+                | REAL          { $$ = vs_dcreate($1); }
+                | STRING        { $$ = vs_screate($1); }
+                | UNDEF         { $$ = NULL; }
                 ;
 
-item_list	: item_elt
-		| item_list item_elt
-		;
-
-item_list_all   : item_list                     { allflag = 0; }
-                | ALL                           { allflag = 1; }
-                | ALL EXCEPT item_list          { allflag = 1; }
-                ;
-
-item_elt	: item
-		{
-                    if (curitems == NULL)
-                        curitems = vl_create();
-                    vl_push(curitems, $1);
-		}
-		;
-
-item            : ID
-                {
-                    $$ = ititem = vs_screate($1);
-                }
-                | IT
-                {
-                    if (ititem == NULL)
-                        err("no item referred to by `it'");
-                    else
-                        $$ = vs_copy(ititem);
-                }
-                | LAST
-                {
-                    if (lastitem == NULL)
-                        err("no item referred to by `last'");
-                    else
-                        $$ = ititem = vs_pcreate(lastitem);
-                }
-                ;
-
-task_list	: task_elt
-		| task_list task_elt
-		;
-
-task_elt	: task
-		{
-                    if (curtasks == NULL)
-                        curtasks = vl_create();
-                    vl_push(curtasks, $1);
-		}
-		;
-
-task            : ID
-                {
-                    $$ = ittask = vs_screate($1);
-                }
-                | IT
-                {
-                    if (ittask == NULL)
-                        err("no task referred to by `it'");
-                    else
-                        $$ = vs_copy(ittask);
-                }
-                | LAST
-                {
-                    if (lasttask == NULL)
-                        err("no task referred to by `last'");
-                    else
-                        $$ = ittask = vs_pcreate(lasttask);
-                }
-                ;
+/************************************************************************/
+/* Directions
+/************************************************************************/
 
 dir_list	: dir_elt
 		| dir_list dir_elt
@@ -994,7 +1039,7 @@ dir_elt		: compass
                     while ($2-- > 0)
                         vl_ipush(curdirs, $1);
                 }
-                | compass TIMES INTEGER
+                | compass TIMES INTEGER /* obsolete */
                 {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -1005,28 +1050,6 @@ dir_elt		: compass
                     obsolete("`times' keyword", "just the repeat count");
                 }
 		;
-
-string_repeat   : STRING
-                {
-                    $$ = $1;
-                    repeat = 1;
-                }
-                | STRING INTEGER
-                {
-                    $$ = $1;
-                    repeat = $2;
-                    if ($2 <= 0)
-                        err("invalid repeat count");
-                }
-                | STRING TIMES INTEGER
-                {
-                    $$ = $1;
-                    repeat = $3;
-                    if ($3 <= 0)
-                        err("invalid repeat count");
-                    obsolete("`times' keyword", "just the repeat count");
-                }
-                ;
 
 compass		: NORTH		{ $$ = D_NORTH;	    }
 		| EAST		{ $$ = D_EAST;	    }
@@ -1044,10 +1067,30 @@ otherdir	: IN            { $$ = D_IN;   }
 		| DOWN          { $$ = D_DOWN; }
 		;
 
-var             : INTEGER       { $$ = vs_icreate($1); }
-                | REAL          { $$ = vs_dcreate($1); }
-                | STRING        { $$ = vs_screate($1); }
-                | UNDEF         { $$ = NULL; }
+/************************************************************************/
+/* Miscellaneous
+/************************************************************************/
+
+string_repeat   : STRING
+                {
+                    $$ = $1;
+                    repeat = 1;
+                }
+                | STRING INTEGER
+                {
+                    $$ = $1;
+                    repeat = $2;
+                    if ($2 <= 0)
+                        err("invalid repeat count");
+                }
+                | STRING TIMES INTEGER /* obsolete */
+                {
+                    $$ = $1;
+                    repeat = $3;
+                    if ($3 <= 0)
+                        err("invalid repeat count");
+                    obsolete("`times' keyword", "just the repeat count");
+                }
                 ;
 
 sep             : ','
