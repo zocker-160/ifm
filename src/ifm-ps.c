@@ -301,8 +301,8 @@ ps_map_link(vhash *link)
 {
     int oneway = vh_iget(link, "ONEWAY");
     int go = vh_iget(link, "GO");
-    int updown = (go == D_UP || go == D_DOWN);
-    int inout = (go == D_IN || go == D_OUT);
+    int up = (go == D_UP) ? 1 : (go == D_DOWN) ? -1 : 0;
+    int in = (go == D_IN) ? 1 : (go == D_OUT) ? -1 : 0;
     vlist *x, *y;
     int i, np;
 
@@ -313,19 +313,59 @@ ps_map_link(vhash *link)
     y = vh_pget(link, "Y");
     truncate_points(x, y, room_width, room_height);
 
-    printf("[");
-    np = vl_length(x);
-    for (i = 0; i < np; i++)
-        printf(" %g %g",
-               vl_dget(x, i) + ps_xoff,
-               vl_dget(y, i) + ps_yoff);
-    printf(" ]");
+    /*
+     * Check for circular links.  A circular link is a two-segment link
+     * that ends where it begins.  The midpoint indicates the exit
+     * direction.
+     */
+    if ((vl_length(x) == 3) &&
+	(vl_dget(x, 0) == vl_dget(x, 2)) &&
+	(vl_dget(y, 0) == vl_dget(y, 2))) {
+        double xs, ys, xm, ym;
+        int angle;
 
-    printf(" %s", (updown ? "true" : "false"));
-    printf(" %s", (inout ? "true" : "false"));
-    printf(" %s", (oneway ? "true" : "false"));
+        xs = vl_dget(x, 0);
+        ys = vl_dget(y, 0);
+        xm = vl_dget(x, 1);
+        ym = vl_dget(y, 1);
 
-    printf(" link\n");
+        if (xm > xs) {
+            if (ym < ys)
+                angle = 315;
+            else if (ym == ys)
+                angle = 0;
+            else
+                angle = 45;
+        } else if (xm < xs) {
+            if (ym < ys)
+                angle = 225;
+            else if (ym == ys)
+                angle = 180;
+            else
+                angle = 135;
+        } else {
+            if (ym < ys)
+                angle = 270;
+            else /* ym > ys */
+                angle = 90;
+        }
+
+        printf("%g %g %d circle\n", xs + ps_xoff, ys + ps_yoff, angle);
+    } else { /* it is not a circular link */
+        printf("[");
+        np = vl_length(x);
+        for (i = 0; i < np; i++)
+            printf(" %g %g",
+                   vl_dget(x, i) + ps_xoff,
+                   vl_dget(y, i) + ps_yoff);
+        printf(" ]");
+
+        printf(" %d", up);
+        printf(" %d", in);
+        printf(" %s", (oneway ? "true" : "false"));
+
+        printf(" link\n");
+    }
 }
 
 void

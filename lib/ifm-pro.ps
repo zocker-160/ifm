@@ -68,6 +68,28 @@
     /scalewidth mapwidth dup bp-width max div def
     /scaleheight mapheight dup bp-height max div def
     /fontscale scalewidth scaleheight min def
+
+    % Split the combined directional strings into individual versions.
+    link_updown_string (/) search {
+	exch pop % remove (/)
+    }{
+	pop (D) (U)
+    } ifelse
+
+    /link_up_string exch def
+    /link_down_string exch def
+
+    link_inout_string (/) search {
+	exch pop % remove (/)
+    }{
+	pop (O) (I)
+    } ifelse
+
+    /link_in_string exch def
+    /link_out_string exch def
+
+    /ah-size boxsize link_arrow_size mul def
+    /link_dashed false def
 } def
 
 % Display a map title
@@ -204,74 +226,125 @@
     grestore
 } def
 
+/taillabel {			% string Xtail Ytail Xhead Yhead
+	link_text_colour selectcolour
+	link_text_font link_text_fontsize fontscale mul selectfont
+
+	gsave
+		3 index 3 index pagepos translate	% to tail
+		angle rotate
+		link_text_fontsize fontscale mul 0.75 mul dup transform
+	grestore
+	itransform
+
+	map_background_colour true text
+} def
+
 % Draw a link.
-/link {				% [ X Y ... ] UPDOWN INOUT ONEWAY link
+/link {				% [ X Y ... ] UP IN ONEWAY link
     % Save arguments.
     /ln-oneway exch def
-    /ln-inout exch def
-    /ln-updown exch def
+    /ln-in exch def
+    /ln-up exch def
     /ln-points exch def
     /ln-np ln-points length def
 
     gsave
-	% Dashed line if required.
+	link_colour selectcolour
+	link_line_width setlinewidth
 	link_dashed {
 	    [ 2 2 ] 2 setdash
 	} if
 
-	% Draw line.
-	link_colour selectcolour
-	link_line_width setlinewidth
- 	/ln-lines ln-points length 2 div 1 sub def
- 	/ln-x ln-points 0 get def
- 	/ln-y ln-points 1 get def
- 	ln-x ln-y pagepos moveto
- 
- 	1 1 ln-lines {
- 	    /ln-i exch def
- 	    /ln-x ln-points ln-i 2 mul get def
- 	    /ln-y ln-points ln-i 2 mul 1 add get def
- 
- 	    ln-i ln-lines eq {
- 		ln-x ln-y pagepos lineto
- 	    }{
- 		/ln-xn ln-points ln-i 1 add 2 mul get def
- 		/ln-yn ln-points ln-i 1 add 2 mul 1 add get def
- 		ln-x ln-y pagepos ln-xn ln-yn pagepos 10 arcto
-		pop pop pop pop
- 	    } ifelse
+	% load the points onto the stack (and draw the line backwards)
+	ln-points aload pop
+
+	% If oneway, draw an arrowhead and skip forward so the line does
+	% not obscure the head.
+	ln-oneway {
+		gsave
+			2 copy pagepos translate
+			3 index 3 index 4 2 roll angle rotate
+			arrowhead
+			ah-size neg 0 transform
+		grestore
+		itransform
+	}{
+		pagepos
+	} ifelse
+
+	moveto
+
+	% draw segments connected by arcs
+ 	2 2 ln-np 4 sub {
+	    pop
+	    pagepos
+	    3 index 3 index pagepos
+	    boxsize 10 div
+	    arct
  	} for
+
+	% draw the final (initial) segment
+	pagepos lineto
  
  	stroke
 
-	% Mark updown/inout if required.
- 	ln-updown ln-inout or {
- 	    /ln-x ln-points ln-np 4 sub get def
- 	    /ln-y ln-points ln-np 3 sub get def
- 	    /ln-xn ln-points ln-np 2 sub get def
- 	    /ln-yn ln-points ln-np 1 sub get def
- 	    /ln-xmid ln-x ln-xn add 2 div def
- 	    /ln-ymid ln-y ln-yn add 2 div def
- 
-	    link_text_colour selectcolour
- 	    link_text_font link_text_fontsize fontscale mul selectfont
- 
- 	    ln-updown {
-		link_updown_string
+	% Mark up/down/in/out if required.
+ 	ln-up 0 ne ln-in 0 ne or {
+
+ 	    % Push the head label and the tail label.
+	    ln-up 1 eq {
+ 		link_down_string
+ 		link_up_string
  	    }{
- 		link_inout_string
- 	    } ifelse ln-xmid ln-ymid pagepos map_background_colour true text
+ 		ln-up -1 eq {
+ 		    link_up_string
+ 		    link_down_string
+ 		}{
+ 		    ln-in 1 eq {
+ 			link_out_string
+ 			link_in_string
+ 		    }{
+ 			link_in_string
+ 			link_out_string
+ 		    } ifelse
+ 		} ifelse
+ 	    } ifelse 
+
+ 	    % Mark the tail.
+ 	    ln-points 0 4 getinterval aload pop
+ 	    taillabel
+
+ 	    % Also mark the head if not oneway.
+ 	    ln-oneway {
+		pop % the head label
+ 	    }{
+ 		ln-points ln-np 4 sub 4 getinterval aload pop
+		4 2 roll
+ 		taillabel
+ 	    } ifelse
  	} if
 
-	% Draw arrow if oneway.
-	ln-oneway {
-	    link_colour selectcolour
- 	    /ln-x ln-points ln-np 4 sub get def
- 	    /ln-y ln-points ln-np 3 sub get def
- 	    /ln-xn ln-points ln-np 2 sub get def
- 	    /ln-yn ln-points ln-np 1 sub get def
-	    ln-x ln-y pagepos ln-xn ln-yn pagepos arrowhead
+    grestore
+} def
+
+% Draw a circular link.
+/circle {				% Xr Yr angle circle
+    gsave
+	link_colour selectcolour
+	link_line_width 2 div setlinewidth
+	link_dashed {
+		[ 2 2 ] 2 setdash
 	} if
+
+	3 1 roll pagepos translate rotate
+	0 0 moveto
+	boxsize 8 div dup 0 exch 180 -160 arcn
+ 	stroke
+
+	110 rotate
+	arrowhead
+
     grestore
 } def
 
@@ -429,26 +502,14 @@
     bl-textstring bl-startchar bl-lastchar bl-startchar sub getinterval bl-proc
 } bind def
 
-% Draw an arrowhead.
-/arrowhead {			% X1 Y1 X2 Y2 arrowhead
-    /ah-y2 exch def
-    /ah-x2 exch def
-    /ah-y1 exch def
-    /ah-x1 exch def
-
-    /ah-angle ah-y2 ah-y1 sub ah-x2 ah-x1 sub atan def
-    /ah-size boxsize link_arrow_size mul def
-
-    gsave
-	ah-x2 ah-y2 translate
-	ah-angle rotate
+% Draw arrowhead with point at 0,0 facing east (caller must rotate/translate).
+/arrowhead {
 	newpath
 	0 0 moveto
-	ah-size neg ah-size 2 div rlineto
-	0 ah-size neg rlineto
+	ah-size neg ah-size 2 div G div rlineto
+	0 ah-size G div neg rlineto
 	closepath fill
-    grestore
-} bind def
+} bind def	
 
 % Draw centred text.
 /text {				% STRING X Y [BGCOLOUR] BGFLAG text
@@ -510,6 +571,13 @@
     grestore
 } bind def
 
+% Find the angle of the vector (x1, y1) to (x2, y2).
+/angle {			% X1 Y1 X2 Y2 ANGLE angle
+    3 -1 roll sub
+    3 1 roll sub neg
+    atan
+} bind def
+
 % Select a font.
 /selectfont {			% FONT SIZE selectfont
     /current-fontsize exch def
@@ -542,6 +610,9 @@
 /val {				% MESSAGE VALUE val
     debug { exch print == } { pop pop } ifelse
 } bind def
+
+% The Golden Ratio [1/G == G/(1+G)].
+/G 5 0.5 exp 1 add 2 div def
 
 % Standard definitions.
 /debug false def

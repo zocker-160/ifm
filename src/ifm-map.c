@@ -371,9 +371,26 @@ setup_links(void)
 	xt = vh_iget(to, "X");
 	yt = vh_iget(to, "Y");
 
+	/*
+	 * Our canonical representation of a circular link is a two-segment
+	 * link that goes out one way and comes right back in the same
+	 * direction (recognizable by its equal start and endpoints, with
+	 * the midpoint indicating the exit direction).  Transform all
+	 * circular, one-way links into this sort of link by removing all
+	 * but the first direction in the list.  (We don't mess with
+	 * two-way links, because they have two exits, not one, and we
+	 * don't want to alter that.)
+	 */
+	if (vh_iget(link, "ONEWAY") && (x == xt) && (y == yt)) {
+            dirs = vh_pget(link, "DIR");
+            while (vl_length(dirs) > 1)
+                vl_ipop(dirs);
+	}
+
         /* Initialise coordinate lists */
 	xpos = vl_create();
 	vh_pstore(link, "X", xpos);
+
 	ypos = vl_create();
 	vh_pstore(link, "Y", ypos);
 
