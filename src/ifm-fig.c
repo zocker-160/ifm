@@ -78,10 +78,6 @@ fig_map_start(void)
     else
         orient = FIG_UNDEF;
 
-#if 1
-    page_margin = 0.0;
-#endif
-
     /* Get initial dimensions, in rooms */
     fig_width = page_width - 2 * page_margin;
     fig_height = page_height - 2 * page_margin;
@@ -113,6 +109,7 @@ fig_map_start(void)
         height = (int) (width * ratio) + 1;
     }
 
+    /* Find map size from first section that's output */
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
         if (!vh_iget(sect, "NOPRINT")) {
@@ -123,6 +120,7 @@ fig_map_start(void)
         }
     }
 
+    /* Set dimensions and offsets */
     if (orient == FIG_PORTRAIT) {
         fig_width = width * room_size;
         fig_height = height * room_size;
@@ -141,10 +139,6 @@ fig_map_start(void)
     fig_debug("page size: %g x %g", page_width, page_height);
     fig_debug("fig size: %g x %g", fig_width, fig_height);
 
-#if 1
-    fig_origin_x = 0;
-    fig_origin_y = fig_height - height * room_size;
-#else
     fig_origin_x = (page_width - width * room_size) / 2;
     fig_origin_y = (page_height - height * room_size) / 2;
     fig_origin_x = V_MAX(fig_origin_x, page_margin);
@@ -152,7 +146,6 @@ fig_map_start(void)
 
     fig_debug("page margin: %g", page_margin);
     fig_debug("fig origin: %g x %g", fig_origin_x, fig_origin_y);
-#endif
 
     if (var_int("fit_page")) {
         xscale = (page_width - 2 * page_margin) / fig_width;
@@ -209,6 +202,7 @@ fig_map_section(vhash *sect)
                                MAPX(x), MAPY(y - 1.5),
                                vh_sgetref(sect, "TITLE"));
         fig_set_font(text, map_text_font, map_text_fontsize);
+        fig_set_depth(text, 250);
         set_colour(text, map_text_colour);
     }
 }
@@ -216,7 +210,7 @@ fig_map_section(vhash *sect)
 void
 fig_map_room(vhash *room)
 {
-    float xp, yp, width, height, xborder = 0.05, yborder = 0.0;
+    float xp, yp, width, height, xborder = 0.02, yborder = 0.02;
     static vlist *px = NULL, *py = NULL;
     vhash *line, *box, *text;
     vlist *items, *ex, *ey;
@@ -280,22 +274,23 @@ fig_map_room(vhash *room)
 
     /* Draw room text (and items if any) */
     if (itemlist == NULL) {
-        xp = x + (1 - room_width) / 2 + xborder;
-        yp = y + (1 - room_height) / 2 + yborder;
-        width = room_size * room_width * (1 - 2 * xborder);
-        height = room_size * room_height * (1 - 2 * yborder);
-        text = fig_create_textbox(fig_room, room_text_font, room_text_fontsize,
+        text = fig_create_textbox(fig_room, room_text_font,
+                                  room_text_fontsize,
                                   FIG_JUSTIFY_CENTRE,
-                                  MAPX(xp), MAPY(yp), width, height,
+                                  MAPX(xp + xborder),
+                                  MAPY(yp - yborder),
+                                  width * (1 - 2 * xborder),
+                                  height * (1 - 2 * yborder),
                                   "%s", vh_sgetref(room, "DESC"));
 
         fig_set_depth(text, 50);
         set_colour(text, room_text_colour);
     } else {
-        text = fig_create_textbox(fig_room, room_text_font, room_text_fontsize,
+        text = fig_create_textbox(fig_room, room_text_font,
+                                  room_text_fontsize,
                                   FIG_JUSTIFY_CENTRE,
                                   MAPX(xp + xborder),
-                                  MAPY(yp + yborder),
+                                  MAPY(yp - yborder),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder) / 2,
                                   "%s", vh_sgetref(room, "DESC"));
@@ -303,10 +298,11 @@ fig_map_room(vhash *room)
         fig_set_depth(text, 50);
         set_colour(text, room_text_colour);
 
-        text = fig_create_textbox(fig_room, item_text_font, item_text_fontsize,
+        text = fig_create_textbox(fig_room, item_text_font,
+                                  item_text_fontsize,
                                   FIG_JUSTIFY_CENTRE,
                                   MAPX(xp + xborder),
-                                  MAPY(yp - 0.3),
+                                  MAPY(yp - yborder - 0.3),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder) / 2,
                                   "%s", itemlist);            
@@ -320,12 +316,10 @@ fig_map_room(vhash *room)
     ey = vh_pget(room, "EY");
 
     if (ex != NULL && ey != NULL) {
-        double x1, y1, x2, y2;
+        double x1, y1, x2, y2, xoff = 0.5, yoff = 0.5 - room_height;
 
-        if (px == NULL) {
-            px = vl_create();
-            py = vl_create();
-        }
+        vl_init(px);
+        vl_init(py);
 
         while (vl_length(ex) > 0) {
             vl_istore(px, 0, x);
@@ -341,10 +335,10 @@ fig_map_room(vhash *room)
             x2 = x1 + 0.35 * (x2 - x1);
             y2 = y1 + 0.35 * (y2 - y1);
 
-            /* Might have to adjust these */
             line = fig_create_line(fig_room,
-                                   MAPX(x1), MAPY(y1),
-                                   MAPX(x2), MAPY(y2));
+                                   MAPX(x1 + xoff), MAPY(y1 + yoff),
+                                   MAPX(x2 + xoff), MAPY(y2 + yoff));
+
             set_colour(line, room_exit_colour);
             fig_set_linewidth(line, room_exit_width);
             fig_set_depth(line, 150);
@@ -363,7 +357,7 @@ fig_map_link(vhash *link)
     vlist *y = vh_pget(link, "Y");
 
     int i, np = vl_length(x);
-    vhash *line;
+    vhash *line, *text;
     double xp, yp;
 
     /* Draw link line */
@@ -390,6 +384,21 @@ fig_map_link(vhash *link)
     fig_set_arrow(line, vh_iget(link, "ONEWAY"), 0);
 
     /* Add text if required */
+    if (updown || inout) {
+        xp = (vl_dget(x, 0) + vl_dget(x, 1)) / 2;
+        yp = (vl_dget(y, 0) + vl_dget(y, 1)) / 2;
+
+        xp += 0.5;
+        yp += 0.5 - room_height;
+
+        text = fig_create_text(fig_section, MAPX(xp), MAPY(yp),
+                               updown ? link_updown_string : link_inout_string);
+
+        fig_set_font(text, link_text_font, link_text_fontsize);
+        fig_set_depth(text, 100);
+        set_colour(text, link_text_colour);
+        set_fillcolour(text, page_background_colour);
+    }
 }
 
 void
