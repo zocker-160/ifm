@@ -37,9 +37,10 @@ void
 connect_rooms(void)
 {
     vhash *room, *link, *join, *reach, *from, *to, *task;
-    int oneway, len;
+    int oneway, len, goflag, dir;
     vlist *rlist;
     vscalar *elt;
+    char *cmd;
 
     if (ifm_verbose)
         printf("\nConnecting rooms...\n");
@@ -53,26 +54,26 @@ connect_rooms(void)
     /* Build link connections */
     vl_foreach(elt, links) {
         link = vs_pget(elt);
-        from = vh_pget(link, "FROM");
-        to = vh_pget(link, "TO");
+
         oneway = vh_iget(link, "ONEWAY");
         len = vh_iget(link, "LEN");
 
-        if (ifm_verbose) {
-            indent(1);
-            printf("link `%s' to `%s'",
-                   vh_sgetref(from, "DESC"),
-                   vh_sgetref(to, "DESC"));
-            if (len > 1)
-                printf(" (distance %d)", len);
-            if (oneway)
-                printf(" (oneway)");
-            printf("\n");
-        }
+        from = vh_pget(link, "FROM");
+        to = vh_pget(link, "TO");
 
         /* From -> to */
         rlist = vh_pget(from, "REACH");
         reach = vh_create();
+
+        cmd = vh_sgetref(link, "TO_CMD");
+        goflag = vh_iget(link, "GO");
+        dir = vh_iget(link, "TO_DIR");
+
+        if (cmd == NULL && goflag)
+            cmd = dirinfo[goflag].sname;
+        if (cmd == NULL)
+            cmd = dirinfo[dir].sname;
+        vh_sstore(reach, "CMD", cmd);
 
         vh_pstore(reach, "FROM", from);
         vh_pstore(reach, "TO", to);
@@ -83,10 +84,31 @@ connect_rooms(void)
 
         vl_ppush(rlist, reach);
 
+        if (ifm_verbose) {
+            indent(1);
+            printf("link `%s' to `%s' (%s)",
+                   vh_sgetref(from, "DESC"),
+                   vh_sgetref(to, "DESC"),
+                   cmd);
+            if (len > 1)
+                printf(" (distance %d)", len);
+            printf("\n");
+        }
+
         /* To -> from if not one-way */
         if (!oneway) {
             rlist = vh_pget(to, "REACH");
             reach = vh_create();
+
+            cmd = vh_sgetref(link, "FROM_CMD");
+            goflag = dirinfo[goflag].odir;
+            dir = vh_iget(link, "FROM_DIR");
+
+            if (cmd == NULL && goflag)
+                cmd = dirinfo[goflag].sname;
+            if (cmd == NULL)
+                cmd = dirinfo[dir].sname;
+            vh_sstore(reach, "CMD", cmd);
 
             vh_pstore(reach, "FROM", to);
             vh_pstore(reach, "TO", from);
@@ -96,32 +118,40 @@ connect_rooms(void)
             vh_istore(reach, "LEN", V_MAX(len, 1));
 
             vl_ppush(rlist, reach);
+
+            if (ifm_verbose) {
+                indent(1);
+                printf("link `%s' to `%s' (%s)",
+                       vh_sgetref(to, "DESC"),
+                       vh_sgetref(from, "DESC"),
+                       cmd);
+                if (len > 1)
+                    printf(" (distance %d)", len);
+                printf("\n");
+            }
         }
     }
 
     /* Build join connections */
     vl_foreach(elt, joins) {
         join = vs_pget(elt);
-        from = vh_pget(join, "FROM");
-        to = vh_pget(join, "TO");
+
         oneway = vh_iget(join, "ONEWAY");
         len = vh_iget(join, "LEN");
 
-        if (ifm_verbose) {
-            indent(1);
-            printf("join `%s' to `%s'",
-                   vh_sgetref(from, "DESC"),
-                   vh_sgetref(to, "DESC"));
-            if (len > 1)
-                printf(" (distance %d)", len);
-            if (oneway)
-                printf(" (oneway)");
-            printf("\n");
-        }
+        from = vh_pget(join, "FROM");
+        to = vh_pget(join, "TO");
 
         /* From -> to */
         rlist = vh_pget(from, "REACH");
         reach = vh_create();
+
+        cmd = vh_sgetref(join, "TO_CMD");
+        goflag = vh_iget(join, "GO");
+
+        if (cmd == NULL && goflag)
+            cmd = dirinfo[goflag].sname;
+        vh_sstore(reach, "CMD", cmd == NULL ? "?" : cmd);
 
         vh_pstore(reach, "FROM", from);
         vh_pstore(reach, "TO", to);
@@ -132,10 +162,28 @@ connect_rooms(void)
 
         vl_ppush(rlist, reach);
 
+        if (ifm_verbose) {
+            indent(1);
+            printf("join `%s' to `%s' (%s)",
+                   vh_sgetref(from, "DESC"),
+                   vh_sgetref(to, "DESC"),
+                   cmd);
+            if (len > 1)
+                printf(" (distance %d)", len);
+            printf("\n");
+        }
+
         /* To -> from if not one-way */
         if (!oneway) {
             rlist = vh_pget(to, "REACH");
             reach = vh_create();
+
+            cmd = vh_sgetref(join, "FROM_CMD");
+            goflag = dirinfo[goflag].odir;
+
+            if (cmd == NULL && goflag)
+                cmd = dirinfo[goflag].sname;
+            vh_sstore(reach, "CMD", cmd == NULL ? "?" : cmd);
 
             vh_pstore(reach, "FROM", to);
             vh_pstore(reach, "TO", from);
@@ -145,6 +193,17 @@ connect_rooms(void)
             vh_istore(reach, "LEN", V_MAX(len, 1));
 
             vl_ppush(rlist, reach);
+
+            if (ifm_verbose) {
+                indent(1);
+                printf("join `%s' to `%s' (%s)",
+                       vh_sgetref(to, "DESC"),
+                       vh_sgetref(from, "DESC"),
+                       cmd);
+                if (len > 1)
+                    printf(" (distance %d)", len);
+                printf("\n");
+            }
         }
     }
 }
@@ -426,7 +485,7 @@ init_path(vhash *room)
 
     if (ifm_verbose) {
         indent(2);
-        printf("update paths (max distance: %d)\n", len);
+        printf("updated paths (max distance: %d)\n", len);
     }
 
     /* Record distance of each task */
