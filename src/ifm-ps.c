@@ -92,7 +92,7 @@ ps_map_start(void)
     printf("%%%%EndComments\n");
 
     /* Find and print PostScript prolog */
-    fp = open_libfile(get_string("prolog", PS_PROLOG));
+    fp = open_libfile(get_string("prolog_file", PS_PROLOG));
     while ((c = fgetc(fp)) != EOF)
         putchar(c);
     fclose(fp);
@@ -156,7 +156,7 @@ ps_map_section(vhash *sect)
         printf("/labelfont /%s def\n", get_string("label_font", "Times-Roman"));
         printf("/labelfontsize %g def\n", get_real("label_fontsize", 8));
 
-        printf("/roomshading %g def\n", 1 - get_real("shading", 0.0));
+        printf("/roomshading %g def\n", 1 - get_real("room_shading", 0.0));
 
         printf("/showitems %s def\n",
                get_int("show_items", 0) ? "true" : "false");
