@@ -1,0 +1,20 @@
+%% Useful -*- LaTeX -*- macros.
+
+%% Use HTML stuff.
+\usepackage{html}
+
+%% Print comments for now.
+\usepackage{comment}
+\includecomment{comment}
+
+%% Signal a title page.
+\def\titlepage{
+    \renewcommand\thepage{\roman{page}}
+    \thispagestyle{empty}
+}
+
+%% Signal start of main text.
+\def\maintext{
+    \renewcommand\thepage{\arabic{page}}
+    \setcounter{page}{1}
+}

@@ -1,0 +1,33 @@
+I'm pleased to announce version 4.2 of IFM, the Interactive Fiction
+Mapper, which has just been posted to the IF archive.
+
+It's been over 3 years since the last update.  This release is the result
+of gradual accumulation of new features, and I've finally got around to
+cleaning things up and documenting all the new stuff.
+
+So, what's new?  Here's a short summary of the main new gimmicks.
+
+* IFM can now dump maps in Fig format.  This means you can edit them using
+  Xfig, import them into various other programs that read Fig files, and
+  convert the Fig output into lots of other formats.  As a convenience,
+  there's a perl script called ifm2dev, which is a front end to fig2dev.
+
+* Another new output format is for Graphviz, a graph drawing program.  IFM
+  can write out a task dependency graph to be drawn by Graphviz.
+
+* There are a few new keywords for use in solving the game.  I won't bother
+  repeating it all here; details are in the docs.
+
+* The documentation is now distributed in PDF and HTML formats.
+
+* Many other minor additions and some bug-fixes.
+
+And now for the bad news... sadly I can no longer support the Win32 port of
+IFM, since I don't have (or want) access to a Windoze box any more.  But if
+anyone out there wants to build the Win32 package on their machine and post
+it to the IF archive, I'd appreciate it.  You'll need to have the Cygwin
+tools installed, and there's some blurb in the source distribution saying
+how to do it.
+
+Er... that's it.  Send bug reports, suggestions, big wads of cash, etc., to
+zondo@pillock.freeserve.co.uk.
