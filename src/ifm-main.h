@@ -42,6 +42,8 @@
 extern char *progname;
 extern int line_number;
 extern int ifm_debug;
+extern char ifm_input[];
+extern vlist *ifm_search;
 extern char *ifm_format, *ifm_output;
 
 /* Advertised functions */

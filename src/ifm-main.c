@@ -75,8 +75,14 @@ static struct driver_st {
 /* What's my name? */
 char *progname;
 
+/* Input filename */
+char ifm_input[BUFSIZ];
+
 /* Current line number */
 int line_number;
+
+/* Search path */
+vlist *ifm_search = NULL;
 
 /* No. of errors */
 static int ifm_errors = 0;
@@ -86,9 +92,6 @@ static int warning_flag = 1;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
-
-/* Input filename */
-static char *ifm_input = NULL;
 
 /* Output format ID */
 static int ifm_fmt = F_NONE;
@@ -111,6 +114,7 @@ static void print_items(void);
 static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
 static int parse_input(char *file, int required);
+static void print_path(void);
 static void print_version(void);
 static int select_format(char *str, int output);
 static void usage(void);
@@ -120,9 +124,9 @@ int
 main(int argc, char *argv[])
 {
     int output = O_NONE, sysinit = 1, initfile = 1;
+    vlist *args, *list;
+    char *file, *env;
     vhash *opts;
-    vlist *args;
-    char *file;
 
 #ifdef BISON_DEBUG
     extern int yydebug;
@@ -160,19 +164,29 @@ main(int argc, char *argv[])
     v_option('d', "debug", V_OPT_FLAG, NULL,
              "Print debugging information");
 
+    v_option('I', "include", V_OPT_LIST, "dir",
+             "Prepend directory to search path");
+
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
 
     v_option('\0', "nosysinit", V_OPT_FLAG, NULL,
              "Don't read system init file");
 
-    v_option('v', "version", V_OPT_FLAG, NULL,
+    v_option('\0', "showpath", V_OPT_FLAG, NULL,
+             "Print file search path");
+
+    v_option('\0', "version", V_OPT_FLAG, NULL,
              "Print program version");
 
     v_option('h', "help", V_OPT_FLAG, NULL,
              "This help message");
 
     v_option('D', "DEBUG", V_OPT_ARG, "flag", NULL);
+
+    /* Set file search path */
+    env = getenv("IFMPATH");
+    ifm_search = vl_split(env != NULL ? env : IFMPATH, ":");
 
     /* Parse command-line arguments */
     if ((opts = vh_getopt(argc, argv)) == NULL)
@@ -183,6 +197,13 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "version"))
         print_version();
+
+    if ((list = vh_pget(opts, "include")) != NULL)
+        while (vl_length(list) > 0)
+            vl_sunshift(ifm_search, vl_spop(list));
+
+    if (vh_exists(opts, "showpath"))
+        print_path();
 
     if (vh_exists(opts, "map"))
         output |= O_MAP;
@@ -455,7 +476,7 @@ parse_input(char *file, int required)
     extern FILE *yyin;
 
     if (file != NULL) {
-        ifm_input = file;
+        strcpy(ifm_input, file);
         if ((yyin = fopen(file, "r")) == NULL) {
             if (required)
                 fatal("can't open %s", file);
@@ -463,7 +484,7 @@ parse_input(char *file, int required)
                 return 1;
         }
     } else {
-        ifm_input = "<stdin>";
+        strcpy(ifm_input, "<stdin>");
         yyin = stdin;
     }
 
@@ -622,15 +643,20 @@ fatal(char *fmt, ...)
     exit(1);
 }
 
+/* Print file search path and exit */
+static void
+print_path(void)
+{
+    printf("%s\n", vl_join(ifm_search, "\n"));
+    exit(0);
+}
+
 /* Print program version and exit */
 static void
 print_version(void)
 {
     printf("This is IFM version %s, copyright (C) G. Hutchings\n", VERSION);
-
-    printf("\nLibrary file search path:\n   %s\n\n",
-           vl_join(search_path(), "\n   "));
-
+    printf("\n");
     printf("This program is free software; you can redistribute it and/or modify\n");
     printf("it under the terms of the GNU General Public License as published by\n");
     printf("the Free Software Foundation; either version 2, or (at your option)\n");
