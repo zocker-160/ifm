@@ -48,11 +48,6 @@ add_task(vhash *task)
 
     vl_ppush(tasklist, task);
     vh_pstore(task, "DEPEND", vl_create());
-
-    if (ifm_debug) {
-        indent(1);
-        printf("do `%s'\n", vh_sgetref(task, "DESC"));
-    }
 }
 
 /* Perform a task */
@@ -397,6 +392,9 @@ order_tasks(vhash *before, vhash *after)
     add_task(before);
     add_task(after);
 
+    if (before == after)
+        return;
+
     if ((allow = vh_pget(before, "ALLOW")) == NULL) {
         allow = vl_create();
         vh_pstore(before, "ALLOW", allow);
@@ -405,14 +403,16 @@ order_tasks(vhash *before, vhash *after)
     vl_ppush(allow, after);
 
     do {
-        depend = vh_pget(after, "DEPEND");
-        vl_ppush(depend, before);
+        if (after != before) {
+            depend = vh_pget(after, "DEPEND");
+            vl_ppush(depend, before);
 
-        if (ifm_debug) {
-            indent(1);
-            printf("dependency: do `%s' before `%s'\n",
-                   vh_sgetref(before, "DESC"),
-                   vh_sgetref(after, "DESC"));
+            if (ifm_debug) {
+                indent(2);
+                printf("do `%s' before `%s'\n",
+                       vh_sgetref(before, "DESC"),
+                       vh_sgetref(after, "DESC"));
+            }
         }
 
         after = vh_pget(after, "PREV");
@@ -459,6 +459,11 @@ setup_tasks(void)
     }
 
     /* Process tasks (1st pass) */
+    if (ifm_debug) {
+        indent(1);
+        printf("Adding dependencies for task 'follow' entries\n");
+    }
+
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
@@ -614,6 +619,11 @@ setup_tasks(void)
     }
 
     /* Process items */
+    if (ifm_debug) {
+        indent(1);
+        printf("Adding dependencies for item 'before/after' lists\n");
+    }
+
     vl_foreach(elt, items) {
         item = vs_pget(elt);
         istep = vh_pget(item, "STEP");
@@ -657,6 +667,11 @@ setup_tasks(void)
                 order_tasks(istep, step);
             }
         }
+    }
+
+    if (ifm_debug) {
+        indent(1);
+        printf("Adding dependencies for task 'need/get/give/after' lists\n");
     }
 
     /* Process tasks (2nd pass) */
@@ -744,6 +759,11 @@ setup_tasks(void)
         }
     }
 
+    if (ifm_debug) {
+        indent(1);
+        printf("Adding dependencies for task 'lose' lists\n");
+    }
+
     /* Process tasks (3rd pass) */
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
@@ -754,16 +774,16 @@ setup_tasks(void)
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
 
-                /* If item is needed for paths, mark task unsafe */
-                if (vh_exists(item, "NEEDED"))
-                    vh_sstore(tstep, "UNSAFE", "loses item needed for paths");
-
                 if ((itasks = vh_pget(item, "TASKS")) != NULL) {
                     vl_foreach(elt, itasks) {
                         step = vs_pget(elt);
                         order_tasks(step, tstep);
                     }
                 }
+
+                /* If item is needed for paths, mark task unsafe */
+                if (vh_exists(item, "NEEDED"))
+                    vh_sstore(tstep, "UNSAFE", "loses item needed for paths");
             }
         }
     }
@@ -799,7 +819,7 @@ solve_game(void)
     do {
         if (ifm_debug) {
             indent(1);
-            printf("room: %s\n", vh_sgetref(location, "DESC"));
+            printf("Location: %s\n", vh_sgetref(location, "DESC"));
         }
 
         /* Initialise path searches from this room */
@@ -902,26 +922,38 @@ solve_game(void)
     } while (tasksleft);
 }
 
-/* Return whether a task is possible */
-static int
-task_possible(vhash *room, vhash *step)
+/* Return a task required by a given task, if any */
+vhash *
+require_task(vhash *step)
 {
-    vhash *before, *taskroom, *gotoroom, *droproom;
-    char *safemsg = NULL;
+    vhash *before;
     vlist *depend;
     vscalar *elt;
-    int len = 0;
 
-    /* All dependent tasks must be done */
     if ((depend = vh_pget(step, "DEPEND")) != NULL) {
         vl_foreach(elt, depend) {
             before = vs_pget(elt);
             if (!vh_iget(before, "DONE")) {
                 vl_break(depend);
-                return 0;
+                return before;
             }
         }
     }
+
+    return NULL;
+}
+
+/* Return whether a task is possible */
+static int
+task_possible(vhash *room, vhash *step)
+{
+    vhash *taskroom, *gotoroom, *droproom;
+    char *safemsg = NULL;
+    int len = 0;
+
+    /* All dependent tasks must be done */
+    if (require_task(step) != NULL)
+        return 0;
 
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
@@ -971,7 +1003,7 @@ task_possible(vhash *room, vhash *step)
         indent(2);
         printf("possible: %s", vh_sgetref(step, "DESC"));
         if (len > 0)
-            printf(" (distance %d)", len);
+            printf(" (dist %d)", len);
         if (safemsg != NULL)
             printf(" (unsafe: %s)", safemsg);
         printf("\n");
