@@ -7,25 +7,37 @@
 
 /* Raw output driver */
 
-/* Prototypes */
-void raw_item_entry(vhash *item);
-void raw_task_entry(vhash *task);
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <string.h>
+#include <math.h>
+#include "ifm.h"
+#include "ifm-parse.h"
+#include "ifm-raw.h"
 
 /* Item function list */
 itemfuncs raw_itemfuncs = {
-    NULL,
+    raw_item_start,
     raw_item_entry,
     NULL
 };
 
 /* Task function list */
 taskfuncs raw_taskfuncs = {
-    NULL,
+    raw_task_start,
     raw_task_entry,
     NULL
 };
 
 /* Item functions */
+void
+raw_item_start(char *title)
+{
+    printf("%s\t%s\t%s\n", "ITEM", "ROOM", "NOTE");
+}
+
 void
 raw_item_entry(vhash *item)
 {
@@ -41,6 +53,13 @@ raw_item_entry(vhash *item)
 }
 
 /* Task functions */
+void
+raw_task_start(char *title)
+{
+    printf("%s\t%s\t%s\t%s\t%s\n",
+           "ROOM", "TASK", "NOTE", "SCORE", "INV");
+}
+
 void
 raw_task_entry(vhash *task)
 {

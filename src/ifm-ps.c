@@ -7,13 +7,15 @@
 
 /* PostScript output driver */
 
-/* Prototypes */
-void ps_map_start(void);
-void ps_map_section(vhash *sect);
-void ps_map_room(vhash *room);
-void ps_map_link(vhash *link);
-void ps_map_endsection(void);
-void ps_map_finish(void);
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <string.h>
+#include <math.h>
+#include "ifm.h"
+#include "ifm-parse.h"
+#include "ifm-ps.h"
 
 /* Map function list */
 mapfuncs ps_mapfuncs = {
