@@ -8,7 +8,12 @@ set ifm(mapcmd)  {ifm -map   -format tk}
 set ifm(itemcmd) {ifm -items -format text}
 set ifm(taskcmd) {ifm -tasks -format text}
 
+set ifm(editwidth) 80
+set ifm(editheight) 24
 set ifm(editfont) {Courier 12 bold}
+
+set ifm(textwidth) 50
+set ifm(textheight) 20
 set ifm(textfont) {Times 12 bold}
 
 set ifm(file) "untitled.ifm"
@@ -60,11 +65,12 @@ proc MainWindow {file} {
 
     # Set up editing box.
     frame .edit
-    pack .edit
+    pack .edit -expand yes -fill both
     set t .edit.text
     set s .edit.scroll
 
-    text $t -yscrollcommand "$s set" -setgrid true -width 80 -height 24 \
+    text $t -yscrollcommand "$s set" -setgrid true \
+	    -width $ifm(editwidth) -height $ifm(editheight) \
 	    -wrap word -font $ifm(editfont)
 
     scrollbar $s -command "$t yview"
@@ -237,7 +243,8 @@ proc ShowItems {} {
     # Set up text.
     set t $w.text
     set s $w.scroll
-    text $t -yscrollcommand "$s set" -setgrid true -width 80 -height 24 \
+    text $t -yscrollcommand "$s set" -setgrid true \
+	    -width $ifm(textwidth) -height $ifm(textheight) \
 	    -wrap word -font $ifm(textfont)
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
@@ -270,7 +277,8 @@ proc ShowTasks {} {
     # Set up text.
     set t $w.text
     set s $w.scroll
-    text $t -yscrollcommand "$s set" -setgrid true -width 80 -height 24 \
+    text $t -yscrollcommand "$s set" -setgrid true \
+	    -width $ifm(textwidth) -height $ifm(textheight) \
 	    -wrap word -font $ifm(textfont)
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
