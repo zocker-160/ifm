@@ -45,7 +45,8 @@ set ifm(mapcmd)   {ifm -map -format tk}
 set ifm(itemcmd)  {ifm -nowarn -items -format tk}
 set ifm(taskcmd)  {ifm -nowarn -tasks -format tk}
 set ifm(debugcmd) {ifm -nowarn -set solver_messages=1 -format tk}
-set ifm(printcmd) {ifm -nowarn -map -format ps}
+set ifm(pscmd)    {ifm -nowarn -map -format ps}
+set ifm(figcmd)   {ifm -nowarn -map -format fig}
 set ifm(varscmd)  {ifm -nowarn -show vars}
 set ifm(pathcmd)  {ifm -nowarn -show path}
 set ifm(aboutcmd) {ifm -nowarn -version}
@@ -54,6 +55,7 @@ set ifm(aboutcmd) {ifm -nowarn -version}
 set ifm(untitled) "untitled.ifm"
 set ifm(ifmfiles) {{"IFM files" {.ifm}} {"All files" *}}
 set ifm(psfiles)  {{"PostScript files" {.ps}} {"All files" *}}
+set ifm(figfiles) {{"Fig files" {.fig}} {"All files" *}}
 set ifm(roomitemratio) 0.5
 set ifm(busycursor) watch
 
@@ -96,9 +98,13 @@ proc MainWindow {} {
 	$c add command -label "Save As..." -command SaveAs -underline 5
     }
 
-    $c add command -label "Print..."   -command Print  -underline 0
+    $c add separator
+    $c add command -label "Export PostScript..." -command ExportPS -underline 7
+    $c add command -label "Export Fig..." -command ExportFIG -underline 0
+
     $c add separator
     $c add command -label "Redraw"     -command Redraw -underline 0
+
     $c add separator
     $c add command -label "Quit"       -command Quit   -underline 0
 
@@ -776,8 +782,8 @@ proc SaveAs {} {
     }
 }
 
-# Print current file to PostScript.
-proc Print {} {
+# Export current file to PostScript.
+proc ExportPS {} {
     global ifm
 
     if [file exists $ifm(path)] {
@@ -791,13 +797,56 @@ proc Print {} {
     # Get save filename.
     set root [file rootname $ifm(file)]
     set file [tk_getSaveFile -initialfile ${root}.ps -initialdir $ifm(dir) \
-	    -filetypes $ifm(psfiles) -title "Save PostScript"]
+	    -filetypes $ifm(psfiles) -title "Export PostScript"]
     if {$file == ""} return
 
     # Get PostScript data.
     Busy
 
-    set result [RunProgram $ifm(printcmd) $ifm(path)]
+    set result [RunProgram $ifm(pscmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Unbusy
+	Error [lindex $result 2]
+	return
+    }
+
+    # Write file.
+    if [catch {set fd [open $file w]}] {
+	Unbusy
+	Error "Can't save $file"
+	return
+    }
+
+    puts $fd $data
+    close $fd
+
+    Unbusy
+}
+
+# Export current file to Fig.
+proc ExportFIG {} {
+    global ifm
+
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} return
+	if {[MaybeRead] == 0} return
+    } else {
+	Message "You must save the current file first."
+	return
+    }
+
+    # Get save filename.
+    set root [file rootname $ifm(file)]
+    set file [tk_getSaveFile -initialfile ${root}.fig -initialdir $ifm(dir) \
+	    -filetypes $ifm(figfiles) -title "Export Fig"]
+    if {$file == ""} return
+
+    # Get Fig data.
+    Busy
+
+    set result [RunProgram $ifm(figcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
