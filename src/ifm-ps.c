@@ -65,8 +65,10 @@ static int ps_pagenum = 0;      /* Current page */
 
 static double ps_xoff;          /* Current X offset */
 static double ps_yoff;          /* Current Y offset */
-static double ps_page_width;    /* Width of a page (cm) */
-static double ps_page_height;   /* Height of a page (cm) */
+
+static float ps_page_width;     /* Width of a page (cm) */
+static float ps_page_height;    /* Height of a page (cm) */
+
 static double ps_room_width;    /* Current room width factor */
 static double ps_room_height;   /* Current room height factor */
 static double ps_font_scale;    /* Font scaling factor */

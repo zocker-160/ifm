@@ -64,7 +64,7 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
     }
 
     if (fmt != NULL) {
-        VPRINT(buf, fmt);
+        V_VPRINT(buf, fmt);
         vl_spush(list, buf);
     } else {
         vl_empty(list);
@@ -100,7 +100,7 @@ get_direction(int xoff, int yoff)
 
 /* Get page dimensions given a page description */
 int
-get_papersize(char *pagesize, double *width, double *height)
+get_papersize(char *pagesize, float *width, float *height)
 {
     int i;
 
@@ -348,7 +348,7 @@ pack_sections(int xmax, int ymax, int border)
 void
 put_string(char *fmt, ...)
 {
-    VPRINT(buf, fmt);
+    V_VPRINT(buf, fmt);
     fputs(var_subst(buf), stdout);
 }
 

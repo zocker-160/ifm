@@ -9,14 +9,6 @@
 #define MIN(x, y)               ((x) < (y) ? (x) : (y))
 #define MAX(x, y)               ((x) > (y) ? (x) : (y))
 
-/* Varargs printing */
-#define VPRINT(buf, fmt)	{ \
-				      va_list ap; \
-				      va_start(ap, fmt); \
-				      vsprintf(buf, fmt, ap); \
-				      va_end(ap); \
-			        }
-
 /* Direction stuff */
 struct d_info {
     char *sname, *lname;
@@ -35,7 +27,7 @@ extern struct d_info dirinfo[];
 extern void add_attr(vhash *obj, char *attr, char *fmt, ...);
 extern void add_list(vhash *obj, char *attr, vhash *thing);
 extern int get_direction(int xoff, int yoff);
-extern int get_papersize(char *pagesize, double *width, double *height);
+extern int get_papersize(char *pagesize, float *width, float *height);
 extern void indent(int num);
 extern void obsolete(char *old, char *new);
 extern FILE *open_file(char *file, int libflag, int required);
