@@ -23,11 +23,12 @@
 #include "ifm-vars.h"
 
 #define INIT_VARS \
-        if (nvars == NULL) vars = nvars = vh_create(); \
+        if (nvars == NULL) cvars = nvars = vh_create(); \
         if (alias == NULL) alias = vh_create(); \
-        if (styles == NULL) styles = vh_create()
+        if (styles == NULL) styles = vh_create(); \
+        if (rstyles == NULL) rstyles = vh_create()
 
-#define VAR_GET(id, var) \
+#define VAR_CHECK(id, var) \
         if ((var = var_get(id)) == NULL) \
                 fatal("variable `%s' is not defined", id)
 
@@ -35,7 +36,7 @@
 #define ALNUM(c) (c == '_' || isalnum(c))
 
 /* Current variables */
-static vhash *vars = NULL;
+static vhash *cvars = NULL;
 
 /* Defined non-style variables */
 static vhash *nvars = NULL;
@@ -46,8 +47,11 @@ static vhash *alias = NULL;
 /* Defined styles */
 static vhash *styles = NULL;
 
-/* Style stack */
-static vlist *style_stack = NULL;
+/* Referenced styles */
+static vhash *rstyles = NULL;
+
+/* Style list */
+static vlist *style_list = NULL;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
@@ -55,43 +59,76 @@ static char buf[BUFSIZ];
 /* Internal functions */
 static vhash *read_colour_defs(FILE *fp);
 static char *var_encode(char *driver, char *var);
+static void var_print(vhash *vars, char *style, int alias);
 
-/* Return the current style */
-char *
-current_style(void)
+/* Return a copy of the current style list */
+vlist *
+current_styles(void)
 {
-    if (style_stack == NULL || vl_length(style_stack) == 0)
+    if (style_list == NULL || vl_length(style_list) == 0)
         return NULL;
-    return vl_stail(style_stack);
+
+    return vl_copy(style_list);
 }
 
-/* Push a style onto the style stack */
+/* Load styles that have been referenced but not defined */
+void
+load_styles(void)
+{
+    vscalar *elt;
+    vlist *list;
+    char *name;
+
+    if (rstyles == NULL)
+        return;
+
+    list = vh_keys(rstyles);
+    vl_foreach(elt, list) {
+        name = vs_sgetref(elt);
+        if (vh_exists(styles, name))
+            continue;
+        sprintf(buf, "%s.ifm", name);
+        parse_input(buf, 1, 0);
+        if (!vh_exists(styles, name))
+            warn("style `%s' referenced but not defined", name);
+    }
+}
+
+/* Push a style onto the style list */
 void
 push_style(char *name)
 {
-    if (style_stack == NULL)
-        style_stack = vl_create();
-    vl_spush(style_stack, name);
+    if (style_list == NULL)
+        style_list = vl_create();
+    vl_spush(style_list, name);
     set_style(name);
 }
 
-/* Pop a style from the style stack */
+/* Pop a style from the style list */
 void
 pop_style(char *name)
 {
     char *sname;
 
-    if (style_stack != NULL && vl_length(style_stack) > 0) {
-        sname = vl_spop(style_stack);
+    if (style_list != NULL && vl_length(style_list) > 0) {
+        sname = vl_spop(style_list);
         if (name != NULL && !V_STREQ(sname, name))
             warn("unexpected style: %s (expected %s)", name, sname);
-        if (vl_length(style_stack) > 0)
-            set_style(vl_stail(style_stack));
+        if (vl_length(style_list) > 0)
+            set_style(vl_stail(style_list));
         else
             set_style(NULL);
     } else {
         warn("no matching style command");
     }
+}
+
+/* Mark a style as referenced */
+void
+ref_style(char *name)
+{
+    INIT_VARS;
+    vh_istore(rstyles, name, 1);
 }
 
 /* Set the current style */
@@ -101,13 +138,20 @@ set_style(char *name)
     INIT_VARS;
 
     if (name != NULL && strlen(name) > 0) {
-        if ((vars = vh_pget(styles, name)) == NULL) {
-            vars = vh_create();
-            vh_pstore(styles, name, vars);
+        if ((cvars = vh_pget(styles, name)) == NULL) {
+            cvars = vh_create();
+            vh_pstore(styles, name, cvars);
         }
     } else {
-        vars = nvars;
+        cvars = nvars;
     }
+}
+
+/* Set the current style list */
+void
+set_style_list(vlist *list)
+{
+    style_list = list;
 }
 
 /* Set a variable alias */
@@ -187,39 +231,49 @@ var_encode(char *driver, char *var)
 vscalar *
 var_get(char *id)
 {
+    char *key, *style;
     vscalar *var;
-    char *key;
+    vhash *svars;
+    int i;
 
     INIT_VARS;
 
-    /* Check aliases */
+    /* Resolve aliases */
     if (vh_exists(alias, id))
         id = vh_sgetref(alias, id);
 
-    /* Check current output format first */
-    if (ifm_format != NULL) {
-        key = var_encode(ifm_format, id);
-        if ((var = vh_get(vars, key)) != NULL)
-            return var;
-    }
-        
-    /* Check global variables */
-    key = var_encode(NULL, id);
-    if ((var = vh_get(vars, key)) != NULL)
-        return var;
+    /* Check style list if required */
+    if (style_list != NULL) {
+        for (i = vl_length(style_list) - 1; i >= 0; i--) {
+            style = vl_sgetref(style_list, i);
+            svars = vh_pget(styles, style);
+            if (svars == NULL)
+                continue;
 
-    /* Try non-style variables if required */
-    if (vars != nvars) {
-        if (ifm_format != NULL) {
-            key = var_encode(ifm_format, id);
-            if ((var = vh_get(nvars, key)) != NULL)
+            /* Check current output format first */
+            if (ifm_format != NULL) {
+                key = var_encode(ifm_format, id);
+                if ((var = vh_get(svars, key)) != NULL)
+                    return var;
+            }
+        
+            /* Check global variables */
+            key = var_encode(NULL, id);
+            if ((var = vh_get(svars, key)) != NULL)
                 return var;
         }
-        
-        key = var_encode(NULL, id);
+    }
+
+    /* Try non-style variables */
+    if (ifm_format != NULL) {
+        key = var_encode(ifm_format, id);
         if ((var = vh_get(nvars, key)) != NULL)
             return var;
     }
+        
+    key = var_encode(NULL, id);
+    if ((var = vh_get(nvars, key)) != NULL)
+        return var;
 
     return NULL;
 }
@@ -229,7 +283,7 @@ int
 var_int(char *id)
 {
     vscalar *var;
-    VAR_GET(id, var);
+    VAR_CHECK(id, var);
     return (var != NULL ? vs_iget(var) : 0);
 }
 
@@ -237,18 +291,61 @@ var_int(char *id)
 void
 var_list(void)
 {
+    vscalar *elt;
+    vhash *svars;
+    vlist *slist;
+    char *style;
+    int i;
+
+    INIT_VARS;
+
+    printf("# IFM defined variables.\n");
+
+    /* Non-style variables */
+    var_print(nvars, NULL, 0);
+
+    /* Style variables */
+    slist = vh_sortkeys(styles, NULL);
+
+    vl_foreach(elt, slist) {
+        style = vs_sgetref(elt);
+        svars = vh_pget(styles, style);
+        if (svars != NULL)
+            var_print(svars, style, 0);
+    }
+
+    vl_destroy(slist);
+
+    /* Aliases */
+    var_print(alias, NULL, 1);
+}
+
+/* Print out a set of variables */
+static void
+var_print(vhash *vars, char *style, int alias)
+{
     vscalar *elt, *val;
     char *name, *sval;
     vlist *names;
 
-    INIT_VARS;
-
-    /* Variables */
     names = vh_sortkeys(vars, NULL);
 
-    printf("# Variables.\n");
+    printf("\n");
+
+    if (alias)
+        printf("# Aliases.\n");
+    else if (style != NULL)
+        printf("# Style `%s' variables.\n", style);
+    else
+        printf("# General variables.\n");
+
     vl_foreach(elt, names) {
         name = vs_sgetref(elt);
+        if (alias) {
+            printf("%s => %s;\n", name, vh_sgetref(vars, name));
+            continue;
+        }
+
         printf("%s = ", name);
         val = vh_get(vars, name);
 
@@ -270,21 +367,10 @@ var_list(void)
             break;
         }
 
+        if (style != NULL)
+            printf(" in style \"%s\"", style);
+
         printf(";\n");
-    }
-
-    vl_destroy(names);
-
-    /* Aliases */
-    names = vh_sortkeys(alias, NULL);
-
-    if (vl_length(names) > 0) {
-        printf("\n# Aliases.\n");
-
-        vl_foreach(elt, names) {
-            name = vs_sgetref(elt);
-            printf("%s => %s;\n", name, vh_sgetref(alias, name));
-        }
     }
 
     vl_destroy(names);
@@ -295,7 +381,7 @@ double
 var_real(char *id)
 {
     vscalar *var;
-    VAR_GET(id, var);
+    VAR_CHECK(id, var);
     return (var != NULL ? vs_dget(var) : 0.0);
 }
 
@@ -315,9 +401,9 @@ var_set(char *driver, char *id, vscalar *val)
     key = var_encode(driver, id);
 
     if (val != NULL)
-        vh_store(vars, key, val);
+        vh_store(cvars, key, val);
     else
-        vh_delete(vars, key);
+        vh_delete(cvars, key);
 }
 
 /* Return a string variable */
@@ -325,7 +411,7 @@ char *
 var_string(char *id)
 {
     vscalar *var;
-    VAR_GET(id, var);
+    VAR_CHECK(id, var);
     return (var != NULL ? vs_sgetcopy(var) : "");
 }
 
@@ -387,7 +473,7 @@ var_subst(char *string)
             /* Get variable */
             save = *cp;
             *cp = '\0';
-            VAR_GET(var, val);
+            VAR_CHECK(var, val);
             *cp = save;
             if (braceflag)
                 cp++;
