@@ -18,6 +18,10 @@
 #include "ifm-task.h"
 #include "ifm-util.h"
 
+#define TS_INVALID 0
+#define TS_UNSAFE  1
+#define TS_SAFE    2
+
 /* Task step list */
 vlist *tasklist = NULL;
 
@@ -36,7 +40,7 @@ static void goto_room(vhash *task);
 static void invert_items(vhash *obj, char *attr);
 static vhash *new_task(int type, vhash *data);
 static void order_tasks(vhash *before, vhash *after);
-static int task_possible(vhash *room, vhash *step);
+static int task_status(vhash *room, vhash *step);
 
 /* Add a task to the task list */
 static void
@@ -830,7 +834,7 @@ void
 solve_game(void)
 {
     vhash *step, *trystep, *item, *task, *next;
-    int drop, safeflag, tasksleft;
+    int drop, safeflag, tasksleft, status;
     vlist *itasks;
     vscalar *elt;
 
@@ -915,10 +919,10 @@ solve_game(void)
                 continue;
 
             /* Check task is possible */
-            if (!task_possible(location, trystep))
+            if ((status = task_status(location, trystep)) == TS_INVALID)
                 continue;
 
-            if (!safeflag && vh_iget(trystep, "SAFEFLAG")) {
+            if (!safeflag && status == TS_SAFE) {
                 safeflag = 1;
                 step = trystep;
             } else if (step == NULL) {
@@ -974,9 +978,9 @@ require_task(vhash *step)
     return NULL;
 }
 
-/* Return whether a task is possible */
+/* Return current status of a task */
 static int
-task_possible(vhash *room, vhash *step)
+task_status(vhash *room, vhash *step)
 {
     vhash *taskroom, *gotoroom, *droproom;
     char *safemsg = NULL;
@@ -984,7 +988,7 @@ task_possible(vhash *room, vhash *step)
 
     /* All dependent tasks must be done */
     if (require_task(step) != NULL)
-        return 0;
+        return TS_INVALID;
 
     DEBUG1(2, "consider: %s", vh_sgetref(step, "DESC"));
 
@@ -994,7 +998,7 @@ task_possible(vhash *room, vhash *step)
 
     if (taskroom != NULL && taskroom != room) {
         if ((len = find_path(step, room, taskroom)) == NOPATH)
-            return 0;
+            return TS_INVALID;
     }
 
     /* See whether task is safe */
@@ -1024,9 +1028,6 @@ task_possible(vhash *room, vhash *step)
         }
     }
 
-    /* Record safe flag */
-    vh_istore(step, "SAFEFLAG", safemsg == NULL);
-
     if (ifm_debug) {
         indent(2);
         printf("possible: %s", vh_sgetref(step, "DESC"));
@@ -1037,5 +1038,5 @@ task_possible(vhash *room, vhash *step)
         printf("\n");
     }
 
-    return 1;
+    return (safemsg == NULL ? TS_SAFE : TS_UNSAFE);
 }
