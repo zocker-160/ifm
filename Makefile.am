@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = @BUILD@
+SUBDIRS = vars src lib doc tests @tkifm@ @scr2ifm@
 
 DIST_SUBDIRS = vars src lib doc tests tkifm scr2ifm
 
@@ -11,22 +11,24 @@ EXTRA_DIST = README.unix README.win32 README.maps
 dist-hook: dist-config dist-contrib dist-header dist-cleanup
 
 dist-config:
-	cp -rp $(srcdir)/config $(distdir)
+	cp -rp $(top_srcdir)/config $(distdir)
 	rm -rf $(distdir)/config/RCS
-	rm -f $(distdir)/config/config.h
-	rm -f $(distdir)/config/stamp-h
 	rm -f $(distdir)/config/*header*
 
 dist-contrib:
-	cp -rp $(srcdir)/contrib $(distdir)
+	cp -rp $(top_srcdir)/contrib $(distdir)
 
 dist-header:
+	addheader=$(top_srcdir)/config/add-header; \
 	for dir in src lib tkifm scr2ifm; do \
-	   $(srcdir)/config/add-header $(srcdir)/config $(distdir)/$$dir; \
+	   if test -f $$addheader; then \
+	      $$addheader $(top_srcdir)/config $(distdir)/$$dir; \
+	   fi; \
 	done
 
 dist-cleanup:
-	find $(distdir) -name ChangeLog -exec rm {} \;
+	rm -f $(distdir)/config.h
+	rm -f $(distdir)/stamp-h
 
 ## Stuff for Win32 distribution.
 .PHONY: ziptest

@@ -4,7 +4,7 @@ AC_CONFIG_AUX_DIR(config)
 
 AM_INIT_AUTOMAKE(ifm, 3.1)
 AM_CONFIG_HEADER(config.h)
-AM_WITH_DMALLOC
+AC_CONFIG_SUBDIRS(vars)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -13,41 +13,31 @@ AM_PROG_LEX
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
-AC_PATH_PROG(PERL, perl)
-AC_PATH_PROGS(WISH, wish wish8.0 wish80, no)
 
 dnl Checks for header files.
-AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS(limits.h malloc.h strings.h unistd.h)
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-AC_TYPE_SIZE_T
-AC_STRUCT_ST_BLKSIZE
-AC_STRUCT_ST_BLOCKS
-AC_STRUCT_ST_RDEV
-
-dnl Checks for library functions.
-AC_FUNC_ALLOCA
-AC_FUNC_FNMATCH
-AC_TYPE_SIGNAL
-AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(re_comp regcomp strdup strerror)
 
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sin)
 
-dnl Determine what to build.
-BUILD="vars src lib doc tests"
-AC_SUBST(BUILD)
+dnl Check for wish.
+AC_PATH_PROGS(WISH, wish wish8.0 wish80, no)
 
-if test $PERL != no; then
-	BUILD="$BUILD scr2ifm"
+tkifm=tkifm
+AC_SUBST(tkifm)
+if test $WISH = no; then
+   AC_MSG_WARN(wish not found -- not building tkifm)
+   tkifm=
 fi
 
-if test $WISH != no; then
-	BUILD="$BUILD tkifm"
+dnl Check for perl.
+AC_PATH_PROG(PERL, perl, no)
+
+scr2ifm=scr2ifm
+AC_SUBST(scr2ifm)
+if test $PERL = no; then
+   AC_MSG_WARN(perl not found -- not building scr2ifm)
+   scr2ifm=
 fi
 
 dnl Check for executable suffix.
@@ -60,7 +50,6 @@ AC_SUBST_FILE(common_rules)
 dnl Write Makefiles.
 AC_OUTPUT(
 Makefile
-vars/Makefile
 src/Makefile
 lib/Makefile
 doc/Makefile
