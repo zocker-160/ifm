@@ -20,8 +20,13 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-#define MAPX(x) (fig_origin_x + room_size * (fig_xoff + x))
-#define MAPY(y) (fig_origin_y + room_size * (fig_yoff + y))
+#define MAPX(x) (fig_origin_x + room_size * (fig_xoff + (x)))
+
+#if 0
+#define MAPY(y) (fig_origin_y + room_size * (fig_yoff + (y)))
+#else
+#define MAPY(y) (fig_height - fig_origin_y - room_size * ((y) + fig_yoff))
+#endif
 
 /* Figure */
 static vhash *fig = NULL;
@@ -40,16 +45,25 @@ mapfuncs fig_mapfuncs = {
     fig_map_room,
     fig_map_link,
     NULL,
-    fig_map_endsection,
+    NULL,
     fig_map_finish
 };
+
+/* Debugging */
+static void
+msg(char *fmt, ...)
+{
+    char buf[BUFSIZ];
+    V_VPRINT(buf, fmt);
+    fprintf(stderr, "%s\n", buf);
+}
 
 /* Map functions */
 void
 fig_map_start(void)
 {
     int ylen, width, height, orient;
-    double ratio;
+    double ratio, tmp;
     vscalar *elt;
     char *title;
     vhash *sect;
@@ -85,19 +99,22 @@ fig_map_start(void)
 
     /* Increase dimensions until sections fit on one page */
     while (1) {
+        msg("Trying: %d x %d", width, height);
+
         if (orient != FIG_LANDSCAPE &&
             pack_sections(width, height, 1) == 1) {
             orient = FIG_PORTRAIT;
-            fig_width = page_width;
-            fig_height = page_height;
+            msg("Using portrait");
             break;
         }
 
         if (orient != FIG_PORTRAIT &&
             pack_sections(height, width, 1) == 1) {
             orient = FIG_LANDSCAPE;
-            fig_width = page_height;
-            fig_height = page_width;
+            tmp = page_width;
+            page_width = page_height;
+            page_height = tmp;
+            msg("Using landscape");
             break;
         }
 
@@ -105,17 +122,34 @@ fig_map_start(void)
         height = (int) (width * ratio) + 1;
     }
 
-#if 0
-    fig_width = width * room_size;
-    fig_height = height * room_size;
-    page_width = 2 * page_margin + fig_width;
-    page_height = 2 * page_margin + fig_height;
+    sect = vl_phead(sects);
+    width = vh_iget(sect, "PXLEN");
+    height = vh_iget(sect, "PYLEN");
 
-    fig_origin_x = page_width / 2 - width * room_size;
-    fig_origin_y = page_height / 2 - height * room_size;
+    if (orient == FIG_PORTRAIT) {
+        fig_width = width * room_size;
+        fig_height = height * room_size;
+    } else {
+        fig_width = height * room_size;
+        fig_height = width * room_size;
+    }
+
+    fig_width += 2 * page_margin;
+    fig_height += 2 * page_margin;
+    fig_width = V_MAX(fig_width, page_width - 2 * page_margin);
+    fig_height = V_MAX(fig_height, page_height - 2 * page_margin);
+
+    msg("Map size: %d x %d", width, height);
+    msg("Room size: %g", room_size);
+    msg("Page size: %g x %g", page_width, page_height);
+    msg("Fig size: %g x %g", fig_width, fig_height);
+
+    fig_origin_x = (page_width - width * room_size) / 2;
+    fig_origin_y = (page_height - height * room_size) / 2;
     fig_origin_x = V_MAX(fig_origin_x, page_margin);
     fig_origin_y = V_MAX(fig_origin_y, page_margin);
-#endif
+    msg("Page margin: %g", page_margin);
+    msg("Fig origin: %g x %g", fig_origin_x, fig_origin_y);
 
     /* Initialise figure */
     fig = fig_create(FIG_METRIC);
@@ -123,9 +157,7 @@ fig_map_start(void)
     fig_set_papersize(fig, page_size);
 
     /* Draw background */
-    fig_create_box(fig,
-                   page_margin, page_margin,
-                   fig_width - page_margin, fig_height - page_margin);
+    fig_create_box(fig, page_margin, page_margin, fig_width, fig_height);
 
     /* Add title if required */
     if (var_int("show_title")) {
@@ -141,19 +173,22 @@ fig_map_start(void)
 void
 fig_map_section(vhash *sect)
 {
-    double xpos, ypos;
     int xlen, ylen;
+    vhash *text;
+    float x, y;
 
     /* Set section offsets */
     fig_xoff = vh_dget(sect, "XOFF");
     fig_yoff = vh_dget(sect, "YOFF");
+    msg("Offsets: %g, %g", fig_xoff, fig_yoff);
 
     /* Print title if required */
     if (vh_exists(sect, "TITLE")) {
-        xlen = vh_iget(sect, "XLEN");
-        xpos = (double) (xlen - 1) / 2;
-        ylen = vh_iget(sect, "YLEN");
-        ypos = ylen - 1;
+        x = vh_dget(sect, "XLEN") / 2;
+        y = vh_dget(sect, "YLEN");
+        text = fig_create_text(fig, MAPX(x), MAPY(y - 1),
+                               vh_sgetref(sect, "TITLE"));
+        fig_set_font(text, "Times Bold", 20);
     }
 }
 
@@ -163,11 +198,21 @@ fig_map_room(vhash *room)
     static vlist *px = NULL, *py = NULL;
     vlist *items, *ex, *ey;
     char *itemlist = NULL;
+    vhash *line;
     int x, y;
 
-    /* Write coords */
+    set_room_vars();
+
+    /* Get coords */
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
+    msg("Room at: %d, %d", x, y);
+
+    /* Draw room box */
+    fig_create_box(fig,
+                   MAPX(x + (1 - room_width) / 2),
+                   MAPY(y + (1 - room_height) / 2),
+                   room_size * room_width, room_size * room_height);
 
     /* Write item list (if any) */
     items = vh_pget(room, "ITEMS");
@@ -212,6 +257,11 @@ fig_map_room(vhash *room)
 
             x2 = x1 + 0.35 * (x2 - x1);
             y2 = y1 + 0.35 * (y2 - y1);
+
+            /* Might have to adjust these */
+            line = fig_create_line(fig,
+                                   MAPX(x1), MAPY(y1),
+                                   MAPX(x2), MAPY(y2));
         }
     }
 }
@@ -223,18 +273,23 @@ fig_map_link(vhash *link)
     int go = vh_iget(link, "GO");
     int updown = (go == D_UP || go == D_DOWN);
     int inout = (go == D_IN || go == D_OUT);
-    vlist *x, *y;
-    int i, np;
+    vlist *x = vh_pget(link, "X");
+    vlist *y = vh_pget(link, "Y");
+    int i, np = vl_length(x);
+    vhash *spline;
+    double xp, yp;
 
-    x = vh_pget(link, "X");
-    y = vh_pget(link, "Y");
+    set_link_vars();
+
     truncate_points(x, y, room_width, room_height);
-}
+    spline = fig_create_spline(fig, FIG_OPEN_XSPLINE);
 
-void
-fig_map_endsection(void)
-{
-    /* Nothing to do */
+    for (i = 0; i < np; i++) {
+        xp = vl_dget(x, i) + 0.5;
+        yp = vl_dget(y, i) + 0.5 - room_height;
+        msg("Point: %g, %g", xp, yp);
+        fig_create_point(spline, MAPX(xp), MAPY(yp));
+    }
 }
 
 void
