@@ -69,6 +69,12 @@ fig_map_start(void)
     /* Set room names */
     setup_room_names(1, show_tags);
 
+    /* Determine orientation */
+    if (VAR_DEF("page_rotate"))
+        orient = var_int("page_rotate") ? FIG_LANDSCAPE : FIG_PORTRAIT;
+    else
+        orient = FIG_UNDEF;
+
     /* Get initial dimensions, in rooms */
     fig_width = page_width - 2 * page_margin;
     fig_height = page_height - 2 * page_margin;
@@ -78,11 +84,28 @@ fig_map_start(void)
     ratio = page_height / page_width;
 
     /* Increase dimensions until sections fit on one page */
-    while (pack_sections(width, height, 1) > 1) {
+    while (1) {
+        if (orient != FIG_LANDSCAPE &&
+            pack_sections(width, height, 1) == 1) {
+            orient = FIG_PORTRAIT;
+            fig_width = page_width;
+            fig_height = page_height;
+            break;
+        }
+
+        if (orient != FIG_PORTRAIT &&
+            pack_sections(height, width, 1) == 1) {
+            orient = FIG_LANDSCAPE;
+            fig_width = page_height;
+            fig_height = page_width;
+            break;
+        }
+
         width++;
         height = (int) (width * ratio) + 1;
     }
 
+#if 0
     fig_width = width * room_size;
     fig_height = height * room_size;
     page_width = 2 * page_margin + fig_width;
@@ -92,14 +115,7 @@ fig_map_start(void)
     fig_origin_y = page_height / 2 - height * room_size;
     fig_origin_x = V_MAX(fig_origin_x, page_margin);
     fig_origin_y = V_MAX(fig_origin_y, page_margin);
-
-    /* Determine orientation */
-    if (VAR_DEF("page_rotate"))
-        orient = var_int("page_rotate") ? FIG_LANDSCAPE : FIG_PORTRAIT;
-    else if (width < height)
-        orient = FIG_PORTRAIT;
-    else
-        orient = FIG_LANDSCAPE;
+#endif
 
     /* Initialise figure */
     fig = fig_create(FIG_METRIC);
@@ -109,7 +125,7 @@ fig_map_start(void)
     /* Draw background */
     fig_create_box(fig,
                    page_margin, page_margin,
-                   page_width - page_margin, page_height - page_margin);
+                   fig_width - page_margin, fig_height - page_margin);
 
     /* Add title if required */
     if (var_int("show_title")) {
