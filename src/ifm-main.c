@@ -28,39 +28,40 @@ static struct driver_st {
     mapfuncs  *mfunc;
     itemfuncs *ifunc;
     taskfuncs *tfunc;
+    errfuncs  *efunc;
 } drivers[] = {
 #ifdef PS
     {
         "ps", "PostScript",
-        &ps_mapfuncs, NULL, NULL
+        &ps_mapfuncs, NULL, NULL, NULL
     },
 #endif
 
 #ifdef TEXT
     {
         "text", "Nicely-formatted ASCII text",
-        NULL, &text_itemfuncs, &text_taskfuncs
+        NULL, &text_itemfuncs, &text_taskfuncs, NULL
     },
 #endif
 
 #ifdef GROFF
     {
         "groff", "Groff with pic, tbl and -me macros",
-        &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs
+        &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs, NULL
     },
 #endif
 
 #ifdef TK
     {
         "tk", "Tcl/Tk program commands",
-        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs
+        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs
     },
 #endif
 
 #ifdef RAW
     {
         "raw", "Tab-delimited ASCII text fields",
-        NULL, &raw_itemfuncs, &raw_taskfuncs
+        NULL, &raw_itemfuncs, &raw_taskfuncs, NULL
     },
 #endif
 };
@@ -96,10 +97,13 @@ static char buf[BUFSIZ];
 /* Input filename */
 static char *ifm_input = NULL;
 
-/* Output format */
+/* Output format ID */
+static int ifm_fmt = -1;
+
+/* Output format name */
 char *ifm_format = NULL;
 
-/* Type of output */
+/* Output type name */
 char *ifm_output = NULL;
 
 /* Debugging flag */
@@ -109,22 +113,20 @@ int ifm_debug = 0;
 extern void yyparse();
 
 /* Local functions */
-static void print_map(int fmt);
-static void print_items(int fmt);
-static void print_tasks(int fmt);
+static void print_map(void);
+static void print_items(void);
+static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
 static int parse_input(char *file, int required);
 static void print_version(void);
-static int select_format(char *str);
-static int default_format(int output);
+static int select_format(char *str, int output);
 static void usage(void);
 
 /* Main routine */
 int
 main(int argc, char *argv[])
 {
-    int i, output = O_NONE, format = -1, sysinit = 1, initfile = 1;
-    vscalar *fmt;
+    int i, output = O_NONE, sysinit = 1, initfile = 1;
     vhash *opts;
     vlist *args;
     char *file;
@@ -197,10 +199,10 @@ main(int argc, char *argv[])
         output |= O_TASKS;
 
     if (vh_exists(opts, "format"))
-        format = select_format(vh_sgetref(opts, "format"));
+        ifm_fmt = select_format(vh_sgetref(opts, "format"), 0);
 
     if (vh_exists(opts, "nowarn"))
-        warning_flag = 1;
+        warning_flag = 0;
 
     if (vh_exists(opts, "noinit"))
         initfile = 0;
@@ -249,6 +251,14 @@ main(int argc, char *argv[])
     if (!parse_input(file, 1))
         return 1;
 
+    /* Set output format if not already specified */
+    if (output != O_NONE && ifm_fmt < 0) {
+        vscalar *var = get_var("format");
+        ifm_fmt = select_format(var != NULL ? vs_sget(var) : NULL, output);
+    }
+
+    ifm_format = drivers[ifm_fmt].name;
+
     /* Resolve tags */
     resolve_tags();
     if (ifm_errors > 0)
@@ -275,28 +285,18 @@ main(int argc, char *argv[])
         order_tasks();
     }
 
-    /* Set output format if not already specified */
-    if (output != O_NONE && format < 0) {
-        if ((fmt = get_var("format")) != NULL)
-            format = select_format(vs_sget(fmt));
-        else
-            format = default_format(output);
-    }
-
-    ifm_format = drivers[format].name;
-
     /* Do what's required */
     if (output == O_NONE)
         printf("Syntax appears OK\n");
 
     if (output & O_MAP)
-        print_map(format);
+        print_map();
 
     if (output & O_ITEMS)
-        print_items(format);
+        print_items();
 
     if (output & O_TASKS)
-        print_tasks(format);
+        print_tasks();
 
     /* Er... that's it */
     return 0;
@@ -304,9 +304,9 @@ main(int argc, char *argv[])
 
 /* Print the map */
 static void
-print_map(int fmt)
+print_map(void)
 {
-    struct driver_st drv = drivers[fmt];
+    struct driver_st drv = drivers[ifm_fmt];
     mapfuncs *func = drv.mfunc;
     vlist *sects, *roomlist, *linklist;
     vhash *sect, *room, *link;
@@ -358,9 +358,9 @@ print_map(int fmt)
 
 /* Print items table */
 static void
-print_items(int fmt)
+print_items(void)
 {
-    struct driver_st drv = drivers[fmt];
+    struct driver_st drv = drivers[ifm_fmt];
     itemfuncs *func = drv.ifunc;
     vlist *items, *sorted;
     vscalar *elt;
@@ -392,9 +392,9 @@ print_items(int fmt)
 
 /* Print task table */
 static void
-print_tasks(int fmt)
+print_tasks(void)
 {
-    struct driver_st drv = drivers[fmt];
+    struct driver_st drv = drivers[ifm_fmt];
     taskfuncs *func = drv.tfunc;
     vscalar *elt;
     vlist *tasks;
@@ -446,6 +446,7 @@ parse_input(char *file, int required)
         yyrestart(yyin);
 
     yyparse();
+    line_number = 0;
 
     return (ifm_errors == 0);
 }
@@ -481,61 +482,54 @@ itemsort(vscalar **ip1, vscalar **ip2)
 
 /* Select an output format */
 static int
-select_format(char *str)
+select_format(char *str, int output)
 {
-    int i, match, nmatch = 0, len = strlen(str);
+    int i, match, nmatch = 0, len = 0;
+
+    if (str != NULL)
+        len = strlen(str);
 
     for (i = 0; i < NUM_DRIVERS; i++) {
-        if (!strcmp(drivers[i].name, str))
-            return i;
-        if (!strncmp(drivers[i].name, str, len)) {
-            nmatch++;
-            match = i;
+        if (str == NULL) {
+            if (output & O_MAP)
+                if (drivers[i].mfunc != NULL)
+                    return i;
+            if (output & O_ITEMS)
+                if (drivers[i].ifunc != NULL)
+                    return i;
+            if (output & O_TASKS)
+                if (drivers[i].tfunc != NULL)
+                    return i;
+        } else {
+            if (!strcmp(drivers[i].name, str))
+                return i;
+            if (!strncmp(drivers[i].name, str, len)) {
+                nmatch++;
+                match = i;
+            }
         }
     }
 
-    if (nmatch == 0)
-        fatal("unknown output format: %s", str);
-    else if (nmatch > 1)
-        fatal("ambiguous output format: %s", str);
-
-    return match;
-}
-
-/* Return default output format */
-static int
-default_format(int output)
-{
-    int i;
-
-    for (i = 0; i < NUM_DRIVERS; i++) {
-        if (output & O_MAP)
-            if (drivers[i].mfunc != NULL)
-                return i;
-        if (output & O_ITEMS)
-            if (drivers[i].ifunc != NULL)
-                return i;
-        if (output & O_TASKS)
-            if (drivers[i].tfunc != NULL)
-                return i;
+    if (str == NULL) {
+        fatal("internal: no output format found");
+    } else {
+        if (nmatch == 0)
+            fatal("unknown output format: %s", str);
+        else if (nmatch > 1)
+            fatal("ambiguous output format: %s", str);
     }
 
-    fatal("internal: no output format found");
-    return -1;
+    return match;
 }
 
 /* Parser-called parse error */
 void
 yyerror(char *msg)
 {
-    /* Write error message */
-    fprintf(stderr, "%s: error: %s, line %d: %s\n",
-            progname, ifm_input, line_number,
-	    (!strcmp(msg, "parse error") ? "syntax error" : msg));
-
-    /* Increment errors and abort if necessary */
-    if (++ifm_errors >= MAX_ERRORS)
-	fatal("too many errors.  Goodbye!");
+    if (STREQ(msg, "parse error"))
+        err("syntax error");
+    else
+        err(msg);
 }
 
 /* Give a debugging message */
@@ -552,45 +546,52 @@ debug(char *fmt, ...)
 void
 err(char *fmt, ...)
 {
+    errfuncs *func = NULL;
+
+    ifm_errors++;
     VPRINT(buf, fmt);
-    yyerror(buf);
+
+    if (ifm_fmt >= 0)
+        func = drivers[ifm_fmt].efunc;
+
+    if (func == NULL) {
+        if (line_number > 0)
+            fprintf(stderr, "%: error: %s, line %d: %s",
+                    progname, ifm_input, line_number, buf);
+        else
+            fprintf(stderr, "%: error: %s: %s",
+                    progname, ifm_input, buf);
+
+        if (ifm_errors >= MAX_ERRORS)
+            fatal("too many errors.  Goodbye!");
+    } else {
+        (*func->error)(ifm_input, line_number, buf);
+    }
 }
 
 /* Give a parse warning */
 void
 warn(char *fmt, ...)
 {
-    if (warning_flag) {
-        VPRINT(buf, fmt);
-        fprintf(stderr, "%s: warning: %s, line %d: %s\n",
-                progname, ifm_input, line_number, buf);
-    }
-}
+    errfuncs *func = NULL;
 
-/* Give a non-line-specific error */
-void
-error(char *fmt, ...)
-{
+    if (!warning_flag)
+        return;
+
     VPRINT(buf, fmt);
-    fprintf(stderr, "%s: error: %s: %s\n", progname, ifm_input, buf);
 
-    /* Increment errors and abort if necessary */
-    if (++ifm_errors >= MAX_ERRORS)
-	fatal("too many errors.  Goodbye!");
-}
+    if (ifm_fmt >= 0)
+        func = drivers[ifm_fmt].efunc;
 
-/* Give a non-line-specific warning */
-void
-warning(char *fmt, ...)
-{
-    if (warning_flag) {
-        VPRINT(buf, fmt);
-        if (ifm_input != NULL)
-            fprintf(stderr, "%s: warning: %s: %s\n",
-                    progname, ifm_input, buf);
+    if (func == NULL) {
+        if (line_number > 0)
+            fprintf(stderr, "%s: warning: %s, line %d: %s",
+                    progname, ifm_input, line_number, buf);
         else
-            fprintf(stderr, "%s: warning: %s\n",
-                    progname, buf);
+            fprintf(stderr, "%s: warning: %s: %s",
+                    progname, ifm_input, buf);
+    } else {
+        (*func->warning)(ifm_input, line_number, buf);
     }
 }
 

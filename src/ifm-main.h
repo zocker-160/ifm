@@ -32,8 +32,6 @@ extern void yyerror(char *msg);
 extern void debug(char *fmt, ...);
 extern void err(char *fmt, ...);
 extern void warn(char *fmt, ...);
-extern void error(char *fmt, ...);
-extern void warning(char *fmt, ...);
 extern void fatal(char *fmt, ...);
 
 #endif
