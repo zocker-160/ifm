@@ -5,29 +5,29 @@
  *  under certain conditions; see the file COPYING for details.
  */
 
-/* Text output driver */
+/* Raw output driver */
 
 /* Prototypes */
-void text_item_entry(vhash *item);
-void text_task_entry(vhash *task);
+void raw_item_entry(vhash *item);
+void raw_task_entry(vhash *task);
 
 /* Item function list */
-itemfuncs text_itemfuncs = {
+itemfuncs raw_itemfuncs = {
     NULL,
-    text_item_entry,
+    raw_item_entry,
     NULL
 };
 
 /* Task function list */
-taskfuncs text_taskfuncs = {
+taskfuncs raw_taskfuncs = {
     NULL,
-    text_task_entry,
+    raw_task_entry,
     NULL
 };
 
 /* Item functions */
 void
-text_item_entry(vhash *item)
+raw_item_entry(vhash *item)
 {
     vhash *room = vh_pget(item, "ROOM");
     char *idesc = vh_sgetref(item, "DESC");
@@ -42,7 +42,7 @@ text_item_entry(vhash *item)
 
 /* Task functions */
 void
-text_task_entry(vhash *task)
+raw_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
     int score = vh_iget(task, "SCORE");
