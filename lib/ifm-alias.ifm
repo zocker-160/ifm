@@ -1,0 +1,41 @@
+##############################################################################
+# Aliases
+##############################################################################
+
+# Alternate spellings for colour variables, for U.S. IFM fans.
+canvas_background_color => map_background_colour;
+color_file => colour_file;
+item_text_color => item_text_colour;
+link_color => link_colour;
+link_text_color => link_text_colour;
+map_text_color => map_text_colour;
+map_title_color => map_title_colour;
+page_background_color => page_background_colour;
+page_border_color => page_border_colour;
+room_border_color => room_border_colour;
+room_color => room_colour;
+room_exit_color => room_exit_colour;
+room_shadow_color => room_shadow_colour;
+room_text_color => room_text_colour;
+title_color => map_title_colour;
+
+# Compatibility aliases for old versions of IFM.  If your maps use any of
+# these, you should replace them with the aliased variable -- at some point
+# in the future these aliases may go away.
+
+canvas_background_colour => map_background_colour;
+exit_colour => room_exit_colour;
+exit_linewidth => room_exit_width;
+item_font => item_text_font;
+item_fontsize => item_text_fontsize;
+label_colour => link_text_colour;
+label_font => link_text_font;
+label_fontsize => link_text_fontsize;
+link_linewidth => link_line_width;
+map_text_font => map_title_font;
+map_text_fontsize => map_title_fontsize;
+map_text_colour => map_title_colour;
+room_font => room_text_font;
+room_fontsize => room_text_fontsize;
+room_linewidth => room_border_width;
+show_border => show_page_border;
