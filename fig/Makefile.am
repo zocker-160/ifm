@@ -8,6 +8,8 @@ HDRS = fig-attr.h fig-file.h fig-object.h fig.h
 
 libfig_a_SOURCES = $(SRCS) $(HDRS)
 
+EXTRA_DIST = fig-format.txt
+
 EXTRA_PROGRAMS = testfig
 
 testfig_SOURCES = testfig.c
