@@ -155,7 +155,6 @@ WHITE		[ \t\f]*
 "up"		{ return UP; }
 "w"		{ return WEST; }
 "west"		{ return WEST; }
-"x"             { return TIMES; }
 
 {ID}		{
 		    yylval.sval = v_strdup(yytext);
