@@ -70,7 +70,6 @@ text_item_entry(vhash *item)
 
     put_string("\n%s:\n", vh_sgetref(item, "DESC"));
 
-    
     if ((room = vh_pget(item, "ROOM")) == NULL)
         printf("   carried at the start of the game\n");
     else
