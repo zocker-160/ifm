@@ -15,6 +15,10 @@
 #include "ifm.h"
 #include "ifm-parse.h"
 
+/* Internal string buffer */
+static vbuffer *sbuf = NULL;
+
+/* Current line number */
 extern int line_number;
 %}
 
@@ -37,14 +41,20 @@ WHITE		[ \t\f]*
 		}
 
 \"		{
-		    int c, cp = 0, quote = 0, eatspace = 0;
+		    int c, quote = 0, eatspace = 0;
+
+                    /* Initialise buffer */
+                    if (sbuf == NULL)
+                        sbuf = vb_create();
+                    else
+                        vb_empty(sbuf);
 
 		    /* Slurp string in, one char at a time */
 		    while (1) {
                         c = input();
 
                         if        (c == EOF) {
-                            yyerror("unexpected EOF");
+                            yyerror("unterminated string");
                             break;
                         } else if (c == '"' && !quote) {
                             break;
@@ -52,21 +62,19 @@ WHITE		[ \t\f]*
                             quote = 1;
                             continue;
                         } else if (c == '\n') {
-                            yylval.sval[cp++] = ' ';
+                            vb_putc(sbuf, ' ');
                             eatspace = 1;
                             line_number++;
                         } else if (!eatspace || !isspace(c)) {
-                            yylval.sval[cp++] = c;
+                            vb_putc(sbuf, c);
                         }
 
                         if (!isspace(c))
                             eatspace = 0;
                         quote = 0;
-                        if (cp == BUFSIZ)
-                            yyerror("string too long");
 		    }
 
-		    yylval.sval[cp] = '\0';
+		    yylval.sval = vb_getcopy(sbuf);
 		    return STRING;
 		}
 
@@ -124,7 +132,7 @@ WHITE		[ \t\f]*
 {IDENT}		{
 		    if (yyleng >= BUFSIZ)
 			yyerror("identifier too long");
-		    strcpy(yylval.sval, yytext);
+		    yylval.sval = v_strdup(yytext);
 		    return IDENT;
 		}
 

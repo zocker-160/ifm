@@ -19,7 +19,7 @@ static char buf[BUFSIZ];
 %union {
     int ival;
     double dval;
-    char sval[BUFSIZ];
+    char *sval;
     vscalar *vval;
 }
 
