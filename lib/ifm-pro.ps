@@ -1,0 +1,167 @@
+% Start of IFM PostScript prolog.
+
+% Useful definitions.
+/cm {2.54 72 div mul} def
+/debug true def
+/degree {} def
+/inch {72 mul} def
+/max {2 copy gt {} {exch} ifelse pop} def
+/min {2 copy lt {} {exch} ifelse pop} def
+/mm {25.4 72 div mul} def
+/percent {100 div mul} def
+/point {} def
+
+/msg {				% MESSAGE msg
+    debug { print (\n) print } { pop } ifelse
+} bind def
+
+/val {				% MESSAGE VALUE val
+    debug { exch print == } { pop pop } ifelse
+} bind def
+
+/selectfont {			% FONT SIZE selectfont
+    /currentfontsize exch def
+    findfont currentfontsize scalefont setfont
+} bind def
+
+% Fonts.
+/titlefont /Times-Bold def
+/titlefontsize 14 def
+/textfont /Times-Roman def
+/textfontsize 10 def
+
+% Desired map size.
+/realmapwidth 8 def
+/realmapheight 12 def
+
+% Page dimensions.
+/realpagewidth 8.3 inch def
+/realpageheight 11.7 inch def
+/pagemargin 0.5 inch def
+
+% Room dimensions (relative).
+/roomwidth 0.8 def
+/roomheight 0.65 def
+
+% Convert to page coordinates.
+/pagepos {			% X Y pagepos PX PY
+    0.5 add boxsize mul heightoffset add exch
+    0.5 add boxsize mul widthoffset add exch
+} def
+
+% Unused.
+/pagecoords {
+    widthoffset heightoffset translate
+    boxsize dup scale
+} def
+
+% Draw centred text.
+/centredtext {			% STRING X Y centredtext
+    gsave
+	translate		% move to text centre
+	dup stringwidth		% get string dimensions
+	pop neg 2 div		% set offsets
+	currentfontsize neg 2 div
+	moveto show		% draw it
+    grestore
+} bind def
+
+% Start a new page.
+/beginpage {			% WIDTH HEIGHT ROTFLAG beginpage
+    /curmatrix matrix currentmatrix def
+
+    % Page orientation.
+    {
+	/pagewidth realpageheight def
+	/pageheight realpagewidth def
+	/mapwidth realmapheight def
+	/mapheight realmapwidth def
+	90 rotate
+	0 pageheight neg translate
+    } {
+	/pagewidth realpagewidth def
+	/pageheight realpageheight def
+	/mapwidth realmapwidth def
+	/mapheight realmapheight def
+    } ifelse
+
+    % Get width and height of page contents.
+    /height exch def
+    /width exch def
+
+    % Calculate box size.
+    /boxx pagewidth pagemargin 2 mul sub mapwidth width max div def
+    /boxy pageheight pagemargin 2 mul sub mapheight height max div def
+    /boxsize boxx boxy min def
+
+    % Calculate page offsets.
+    /widthoffset pagewidth width boxsize mul sub 2 div def
+    /heightoffset pageheight height boxsize mul sub 2 div def
+
+    % Put border around page.
+    newpath
+    pagemargin pagemargin moveto
+    pagewidth pagemargin 2 mul sub 0 rlineto
+    0 pageheight pagemargin 2 mul sub rlineto
+    pagewidth pagemargin 2 mul sub neg 0 rlineto
+    closepath stroke
+
+    % Calculate font scaling factor.
+    /scalewidth mapwidth dup width max div def
+    /scaleheight mapheight dup height max div def
+    /fontscale scalewidth scaleheight min def
+} def
+
+% Start a map section.
+/map {				% TITLE X Y map
+    % Draw map title.
+    titlefont titlefontsize selectfont
+    pagepos centredtext
+
+    % Set text font.
+    textfont textfontsize fontscale mul selectfont
+} def
+
+% Draw a room. 
+/room {				% TEXT X Y room
+    % Copy coordinates for text.
+    pagepos
+    2 copy
+
+    % Move to top right corner of box.
+    newpath moveto
+    boxsize roomwidth 2 div mul
+    boxsize roomheight 2 div mul
+    rmoveto
+
+    % Draw box.
+    roomwidth boxsize mul neg 0 rlineto
+    0 roomheight boxsize mul neg rlineto
+    roomwidth boxsize mul 0 rlineto
+    closepath
+
+    % Fill it.
+    gsave 1 setgray fill grestore
+    stroke
+
+    % Draw text.
+    centredtext
+} def
+
+% Draw a link.
+/link {				% [ X Y ... ] link
+    
+} def
+
+% Draw some text.
+/text {				% TEXT X Y text
+
+} def
+
+% End a page.
+/endpage {			% endpage
+    curmatrix setmatrix
+    showpage
+} def
+
+% End of IFM PostScript prolog.
