@@ -54,8 +54,9 @@
 } def
 
 % Draw a room. 
-/room {				% STRING X Y [STRING] FLAG room
+/room {				% STRING X Y [ITEMLIST] ITEMS PUZZLE room
     % Convert and save arguments.
+    /rm-puzzle exch def
     /rm-items exch def
     rm-items {
 	/rm-itemlist exch def
@@ -66,49 +67,123 @@
     /rm-xpos exch def
     /rm-string exch def
 
-    % Move to top right corner of box.
-    newpath rm-xpos rm-ypos moveto
-    boxsize roomwidth 2 div mul
-    boxsize roomheight 2 div mul
-    rmoveto
+    gsave
+	% Mark puzzle if required.
+	rm-puzzle {
+	    [ 2 2 ] 2 setdash
+	} if
 
-    % Draw box.
-    roomwidth boxsize mul neg 0 rlineto
-    0 roomheight boxsize mul neg rlineto
-    roomwidth boxsize mul 0 rlineto
-    closepath
+	% Move to top right corner of box.
+	newpath rm-xpos rm-ypos moveto
+	boxsize roomwidth 2 div mul
+	boxsize roomheight 2 div mul
+	rmoveto
 
-    % Fill it.
-    gsave roomshading setgray fill grestore stroke
+	% Draw box.
+	roomwidth boxsize mul neg 0 rlineto
+	0 roomheight boxsize mul neg rlineto
+	roomwidth boxsize mul 0 rlineto
+	closepath
 
-    % Draw room text (and item text if required).
-    roomfont roomfontsize fontscale mul selectfont
+	% Fill it.
+	gsave roomshading setgray fill grestore stroke
 
-    rm-items showitems and {
-	rm-string rm-xpos rm-ypos
-	boxsize roomheight mul 1 roomitemratio sub 2 div mul add
-	boxsize roomwidth mul
-	boxsize roomheight mul roomitemratio mul
-	boxtext
+	% Draw room text (and item text if required).
+	roomfont roomfontsize fontscale mul selectfont
 
-	itemfont itemfontsize fontscale mul selectfont
+	rm-items showitems and {
+	    rm-string rm-xpos rm-ypos
+	    boxsize roomheight mul 1 roomitemratio sub 2 div mul add
+	    boxsize roomwidth mul
+	    boxsize roomheight mul roomitemratio mul
+	    boxtext
 
-	rm-itemlist rm-xpos rm-ypos
-	boxsize roomheight mul roomitemratio 2 div mul sub
-	boxsize roomwidth mul
-	boxsize roomheight mul 1 roomitemratio sub mul
-	boxtext
-    }{
-	rm-string rm-xpos rm-ypos
-	boxsize roomwidth mul
-	boxsize roomheight mul
-	boxtext
-    } ifelse
+	    itemfont itemfontsize fontscale mul selectfont
+
+	    rm-itemlist rm-xpos rm-ypos
+	    boxsize roomheight mul roomitemratio 2 div mul sub
+	    boxsize roomwidth mul
+	    boxsize roomheight mul 1 roomitemratio sub mul
+	    boxtext
+	}{
+	    rm-string rm-xpos rm-ypos
+	    boxsize roomwidth mul
+	    boxsize roomheight mul
+	    boxtext
+	} ifelse
+    grestore
 } def
 
 % Draw a link.
-/link {				% [ X Y ... ] ONEWAY SPECIAL link
-    
+/link {				% [ X Y ... ] UPDOWN INOUT ONEWAY SPECIAL link
+    % Save arguments.
+    /ln-special exch def
+    /ln-oneway exch def
+    /ln-inout exch def
+    /ln-updown exch def
+    /ln-points exch def
+    /ln-np ln-points length def
+
+    gsave
+	% Mark special if required.
+	ln-special {
+	    [ 2 2 ] 2 setdash
+	} if
+
+	% Draw line.
+	newpath
+
+	/ln-lines ln-points length 2 div 1 sub def
+	/ln-x ln-points 0 get def
+	/ln-y ln-points 1 get def
+	ln-x ln-y pagepos moveto
+
+	1 1 ln-lines {
+	    /ln-i exch def
+	    /ln-x ln-points ln-i 2 mul get def
+	    /ln-y ln-points ln-i 2 mul 1 add get def
+
+	    ln-i ln-lines eq {
+		ln-x ln-y pagepos lineto
+	    }{
+		/ln-xn ln-points ln-i 1 add 2 mul get def
+		/ln-yn ln-points ln-i 1 add 2 mul 1 add get def
+		ln-x ln-y pagepos ln-xn ln-yn pagepos 10 arcto
+	    } ifelse
+	} for
+
+	stroke
+
+	% Mark updown/inout if required.
+	ln-updown ln-inout or {
+	    /ln-x ln-points ln-np 4 sub get def
+	    /ln-y ln-points ln-np 3 sub get def
+	    /ln-xn ln-points ln-np 2 sub get def
+	    /ln-yn ln-points ln-np 1 sub get def
+	    /ln-xmid ln-x ln-xn add 2 div def
+	    /ln-ymid ln-y ln-yn add 2 div def
+
+	    labelfont labelfontsize fontscale mul selectfont
+
+	    ln-updown {
+		(U/D)
+	    }{
+		(I/O)
+	    } ifelse ln-xmid ln-ymid pagepos centredtext
+	} if
+
+	% Draw arrow if oneway.
+	ln-oneway {
+	    /ln-x ln-points ln-np 4 sub get def
+	    /ln-y ln-points ln-np 3 sub get def
+	    /ln-xn ln-points ln-np 2 sub get def
+	    /ln-yn ln-points ln-np 1 sub get def
+	    /ln-xmid ln-x ln-xn add 2 div def
+	    /ln-ymid ln-y ln-yn add 2 div def
+	} if
+
+	% FINISH ME.
+    grestore
 } def
 
 % End a page.

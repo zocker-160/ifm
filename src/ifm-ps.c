@@ -29,6 +29,8 @@ mapfuncs ps_mapfuncs = {
 static int ps_pagenum = 0;      /* Current page */
 static int ps_xoff;             /* Current X offset */
 static int ps_yoff;             /* Current Y offset */
+static double ps_roomwidth;     /* Current room width factor */
+static double ps_roomheight;    /* Current room height factor */
 
 /* Internal functions */
 static char *ps_string(char *str);
@@ -96,6 +98,8 @@ ps_map_section(vhash *sect)
     page = vh_iget(sect, "PAGE");
     ps_xoff = vh_iget(sect, "XOFF");
     ps_yoff = vh_iget(sect, "YOFF");
+    ps_roomwidth = get_real("room_width", 0.8);
+    ps_roomheight = get_real("room_height", 0.65);
 
     /* Start a new page if required */
     if (page != ps_pagenum) {
@@ -105,17 +109,17 @@ ps_map_section(vhash *sect)
         ps_pagenum = page;
         printf("%%%%Page: %d\n", ps_pagenum);
 
-        printf("/roomwidth %g def\n", get_real("room_width", 0.8));
-        printf("/roomheight %g def\n", get_real("room_height", 0.65));
+        printf("/roomwidth %g def\n", ps_roomwidth);
+        printf("/roomheight %g def\n", ps_roomheight);
 
         printf("/roomfont /%s def\n", get_string("room_font", "Times-Bold"));
         printf("/roomfontsize %g def\n", get_real("room_fontsize", 10));
 
-        printf("/itemfont /%s def\n", get_string("item_font", "Times-Roman"));
+        printf("/itemfont /%s def\n", get_string("item_font", "Times-Italic"));
         printf("/itemfontsize %g def\n", get_real("item_fontsize", 8));
 
         printf("/labelfont /%s def\n", get_string("label_font", "Times-Roman"));
-        printf("/labelfontsize %g def\n", get_real("label_fontsize", 10));
+        printf("/labelfontsize %g def\n", get_real("label_fontsize", 8));
 
         printf("/roomshading %g def\n", 1 - get_real("shading", 0.0));
 
@@ -144,7 +148,6 @@ ps_map_room(vhash *room)
 {
     char *desc, *str, *itemlist = NULL;
     vlist *items;
-    int puzzle;
 
     /* Initialise */
     desc = vh_sgetref(room, "PDESC");
@@ -152,8 +155,6 @@ ps_map_room(vhash *room)
         desc = vh_sgetref(room, "DESC");
     if (desc == NULL)
         desc = "";
-
-    puzzle = vh_iget(room, "PUZZLE");
 
     /* Write coords */
     printf("%s %g %g", ps_string(desc),
@@ -184,12 +185,40 @@ ps_map_room(vhash *room)
     else
         printf(" false");
 
+    printf(" %s", vh_iget(room, "PUZZLE") ? "true" : "false");
     printf(" room\n");
 }
 
 void
 ps_map_link(vhash *link)
 {
+    int special = vh_iget(link, "SPECIAL");
+    int oneway = vh_iget(link, "ONEWAY");
+    int go = vh_iget(link, "GO");
+    int updown = (go == UP || go == DOWN);
+    int inout = (go == IN || go == OUT);
+    vlist *x, *y;
+    int i, np;
+
+    truncate_link(link, ps_roomwidth, ps_roomheight);
+
+    x = vh_pget(link, "X");
+    y = vh_pget(link, "Y");
+
+    printf("[");
+    np = vl_length(x);
+    for (i = 0; i < np; i++)
+        printf(" %g %g",
+               vl_dget(x, i) + ps_xoff,
+               vl_dget(y, i) + ps_yoff);
+    printf(" ]");
+
+    printf(" %s", (updown ? "true" : "false"));
+    printf(" %s", (inout ? "true" : "false"));
+    printf(" %s", (oneway ? "true" : "false"));
+    printf(" %s", (special ? "true" : "false"));
+
+    printf(" link\n");
 }
 
 void
