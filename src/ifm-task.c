@@ -233,7 +233,7 @@ order_tasks()
 {
     vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task, *dstep;
     int drop, pri, priority, tasksleft;
-    vlist *itasks;
+    vlist *itasks, *dtasks = NULL;
     vscalar *elt;
 
     /* Don't bother if no tasks */
@@ -274,8 +274,20 @@ order_tasks()
 
             if (drop) {
                 dstep = task_step(T_DROP, item);
+                if (dtasks == NULL)
+                    dtasks = vl_create();
+                vl_ppush(dtasks, dstep);
+            }
+        }
+
+        if (dtasks != NULL) {
+            FOREACH(elt, dtasks) {
+                dstep = vs_pval(elt);
                 do_task(dstep, room, NULL);
             }
+
+            vl_destroy(dtasks);
+            dtasks = NULL;
         }
 
         /* Search for next task */
