@@ -53,12 +53,11 @@ static char buf[BUFSIZ];
 void
 text_item_entry(vhash *item)
 {
-    vhash *room = vh_pget(item, "ROOM");
     vlist *notes = vh_pget(item, "NOTE");
+    vhash *room, *task, *reach;
     static int count = 0;
     vscalar *elt;
-    vlist *tasks;
-    vhash *task;
+    vlist *list;
     char *title;
 
     if (count++ == 0) {
@@ -70,7 +69,9 @@ text_item_entry(vhash *item)
     }
 
     put_string("\n%s:\n", vh_sgetref(item, "DESC"));
-    if (room == NULL)
+
+    
+    if ((room = vh_pget(item, "ROOM")) == NULL)
         printf("   carried at the start of the game\n");
     else
         printf("   %s in %s\n",
@@ -87,9 +88,9 @@ text_item_entry(vhash *item)
     if (vh_exists(item, "FINISH"))
         printf("   finishes the game when picked up\n");
 
-    if ((tasks = vh_pget(item, "RTASKS")) != NULL) {
+    if ((list = vh_pget(item, "RTASKS")) != NULL) {
         printf("   obtained after:\n");
-        vl_foreach(elt, tasks) {
+        vl_foreach(elt, list) {
             task = vs_pget(elt);
             if ((room = vh_pget(task, "ROOM")) == NULL)
                 strcpy(buf, vh_sgetref(task, "DESC"));
@@ -101,9 +102,9 @@ text_item_entry(vhash *item)
         }
     }
 
-    if ((tasks = vh_pget(item, "TASKS")) != NULL) {
+    if ((list = vh_pget(item, "TASKS")) != NULL) {
         printf("   needed for:\n");
-        vl_foreach(elt, tasks) {
+        vl_foreach(elt, list) {
             task = vs_pget(elt);
             if ((room = vh_pget(task, "ROOM")) == NULL)
                 strcpy(buf, vh_sgetref(task, "DESC"));
@@ -112,6 +113,25 @@ text_item_entry(vhash *item)
                         vh_sgetref(task, "DESC"),
                         vh_sgetref(room, "DESC"));
             put_string("      %s\n", buf);
+        }
+    }
+
+    if ((list = vh_pget(item, "NROOMS")) != NULL) {
+        printf("   needed to enter:\n");
+        vl_foreach(elt, list) {
+            room = vs_pget(elt);
+            put_string("      %s\n", vh_sgetref(room, "DESC"));
+        }
+    }
+
+    if ((list = vh_pget(item, "NLINKS")) != NULL) {
+        printf("   needed to move:\n");
+        vl_foreach(elt, list) {
+            reach = vs_pget(elt);
+            room = vh_pget(reach, "FROM");
+            put_string("      %s to", vh_sgetref(room, "DESC"));
+            room = vh_pget(reach, "TO");
+            put_string(" %s\n", vh_sgetref(room, "DESC"));
         }
     }
 
