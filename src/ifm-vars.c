@@ -288,7 +288,6 @@ var_list(void)
     vhash *svars;
     vlist *slist;
     char *style;
-    int i;
 
     INIT_VARS;
 

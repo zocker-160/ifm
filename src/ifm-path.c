@@ -547,7 +547,6 @@ reachable_rooms(vhash *room)
     vlist *rlist, *tlist;
     char *node, *next;
     vscalar *elt;
-    vhash *reach;
 
     if (list == NULL)
         list = vl_create();
