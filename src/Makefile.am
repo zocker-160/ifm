@@ -2,6 +2,8 @@
 
 bin_PROGRAMS	= ifm
 
+IFMLIBDIR	= ../lib
+
 ifm_SOURCES	= ifm-driver.h ifm-main.c ifm-main.h ifm-map.c ifm-map.h      \
 		  ifm-parse.y ifm-parse.h ifm-path.c ifm-path.h ifm-ps.c      \
 		  ifm-ps.h ifm-raw.c ifm-raw.h ifm-rec.c ifm-rec.h ifm-scan.l \
@@ -10,7 +12,7 @@ ifm_SOURCES	= ifm-driver.h ifm-main.c ifm-main.h ifm-map.c ifm-map.h      \
 
 ifm_LDADD	= -lvars
 
-SYS_INIT	= ifm-init.ifm
+ifm_LDFLAGS	= -L$(IFMLIBDIR)
 
 PS_PROLOG	= ifm-pro.ps
 
@@ -20,19 +22,14 @@ pkgdata_DATA	= $(LIBFILES)
 
 EXTRA_DIST 	= $(LIBFILES)
 
-IFMLIB		= ../lib
-
 YFLAGS		= -d -v
 
-INCLUDES	= -I$(IFMLIB) \
-		  -DVERSION=\"$(VERSION)\" \
+INCLUDES	= -I$(IFMLIBDIR) \
 		  -DIFMPATH=\".:$(pkgdatadir)\" \
 		  -DPS_PROLOG=\"$(PS_PROLOG)\" \
-		  -DSYSINIT=\"$(pkgdatadir)/$(SYS_INIT)\" \
+		  -DSYSINIT=\"$(pkgdatadir)/ifm-init.ifm\" \
 		  -DPS -DTEXT -DTK -DRAW -DREC
-
-LDFLAGS		= -L$(IFMLIB)
 
 ifm-parse.h:	ifm-parse.c
 
-lint:;		lint -habx $(INCLUDES) *.c
+lint:;		lint -habx $(DEFS) $(INCLUDES) *.c
