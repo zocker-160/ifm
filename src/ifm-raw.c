@@ -116,9 +116,10 @@ raw_map_link(vhash *link)
     if (go != D_NONE)
         printf("go: %s\n", dirinfo[go].sname);
 
-    if ((cmds = vh_pget(link, "CMD")) != NULL)
+    if ((cmds = vh_pget(link, "CMD")) != NULL) {
         vl_foreach(elt, cmds)
             put_string("cmd: %s\n", vs_sgetref(elt));
+    }
 }
 
 void
@@ -140,9 +141,10 @@ raw_map_join(vhash *join)
     if (go != D_NONE)
         printf("go: %s\n", dirinfo[go].sname);
 
-    if ((cmds = vh_pget(join, "CMD")) != NULL)
+    if ((cmds = vh_pget(join, "CMD")) != NULL) {
         vl_foreach(elt, cmds)
             put_string("cmd: %s\n", vs_sgetref(elt));
+    }
 }
 
 /* Item functions */
@@ -208,9 +210,10 @@ raw_item_entry(vhash *item)
         }
     }
 
-    if (notes != NULL)
+    if (notes != NULL) {
         vl_foreach(elt, notes)
             put_string("note: %s\n", vs_sgetref(elt));
+    }
 }
 
 /* Task functions */
@@ -232,14 +235,16 @@ raw_task_entry(vhash *task)
     if (room != NULL)
         printf("room: %d\n", vh_iget(room, "ID"));
 
-    if (cmds != NULL)
+    if (cmds != NULL) {
         vl_foreach(elt, cmds)
             put_string("cmd: %s\n", vs_sgetref(elt));
+    }
 
     if (score > 0)
         printf("score: %d\n", score);
 
-    if (notes != NULL)
+    if (notes != NULL) {
         vl_foreach(elt, notes)
             put_string("note: %s\n", vs_sgetref(elt));
+    }
 }

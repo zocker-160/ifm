@@ -116,7 +116,6 @@ static void print_map(void);
 static void print_items(void);
 static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
-static vlist *parse_list(char *list);
 static void print_version(void);
 static int select_format(char *str, int output);
 static void show_info(char *type);
@@ -227,7 +226,7 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "map")) {
         output |= O_MAP;
         spec = vh_sgetref(opts, "map");
-        if (strlen(spec) > 0 && (sections = parse_list(spec)) == NULL)
+        if (strlen(spec) > 0 && (sections = vl_parse_list(spec)) == NULL)
             fatal("invalid map section spec: %s", spec);
     }
 
@@ -251,9 +250,10 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "show"))
         info = vh_sgetref(opts, "show");
 
-    if ((ifm_styles = vh_pget(opts, "style")) != NULL)
+    if ((ifm_styles = vh_pget(opts, "style")) != NULL) {
         vl_foreach(elt, ifm_styles)
             ref_style(vs_sgetref(elt));
+    }
 
     /* Set up preprocessor stuff */
     gpp_init();
@@ -273,9 +273,10 @@ main(int argc, char *argv[])
     vl_foreach(elt, ifm_search)
         gpp_include(vs_sgetref(elt));
 
-    if ((list = vh_pget(opts, "D")) != NULL)
+    if ((list = vh_pget(opts, "D")) != NULL) {
         vl_foreach(elt, list)
             gpp_define(vs_sgetref(elt), NULL);
+    }
 
     gpp_define("IFM_VERSION", VERSION);
 
@@ -617,38 +618,6 @@ parse_input(char *file, int libflag, int required)
     strcpy(ifm_input, "");
 
     return (ifm_errors == 0);
-}
-
-/* Parse a list argument into a list of flags */
-static vlist *
-parse_list(char *list)
-{
-    int flag, i, min, max;
-    vlist *parts, *flags;
-    vscalar *elt;
-    char *part;
-
-    flags = vl_create();
-    parts = vl_split(list, ",");
-
-    vl_foreach(elt, parts) {
-        part = vs_sgetref(elt);
-        if (strchr(part, '-') != NULL) {
-            if (sscanf(part, "%d-%d", &min, &max) < 2)
-                return NULL;
-            if (min < 0 || max < 0 || min > max)
-                return NULL;
-            for (i = min; i <= max; i++)
-                vl_istore(flags, i, 1);
-        } else {
-            if (sscanf(part, "%d", &flag) < 1)
-                return NULL;
-            vl_istore(flags, flag, 1);
-        }
-    }
-
-    vl_destroy(parts);
-    return flags;
 }
 
 /* Item sort function */
