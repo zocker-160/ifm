@@ -65,7 +65,6 @@ Makefile
 src/Makefile
 lib/Makefile
 doc/Makefile
-scr2ifm/Makefile
-tkifm/Makefile
+progs/Makefile
 tests/Makefile
 )
