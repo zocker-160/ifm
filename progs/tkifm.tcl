@@ -300,6 +300,11 @@ proc DrawMap {num} {
 	    eval $cmd
 	}
     }
+
+    # Add 'dismiss' button.
+    set b $w.bye
+    button $b -text "Dismiss" -command "destroy $w"
+    pack $b -fill x
 }
 
 # Show item list.
@@ -351,6 +356,11 @@ proc ShowItems {} {
 
     bind $t <3> "$t scan mark %x %y"
     bind $t <B3-Motion> "$t scan dragto %x %y"
+
+    # Add 'dismiss' button.
+    set b $w.bye
+    button $b -text "Dismiss" -command "destroy $w"
+    pack $b -fill x
 }
 
 # Show task list.
@@ -402,6 +412,11 @@ proc ShowTasks {} {
 
     bind $t <3> "$t scan mark %x %y"
     bind $t <B3-Motion> "$t scan dragto %x %y"
+
+    # Add 'dismiss' button.
+    set b $w.bye
+    button $b -text "Dismiss" -command "destroy $w"
+    pack $b -fill x
 }
 
 # Build the map.
@@ -476,6 +491,8 @@ proc ReadFile {file} {
 # Set the current input pathname.
 proc SetFile {path} {
     global ifm
+
+    regsub {^\./} $path {} path
 
     set ifm(dir)  [file dirname $path]
     set ifm(file) [file tail $path]
