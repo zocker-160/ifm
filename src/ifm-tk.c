@@ -45,9 +45,10 @@ taskfuncs tk_taskfuncs = {
 void
 tk_map_start(void)
 {
+    char *title = get_string("title", NULL);
+
     /* Set variables */
-    printf("set ifm(command) {%s}\n", get_string("ifm_command",
-                                                 "ifm -map -format tk"));
+    printf("set ifm(title) {%s}\n", title == NULL ? "IFM" : title);
 
     printf("set ifm(pagewidth) %s\n", get_string("page_width", "7i"));
     printf("set ifm(pageheight) %s\n", get_string("page_height", "7i"));
@@ -66,9 +67,6 @@ tk_map_start(void)
 
     printf("set ifm(roomfont) {%s}\n", get_string("room_font",
                                                   "Times 10 bold"));
-
-    printf("set ifm(editfont) {%s}\n", get_string("edit_font",
-                                                  "Courier 14 bold"));
 
     printf("set ifm(curvelines) %s\n",
            get_int("link_spline", 1) ? "true" : "false");
