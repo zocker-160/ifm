@@ -95,9 +95,25 @@
 	    [ 2 2 ] 2 setdash
 	} if
 
-	% Draw box around room.
+	% Draw room shadow box if required.
+	roomshadow 0 gt {
+	    newpath
+	    rm-xpos rm-ypos moveto
+	    boxsize 1 roomshadow 2 mul sub mul roomwidth 2 div mul
+	    boxsize 1 roomshadow 2 mul sub mul roomheight 2 div mul
+	    rmoveto
+
+	    roomwidth boxsize mul neg 0 rlineto
+	    0 roomheight boxsize mul neg rlineto
+	    roomwidth boxsize mul 0 rlineto
+	    closepath
+
+	    gsave 0 setgray fill grestore stroke
+	} if
+
+	% Draw room box.
 	roomlinewidth setlinewidth
-	newpath 
+	newpath
 	rm-xpos rm-ypos moveto
 	boxsize roomwidth 2 div mul
 	boxsize roomheight 2 div mul
@@ -108,7 +124,6 @@
 	roomwidth boxsize mul 0 rlineto
 	closepath
 
-	% Fill it.
 	gsave roomshading setgray fill grestore stroke
 
 	% Draw room text (and item text if required).
