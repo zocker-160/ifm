@@ -99,14 +99,14 @@ proc DrawMap {sect} {
     set ylen [Get $sect ylen]
 
     # Calculate dimensions.
-    set width [expr $ifm(framewidth) * $xlen]
-    set height [expr $ifm(frameheight) * $ylen]
-    set xgap [expr ($ifm(framewidth) * (1 - $ifm(roomwidth))) / 2]
-    set ygap [expr ($ifm(frameheight) * (1 - $ifm(roomheight))) / 2]
+    set width [expr $ifm(roomsize) * $xlen]
+    set height [expr $ifm(roomsize) * $ylen]
+    set xgap [expr ($ifm(roomsize) * (1 - $ifm(roomwidth))) / 2]
+    set ygap [expr ($ifm(roomsize) * (1 - $ifm(roomheight))) / 2]
 
-    set mapwidth [expr $ifm(mapwidth) * $ifm(framewidth)]
+    set mapwidth [expr $ifm(mapwidth) * $ifm(roomsize)]
     if {$mapwidth > $width} {set mapwidth $width}
-    set mapheight [expr $ifm(mapheight) * $ifm(frameheight)]
+    set mapheight [expr $ifm(mapheight) * $ifm(roomsize)]
     if {$mapheight > $height} {set mapheight $height}
 
     # Initialise window.
@@ -162,8 +162,8 @@ proc DrawMap {sect} {
 		set xoff [lindex $xlist $i]
 		set yoff [lindex $ylist $i]
 		set yoff [expr $ylen - 1 - $yoff]
-		set x [expr ($xoff + 0.5) * $ifm(framewidth)]
-		set y [expr ($yoff + 0.5) * $ifm(frameheight)]
+		set x [expr ($xoff + 0.5) * $ifm(roomsize)]
+		set y [expr ($yoff + 0.5) * $ifm(roomsize)]
 		lappend cmd ${x}c ${y}c
 	    }
 
@@ -198,10 +198,10 @@ proc DrawMap {sect} {
 	    set yoff [expr $ylen - 1 - $yoff]
 	    set puzzle [Get $room puzzle]
 
-	    set xmin [expr $xoff * $ifm(framewidth) + $xgap]
-	    set ymin [expr $yoff * $ifm(frameheight) + $ygap]
-	    set xmax [expr $xmin + $ifm(framewidth) * $ifm(roomwidth)]
-	    set ymax [expr $ymin + $ifm(frameheight) * $ifm(roomheight)]
+	    set xmin [expr $xoff * $ifm(roomsize) + $xgap]
+	    set ymin [expr $yoff * $ifm(roomsize) + $ygap]
+	    set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
+	    set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
 
 	    set fillcol white
 	    if {$puzzle} {set fillcol $ifm(puzzlecol)}
@@ -317,6 +317,7 @@ proc Input {file} {
 
     $ifm(text) delete 0.0 end
     $ifm(text) insert end $ifm(data)
+    $ifm(text) mark set insert 0.0
     append ifm(data) "\n"
 
     set ifm(compiled) ""
