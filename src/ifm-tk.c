@@ -1,10 +1,3 @@
-/*
- *  Ifm, copyright (C) 1997, 1998 G. Hutchings
- *  Ifm comes with ABSOLUTELY NO WARRANTY.
- *  This is free software, and you are welcome to redistribute it
- *  under certain conditions; see the file COPYING for details.
- */
-
 /* Tcl/Tk output driver */
 
 #ifdef HAVE_CONFIG_H
@@ -117,7 +110,7 @@ tk_map_section(vhash *sect)
 
     num++;
 
-    if (title == NULL)
+    if (strlen(title) == 0)
         sprintf(buf, "Map section %d", num);
     else
         strcpy(buf, title);

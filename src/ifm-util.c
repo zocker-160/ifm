@@ -1,10 +1,3 @@
-/*
- *  Ifm, copyright (C) 1997, 1998 G. Hutchings
- *  Ifm comes with ABSOLUTELY NO WARRANTY.
- *  This is free software, and you are welcome to redistribute it
- *  under certain conditions; see the file COPYING for details.
- */
-
 /* Utility functions */
 
 #ifdef HAVE_CONFIG_H
@@ -346,12 +339,16 @@ setup_room_names(int jflag, int tflag)
             sprintf(tag, " (%d)", ++jnum);
 
             name = vh_sgetref(from, "RDESC");
-            strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
+            if (strlen(name) == 0)
+                name = vh_sgetref(from, "DESC");
+            strcpy(buf, name);
             strcat(buf, tag);
             vh_sstore(from, "RDESC", buf);
 
             name = vh_sgetref(to, "RDESC");
-            strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
+            if (strlen(name) == 0)
+                name = vh_sgetref(to, "DESC");
+            strcpy(buf, name);
             strcat(buf, tag);
             vh_sstore(to, "RDESC", buf);
         }

@@ -1,10 +1,3 @@
-/*
- *  Ifm, copyright (C) 1997, 1998 G. Hutchings
- *  Ifm comes with ABSOLUTELY NO WARRANTY.
- *  This is free software, and you are welcome to redistribute it
- *  under certain conditions; see the file COPYING for details.
- */
-
 /* Main functions */
 
 #ifdef HAVE_CONFIG_H
@@ -241,9 +234,11 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "show"))
         info = vh_sgetref(opts, "show");
 
-    if ((file = vh_sgetref(opts, "output")) != NULL)
+    if (vh_exists(opts, "output")) {
+        file = vh_sgetref(opts, "output");
         if (freopen(file, "w", stdout) == NULL)
             fatal("can't open %s", file);
+    }
 
     switch (vh_iget(opts, "DEBUG")) {
 #ifdef FLEX_DEBUG
