@@ -17,6 +17,8 @@
 #include "ifm-task.h"
 #include "ifm-util.h"
 
+#define WARN_IGNORED(attr) \
+    warn("attribute `%s' ignored -- no `dir' link", #attr)
 %}
 
 %union {
@@ -46,6 +48,7 @@
 
 stmt_list	: /* empty */
 		| stmt_list stmt
+		| stmt_list error
 		;
 
 stmt		: room_stmt
@@ -88,14 +91,17 @@ room_stmt	: ROOM STRING
                     vl_punshift(list, curroom);
 
                     if (!vh_exists(curroom, "DIR")) {
+                        if (vh_exists(curroom, "GO"))
+                            WARN_IGNORED(go);
                         if (vh_exists(curroom, "ONEWAY"))
-                            warn("attribute `oneway' ignored -- no `dir' link");
+                            WARN_IGNORED(oneway);
                         if (vh_exists(curroom, "SPECIAL"))
-                            warn("attribute `special' ignored -- no `dir' link");
+                            WARN_IGNORED(special);
+                        if (vh_exists(curroom, "TO_CMD"))
+                            WARN_IGNORED(cmd);
                     }
 
                     lastroom = curroom;
-                    curroom = NULL;
                 }
 		;
 
@@ -226,7 +232,12 @@ room_attr	: TAG IDENT
 		}
                 | LEAVE item_list
                 {
-                    /* FINISH ME */
+                    if (vh_exists(curroom, "DIR"))
+                        vh_pstore(curroom, "LINK_LEAVE", curitems);
+                    else
+                        vh_pstore(curroom, "LEAVE", curitems);
+
+                    curitems = NULL;
                 }
 		| LENGTH INTEGER
 		{
@@ -261,7 +272,6 @@ item_stmt	: ITEM STRING
 
                     lastitem = curitem;
                     vl_ppush(items, curitem);
-                    curitem = NULL;
 		}
 		;
 
@@ -327,7 +337,6 @@ link_stmt	: LINK IDENT TO IDENT
                 link_attrs ';'
 		{
                     vl_ppush(links, curlink);
-                    curlink = NULL;
 		}
 		;
 
@@ -371,6 +380,11 @@ link_attr	: DIR dir_list
                     vh_pstore(curlink, "AFTER", curtasks);
                     curtasks = NULL;
 		}
+                | LEAVE item_list
+                {
+                    vh_pstore(curlink, "LEAVE", curitems);
+                    curitems = NULL;
+                }
 		| LENGTH INTEGER
 		{
                     vh_istore(curlink, "LEN", $2);
@@ -393,7 +407,6 @@ join_stmt	: JOIN IDENT TO IDENT
                 join_attrs ';'
 		{
                     vl_ppush(joins, curjoin);
-                    curjoin = NULL;
 		}
 		;
 
@@ -428,6 +441,11 @@ join_attr	: GO go_flag
                     vh_pstore(curjoin, "AFTER", curtasks);
                     curtasks = NULL;
 		}
+                | LEAVE item_list
+                {
+                    vh_pstore(curjoin, "LEAVE", curitems);
+                    curitems = NULL;
+                }
 		| LENGTH INTEGER
 		{
                     vh_istore(curjoin, "LEN", $2);
@@ -455,7 +473,6 @@ task_stmt	: TASK STRING
 
                     lasttask = curtask;
                     vl_ppush(tasks, curtask);
-                    curtask = NULL;
 		}
 		;
 
@@ -658,6 +675,7 @@ go_flag		: IN            { $$ = D_IN;   }
 		| OUT           { $$ = D_OUT;  }
 		| UP            { $$ = D_UP;   }
 		| DOWN          { $$ = D_DOWN; }
+                | dir
 		;
 
 var             : INTEGER       { $$ = vs_istore(NULL, $1); }
