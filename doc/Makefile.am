@@ -2,7 +2,7 @@
 
 # Main target.
 
-doc: fig ps html
+doc: fig pdf html
 
 pdf: ifm.pdf
 
@@ -59,7 +59,9 @@ install-doc:
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.pdf
+EXTRA_DIST = ifm.pdf ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr \
+advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	   \
+tkifm.txt
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
