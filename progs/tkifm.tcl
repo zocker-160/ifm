@@ -356,7 +356,7 @@ proc DrawMap {num} {
 	    if [Get $link oneway] {
 		set a1 [expr [Get $link link_arrow_size] * $ifm(room_size)]
 		set a2 $a1
-		set a3 [expr $a2 / 2]
+		set a3 [expr $a2 / 3.24]
 		lappend cmd -arrow last -arrowshape "${a1}c ${a2}c ${a3}c"
 	    }
 
