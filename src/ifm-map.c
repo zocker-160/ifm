@@ -30,6 +30,8 @@ vhash *vars = NULL;             /* Variables */
 
 vhash *roomtags = NULL;         /* Tag -> room mapping */
 vhash *itemtags = NULL;         /* Tag -> item mapping */
+vhash *linktags = NULL;         /* Tag -> link mapping */
+vhash *jointags = NULL;         /* Tag -> join mapping */
 vhash *tasktags = NULL;         /* Tag -> task mapping */
 
 vhash *curroom = NULL;          /* Current room */
@@ -85,6 +87,8 @@ init_map(void)
 
     roomtags = vh_create();
     itemtags = vh_create();
+    linktags = vh_create();
+    jointags = vh_create();
     tasktags = vh_create();
 
     taskorder = vl_create();

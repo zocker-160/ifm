@@ -14,7 +14,7 @@
 extern vhash *map;
 extern vlist *rooms, *links, *joins, *items, *tasks, *sects;
 extern vhash *vars;
-extern vhash *roomtags, *itemtags, *tasktags;
+extern vhash *roomtags, *itemtags, *tasktags, *linktags, *jointags;
 extern vhash *curroom, *curlink, *curitem, *curjoin, *curtask;
 extern vlist *curdirs, *curitems, *curlinks, *curjoins, *curtasks;
 extern vhash *startroom, *lastroom, *lastitem, *lasttask;
