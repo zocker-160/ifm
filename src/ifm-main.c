@@ -115,6 +115,9 @@ char *ifm_format = NULL;
 /* Output type name */
 char *ifm_output = NULL;
 
+/* Verbose flag */
+int ifm_verbose = 0;
+
 /* Debugging flag */
 int ifm_debug = 0;
 
@@ -168,13 +171,16 @@ main(int argc, char *argv[])
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
+    v_option('v', "verbose", V_OPT_FLAG, NULL,
+             "Be very verbose about things");
+
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
 
     v_option('\0', "nosysinit", V_OPT_FLAG, NULL,
              "Don't read system init file");
 
-    v_option('v', "version", V_OPT_FLAG, NULL,
+    v_option('V', "version", V_OPT_FLAG, NULL,
              "Print program version");
 
     v_option('h', "help", V_OPT_FLAG, NULL,
@@ -214,6 +220,9 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "nosysinit"))
         sysinit = 0;
+
+    if (vh_exists(opts, "verbose"))
+        ifm_verbose = 1;
 
     if ((file = vh_sgetref(opts, "output")) != NULL)
         if (freopen(file, "w", stdout) == NULL)
@@ -265,6 +274,7 @@ main(int argc, char *argv[])
 
     /* Resolve tags */
     resolve_tags();
+
     if (ifm_errors > 0)
         return 1;
 
@@ -273,6 +283,7 @@ main(int argc, char *argv[])
 
     /* Set up links */
     setup_links();
+
     if (ifm_errors > 0)
         return 1;
 
@@ -284,12 +295,13 @@ main(int argc, char *argv[])
 
     /* Do task setup if required */
     if (output == O_NONE || output & O_TASKS) {
-        /* Connect rooms */
         connect_rooms();
+        setup_tasks();
 
-        /* Create task list */
-        build_tasks();
-        order_tasks();
+        if (ifm_errors > 0)
+            return 1;
+
+        solve_game();
     }
 
     /* Do what's required */
