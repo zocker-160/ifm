@@ -47,6 +47,7 @@ static char buf[BUFSIZ];
 int ifm_debug = 0;
 
 /* Local functions */
+static int itemsort(vscalar **ip1, vscalar **ip2);
 static void usage(void);
 
 /* Main routine */
@@ -229,8 +230,8 @@ draw_items(int fmt)
 {
     struct driver_st drv = drivers[fmt];
     itemfuncs *func = drv.ifunc;
+    vlist *items, *sorted;
     vscalar *elt;
-    vlist *items;
     vhash *item;
 
     items = vh_pget(map, "ITEMS");
@@ -240,10 +241,12 @@ draw_items(int fmt)
     if (func == NULL)
         fatal("no item table driver for %s", drv.name);
 
+    sorted = vl_sort(items, itemsort);
+
     if (func->item_start != NULL)
         (*func->item_start)(vh_sget(map, "TITLE"));
 
-    FOREACH(elt, items) {
+    FOREACH(elt, sorted) {
         item = vs_pval(elt);
         if (func->item_entry != NULL)
             (*func->item_entry)(item);
@@ -251,6 +254,8 @@ draw_items(int fmt)
 
     if (func->item_finish != NULL)
         (*func->item_finish)();
+
+    vl_destroy(sorted);
 }
 
 /* Draw task table */
@@ -281,6 +286,30 @@ draw_tasks(int fmt)
 
     if (func->task_finish != NULL)
         (*func->task_finish)();
+}
+
+/* Item sort function */
+static int
+itemsort(vscalar **ip1, vscalar **ip2)
+{
+    vhash *i1 = vs_pval(*ip1);
+    vhash *i2 = vs_pval(*ip2);
+    vhash *ir1, *ir2;
+    int cmp;
+
+    /* First, by item name */
+    cmp = strcmp(vh_sget(i1, "DESC"), vh_sget(i2, "DESC"));
+    if (cmp) return cmp;
+
+    /* Next, by room name */
+    ir1 = vh_pget(i1, "ROOM");
+    ir2 = vh_pget(i2, "ROOM");
+    cmp = strcmp((ir1 == NULL ? "" : vh_sget(ir1, "DESC")),
+                 (ir2 == NULL ? "" : vh_sget(ir2, "DESC")));
+    if (cmp) return cmp;
+
+    /* Finally, by note */
+    return strcmp(vh_sget(i1, "NOTE"), vh_sget(i2, "NOTE"));
 }
 
 /* Select an output format */
