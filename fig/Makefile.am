@@ -22,5 +22,6 @@ testfig_LDADD = libfig.a -lvars -lm
 
 test: testfig
 	./testfig | tee test.fig
+	fig2dev -L eps test.fig > test.eps
 
-CLEANFILES = test.fig* testfig
+CLEANFILES = test.fig* test.eps testfig

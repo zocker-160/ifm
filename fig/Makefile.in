@@ -88,6 +88,7 @@ INCLUDES = -I$(VARS)
 testfig_SOURCES = testfig.c
 testfig_LDFLAGS = -L$(VARS)
 testfig_LDADD = libfig.a -lvars -lm
+#	xfig test.fig
 
 CLEANFILES = test.fig* testfig
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
@@ -323,6 +324,7 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 test: testfig
 	./testfig | tee test.fig
+	fig2dev -L eps test.fig > test.eps
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
