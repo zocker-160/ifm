@@ -1,5 +1,5 @@
 # Room 'puzzle' style (was previously the 'puzzle' attribute).
 
-style "puzzle";
+style puzzle;
   room_colour = "grey";
-endstyle "puzzle";
+endstyle puzzle;
