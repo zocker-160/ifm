@@ -444,7 +444,7 @@ int
 task_priority(vhash *room, vhash *step)
 {
     vhash *before, *taskroom, *gotoroom;
-    int priority = 1000, dist;
+    int priority = 1000, dist, type;
     vscalar *elt;
     vlist *prev;
 
@@ -460,24 +460,37 @@ task_priority(vhash *room, vhash *step)
         }
     }
 
-    /* If already in task room, or task can be done anywhere, give
-       it high priority */
-    taskroom = vh_pget(step, "ROOM");
-    if (taskroom == NULL || taskroom == room)
-        return priority;
-
-    /* There must be a path from here to the task room */
-    if ((dist = find_path(NULL, room, taskroom)) > 0)
-        priority -= dist;
-    else
-        return 0;
-
     /* If task doesn't open up new paths, lower the priority */
     if (!vh_iget(step, "OPENPATH"))
         priority -= 100;
 
-    /* If no return path, lower the priority */
+    type = vh_iget(step, "TYPE");
+    taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
+
+    if (taskroom == NULL || taskroom == room) {
+        /*
+         * Task can be done anywhere, or in current room -- if it's a
+         * goto-room task, you must be able to get there.
+         */
+        if (type == T_GOTO) {
+            if ((dist = find_path(NULL, room, gotoroom)) > 0)
+                priority -= dist;
+            else
+                return 0;
+        }
+    } else {
+        /*
+         * Task must be done elsewhere -- there must be a path from
+         * here to the task room.
+         */
+        if ((dist = find_path(NULL, room, taskroom)) > 0)
+            priority -= dist;
+        else
+            return 0;
+    }
+
+    /* If no return path, lower the priority */
     if (gotoroom != NULL)
         taskroom = gotoroom;
     if (!find_path(NULL, taskroom, room))
@@ -510,7 +523,8 @@ task_step(int type, vhash *data)
         break;
     case T_GOTO:
         sprintf(buf, "Go to %s", desc);
-        room = data;
+        room = NULL;
+        vh_pstore(step, "GOTO", data);
         break;
     case T_USER:
         strcpy(buf, desc);
