@@ -16,6 +16,7 @@
 #include "ifm.h"
 #include "ifm-parse.h"
 #include "ifm-tk.h"
+#include "ifm-text.h"
 
 /* Map function list */
 mapfuncs tk_mapfuncs = {
@@ -29,16 +30,22 @@ mapfuncs tk_mapfuncs = {
 
 /* Item function list */
 itemfuncs tk_itemfuncs = {
-    NULL,
+    tk_item_start,
     tk_item_entry,
-    NULL
+    tk_item_finish
 };
 
 /* Task function list */
 taskfuncs tk_taskfuncs = {
-    NULL,
+    tk_task_start,
     tk_task_entry,
-    NULL
+    tk_task_finish
+};
+
+/* Error function list */
+errfuncs tk_errfuncs = {
+    tk_warning,
+    tk_error
 };
 
 /* Map functions */
@@ -167,28 +174,62 @@ tk_map_finish(void)
 
 /* Item functions */
 void
+tk_item_start(void)
+{
+    printf("set itemlist {");
+    text_item_start();
+}
+
+void
 tk_item_entry(vhash *item)
 {
-    vhash *room = vh_pget(item, "ROOM");
-    char *note = vh_sgetref(item, "NOTE");
+    text_item_entry(item);
+}
 
-    printf("AddItem {%s} {%s} %d %d\n",
-           vh_sgetref(item, "DESC"),
-           (note != NULL ? note : ""),
-           (room == NULL ? 0 : vh_iget(room, "NUM")),
-           vh_iget(item, "HIDDEN"));
+void
+tk_item_finish(void)
+{
+    printf("}\n");
 }
 
 /* Task functions */
 void
+tk_task_start(void)
+{
+    printf("set tasklist {");
+    text_task_start();
+}
+
+void
 tk_task_entry(vhash *task)
 {
-    vhash *room = vh_pget(task, "ROOM");
-    char *note = vh_sgetref(task, "NOTE");
+    text_task_entry(task);
+}
 
-    printf("AddTask {%s} {%s} %d %d\n",
-           vh_sgetref(task, "DESC"),
-           (note != NULL ? note : ""),
-           (room == NULL ? 0 : vh_iget(room, "NUM")),
-           vh_iget(task, "SCORE"));
+void
+tk_task_finish(void)
+{
+    text_task_finish();
+    printf("}\n");
+}
+
+/* Error functions */
+void
+tk_warning(char *file, int line, char *msg)
+{
+    if (line > 0)
+        printf("Warning {Warning: line %d: %s}\n", line, msg);
+    else
+        printf("Warning {Warning: %s}\n", msg);
+}
+
+void
+tk_error(char *file, int line, char *msg)
+{
+    if (line > 0)
+        printf("Error {Error: line %d: %s}\n", line, msg);
+    else
+        printf("Error {Error: %s}\n", msg);
+
+    exit(0);
 }
