@@ -44,7 +44,7 @@ static int sort_tasks(vscalar **v1, vscalar **v2);
 void
 connect_rooms(void)
 {
-    vhash *room, *link, *join, *reach, *from, *to;
+    vhash *room, *link, *join, *reach, *from, *to, *item;
     int oneway, len, goflag, dir;
     vlist *rlist;
     vscalar *elt;
@@ -88,8 +88,9 @@ connect_rooms(void)
         vh_pstore(reach, "NEED", vh_pget(link, "NEED"));
         vh_pstore(reach, "BEFORE", vh_pget(link, "BEFORE"));
         vh_pstore(reach, "AFTER", vh_pget(link, "AFTER"));
-        vh_pstore(reach, "LEAVE", vh_pget(link, "LEAVE"));
         vh_istore(reach, "LEN", V_MAX(len, 1));
+        vh_pstore(reach, "LEAVE", vh_pget(link, "LEAVE"));
+        vh_istore(reach, "LEAVEALL", vh_iget(link, "LEAVEALL"));
 
         vl_ppush(rlist, reach);
 
@@ -127,6 +128,7 @@ connect_rooms(void)
             vh_pstore(reach, "BEFORE", vh_pget(link, "BEFORE"));
             vh_pstore(reach, "AFTER", vh_pget(link, "AFTER"));
             vh_pstore(reach, "LEAVE", vh_pget(link, "LEAVE"));
+            vh_istore(reach, "LEAVEALL", vh_iget(link, "LEAVEALL"));
             vh_istore(reach, "LEN", V_MAX(len, 1));
 
             vl_ppush(rlist, reach);
@@ -171,6 +173,7 @@ connect_rooms(void)
         vh_pstore(reach, "BEFORE", vh_pget(join, "BEFORE"));
         vh_pstore(reach, "AFTER", vh_pget(join, "AFTER"));
         vh_pstore(reach, "LEAVE", vh_pget(join, "LEAVE"));
+        vh_istore(reach, "LEAVEALL", vh_iget(join, "LEAVEALL"));
         vh_istore(reach, "LEN", V_MAX(len, 1));
 
         vl_ppush(rlist, reach);
@@ -206,6 +209,7 @@ connect_rooms(void)
             vh_pstore(reach, "BEFORE", vh_pget(join, "BEFORE"));
             vh_pstore(reach, "AFTER", vh_pget(join, "AFTER"));
             vh_pstore(reach, "LEAVE", vh_pget(join, "LEAVE"));
+            vh_istore(reach, "LEAVEALL", vh_iget(join, "LEAVEALL"));
             vh_istore(reach, "LEN", V_MAX(len, 1));
 
             vl_ppush(rlist, reach);
@@ -391,8 +395,7 @@ find_path(vhash *step, vhash *from, vhash *to)
             if (addnode && (need = vh_pget(reach, "NEED")) != NULL) {
                 vl_foreach(elt, need) {
                     item = vs_pget(elt);
-                    istep = vh_pget(item, "STEP");
-                    if (!vh_iget(istep, "DONE")) {
+                    if (!vh_iget(item, "TAKEN")) {
                         addnode = 0;
                         if (ifm_verbose && to != NULL) {
                             indent(4);
@@ -407,8 +410,7 @@ find_path(vhash *step, vhash *from, vhash *to)
             if (addnode && (need = vh_pget(node, "NEED")) != NULL) {
                 vl_foreach(elt, need) {
                     item = vs_pget(elt);
-                    istep = vh_pget(item, "STEP");
-                    if (!vh_iget(istep, "DONE")) {
+                    if (!vh_iget(item, "TAKEN")) {
                         addnode = 0;
                         if (ifm_verbose && to != NULL) {
                             indent(4);
@@ -548,6 +550,7 @@ init_path(vhash *room)
     extern vlist *tasklist;
     vlist *list, *path;
     int len, flag;
+    double offset;
     vscalar *elt;
 
     /* If room changed, or path modified, need update */
@@ -620,19 +623,21 @@ init_path(vhash *room)
     /* Record distance of each task */
     vl_foreach(elt, tasklist) {
         step = vs_pget(elt);
-        if (vh_iget(step, "BLOCK"))
-            continue;
 
-        room = vh_pget(step, "ROOM");
+        if (!vh_iget(step, "BLOCK")) {
+            if ((room = vh_pget(step, "ROOM")) == NULL)
+                len = 0;
+            else if (vh_iget(room, "AP_VISIT") == ap_visit)
+                len = vh_iget(room, "AP_LEN");
+            else
+                len = BIG;
+        } else {
+            len = vh_iget(step, "SORT");
+        }
 
-        if (room == NULL)
-            len = 0;
-        else if (vh_iget(room, "AP_VISIT") == ap_visit)
-            len = vh_iget(room, "AP_LEN");
-        else
-            len = BIG;
-
-        vh_istore(step, "SORT", len);
+        /* Put 'get-item' tasks a bit further */
+        offset = (vh_iget(step, "TYPE") == T_GET ? 0.5 : 0.0);
+        vh_dstore(step, "SORT", len + offset);
     }
 
     /* Sort tasks according to distance */
@@ -657,8 +662,8 @@ sort_tasks(vscalar **v1, vscalar **v2)
 {
     vhash *t1 = vs_pget(*v1);
     vhash *t2 = vs_pget(*v2);
-    int s1 = vh_iget(t1, "SORT");
-    int s2 = vh_iget(t2, "SORT");
+    double s1 = vh_dget(t1, "SORT");
+    double s2 = vh_dget(t2, "SORT");
 
     if (s1 < s2)
         return -1;
