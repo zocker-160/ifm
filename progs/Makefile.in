@@ -78,7 +78,7 @@ EXTRA_SCRIPTS = tkifm ifm2dev ifm2tex scr2ifm
 
 EXTRA_DIST = tkifm.tcl ifm2dev.pl ifm2tex.pl scr2ifm.pl
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(bin_SCRIPTS) *.tex *.aux *.dvi *.lo* *.ps *.toc
 
 DAYS = 7
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
