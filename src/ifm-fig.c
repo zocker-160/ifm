@@ -63,14 +63,14 @@ fig_map_start(void)
     /* Allow title space for sections with titles */
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
-        if (vh_exists(sect, "TITLE")) {
+        if (show_map_title && vh_exists(sect, "TITLE")) {
             ylen = vh_iget(sect, "YLEN");
             vh_istore(sect, "YLEN", ylen + 1);
         }
     }
 
     /* Set room names */
-    setup_room_names(1, show_tags);
+    setup_room_names();
 
     /* Determine orientation */
     if (VAR_DEF("page_rotate"))
@@ -91,14 +91,14 @@ fig_map_start(void)
         fig_debug("trying map size: %d x %d", width, height);
 
         if (orient != FIG_LANDSCAPE &&
-            pack_sections(width, height, map_border_size) == 1) {
+            pack_sections(width, height) == 1) {
             orient = FIG_PORTRAIT;
             fig_debug("using portrait");
             break;
         }
 
         if (orient != FIG_PORTRAIT &&
-            pack_sections(height, width, map_border_size) == 1) {
+            pack_sections(height, width) == 1) {
             orient = FIG_LANDSCAPE;
             tmp = page_width;
             page_width = page_height;
@@ -163,11 +163,12 @@ fig_map_start(void)
     fig_set_orientation(fig, orient);
     fig_set_papersize(fig, page_size);
 
-    /* Draw border if required */
-    if (show_border) {
+    /* Draw page border if required */
+    if (show_page_border) {
         box = fig_create_box(fig,
                              page_margin, page_margin,
                              fig_width, fig_height);
+
         set_colour(box, page_border_colour);
         set_fillcolour(box, page_background_colour);
         fig_set_depth(box, 900);
@@ -178,7 +179,7 @@ void
 fig_map_section(vhash *sect)
 {
     float x, y, width, height;
-    vhash *text;
+    vhash *text, *box;
 
     /* Create section object */
     fig_section = fig_create_compound(fig);
@@ -188,20 +189,32 @@ fig_map_section(vhash *sect)
     fig_yoff = vh_dget(sect, "YOFF");
     fig_debug("offsets: %g, %g", fig_xoff, fig_yoff);
 
-    /* Print title if required */
-    if (vh_exists(sect, "TITLE")) {
+    /* Draw map border if required */
+    if (show_map_border) {
         x = 0.0;
-        y = vh_dget(sect, "YLEN") - 1;
+        y = vh_dget(sect, "YLEN") - room_height;
+        width = vh_dget(sect, "XLEN") * room_size;
+        height = vh_dget(sect, "YLEN") * room_size;
+        box = fig_create_box(fig_section, MAPX(x), MAPY(y), width, height);
+        set_colour(box, map_border_colour);
+        set_fillcolour(box, map_background_colour);
+        fig_set_depth(box, 800);
+    }
+
+    /* Print title if required */
+    if (show_map_title && vh_exists(sect, "TITLE")) {
+        x = 0.0;
+        y = vh_dget(sect, "YLEN") - 0.7;
         width = vh_dget(sect, "XLEN") * room_size;
         height = room_size;
-        text = fig_create_textbox(fig_section, map_text_font,
-                                  map_text_fontsize,
+        text = fig_create_textbox(fig_section, map_title_font,
+                                  map_title_fontsize,
                                   FIG_JUSTIFY_CENTRE,
                                   MAPX(x), MAPY(y),
                                   width, height,
                                   "%s", vh_sgetref(sect, "TITLE"));
         fig_set_depth(text, 250);
-        set_colour(text, map_text_colour);
+        set_colour(text, map_title_colour);
     }
 }
 
@@ -279,7 +292,7 @@ fig_map_room(vhash *room)
                                   MAPY(yp - yborder),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder),
-                                  "%s", vh_sgetref(room, "DESC"));
+                                  "%s", vh_sgetref(room, "RDESC"));
 
         fig_set_depth(text, 50);
         set_colour(text, room_text_colour);
@@ -291,7 +304,7 @@ fig_map_room(vhash *room)
                                   MAPY(yp - yborder),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder) / 2,
-                                  "%s", vh_sgetref(room, "DESC"));
+                                  "%s", vh_sgetref(room, "RDESC"));
 
         fig_set_depth(text, 50);
         set_colour(text, room_text_colour);
@@ -393,7 +406,7 @@ fig_map_link(vhash *link)
                                updown ? link_updown_string : link_inout_string);
 
         fig_set_font(text, link_text_font, link_text_fontsize);
-        fig_set_depth(text, 100);
+        fig_set_depth(text, 150);
         set_colour(text, link_text_colour);
         set_fillcolour(text, page_background_colour);
     }

@@ -29,7 +29,7 @@
 
 #define PRINT_FONTSIZE(name) \
         if (var_changed(#name)) \
-                printf("/%s %g def\n", #name, var_real(#name) * ps_font_scale)
+                printf("/%s %g def\n", #name, var_real(#name) * font_scale)
 
 #define PRINT_INT(name) \
         if (var_changed(#name)) \
@@ -66,13 +66,6 @@ static int ps_pagenum = 0;      /* Current page */
 static double ps_xoff;          /* Current X offset */
 static double ps_yoff;          /* Current Y offset */
 
-static float ps_page_width;     /* Width of a page (cm) */
-static float ps_page_height;    /* Height of a page (cm) */
-
-static double ps_room_width;    /* Current room width factor */
-static double ps_room_height;   /* Current room height factor */
-static double ps_font_scale;    /* Font scaling factor */
-
 /* Internal functions */
 static void ps_print_room_vars(void);
 static void ps_print_link_vars(void);
@@ -84,7 +77,6 @@ ps_map_start(void)
 {
     int ylen, c, num_pages, width, height;
     char *title, *pagesize;
-    double roomsize;
     vscalar *elt;
     vhash *sect;
     FILE *fp;
@@ -92,44 +84,26 @@ ps_map_start(void)
     /* Allow title space for sections with titles */
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
-        if (vh_exists(sect, "TITLE")) {
+        if (show_map_title && vh_exists(sect, "TITLE")) {
             ylen = vh_iget(sect, "YLEN");
             vh_istore(sect, "YLEN", ylen + 1);
         }
     }
 
     /* Set room names */
-    setup_room_names(1, var_int("show_tags"));
+    setup_room_names();
 
     /* Check overriding of page rotation */
     ps_rotflag = VAR_DEF("page_rotate");
     if (ps_rotflag)
         ps_rotate = var_int("page_rotate");
 
-    /* Get paper size */
-    pagesize = var_string("page_size");
-    if (!get_papersize(pagesize, &ps_page_width, &ps_page_height))
-        fatal("invalid page size: %s", pagesize);
-
-    if (VAR_DEF("page_width"))
-        ps_page_width = var_real("page_width");
-    if (VAR_DEF("page_height"))
-        ps_page_height = var_real("page_height");
-
-    /* Get global font scaling factor */
-    ps_font_scale = var_real("font_scale");
-    ps_font_scale = V_MAX(ps_font_scale, 0.1);
-
     /* Get desired dimensions, in rooms */
-    roomsize = var_real("room_size");
-    roomsize = V_MAX(roomsize, 0.1);
-    width = (int) (ps_page_width / roomsize) + 1;
-    height = (int) (ps_page_height / roomsize) + 1;
-    ps_room_width = var_real("room_width");
-    ps_room_height = var_real("room_height");
+    width = (int) (page_width / room_size) + 1;
+    height = (int) (page_height / room_size) + 1;
 
     /* Pack sections */
-    num_pages = pack_sections(width, height, map_border_size);
+    num_pages = pack_sections(width, height);
 
     /* Print header */
     if (vh_exists(map, "TITLE"))
@@ -137,10 +111,13 @@ ps_map_start(void)
     else
         title = "Interactive Fiction map";
 
-    printf("%%!PS-Adobe-3.0\n");
+    printf("%%!PS-Adobe-2.0\n");
     put_string("%%%%Title: %s\n", title);
     printf("%%%%Creator: IFM v%s\n", VERSION);
     printf("%%%%Pages: %d\n", num_pages);
+    printf("%%%%BeginSetup\n");
+    printf("%%%%IncludeFeature: *PageSize %s\n", page_size);
+    printf("%%%%EndSetup\n");
     printf("%%%%EndComments\n\n");
 
     /* Print PostScript prolog */
@@ -151,32 +128,35 @@ ps_map_start(void)
 
     /* Page variables */
     printf("/page_margin %g cm def\n", var_real("page_margin"));
-    printf("/page_width %g cm def\n", ps_page_width);
-    printf("/page_height %g cm def\n", ps_page_height);
+    printf("/page_width %g cm def\n", page_width);
+    printf("/page_height %g cm def\n", page_height);
     printf("/map_width %d def\n", width);
     printf("/map_height %d def\n", height);
 
-    PRINT_BOOL(show_border);
+    PRINT_BOOL(show_page_border);
     PRINT_COLOUR(page_border_colour);
     PRINT_COLOUR(page_background_colour);
 
     /* Title variables */
     if (title != NULL) {
-        PRINT_BOOL(show_title);
+        PRINT_BOOL(show_page_title);
         put_string("/titlestring %s def\n", ps_string(title));
-        PRINT_FONT(title_font);
-        PRINT_FONTSIZE(title_fontsize);
-        PRINT_COLOUR(title_colour);
+        PRINT_FONT(page_title_font);
+        PRINT_FONTSIZE(page_title_fontsize);
+        PRINT_COLOUR(page_title_colour);
     } else {
-        printf("/show_title false def\n");
+        printf("/show_page_title false def\n");
     }
 
     /* Map variables */
-    PRINT_FONT(map_text_font);
-    PRINT_FONTSIZE(map_text_fontsize);
-    PRINT_COLOUR(map_text_colour);
-    printf("/room_width %g def\n", ps_room_width);
-    printf("/room_height %g def\n", ps_room_height);
+    PRINT_FONT(map_title_font);
+    PRINT_FONTSIZE(map_title_fontsize);
+    PRINT_COLOUR(map_title_colour);
+    PRINT_COLOUR(map_border_colour);
+    PRINT_COLOUR(map_background_colour);
+
+    printf("/room_width %g def\n", room_width);
+    printf("/room_height %g def\n", room_height);
 
     /* Room style variables */
     ps_print_room_vars();
@@ -197,6 +177,8 @@ ps_map_section(vhash *sect)
     page = vh_iget(sect, "PAGE");
     ps_xoff = vh_dget(sect, "XOFF");
     ps_yoff = vh_dget(sect, "YOFF");
+    xlen = vh_iget(sect, "XLEN");
+    ylen = vh_iget(sect, "YLEN");
 
     /* Start a new page if required */
     if (page != ps_pagenum) {
@@ -214,13 +196,18 @@ ps_map_section(vhash *sect)
                (rotate ? "true" : "false"));
     }
 
+    /* Print border if required */
+    if (show_map_border)
+        printf("%g %g %g %g mapborder\n",
+               ps_xoff - 0.5, ps_yoff - 0.5,
+               ps_xoff + xlen - 0.5, ps_yoff + ylen - 0.5);
+
     /* Print title if required */
-    if (vh_exists(sect, "TITLE")) {
-        xlen = vh_iget(sect, "XLEN");
+    if (show_map_title && vh_exists(sect, "TITLE")) {
         xpos = (double) (xlen - 1) / 2;
-        ylen = vh_iget(sect, "YLEN");
         ypos = ylen - 1;
-        put_string("%s %g %g map\n", ps_string(vh_sgetref(sect, "TITLE")),
+        put_string("%s %g %g maptitle\n",
+                   ps_string(vh_sgetref(sect, "TITLE")),
                    xpos + ps_xoff, ypos + ps_yoff);
     }
 }
@@ -285,7 +272,7 @@ ps_map_room(vhash *room)
             vl_istore(py, 0, y);
             vl_istore(px, 1, x + vl_ishift(ex));
             vl_istore(py, 1, y + vl_ishift(ey));
-            truncate_points(px, py, ps_room_width, ps_room_height);
+            truncate_points(px, py, room_width, room_height);
             x1 = vl_dget(px, 0);
             y1 = vl_dget(py, 0);
             x2 = vl_dget(px, 1);
@@ -316,7 +303,7 @@ ps_map_link(vhash *link)
 
     x = vh_pget(link, "X");
     y = vh_pget(link, "Y");
-    truncate_points(x, y, ps_room_width, ps_room_height);
+    truncate_points(x, y, room_width, room_height);
 
     printf("[");
     np = vl_length(x);

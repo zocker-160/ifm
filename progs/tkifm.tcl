@@ -195,10 +195,10 @@ proc DrawMap {num} {
     set xgap [expr ($ifm(room_size) * (1 - $ifm(room_width))) / 2]
     set ygap [expr ($ifm(room_size) * (1 - $ifm(room_height))) / 2]
 
-    set canvas_width [expr $ifm(canvas_width) * $ifm(room_size)]
-    if {$canvas_width > $width} {set canvas_width $width}
-    set canvas_height [expr $ifm(canvas_height) * $ifm(room_size)]
-    if {$canvas_height > $height} {set canvas_height $height}
+    set map_canvas_width [expr $ifm(map_canvas_width) * $ifm(room_size)]
+    if {$map_canvas_width > $width} {set map_canvas_width $width}
+    set map_canvas_height [expr $ifm(map_canvas_height) * $ifm(room_size)]
+    if {$map_canvas_height > $height} {set map_canvas_height $height}
 
     # Initialise window.
     set w .$sect
@@ -212,12 +212,12 @@ proc DrawMap {num} {
     pack $f -fill both -expand yes
 
     set c $f.map
-    canvas $c -width ${canvas_width}c -height ${canvas_height}c \
+    canvas $c -width ${map_canvas_width}c -height ${map_canvas_height}c \
 	    -scrollregion "0 0 ${width}c ${height}c" \
 	    -xscrollcommand "$f.xscroll set" \
 	    -yscrollcommand "$f.yscroll set" \
 	    -relief sunken -bd 2 \
-	    -bg $ifm(canvas_background_colour)
+	    -bg $ifm(map_background_colour)
     scrollbar $f.xscroll -command "$c xview" -orient horiz
     scrollbar $f.yscroll -command "$c yview"
 

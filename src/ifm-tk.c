@@ -84,12 +84,12 @@ void
 tk_map_start(void)
 {
     /* Set room names */
-    setup_room_names(1, var_int("show_tags"));
+    setup_room_names();
 
     /* Canvas variables */
-    PRINT_INT(canvas_width);
-    PRINT_INT(canvas_height);
-    PRINT_COLOUR(canvas_background_colour);
+    PRINT_INT(map_canvas_width);
+    PRINT_INT(map_canvas_height);
+    PRINT_COLOUR(map_background_colour);
     PRINT_REAL(room_size);
     PRINT_REAL(room_width);
     PRINT_REAL(room_height);

@@ -29,58 +29,66 @@ char *room_text_font, *room_text_colour, *room_colour;
 char *room_border_colour, *room_shadow_colour, *item_text_font;
 char *item_text_colour, *link_colour, *link_text_colour;
 char *link_text_font, *link_updown_string, *link_inout_string;
-char *map_text_font, *page_border_colour, *page_background_colour;
-char *title_font, *title_colour, *map_text_colour;
-char *room_exit_colour, *page_size;
+char *map_title_font, *page_border_colour, *page_background_colour;
+char *page_title_font, *page_title_colour, *map_title_colour;
+char *room_exit_colour, *page_size, *map_background_colour;
+char *map_border_colour;
 
 float room_text_fontsize, room_border_width, room_shadow_xoff;
 float room_shadow_yoff, room_exit_width, item_text_fontsize;
 float link_arrow_size, link_text_fontsize, link_line_width;
-float map_text_fontsize, title_fontsize, font_scale, page_margin;
+float map_title_fontsize, page_title_fontsize, font_scale, page_margin;
 float room_width, room_height, room_size, page_width, page_height;
 
-int room_border_dashed, show_items, link_dashed, show_border;
-int show_title, show_tags, link_spline, map_border_size;
+int room_border_dashed, show_items, link_dashed, show_page_border;
+int show_page_title, show_tags, link_spline, show_map_border, show_map_title;
 
 /* Set map style variables */
 void
 set_map_vars(void)
 {
-    SET_BOOL(show_border);
-    SET_BOOL(show_tags);
-    SET_BOOL(show_title);
+    SET_BOOL(show_page_border);
+    SET_BOOL(show_page_title);
 
-    SET_COLOUR(map_text_colour);
+    SET_BOOL(show_map_border);
+    SET_BOOL(show_map_title);
+
+    SET_BOOL(show_tags);
+
+    SET_COLOUR(map_background_colour);
+    SET_COLOUR(map_border_colour);
+    SET_COLOUR(map_title_colour);
+
     SET_COLOUR(page_background_colour);
     SET_COLOUR(page_border_colour);
-    SET_COLOUR(title_colour);
+    SET_COLOUR(page_title_colour);
 
-    SET_INT(map_border_size);
-
-    SET_FONT(map_text_font);
-    SET_FONT(title_font);
+    SET_FONT(map_title_font);
+    SET_FONT(page_title_font);
 
     SET_REAL(font_scale);
+    font_scale = V_MAX(font_scale, 0.1);
+
     SET_REAL(page_margin);
 
-    SET_FONTSIZE(map_text_fontsize);
-    SET_FONTSIZE(title_fontsize);
+    SET_FONTSIZE(map_title_fontsize);
+    SET_FONTSIZE(page_title_fontsize);
 
     SET_STRING(page_size);
     if (!get_papersize(page_size, &page_width, &page_height))
         fatal("invalid paper size: %s", page_size);
 
-    if (VAR_DEF("page_height"))
-        SET_REAL(page_height);
-
     if (VAR_DEF("page_width"))
         SET_REAL(page_width);
+
+    if (VAR_DEF("page_height"))
+        SET_REAL(page_height);
 
     SET_REAL(room_size);
     room_size = V_MAX(room_size, 0.1);
 
-    SET_REAL(room_height);
     SET_REAL(room_width);
+    SET_REAL(room_height);
 }
 
 /* Set room style variables */
