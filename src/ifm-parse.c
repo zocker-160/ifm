@@ -1198,7 +1198,7 @@ case 15:
 {
                     curobj = vh_create();
 		    vh_sstore(curobj, "DESC", yyvsp[0].sval);
-                    vh_istore(curobj, "ID", ++roomid);
+                    vh_istore(curobj, "ID", roomid++);
                     vh_pstore(curobj, "STYLE", current_styles());
                     vh_pstore(curobj, "LINK_STYLE", current_styles());
                     implicit = 0;
@@ -1556,7 +1556,7 @@ case 51:
 {
                     curobj = vh_create();
                     vh_sstore(curobj, "DESC", yyvsp[0].sval);
-                    vh_istore(curobj, "ID", ++itemid);
+                    vh_istore(curobj, "ID", itemid++);
                     vh_pstore(curobj, "STYLE", current_styles());
                     modify = 0;
                 ;

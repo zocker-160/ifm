@@ -151,7 +151,7 @@ room_stmt	: ROOM string
 		{
                     curobj = vh_create();
 		    vh_sstore(curobj, "DESC", $2);
-                    vh_istore(curobj, "ID", ++roomid);
+                    vh_istore(curobj, "ID", roomid++);
                     vh_pstore(curobj, "STYLE", current_styles());
                     vh_pstore(curobj, "LINK_STYLE", current_styles());
                     implicit = 0;
@@ -468,7 +468,7 @@ item_stmt	: ITEM string
                 {
                     curobj = vh_create();
                     vh_sstore(curobj, "DESC", $2);
-                    vh_istore(curobj, "ID", ++itemid);
+                    vh_istore(curobj, "ID", itemid++);
                     vh_pstore(curobj, "STYLE", current_styles());
                     modify = 0;
                 }
