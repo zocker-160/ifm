@@ -2,6 +2,8 @@
 
 ### scr2ifm -- convert game transcript to IFM
 
+require 5.002;
+
 use Getopt::Std;
 
 # Compass direction command -> direction mapping.
@@ -41,6 +43,7 @@ use Getopt::Std;
 $name_maxwords = 8;
 $name_maxuncap = 3;
 $name_invalid = '[.!?]';
+$name_remove = '\s+\(.+\)$';
 
 # Default room description recognition parameters.
 $desc_minwords = 20;
@@ -108,6 +111,7 @@ foreach $file (@ARGV) {
 	while (<IN>) {
 	    last if /$cmd_prompt/io;
 	    chop;
+	    s/\s+$//;
 	    push(@$reply, $_);
 	}
 
@@ -331,19 +335,26 @@ if (@ifmcmds > 0) {
 sub roomname {
     my $line = shift;
 
+    # Remove unwanted stuff.
+    $line =~ s/$name_remove//go;
+
     # Quick check for invalid format.
-    return 0 if $line =~ /$name_invalid/io;
+    return 0 if $name_invalid && $line =~ /$name_invalid/io;
+    return 0 unless $line =~ /[A-Za-z]/;
 
     # Check word count.
     my @words = split(' ', $line);
-    return 0 if @words > $name_maxwords;
+    return 0 if $name_maxwords && @words > $name_maxwords;
 
     # Check uncapitalized words.
     return 0 if $line =~ /^[ a-z]/;
 
     for (@words) {
-	return 0 if /^[a-z]/ && length() > $name_maxuncap;
+	return 0 if $name_maxuncap && /^[a-z]/ && length() > $name_maxuncap;
     }
+
+    # Check special cases (if any).
+    return 0 if $name_ignore && $line =~ /$name_ignore/o;
 
     return 1;
 }
