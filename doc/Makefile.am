@@ -33,7 +33,7 @@ IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
 .fig.tex:;	fig2dev -L latex $< > $@
 
 html: fig ifm.lyx
-	lyx2html ifm.lyx
+	lyx2html -title IFM ifm.lyx
 
 # Installation stuff.
 
