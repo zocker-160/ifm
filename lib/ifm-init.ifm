@@ -71,6 +71,8 @@ room_exit_colour = "black";
 room_text_colour = "black";
 ps room_text_font = "Times-Bold";
 ps room_text_fontsize = 10;
+fig room_text_font = "Times Bold";
+fig room_text_fontsize = 10;
 tk room_text_fontdef = "Times 10 bold";
 
 # Whether to append room tag names to room descriptions.  If so,
@@ -84,6 +86,8 @@ show_items = 1;
 item_text_colour = "black";
 ps item_text_font = "Times-Italic";
 ps item_text_fontsize = 6;
+fig item_text_font = "Times Italic";
+fig item_text_fontsize = 6;
 tk item_text_fontdef = "Times 8 italic";
 
 ##################################################################
@@ -108,8 +112,10 @@ link_dashed = 0;
 # default is to colour them differently for readability.
 ps link_text_font = "Times-Roman";
 ps link_text_fontsize = 6;
-ps link_text_colour = "black";
+fig link_text_font = "Times Roman";
+fig link_text_fontsize = 6;
 tk link_text_fontdef = "Times 8 bold";
+link_text_colour = "black";
 tk link_text_colour = "red";
 
 # Text strings indicating up/down/in/out on links.
