@@ -47,10 +47,10 @@ $desc_minwords = 20;
 
 # Default command regexps.
 $cmd_prompt = '^>\s*';
-$cmd_look = '^L(OOK)?';
-$cmd_end = '^UNSCRIPT';
-$cmd_ignore = '^UNDO';
-$cmd_invalid = '^RE(START|STORE)';
+$cmd_look = '^L(OOK)?$';
+$cmd_end = '^UNSCRIPT$';
+$cmd_ignore = '^UNDO$';
+$cmd_invalid = '^RE(START|STORE)$';
 
 ### Stage 1 -- parse arguments and read input.
 
@@ -60,9 +60,24 @@ $cmd_invalid = '^RE(START|STORE)';
 
 # Read IFM command file if required.
 if ($opt_c) {
-    open(IFM, $opt_c) or die "Can't open $opt_c: $!\n";
-    @ifmcmds = <IFM>;
-    close IFM;
+    open(CMD, $opt_c) or die "Can't open $opt_c: $!\n";
+
+    while (<CMD>) {
+	# Skip blanks and comments.
+	next if /^\s*#/;
+	next if /^\s*$/;
+
+	if (/^\s*\$/) {
+	    # Perl variable.
+	    eval;
+	    &error("%s: %s", $opt_c, $@) if $@;
+	} else {
+	    # IFM command.
+	    push(@ifmcmds, $_);
+	}
+    }
+
+    close CMD;
 }
 
 # Redirect stdout if required.
@@ -279,7 +294,7 @@ if (@ifmcmds > 0) {
 sub roomname {
     my $line = shift;
 
-    # Quick check for invalid chars.
+    # Quick check for invalid format.
     return 0 if $line =~ /$name_invalid/o;
 
     # Check word count.
@@ -514,31 +529,3 @@ sub usage {
 
     exit 0;
 }
-
-=head1 NAME
-
-scr2ifm -- convert game transcript to IFM format
-
-=head1 SYNOPSIS
-
-scr2ifm [options] [file]
-
-=head1 DESCRIPTION
-
-=head1 OPTIONS
-
-=over 4
-
-=back
-
-=head1 RESTRICTIONS
-
-=head1 SEE ALSO
-
-ifm(1)
-
-=head1 AUTHOR
-
-Glenn Hutchings
-
-=cut
