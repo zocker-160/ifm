@@ -17,9 +17,8 @@ extern char *get_string(char *id, char *def);
 extern vscalar *get_var(char *id);
 extern FILE *open_libfile(char *name);
 extern vlist *search_path(void);
-extern void set_var(char *table1, char *table2, char *var,
-                    vscalar *val);
+extern void set_var(char *table1, char *table2, char *var, vscalar *val);
 extern vlist *split_line(char *string, double ratio);
-extern void truncate_link(vhash *link, double wid, double ht);
+extern void truncate_points(vlist *x, vlist *y, double wid, double ht);
 
 #endif

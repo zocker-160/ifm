@@ -162,13 +162,11 @@ split_line(char *string, double ratio)
     return list;
 }
 
-/* Truncate a link based on a given box width and height */
+/* Truncate a list of points based on a given box width and height */
 void
-truncate_link(vhash *link, double wid, double ht)
+truncate_points(vlist *x, vlist *y, double wid, double ht)
 {
     double x1, y1, x2, y2, xf, yf, xl, yl;
-    vlist *x = vh_pget(link, "X");
-    vlist *y = vh_pget(link, "Y");
     double xfac = 1 - wid / 2;
     double yfac = 1 - ht / 2;
     int np = vl_length(x);
