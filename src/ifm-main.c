@@ -65,12 +65,12 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int c, i, output = O_NONE, format = -1, print = 0;
+    int i, output = O_NONE, format = -1, print = 0;
     extern void yyparse();
-    extern char *optarg;
-    extern int opterr;
-    vhash *symtab;
+    vhash *symtab, *opts;
     vscalar *fmt;
+    vlist *args;
+    char *file;
 
 #ifdef DEBUG
     extern int yydebug;
@@ -81,59 +81,65 @@ main(int argc, char *argv[])
     /* Set program name */
     progname = argv[0];
 
-    /* Parse command-line arguments */
-    opterr = 0;
-    while ((c = getopt(argc, argv, "f:himo:ptvD:")) != EOF) {
-	switch (c) {
-        case 'm':
-            output |= O_MAP;
-            break;
-        case 'i':
-            output |= O_ITEMS;
-            break;
-        case 't':
-            output |= O_TASKS;
-            break;
-        case 'f':
-            format = select_format(optarg);
-            break;
-        case 'p':
-            print = 1;
-            break;
-	case 'v':
-	    verbose_flag = 1;
-	    break;
-	case 'o':
-	    if (freopen(optarg, "w", stdout) == NULL)
-		fatal("can't open %s", optarg);
-	    break;
-	case 'h':
-            usage();
-            break;
-	case 'D':
-#ifdef DEBUG
-            switch (atoi(optarg)) {
-            case 1:
-                ifm_debug = 1;
-                break;
-            case 2:
-                yydebug = 1;
-                break;
-            }
+    /* Define options */
+    v_option('m', "map", V_OPT_FLAG, NULL,     "print map");
+    v_option('i', "items", V_OPT_FLAG, NULL,   "print item table");
+    v_option('t', "tasks", V_OPT_FLAG, NULL,   "print task table");
+    v_option('f', "format", V_OPT_ARG, "fmt",  "select output format");
+    v_option('o', "output", V_OPT_ARG, "file", "write output to file");
+    v_option('p', "print", V_OPT_FLAG, NULL,   "print parameters");
+    v_option('v', "verbose", V_OPT_FLAG, NULL, "be verbose about things");
+    v_option('h', "help", V_OPT_FLAG, NULL,    "this help message");
 
-	    break;
-#else
-            fatal("no compiled-in debugging support");
+#ifdef DEBUG
+    v_option('D', "debug", V_OPT_ARG, "flag", NULL);
 #endif
-        default:
-	    fatal("invalid option\nType `%s -h' for help", progname);
-            break;
-	}
+
+    /* Parse command-line arguments */
+    if ((opts = vh_getopt(argc, argv)) == NULL)
+        v_die("Type `%s -help' for help", progname);
+
+    if (vh_exists(opts, "help"))
+        usage();
+
+    if (vh_exists(opts, "map"))
+        output |= O_MAP;
+
+    if (vh_exists(opts, "items"))
+        output |= O_ITEMS;
+
+    if (vh_exists(opts, "tasks"))
+        output |= O_TASKS;
+
+    if (vh_exists(opts, "format"))
+        format = select_format(vh_sgetref(opts, "format"));
+
+    if (vh_exists(opts, "print"))
+        print = 1;
+
+    if (vh_exists(opts, "verbose"))
+        verbose_flag = 1;
+
+    if ((file = vh_sgetref(opts, "output")) != NULL)
+        if (freopen(file, "w", stdout) == NULL)
+            fatal("can't open %s", file);
+
+#ifdef DEBUG
+    switch (vh_iget(opts, "debug")) {
+    case 1:
+        ifm_debug = 1;
+        break;
+    case 2:
+        yydebug = 1;
+        break;
     }
+#endif
 
     /* Last argument (if any) is input file */
-    if (optind < argc && freopen(argv[optind], "r", stdin) == NULL)
-	fatal("can't open %s", argv[optind]);
+    args = vh_pget(opts, "ARGS");
+    file = vl_sshift(args);
+    if (file != NULL && freopen(file, "r", stdin) == NULL)
+	fatal("can't open %s", file);
 
     /* Initialise */
     status("Running %s", progname);
@@ -196,13 +202,6 @@ main(int argc, char *argv[])
 
     /* Set output format if not already specified */
     if (output != O_NONE && format < 0) {
-        if      (output & O_MAP)
-            ifm_output = "map";
-        else if (output & O_ITEMS)
-            ifm_output = "item";
-        else if (output & O_TASKS)
-            ifm_output = "task";
-
         if ((fmt = get_var("output")) != NULL)
             format = select_format(vs_sget(fmt));
         else
@@ -240,6 +239,8 @@ draw_map(int fmt)
     vlist *sects, *roomlist, *linklist;
     vhash *sect, *room, *link;
     vscalar *elt;
+
+    ifm_output = "map";
 
     sects = vh_pget(map, "SECTS");
     if (vl_length(sects) == 0)
@@ -291,6 +292,8 @@ draw_items(int fmt)
     vscalar *elt;
     vhash *item;
 
+    ifm_output = "item";
+
     items = vh_pget(map, "ITEMS");
 
     if (func == NULL)
@@ -322,6 +325,8 @@ draw_tasks(int fmt)
     vscalar *elt;
     vlist *tasks;
     vhash *task;
+
+    ifm_output = "task";
 
     tasks = vh_pget(map, "TASKS");
 
@@ -493,28 +498,12 @@ fatal(char *fmt, ...)
 static void
 usage()
 {
-    int nd = sizeof(drivers) / sizeof(drivers[0]);
     int i;
 
-    static char *fmt = "  %-15s %s\n";
-
-    fprintf(stderr, "Usage: %s [options] [file]\n", progname);
-
-    fprintf(stderr, "\nOptions:\n");
-
-    fprintf(stderr, fmt, "-m",         "print map");
-    fprintf(stderr, fmt, "-i",         "print item table");
-    fprintf(stderr, fmt, "-t",         "print task table");
-    fprintf(stderr, fmt, "-f format",  "select output format");
-    fprintf(stderr, fmt, "-o file",    "write output to file");
-    fprintf(stderr, fmt, "-p",         "print parameters"); 
-    fprintf(stderr, fmt, "-v",         "be verbose about things");
-    fprintf(stderr, fmt, "-h",         "this usage message");
-
-    fprintf(stderr, "\nOutput formats (may be abbreviated):\n");
-
-    for (i = 0; i < nd; i++)
-        fprintf(stderr, fmt, drivers[i].name, drivers[i].desc);
+    v_usage("Usage: %s [options] [file]", progname);
+    printf("\nOutput formats (may be abbreviated):\n");
+    for (i = 0; i < NUM_DRIVERS; i++)
+        printf("  %-15s %s\n", drivers[i].name, drivers[i].desc);
 
     exit(0);
 }
