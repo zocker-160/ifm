@@ -9,4 +9,6 @@ all:		ifm.info
 
 @common_rules@
 
+ifm.info:	ifm.idx
+
 clean:;		rm -f *cache
