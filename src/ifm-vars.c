@@ -168,8 +168,8 @@ void
 var_list(void)
 {
     vscalar *elt, *val;
+    char *name, *sval;
     vlist *names;
-    char *name;
 
     INIT_VARS;
 
@@ -184,7 +184,16 @@ var_list(void)
 
         switch (vs_type(val)) {
         case V_STRING:
-            printf("\"%s\"", vs_sgetref(val));
+            sval = vs_sgetref(val);
+            putchar('"');
+
+            while (*sval != '\0') {
+                if (*sval == '\\')
+                    putchar('\\');
+                putchar(*sval++);
+            }
+
+            putchar('"');
             break;
         default:
             printf("%s", vs_sget(val));
