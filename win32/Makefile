@@ -13,8 +13,7 @@ EXE = ifm.exe
 
 DLL = $(bindir)/cygwin1.dll
 
-FILES = $(TOPDIR)/README $(TOPDIR)/README.maps $(TOPDIR)/NEWS	\
-$(TOPDIR)/COPYING
+FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
 
 PROGS = $(SRCDIR)/$(EXE) $(PROGDIR)/ifm2dev.pl $(PROGDIR)/tkifm.tcl	\
 $(PROGDIR)/scr2ifm.pl
@@ -36,7 +35,6 @@ zip:;	rm -rf $(ZIPDIR)
 	   mv $(ZIPDIR)/$$i $(ZIPDIR)/$$i.txt;				\
 	done
 	cp README.win32 $(ZIPDIR)/WIN32.txt
-	mv $(ZIPDIR)/README.maps $(ZIPDIR)/MAPS.txt
 	mkdir $(ZIPDIR)/progs
 	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
 	strip $(ZIPDIR)/progs/$(EXE)
