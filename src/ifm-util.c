@@ -13,9 +13,6 @@
 #include <math.h>
 #include "ifm.h"
 
-/* Hash of used variables */
-static vhash *used_vars = NULL;
-
 /* Variable encoding buffer */
 static char encbuf[BUFSIZ];
 
@@ -59,7 +56,7 @@ get_string(char *id, char *def)
     return def;
 }
 
-/* Return value of a scalar variable */
+/* Return value of a variable */
 vscalar *
 get_var(char *id)
 {
@@ -67,14 +64,17 @@ get_var(char *id)
     int n1, n2, n3;
     char *key;
 
+    /* Check current map first */
     for (n1 = 0; n1 < 2; n1++) {
         if (n1 == 0 && mapnum == 0)
             continue;
 
+        /* Check current output format first */
         for (n2 = 0; n2 < 2; n2++) {
             if (n2 == 0 && ifm_output == NULL)
                 continue;
 
+            /* Check current output type first */
             for (n3 = 0; n3 < 2; n3++) {
                 if (n3 == 0 && ifm_format == NULL)
                     continue;
@@ -82,12 +82,8 @@ get_var(char *id)
                 key = var_encode((n3 ? NULL : ifm_format),
                                  (n2 ? NULL : ifm_output),
                                  (n1 ? 0 : mapnum), id);
-                if ((var = vh_get(vars, key)) != NULL) {
-                    if (used_vars == NULL)
-                        used_vars = vh_create();
-                    vh_istore(used_vars, key, 1);
+                if ((var = vh_get(vars, key)) != NULL)
                     return var;
-                }
             }
         }
     }
