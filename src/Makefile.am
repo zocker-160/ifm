@@ -9,7 +9,7 @@ ifm-text.h ifm-tk.c ifm-tk.h ifm-util.c ifm-util.h ifm-vars.c ifm-vars.h
 
 VARS = ../vars/src
 
-ifm_LDADD = -lvars
+ifm_LDADD = -lvars-local
 
 ifm_LDFLAGS = -L$(VARS)
 
@@ -17,7 +17,7 @@ YFLAGS = -d -v
 
 INCLUDES = -I$(VARS) -DSYSINIT=\"ifm-init.ifm\" -DIFMPATH=\"$(pkgdatadir):.\"
 
-$(bin_PROGRAMS): $(VARS)/libvars.a
+$(bin_PROGRAMS): $(VARS)/libvars-local.a
 
 ifm-parse.h: ifm-parse.c
 
