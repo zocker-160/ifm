@@ -69,6 +69,7 @@ Makefile
 src/Makefile
 lib/Makefile
 doc/Makefile
+maps/Makefile
 progs/Makefile
 tests/Makefile
 )

@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign check-news
 
-SUBDIRS = vars src lib doc tests progs
+SUBDIRS = vars src lib doc maps progs tests
 
 EXTRA_DIST = README.unix README.win32 README.maps README.vars
 
@@ -10,12 +10,12 @@ dist-hook: dist-config dist-header dist-extra dist-touch dist-cleanup
 
 dist-config:
 	cp -rp $(top_srcdir)/etc $(distdir)
-	rm -rf $(distdir)/etc/RCS
+	rm -rf $(distdir)/etc/CVS
 	rm -f $(distdir)/etc/*header*
 
 dist-extra:
-	cp -rp $(top_srcdir)/maps $(distdir)
 	cp -rp $(top_srcdir)/contrib $(distdir)
+	rm -rf $(distdir)/contrib/CVS
 
 dist-header:
 	addheader=$(top_srcdir)/etc/add-header; \
@@ -47,8 +47,8 @@ PROGS = src/$(EXE) progs/tkifm.tcl progs/scr2ifm.pl
 
 DLL = $(bindir)/cygwin1.dll
 
-DOCS = doc/ifm.txt doc/ifm.html progs/tkifm.txt progs/tkifm.html	\
-progs/scr2ifm.txt progs/scr2ifm.html
+DOCS = progs/tkifm.txt progs/tkifm.html progs/scr2ifm.txt	\
+progs/scr2ifm.html
 
 LIBS = lib/*.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
 
@@ -73,6 +73,7 @@ zipdir:
 	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
 	strip $(ZIPDIR)/progs/$(EXE)
 	mkdir $(ZIPDIR)/docs
+	cp -r doc/html $(ZIPDIR)/docs
 	cp $(DOCS) $(ZIPDIR)/docs
 	mkdir $(ZIPDIR)/lib
 	cp $(LIBS) $(ZIPDIR)/lib

@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -71,7 +71,7 @@ tkifm = @tkifm@
 
 AUTOMAKE_OPTIONS = foreign check-news
 
-SUBDIRS = vars src lib doc tests progs
+SUBDIRS = vars src lib doc maps progs tests
 
 EXTRA_DIST = README.unix README.win32 README.maps README.vars
 
@@ -85,7 +85,7 @@ PROGS = src/$(EXE) progs/tkifm.tcl progs/scr2ifm.pl
 
 DLL = $(bindir)/cygwin1.dll
 
-DOCS = doc/ifm.txt doc/ifm.html progs/tkifm.txt progs/tkifm.html	progs/scr2ifm.txt progs/scr2ifm.html
+DOCS = progs/tkifm.txt progs/tkifm.html progs/scr2ifm.txt	progs/scr2ifm.html
 
 
 LIBS = lib/*.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
@@ -187,7 +187,7 @@ maintainer-clean-recursive:
 	dot_seen=no; \
 	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
 	  rev="$$subdir $$rev"; \
-	  test "$$subdir" = "." && dot_seen=yes; \
+	  test "$$subdir" != "." || dot_seen=yes; \
 	done; \
 	test "$$dot_seen" = "no" && rev=". $$rev"; \
 	target=`echo $@ | sed s/-recursive//`; \
@@ -290,7 +290,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -383,12 +383,12 @@ dist-hook: dist-config dist-header dist-extra dist-touch dist-cleanup
 
 dist-config:
 	cp -rp $(top_srcdir)/etc $(distdir)
-	rm -rf $(distdir)/etc/RCS
+	rm -rf $(distdir)/etc/CVS
 	rm -f $(distdir)/etc/*header*
 
 dist-extra:
-	cp -rp $(top_srcdir)/maps $(distdir)
 	cp -rp $(top_srcdir)/contrib $(distdir)
+	rm -rf $(distdir)/contrib/CVS
 
 dist-header:
 	addheader=$(top_srcdir)/etc/add-header; \
@@ -426,6 +426,7 @@ zipdir:
 	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
 	strip $(ZIPDIR)/progs/$(EXE)
 	mkdir $(ZIPDIR)/docs
+	cp -r doc/html $(ZIPDIR)/docs
 	cp $(DOCS) $(ZIPDIR)/docs
 	mkdir $(ZIPDIR)/lib
 	cp $(LIBS) $(ZIPDIR)/lib
