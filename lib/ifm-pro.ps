@@ -313,8 +313,8 @@
 	bt-factor dup scale
 
 	% Draw each line.
-	/bt-linegap currentfontsize textspacing mul def
-	/bt-lineheight currentfontsize bt-linegap add def
+	/bt-linegap current-fontsize textspacing mul def
+	/bt-lineheight current-fontsize bt-linegap add def
 	/bt-textheight bt-numlines bt-lineheight mul bt-linegap sub def
 
 	0 1 bt-numlines 1 sub {
@@ -338,24 +338,35 @@
     /st-width exch def
     /st-str exch def
 
-    % Build pieces.
-    /st-lines [
-	st-str st-width {} breakline
-    ] def
+    {
+	% Build pieces.
+	/st-lines [
+	    st-str st-width {} breakline
+	] def
 
-    % Set scale factor.
-    /st-factor 1 def
+	% Calculate text squishing factor.
+	/st-factor 1 def
 
-    % See if it needs squishing widthwise.
-    st-lines {
-        stringwidth pop st-width exch div st-factor min /st-factor exch def
-    } forall
+	st-lines {
+	    stringwidth pop st-width exch div
+	    st-factor min /st-factor exch def
+	} forall
 
-    % Ditto heightwise.
-    st-lines length
-    textspacing 1 add mul
-    currentfontsize mul
-    st-height exch div st-factor min /st-factor exch def
+	st-lines length
+	textspacing 1 add mul
+	current-fontsize mul
+	st-height exch div
+	st-factor min /st-factor exch def
+
+	% If no squishing required, end it.
+	st-factor 1 ge { exit } if
+
+	% Otherwise, try a smaller font size.
+	current-font current-fontsize 1 sub selectfont
+
+	% But not too small.
+	current-fontsize 1 lt { exit } if
+    } loop
 
     st-lines st-factor
 } def
@@ -460,7 +471,7 @@
 	} if
 
 	% Move to string centre.
-	neg 2 div currentfontsize neg 3 div
+	neg 2 div current-fontsize neg 3 div
 	moveto
 
 	% Draw text outline in background if required.
@@ -501,8 +512,9 @@
 
 % Select a font.
 /selectfont {			% FONT SIZE selectfont
-    /currentfontsize exch def
-    findfont currentfontsize scalefont setfont
+    /current-fontsize exch def
+    /current-font exch def
+    current-font findfont current-fontsize scalefont setfont
 } bind def
 
 % Select a colour.
