@@ -345,6 +345,7 @@ main(int argc, char *argv[])
         return 0;
 
     /* Load style definitions */
+    set_style_list(ifm_styles);
     load_styles();
     if (ifm_errors)
         return 1;
@@ -401,12 +402,13 @@ main(int argc, char *argv[])
         return 1;
 
     /* Solve game if required */
+
     if (output == O_NONE || output & O_TASKS) {
         check_cycles();
-        if (ifm_errors)
+        if (!ifm_errors)
+            solve_game();
+        else
             return 1;
-
-        solve_game();
     }
 
     /* Do what's required */
@@ -455,7 +457,6 @@ print_map(void)
             vh_istore(sect, "NOPRINT", 1);
     }
 
-    set_style_list(ifm_styles);
     set_map_vars();
 
     if (func->map_start != NULL)
@@ -532,8 +533,6 @@ print_items(void)
     if (func == NULL)
         fatal("no item driver for %s output", drv.name);
 
-    set_style_list(ifm_styles);
-
     if (func->item_start != NULL)
         (*func->item_start)();
 
@@ -567,8 +566,6 @@ print_tasks(void)
 
     if (func == NULL)
         fatal("no task driver for %s output", drv.name);
-
-    set_style_list(ifm_styles);
 
     if (func->task_start != NULL)
         (*func->task_start)();
