@@ -473,12 +473,11 @@ parse_input(char *file, int libflag, int required)
     static int parses = 0;
     extern FILE *yyin;
 
-    if (file != NULL) {
-        if ((yyin = open_file(file, libflag, required)) == NULL)
-            return 1;
-    } else {
+    if (file == NULL || STREQ(file, "-")) {
         strcpy(ifm_input, "<stdin>");
         yyin = stdin;
+    } else if ((yyin = open_file(file, libflag, required)) == NULL) {
+        return 1;
     }
 
     ifm_errors = 0;
