@@ -11,9 +11,11 @@ scr2ifm [options] file [file...]
 B<scr2ifm> reads one or more transcripts of an Interactive Fiction game and
 produces a map of it in B<ifm> format.  It works on Infocom-style
 transcripts -- those produced by Inform- and TADS-generated games (and of
-course Infocom games themselves).  For best results, you should follow a
-few simple guidelines when creating your transcript (see L<"HINTS AND
-TIPS">).
+course Infocom games themselves).  The idea is that you play your game in a
+carefree manner, without worrying about mapping anything, and after the
+session use B<scr2ifm> to get a map.  Well, that's the theory anyway.  For
+best results, you should follow a few simple guidelines when creating your
+transcript (see L<"HINTS AND TIPS">).
 
 =head1 OPTIONS
 
@@ -22,8 +24,8 @@ TIPS">).
 =item B<-c> F<file>
 
 Append the given file of B<ifm> and parameter commands to the end of the
-map.  This allows some customization of the results (see
-L<"CUSTOMIZATION">).
+map.  This allows you to fix various problems in the resulting map (see
+L<"FIXING PROBLEMS">).
 
 =item B<-o> F<file>
 
@@ -89,18 +91,15 @@ Special B<ifm> commands -- see L<"IFM COMMANDS">.
 
 =back
 
-Some of these checks can be customized -- see L<"CUSTOMIZATION">.  Output
-from B<scr2ifm> is in the following format:
+Some of these checks can be tailored to a particular transcript -- see
+L<"FIXING PROBLEMS">.
 
-=over 4
-
-=item *
-
-First, there's a list of B<ifm> commands derived from the transcript.  Each
-time a new room is seen, a room command is output for it.  Each room is
-given a tag name formed by the initials of each capitalized word in its
-name.  To make tags unique, the second and subsequent occurrences of a tag
-name have that number appended.
+Output from B<scr2ifm> is as follows.  First, there's a list of B<ifm>
+commands derived from the transcript.  Each time a new room is seen, a room
+command is output for it.  Each room is given a tag name formed by the
+initials of each capitalized word in its name.  To make tags unique, the
+second and subsequent occurrences of a tag name have that number appended.
+For example, room 'West of House' would get tag 'WH'.
 
 If a movement command was up, down, in or out, then a compass direction is
 chosen for it that doesn't clash with other rooms (if possible) and the
@@ -115,14 +114,14 @@ same manner as for rooms.
 
 If the special 'item' or 'task' commands are seen (see L<"IFM COMMANDS">),
 then an item or task command is output following the room that it appears
-in.
+in.  If an item or task hasn't been given a tag, it is assigned one.  The
+tag is made by translating all invalid tag characters in the name to
+underscores, capitalizing (to avoid clashes with B<ifm> commands) and, if
+the tag clashes with a previously-defined tag, adding a numerical suffix to
+make it unique.  For example, 'black rod' might get a tag 'Black_rod_2'.
 
-=item *
-
-Then the B<ifm> commands from the file indicated by the B<-c> option are
-echoed (if any).
-
-=back
+Finally, the B<ifm> commands from the file indicated by the B<-c> option
+are echoed (if any).
 
 =head1 HINTS AND TIPS
 
@@ -170,6 +169,18 @@ L<"IFM COMMANDS">).
 
 =back
 
+Some games will be more amenable to B<scr2ifm> than others -- in general
+the ones with reasonable map connections, where each connection makes sense
+in relation to the others.  For these games, the order in which rooms are
+visited will probably make no difference to the resulting map.  But for
+perverse games (e.g. Colossal Cave, above ground) the order of visiting
+makes a big difference.  In these cases, it's probably best to avoid trying
+to get all the connections on the map -- you'll spew forth lots of B<ifm>
+warnings otherwise, and the map will look awful.  See L<"EXAMPLE SESSION">
+for an example.  Sometimes it's worth having a second attempt at a
+transcript, choosing different directions to go in, too see if it improves
+things.
+
 =head1 IFM COMMANDS
 
 While you're making your transcript, you can use a subset of B<ifm>
@@ -199,7 +210,7 @@ The first map section is the one that contains the very first room, and
 will have a default name unless you give it one using another 'map'
 command.
 
-=item item name [attrs]
+=item item <name> [attrs]
 
 Declare an item in the current room.  The name must be in double-quotes.
 If you don't give it a tag attribute, one is generated automatically by
@@ -213,7 +224,7 @@ Add the given attributes to the last declared item, if any.
 
 Delete the last declared item, if any.
 
-=item task name [attrs]
+=item task <name> [attrs]
 
 Declare a task in the current room in a similar manner to items.  The name
 must be in double-quotes.
@@ -232,30 +243,65 @@ Note that B<scr2ifm> knows almost nothing about B<ifm> command syntax.  If
 there's a syntax error in a command, you'll have to manually edit the
 resulting transcript (or delete the item/task and do it again).
 
-=head1 CUSTOMIZATION
+=head1 FIXING PROBLEMS
 
 The map produced by B<scr2ifm> will not be perfect in a lot of cases.  When
 running it through B<ifm> you might get warnings about overlapping rooms,
 or crossed link lines.  These problems are usually fixed by stretching the
 link lines of some of the rooms.  Some overlapping-room problems are caused
 by the program making a bad choice of direction to put an up/down/in/out
-connection in.  However, you can override its choice.
+connection in.  Another problem might be not recognizing when a room is the
+same as a previously-visited room, because the room description changed too
+much between visits.
 
-You can customize the results you get from a transcript by creating a
-command file and specifying it with the B<-c> option (or, alternatively,
-you can just edit the output from B<scr2ifm>).  There are two types of
-customization: parameter commands and B<ifm> commands.
+You can fix most of these problems by creating a command file and
+specifying it with the B<-c> option.  There are two types of entry:
+B<scr2ifm> commands and B<ifm> commands.  In a command file, blank lines
+and comment lines (those starting with a #) are ignored.  If a command
+isn't recognized as a B<scr2ifm> command, it's assumed to be an B<ifm>
+command, and is passed straight into the output verbatim.  You can use
+these to resolve conflicts in the generated map, by stretching certain
+links or hiding them altogether.
 
-Parameter commands change the values of default parameters used when
-scanning the transcript.  They take the form
-
-    <parameter> = <value>
-
-All parameters are variables with begin with a dollar symbol (actually,
-they are Perl variables, and the whole line is 'eval'ed to set the
-variable).  Here's a list of available parameters, and their defaults:
+Here's a list of the commands available:
 
 =over 4
+
+=item eval <expression>
+
+This evaluates the given perl expression.  You can use this to set various
+parameters that control how the transcript is parsed (see below).
+
+=item isroom <text>
+
+Declare a line of text that is actually the name of a room.  Normally room
+names get recognized properly, but there may be some special cases that
+aren't.
+
+=item usename <text>
+
+Use only the room name to decide whether a room has been previously
+visited.  This is for cases where a room description changes too much
+between visits to be called the same room.  Note that this implies that
+there can only ever be one room with this name.
+
+=item option <letter>
+
+This is a convenience that lets you specify B<scr2ifm> command-line options
+in the command file instead.  E.g. 'option i' will indent output nicely.
+
+=back
+
+Here's a list of the parameters that control how the transcript is parsed,
+and their defaults.  You can use the B<scr2ifm> 'eval' command to set
+them in the command file.
+
+=over 4
+
+=item $name_remove (default: C<'\s+\(.+\)'>)
+
+Matched text to remove before seeing if a line of text is a room name.
+This is for getting rid of stuff like " (in the dodgem car)".
 
 =item $name_maxwords (default: C<8>)
 
@@ -267,7 +313,13 @@ Maximum length of an uncapitalized word in a room name.
 
 =item $name_invalid (default: C<'[.!?]'>)
 
-Regexp matching an invalid room name.
+Regexp which, if matched, signals an invalid room name.
+
+=item $name_ignore (default: unset)
+
+Optional regexp matching any other possible room names that should be
+ignored.  You can use this for special cases, where particular transcript
+lines are thought to be room names when they shouldn't be.
 
 =item $desc_minwords (default: C<20>)
 
@@ -293,16 +345,10 @@ room (case-insensitive).
 
 =back
 
-If a command isn't recognized as a parameter command, it's assumed to be an
-B<ifm> command, and is passed straight into the output verbatim.  You can
-use these to resolve conflicts in the generated map, by stretching certain
-links or hiding them altogether.
+=head1 EXAMPLE SESSION
 
-=head1 EXAMPLE
-
-Here's a simple example of B<scr2ifm> in action.  You might recognize the
-IF game involved.  First, the transcript in file F<advent.scr> (with
-annotation):
+Here's a simple example of B<scr2ifm> in action on Colossal Cave.  First,
+the transcript in file F<advent.scr> (with annotation):
 
     Start of a transcript of
     ADVENTURE
@@ -392,13 +438,16 @@ map.
     into the dirt is a strong steel grate mounted in concrete. A
     dry streambed leads into the depression.
 
+Note that in this game we don't go in all possible directions -- there's no
+logic to the connections, and it'd just make a complete mess on the map.
+
     >unlock grate
     What do you want to unlock the steel grate with?
 
     >keys
     You unlock the steel grate.
 
-    >task "Unlock grate" need keys
+    >task "Unlock grate" need Keys
     That's not a verb I recognise.
 
 That last command declared a task -- again, you don't have to bother with
@@ -468,8 +517,8 @@ have meant 'Darkness' appeared on the map as a room.
     Inside Building
     You are inside a building, a well house for a large spring.
 
-Goodness me!  That was unexpected -- you've been teleported.  The link
-almost certainly won't look good on the map.  You have the option of
+Goodness me!  That was unexpected -- we've been teleported.  The link
+almost certainly won't look good on the map.  We have the option of
 UNDOing, right now, or fixing the map later.  Let's do the latter.
 
     >xyzzy
@@ -543,33 +592,33 @@ we get the following map:
     room "At End Of Road" tag AEOR;
 
     room "Inside Building" dir e from AEOR tag IB;
-      item "keys" tag keys;
-      item "food" tag food;
-      item "lamp" tag lamp;
-      item "bottle" tag bottle;
+      item "keys" tag Keys;
+      item "food" tag Food;
+      item "lamp" tag Lamp;
+      item "bottle" tag Bottle;
 
     room "In A Valley" dir s from AEOR tag IAV;
 
     room "At Slit In Streambed" dir s from IAV tag ASIS;
 
     room "Outside Grate" dir s from ASIS tag OG;
-      task "Unlock grate" need keys tag Unlock_grate;
+      task "Unlock grate" need Keys tag Unlock_grate;
       task "Open grate" after last tag Open_grate;
 
     room "Below the Grate" dir n from OG go down tag BG;
 
     room "In Cobble Crawl" dir w from BG tag ICC;
-      item "cage" tag cage;
+      item "cage" tag Cage;
 
     room "In Debris Room" dir w from ICC tag IDR;
-      item "black rod" tag rod;
+      item "black rod" tag Rod;
 
     link IDR to IB dir n s cmd "xyzzy" tag IDR_IB;
 
     room "Sloping E/W Canyon" dir w from IDR tag SEC;
 
     room "Orange River Chamber" dir w from SEC tag ORC;
-      item "bird" tag bird;
+      item "bird" tag Bird;
 
     ## Customization commands.
     link BG dir s;
