@@ -229,12 +229,17 @@ filter_tasks(void)
     vscalar *elt;
     vlist *list;
 
+    /* Loop until no more filtering possible */
     do {
         filtered = 0;
 
         vl_foreach(elt, tasklist) {
             task = vs_pget(elt);
+
+            /* By default, can't filter */
             canfilter = 0;
+
+            /* But we want to */
             filter = 1;
 
             if (vh_iget(task, "DONE") ||
@@ -288,7 +293,7 @@ filter_tasks(void)
             if (!vh_iget(task, "DONE") && vh_iget(task, "TYPE") == T_GET) {
                 item = vh_pget(task, "DATA");
                 canfilter = 1;
-                filter = vh_exists(item, "TAKEN");
+                filter = vh_iget(item, "TAKEN");
             }
 
             if (canfilter && filter) {
@@ -460,7 +465,7 @@ order_tasks(vhash *before, vhash *after)
         if (after != before) {
             depend = vh_pget(after, "DEPEND");
             vl_ppush(depend, before);
-            DEBUG2(2, "do `%s' before `%s'",
+            DEBUG2(2, "task order: do `%s' before `%s'",
                    vh_sgetref(before, "DESC"),
                    vh_sgetref(after, "DESC"));
         }
