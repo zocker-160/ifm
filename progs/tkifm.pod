@@ -23,12 +23,12 @@ widget.
 
 =item File menu
 
-The standard set of file commands: New, Open, Save, Save-as, Quit.  There's
-also a command called Redraw, which invokes B<ifm> on the current file
-again.  You must use this after doing any changes to your map, or the
-changes won't be seen in the other menus.  Any errors or warnings that
-occur when invoking B<ifm> will be displayed in a dialog.  Note that
-Redraw, if successful, will also destroy all other windows.
+The standard set of file commands: New, Open, Save, Save-As, Print (to
+PostScript), Quit.  There's also a command called Redraw, which invokes
+B<ifm> on the current file again.  Normally you don't have to use this
+(it's done whenever you open a new file or save the current one), but if
+you change your initialisation file (see below) the changes won't be
+noticed unless you do a Redraw.
 
 =item Map menu
 
@@ -44,6 +44,10 @@ window.
 
 This contains a single menu item, which displays a high-level walkthrough
 of the game in another window.
+
+=item Help menu
+
+At the moment this just displays a small info panel about B<tkifm>.
 
 =back
 
@@ -79,6 +83,15 @@ variables, their format and defaults.
     # Text window colours.
     set ifm(textforeground) black
     set ifm(textbackground) wheat
+
+    # Whether to allow tearoff menus.
+    set ifm(tearoff) 1
+
+=head1 ERRORS AND WARNINGS
+
+Any errors or warnings that occur when invoking B<ifm> will be displayed in
+a dialog.  The current line of the text window will be changed to point at
+the error or warning line (if appropriate).
 
 =head1 SEE ALSO
 
