@@ -74,7 +74,8 @@ connect_rooms(void)
         rlist = vh_pget(from, "REACH");
         reach = vh_create();
 
-        vh_pstore(reach, "ROOM", to);
+        vh_pstore(reach, "FROM", from);
+        vh_pstore(reach, "TO", to);
         vh_pstore(reach, "NEED", vh_pget(link, "NEED"));
         vh_pstore(reach, "BEFORE", vh_pget(link, "BEFORE"));
         vh_pstore(reach, "AFTER", vh_pget(link, "AFTER"));
@@ -87,7 +88,8 @@ connect_rooms(void)
             rlist = vh_pget(to, "REACH");
             reach = vh_create();
 
-            vh_pstore(reach, "ROOM", from);
+            vh_pstore(reach, "FROM", to);
+            vh_pstore(reach, "TO", from);
             vh_pstore(reach, "NEED", vh_pget(link, "NEED"));
             vh_pstore(reach, "BEFORE", vh_pget(link, "BEFORE"));
             vh_pstore(reach, "AFTER", vh_pget(link, "AFTER"));
@@ -121,7 +123,8 @@ connect_rooms(void)
         rlist = vh_pget(from, "REACH");
         reach = vh_create();
 
-        vh_pstore(reach, "ROOM", to);
+        vh_pstore(reach, "FROM", from);
+        vh_pstore(reach, "TO", to);
         vh_pstore(reach, "NEED", vh_pget(join, "NEED"));
         vh_pstore(reach, "BEFORE", vh_pget(join, "BEFORE"));
         vh_pstore(reach, "AFTER", vh_pget(join, "AFTER"));
@@ -134,7 +137,8 @@ connect_rooms(void)
             rlist = vh_pget(to, "REACH");
             reach = vh_create();
 
-            vh_pstore(reach, "ROOM", from);
+            vh_pstore(reach, "FROM", to);
+            vh_pstore(reach, "TO", from);
             vh_pstore(reach, "NEED", vh_pget(join, "NEED"));
             vh_pstore(reach, "BEFORE", vh_pget(join, "BEFORE"));
             vh_pstore(reach, "AFTER", vh_pget(join, "AFTER"));
@@ -150,9 +154,9 @@ int
 find_path(vhash *from, vhash *to, int *dist, int *len)
 {
     vhash *node, *reach, *task, *item, *last, *step;
-    int addnode, pdist, plen, ndist, nlen;
     vlist *need, *after, *before, *rlist;
     static vqueue *visit = NULL;
+    int addnode, ndist, nlen;
     vscalar *elt;
 
     /* Initialise visit-room search if required */
@@ -210,11 +214,11 @@ find_path(vhash *from, vhash *to, int *dist, int *len)
 
     vh_istore(from, "FP_DIST", 0);
     vh_istore(from, "FP_LEN", 0);
-    vh_pstore(from, "FP_LAST", NULL);
 
     if (from == ap_room) {
         vh_istore(from, "AP_DIST", 0);
         vh_istore(from, "AP_LEN", 0);
+        vh_pstore(from, "AP_LAST", NULL);
     }
 
     last = from;
@@ -226,31 +230,28 @@ find_path(vhash *from, vhash *to, int *dist, int *len)
         if (vh_iget(node, "FP_VISIT") == fp_visit)
             continue;
 
-        plen = vh_iget(node, "FP_LEN");
-        pdist = vh_iget(node, "FP_DIST");
+        *len = vh_iget(node, "FP_LEN");
+        *dist = vh_iget(node, "FP_DIST");
         vh_istore(node, "FP_VISIT", fp_visit);
+
         if (from == ap_room)
             vh_istore(node, "AP_VISIT", ap_visit);
-        last = node;
 
         if (ifm_verbose && node != from && to != NULL) {
             indent(4);
             printf("visit: %s (distance %d)\n",
-                   vh_sgetref(node, "DESC"), plen);
+                   vh_sgetref(node, "DESC"), *len);
         }
 
         /* If that's the destination, end */
-        if (node == to) {
-            *len = plen;
-            *dist = pdist;
+        if (node == to)
             return 1;
-        }
 
         /* Add reachable nodes to the visit list */
         rlist = vh_pget(node, "REACH");
         vl_foreach(elt, rlist) {
             reach = vs_pget(elt);
-            node = vh_pget(reach, "ROOM");
+            node = vh_pget(reach, "TO");
             if (vh_iget(node, "FP_VISIT") == fp_visit)
                 continue;
             addnode = 1;
@@ -356,15 +357,14 @@ find_path(vhash *from, vhash *to, int *dist, int *len)
 
             /* Add node to visit list if reachable */
             if (addnode) {
-                if (node != from)
-                    vh_pstore(node, "FP_LAST", last);
-
-                ndist = pdist + 1;
-                nlen = plen + vh_iget(reach, "LEN");
+                ndist = *dist + 1;
+                nlen = *len + vh_iget(reach, "LEN");
                 vh_istore(node, "FP_DIST", ndist);
                 vh_istore(node, "FP_LEN", nlen);
 
                 if (from == ap_room) {
+                    if (node != from)
+                        vh_pstore(node, "AP_LAST", reach);
                     vh_istore(node, "AP_DIST", ndist);
                     vh_istore(node, "AP_LEN", nlen);
                 }
@@ -374,15 +374,34 @@ find_path(vhash *from, vhash *to, int *dist, int *len)
         }
     }
 
-    *len = plen;
-    *dist = pdist;
-
     if (ifm_verbose && to != NULL) {
         indent(4);
         printf("failed: no path\n");
     }
 
     return 0;
+}
+
+/* Return path twixt anchor room and a given room */
+vlist *
+get_path(vhash *room)
+{
+    vhash *reach;
+    vlist *path;
+
+    /* Check room is reachable */
+    if (vh_iget(room, "AP_VISIT") != ap_visit)
+        return NULL;
+
+    /* Build path */
+    path = vl_create();
+
+    while ((reach = vh_pget(room, "AP_LAST")) != NULL) {
+        vl_punshift(path, reach);
+        room = vh_pget(reach, "FROM");
+    }
+
+    return path;
 }
 
 /* Initialise path searches */

@@ -64,13 +64,28 @@ add_task_list(char *tag)
 static void
 do_task(vhash *task, vhash *from, vhash *to)
 {
-    vlist *path, *invent, *list;
+    vlist *path = NULL, *invent, *list;
+    vhash *item, *reach, *room;
     vscalar *elt;
-    vhash *item;
+
+    /* Store path taken */
+    if (from != to && to != NULL) {
+        path = get_path(to);
+        vh_pstore(task, "PATH", path);
+    }
 
     if (ifm_verbose) {
+        if (path != NULL) {
+            vl_foreach(elt, path) {
+                reach = vs_pget(elt);
+                room = vh_pget(reach, "TO");
+                indent(2);
+                printf("move to: %s\n", vh_sgetref(room, "DESC"));
+            }
+        }
+
         indent(2);
-        printf("choose: %s\n", vh_sgetref(task, "DESC"));
+        printf("do task: %s\n", vh_sgetref(task, "DESC"));
     }
 
     /* Do the task */
