@@ -81,15 +81,17 @@ room_stmt	: ROOM STRING
 		}
                 room_attrs ';'
                 {
-                    vhash *near, *sect;
-                    vlist *list;
+                    vhash *near, *sect, *link;
+                    vlist *list, *dirs;
+                    char *str;
 
-                    if (curroom != NULL)
-                        vl_ppush(rooms, curroom);
+                    /* Build new room */
+                    vl_ppush(rooms, curroom);
 
-                    if (startroom == NULL || vh_iget(curroom, "START"))
+                    if (startroom == NULL)
                         startroom = curroom;
 
+                    /* Put it on appropriate section */
                     near = vh_pget(curroom, "NEAR");
                     if (near != NULL) {
                         sect = vh_pget(near, "SECT");
@@ -105,7 +107,33 @@ room_stmt	: ROOM STRING
                     list = vh_pget(sect, "ROOMS");
                     vl_punshift(list, curroom);
 
-                    if (!vh_exists(curroom, "DIR")) {
+                    /* Build implicit link (if any) */
+                    if ((dirs = vh_pget(curroom, "DIR")) != NULL) {
+                        link = vh_create();
+
+                        vh_pstore(link, "FROM", near);
+                        vh_pstore(link, "TO", curroom);
+                        vh_istore(link, "GO", vh_iget(curroom, "GO"));
+                        vh_istore(link, "ONEWAY", vh_iget(curroom, "ONEWAY"));
+                        vh_istore(link, "SPECIAL", vh_iget(curroom, "SPECIAL"));
+                        vh_istore(link, "LEN", vh_iget(curroom, "LEN"));
+                        vh_pstore(link, "BEFORE", vh_pget(curroom, "LINK_BEFORE"));
+                        vh_pstore(link, "AFTER", vh_pget(curroom, "LINK_AFTER"));
+                        vh_pstore(link, "NEED", vh_pget(curroom, "LINK_NEED"));
+                        vh_pstore(link, "LEAVE", vh_pget(curroom, "LINK_LEAVE"));
+
+                        if ((str = vh_sgetref(curroom, "TAG")) != NULL)
+                            set_tag("link", str, link, linktags);
+
+                        if ((str = vh_sgetref(curroom, "FROM_CMD")) != NULL)
+                            vh_sstore(link, "FROM_CMD", str);
+
+                        if ((str = vh_sgetref(curroom, "TO_CMD")) != NULL)
+                            vh_sstore(link, "TO_CMD", str);
+
+                        vh_pstore(link, "DIR", dirs);
+                        vl_ppush(links, link);
+                    } else {
                         if (vh_exists(curroom, "GO"))
                             WARN_IGNORED(go);
                         if (vh_exists(curroom, "ONEWAY"))
@@ -228,7 +256,7 @@ room_attr	: TAG IDENT
 		}
 		| START
 		{
-                    vh_istore(curroom, "START", 1);
+                    startroom = curroom;
 		}
                 | NEED item_list
                 {

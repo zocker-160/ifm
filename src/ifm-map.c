@@ -320,44 +320,11 @@ setup_exits(void)
 void
 setup_links(void)
 {
-    vhash *room, *near, *link, *from, *to, *other, *sect;
     int x, y, xt, yt, xoff, yoff, dir, num, count, ndirs;
+    vhash *room, *link, *from, *to, *other, *sect;
     vlist *dirs, *xpos, *ypos, *list;
-    char *fname, *tname, *str;
+    char *fname, *tname;
     vscalar *elt;
-
-    /* Set up links between 'near' rooms */
-    vl_foreach(elt, rooms) {
-	room = vs_pget(elt);
-	near = vh_pget(room, "NEAR");
-	if (near == NULL)
-	    continue;
-
-	link = vh_create();
-
-	vh_pstore(link, "FROM", near);
-	vh_pstore(link, "TO", room);
-	vh_istore(link, "GO", vh_iget(room, "GO"));
-	vh_istore(link, "ONEWAY", vh_iget(room, "ONEWAY"));
-	vh_istore(link, "SPECIAL", vh_iget(room, "SPECIAL"));
-	vh_istore(link, "LEN", vh_iget(room, "LEN"));
-        vh_pstore(link, "BEFORE", vh_pget(room, "LINK_BEFORE"));
-        vh_pstore(link, "AFTER", vh_pget(room, "LINK_AFTER"));
-        vh_pstore(link, "NEED", vh_pget(room, "LINK_NEED"));
-        vh_pstore(link, "LEAVE", vh_pget(room, "LINK_LEAVE"));
-
-        if ((str = vh_sgetref(room, "FROM_CMD")) != NULL)
-            vh_sstore(link, "FROM_CMD", str);
-
-        if ((str = vh_sgetref(room, "TO_CMD")) != NULL)
-            vh_sstore(link, "TO_CMD", str);
-
-	dirs = vh_pget(room, "DIR");
-	vl_ipop(dirs);
-	vh_pstore(link, "DIR", dirs);
-
-	vl_ppush(links, link);
-    }
 
     /* Build coordinate list for each link */
     vl_foreach(elt, links) {
