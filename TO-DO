@@ -4,9 +4,7 @@
 
 Document new stuff.
 
-Add vars to control dot output.
-
-Fix etags in progs dir.
+Add more vars to control dot output.
 
 Task text output: merge multiple identical tasks into one, with (%d times)
 appended.
@@ -64,6 +62,8 @@ knowledge.
 Get load_styles() to return success flag.
 
 ** Maps
+
+How about Xfig output?
 
 How about a 'label' keyword, like rooms, that puts arbitrary text on the
 page (like admap does)?  Specify its offset from a given room, its

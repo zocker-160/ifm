@@ -9,11 +9,16 @@ Additions
   kept until certain tasks are done or certain other items are dropped.
 
 * New task and item 'ignore' attribute, indicating that these things should
-  be ignored when finding a solution (which in most cases will not be
-  complete).
+  be ignored when finding a solution.
 
 * New task output: graphviz (dot) format, which dumps a task dependency
   graph.
+
+* There are now some variables to control the overall behaviour of the game
+  solver.
+
+* The GNU Emacs IFM mode in the 'contrib' directory now has font lock
+  support.
 
 Changes
 =======
