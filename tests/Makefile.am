@@ -13,7 +13,7 @@ task-unsafe.ifm
 
 IFM		= $(top_srcdir)/src/ifm -I$(top_srcdir)/lib
 
-TKIFM		= wish -f $(top_srcdir)/tkifm/tkifm.tcl
+TKIFM		= wish -f $(top_srcdir)/progs/tkifm.tcl
 
 TESTS		= $(SRCS:.ifm=.test)
 
