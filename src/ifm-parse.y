@@ -21,17 +21,17 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-#define SET_LIST(object, attr, list) \
-        { \
-                vlist *l = vh_pget(object, attr); \
-                if (l == NULL) { \
-                        vh_pstore(object, attr, list); \
-                        list = NULL; \
-                } else { \
-                        vl_append(l, list); \
-                        vl_destroy(list); \
-                        list = NULL; \
-                } \
+#define SET_LIST(object, attr, list)                                    \
+        {                                                               \
+                vlist *l = vh_pget(object, attr);                       \
+                if (l == NULL) {                                        \
+                        vh_pstore(object, attr, list);                  \
+                        list = NULL;                                    \
+                } else {                                                \
+                        vl_append(l, list);                             \
+                        vl_destroy(list);                               \
+                        list = NULL;                                    \
+                }                                                       \
         }
 
 #define ATTR(name) \
@@ -73,6 +73,7 @@ static int modify = 0;          /* Modification flag */
 static int implicit = 0;        /* Implicit-link flag */
 static int allflag = 0;         /* All-items flag */
 static int repeat = 0;          /* String repeat count */
+static int instyle = 0;         /* Set variable in different style? */
 %}
 
 %union {
@@ -86,7 +87,7 @@ static int repeat = 0;          /* String repeat count */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE ALIAS
+%token        NOPATH NONE ALIAS STYLE ENDSTYLE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -124,6 +125,7 @@ stmt		: ctrl_stmt
 		| join_stmt
 		| task_stmt
 		| vars_stmt
+                | style_stmt
 		;
 
 /************************************************************************/
@@ -151,6 +153,8 @@ room_stmt	: ROOM string
                     curroom = vh_create();
 		    vh_sstore(curroom, "DESC", $2);
                     vh_istore(curroom, "ID", ++roomid);
+                    if (current_style() != NULL)
+                        vh_sstore(curroom, "STYLE", current_style());
                     implicit = 0;
                     modify = 0;
 		}
@@ -212,13 +216,16 @@ room_stmt	: ROOM string
                                   vh_pget(curroom, "LINK_LEAVE"));
                         vh_istore(link, "LEAVEALL",
                                   vh_iget(curroom, "LINK_LEAVEALL"));
+                        vh_sstore(link, "STYLE",
+                                  vh_sgetref(curroom, "LINK_STYLE"));
                         vh_pstore(link, "FROM_CMD",
                                   vh_pget(curroom, "FROM_CMD"));
                         vh_pstore(link, "TO_CMD",
                                   vh_pget(curroom, "TO_CMD"));
 
-                        if ((str = vh_sgetref(curroom, "TAG")) != NULL)
-                            set_tag("link", str, link, linktags);
+                        if (vh_exists(curroom, "TAG"))
+                            set_tag("link", vh_sgetref(curroom, "TAG"),
+                                    link, linktags);
 
                         vh_pstore(link, "DIR", dirs);
                         vl_ppush(links, link);
@@ -370,11 +377,13 @@ room_attr	: TAG ID
 		}
 		| SPECIAL
 		{
-                    vh_istore(curroom, "SPECIAL", 1);
+                    obsolete("`special' attribute", "`style \"special\"'");
+                    vh_sstore(curroom, ATTR(STYLE), "special");
 		}
 		| PUZZLE
 		{
-                    vh_istore(curroom, "PUZZLE", 1);
+                    obsolete("`puzzle' attribute", "`style \"puzzle\"'");
+                    vh_sstore(curroom, ATTR(STYLE), "puzzle");
 		}
 		| START
 		{
@@ -429,6 +438,10 @@ room_attr	: TAG ID
 		{
                     add_attr(curroom, "NOTE", $2);
 		}
+                | STYLE string
+                {
+                    vh_sstore(curroom, ATTR(STYLE), $2);
+                }
 		;
 
 room_list	: room_elt
@@ -472,6 +485,8 @@ item_stmt	: ITEM string
                     curitem = vh_create();
                     vh_sstore(curitem, "DESC", $2);
                     vh_istore(curitem, "ID", ++itemid);
+                    if (current_style() != NULL)
+                        vh_sstore(curitem, "STYLE", current_style());
                     modify = 0;
                 }
                 item_attrs ';'
@@ -553,6 +568,10 @@ item_attr	: TAG ID
                 {
                     vh_istore(curitem, "FINISH", 1);
                 }
+                | STYLE string
+                {
+                    vh_sstore(curitem, "STYLE", $2);
+                }
 		;
 
 item_list	: item_elt
@@ -601,6 +620,8 @@ link_stmt	: LINK room TO room
                     curlink = vh_create();
                     vh_store(curlink, "FROM", $2);
                     vh_store(curlink, "TO", $4);
+                    if (current_style() != NULL)
+                        vh_sstore(curlink, "STYLE", current_style());
                     modify = 0;
                 }
                 link_attrs ';'
@@ -641,7 +662,8 @@ link_attr	: DIR dir_list
 		}
 		| SPECIAL
 		{
-                    vh_istore(curlink, "SPECIAL", 1);
+                    obsolete("`special' attribute", "`style \"special\"'");
+                    vh_sstore(curlink, "STYLE", "special");
 		}
 		| HIDDEN
 		{
@@ -695,6 +717,10 @@ link_attr	: DIR dir_list
                     else
                         CHANGE_ERROR(tag);
 		}
+                | STYLE string
+                {
+                    vh_sstore(curlink, "STYLE", $2);
+                }
                 ; 
 
 /************************************************************************/
@@ -706,6 +732,8 @@ join_stmt	: JOIN room TO room
                     curjoin = vh_create();
                     vh_store(curjoin, "FROM", $2);
                     vh_store(curjoin, "TO", $4);
+                    if (current_style() != NULL)
+                        vh_sstore(curjoin, "STYLE", current_style());
                     modify = 0;
                 }
                 join_attrs ';'
@@ -795,6 +823,10 @@ join_attr	: GO compass
                     else
                         CHANGE_ERROR(tag);
 		}
+                | STYLE string
+                {
+                    vh_sstore(curjoin, "STYLE", $2);
+                }
 		;
 
 /************************************************************************/
@@ -805,6 +837,8 @@ task_stmt	: TASK string
                 {
                     curtask = vh_create();
                     vh_sstore(curtask, "DESC", $2);
+                    if (current_style() != NULL)
+                        vh_sstore(curtask, "STYLE", current_style());
                     modify = 0;
                 }
                 task_attrs ';'
@@ -945,6 +979,10 @@ task_attr	: TAG ID
 		{
                     add_attr(curtask, "NOTE", $2);
 		}
+                | STYLE string
+                {
+                    vh_sstore(curtask, "STYLE", $2);
+                }
 		;
 
 task_list	: task_elt
@@ -983,39 +1021,42 @@ task            : ID
 /* Variables
 /************************************************************************/
 
-vars_stmt       : ID '=' exp ';'
+vars_stmt       : set_var
+                {
+                    if (instyle)
+                        pop_style(NULL);
+                    instyle = 0;
+                }
+                | alias_var
+                ;
+
+set_var         : ID '=' exp in_style ';'
                 {
                     var_set(NULL, $1, vs_dcreate($3));
                 }
-                | ID ID '=' exp ';'
+                | ID ID '=' exp in_style ';'
                 {
                     var_set($1, $2, vs_dcreate($4));
                 }
-                | ID '=' STRING ';'
+                | ID '=' STRING in_style ';'
                 {
                     var_set(NULL, $1, vs_screate($3));
                 }
-                | ID ID '=' STRING ';'
+                | ID ID '=' STRING in_style ';'
                 {
                     var_set($1, $2, vs_screate($4));
                 }
-                | ID '=' VAR ';'
-                {
-                    var_set(NULL, $1, vs_screate(var_string($3)));
-                }
-                | ID ID '=' VAR ';'
-                {
-                    var_set($1, $2, vs_screate(var_string($4)));
-                }
-                | ID '=' UNDEF ';'
+                | ID '=' UNDEF in_style ';'
                 {
                     var_set(NULL, $1, NULL);
                 }
-                | ID ID '=' UNDEF ';'
+                | ID ID '=' UNDEF in_style ';'
                 {
                     var_set($1, $2, NULL);
                 }
-                | ID ALIAS ID ';'
+                ;
+
+alias_var       : ID ALIAS ID ';'
                 {
                     var_alias($1, $3);
                 }
@@ -1023,50 +1064,33 @@ vars_stmt       : ID '=' exp ';'
                 {
                     var_alias($1, NULL);
                 }
+                ;
+
+in_style        : /* empty */
+                | IN STYLE string
+                {
+                    push_style($3);
+                    instyle++;
+                }
+                ;
+
+/************************************************************************/
+/* Styles
+/************************************************************************/
+
+style_stmt      : STYLE string ';'
+                {
+                    push_style($2);
+                }
+                | ENDSTYLE string ';'
+                {
+                    pop_style($2);
+                }
+                | ENDSTYLE ';'
+                {
+                    pop_style(NULL);
+                }
 		;
-
-exp             : INTEGER               { $$ = $1; }
-                | REAL                  { $$ = $1; }
-                | VAR                   { $$ = var_real($1); }
-                | '+' exp %prec PLUS    { $$ = $2; }
-                | '-' exp %prec MINUS   { $$ = -$2; }
-                | exp '+' exp           { $$ = $1 + $3; }
-                | exp '-' exp           { $$ = $1 - $3; }
-                | exp '*' exp           { $$ = $1 * $3; }
-                | exp '/' exp           { $$ = $1 / $3; }
-                | exp '^' exp           { $$ = pow($1, $3); }
-                | exp '%' exp           { $$ = fmod($1, $3); }
-                | '(' exp ')'           { $$ = $2; }
-                ;
-
-integer         : exp                   { $$ = (int) $1; }
-                ;
-
-string          : STRING                { $$ = $1; }
-                | VAR                   { $$ = var_string($1); }
-                ;
-
-string_repeat   : string
-                {
-                    $$ = $1;
-                    repeat = 1;
-                }
-                | string integer
-                {
-                    $$ = $1;
-                    repeat = $2;
-                    if ($2 <= 0)
-                        err("invalid repeat count");
-                }
-                | string TIMES integer /* obsolete */
-                {
-                    $$ = $1;
-                    repeat = $3;
-                    if ($3 <= 0)
-                        err("invalid repeat count");
-                    obsolete("`times' keyword", "just the repeat count");
-                }
-                ;
 
 /************************************************************************/
 /* Directions
@@ -1118,5 +1142,52 @@ otherdir	: IN            { $$ = D_IN;   }
 		| UP            { $$ = D_UP;   }
 		| DOWN          { $$ = D_DOWN; }
 		;
+
+/************************************************************************/
+/* Expressions
+/************************************************************************/
+
+exp             : INTEGER               { $$ = $1; }
+                | REAL                  { $$ = $1; }
+                | VAR                   { $$ = var_real($1); }
+                | '+' exp %prec PLUS    { $$ = $2; }
+                | '-' exp %prec MINUS   { $$ = -$2; }
+                | exp '+' exp           { $$ = $1 + $3; }
+                | exp '-' exp           { $$ = $1 - $3; }
+                | exp '*' exp           { $$ = $1 * $3; }
+                | exp '/' exp           { $$ = $1 / $3; }
+                | exp '^' exp           { $$ = pow($1, $3); }
+                | exp '%' exp           { $$ = fmod($1, $3); }
+                | '(' exp ')'           { $$ = $2; }
+                ;
+
+integer         : exp                   { $$ = (int) $1; }
+                ;
+
+string          : STRING                { $$ = $1; }
+                | VAR                   { $$ = var_string($1); }
+                ;
+
+string_repeat   : string
+                {
+                    $$ = $1;
+                    repeat = 1;
+                }
+                | string integer
+                {
+                    $$ = $1;
+                    repeat = $2;
+                    if ($2 <= 0)
+                        err("invalid repeat count");
+                }
+                | string TIMES integer /* obsolete */
+                {
+                    $$ = $1;
+                    repeat = $3;
+                    if ($3 <= 0)
+                        err("invalid repeat count");
+                    obsolete("`times' keyword", "just the repeat count");
+                }
+                ;
 
 %%

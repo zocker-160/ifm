@@ -372,6 +372,7 @@ print_map(void)
             list = vh_pget(sect, "ROOMS");
             vl_foreach(elt, list) {
                 room = vs_pget(elt);
+                set_style(vh_sgetref(room, "STYLE"));
                 (*func->map_room)(room);
             }
         }
@@ -384,6 +385,7 @@ print_map(void)
                     continue;
                 if (vh_iget(link, "NOLINK"))
                     continue;
+                set_style(vh_sgetref(link, "STYLE"));
                 (*func->map_link)(link);
             }
         }
@@ -400,6 +402,7 @@ print_map(void)
             join = vs_pget(elt);
             if (vh_iget(join, "HIDDEN"))
                 continue;
+            set_style(vh_sgetref(join, "STYLE"));
             (*func->map_join)(join);
         }
     }
@@ -428,6 +431,7 @@ print_items(void)
 
         vl_foreach(elt, sorted) {
             item = vs_pget(elt);
+            set_style(vh_sgetref(item, "STYLE"));
             (*func->item_entry)(item);
         }
 
@@ -459,6 +463,7 @@ print_tasks(void)
     if (func->task_entry != NULL) {
         vl_foreach(elt, tasks) {
             task = vs_pget(elt);
+            set_style(vh_sgetref(task, "STYLE"));
             (*func->task_entry)(task);
         }
     }

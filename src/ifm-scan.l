@@ -109,6 +109,7 @@ VAR             \${ID}
 "drop"		{ return DROP; }
 "e"		{ return EAST; }
 "east"		{ return EAST; }
+"endstyle"      { return ENDSTYLE; }
 "except"	{ return EXCEPT; }
 "exit"		{ return EXIT; }
 "finish"	{ return FINISH; }
@@ -156,6 +157,7 @@ VAR             \${ID}
 "southwest"	{ return SOUTHWEST; }
 "special"	{ return SPECIAL; }
 "start"		{ return START; }
+"style"		{ return STYLE; }
 "sw"		{ return SOUTHWEST; }
 "tag"		{ return TAG; }
 "task"		{ return TASK; }
@@ -212,7 +214,7 @@ VAR             \${ID}
 		    return INTEGER;
 		}
 
-"=="            { return ALIAS; }
+"=>"            { return ALIAS; }
 
 .		{ return yytext[0]; }
 
