@@ -187,6 +187,9 @@ pack_sections(int xmax, int ymax, int border)
         if (vh_iget(sect, "NOPRINT"))
             continue;
 
+        vh_dstore(sect, "XOFF", 0.0);
+        vh_dstore(sect, "YOFF", 0.0);
+
         xlen = vh_iget(sect, "XLEN");
         ylen = vh_iget(sect, "YLEN");
 
