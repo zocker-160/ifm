@@ -12,21 +12,16 @@
 
 #ifndef CPROTO
 
-/* List of drivers to include */
-#define TK
-#define GROFF
-#define TEXT
-
-#ifdef TK
-#include "tk.drv"
+#ifdef TEXT
+#include "text.drv"
 #endif
 
 #ifdef GROFF
 #include "groff.drv"
 #endif
 
-#ifdef TEXT
-#include "text.drv"
+#ifdef TK
+#include "tk.drv"
 #endif
 
 #define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
@@ -37,10 +32,10 @@ struct driver_st {
     itemfuncs *ifunc;
     taskfuncs *tfunc;
 } drivers[] = {
-#ifdef TK
+#ifdef TEXT
     {
-        "tk", "Interface to tkifm graphical display",
-        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs
+        "text", "Tab-delimited ASCII text fields",
+        NULL, &text_itemfuncs, &text_taskfuncs
     },
 #endif
 
@@ -51,10 +46,10 @@ struct driver_st {
     },
 #endif
 
-#ifdef TEXT
+#ifdef TK
     {
-        "text", "Tab-delimited ASCII text fields",
-        NULL, &text_itemfuncs, &text_taskfuncs
+        "tk", "Interface to tkifm graphical display",
+        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs
     },
 #endif
 };
