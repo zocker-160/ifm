@@ -23,7 +23,12 @@
 #include "ifm-vars.h"
 
 #define INIT_VARS \
-        if (vars == NULL) vars = vh_create()
+        if (vars == NULL) vars = vh_create(); \
+        if (alias == NULL) alias = vh_create()
+
+#define VAR_GET(id, var) \
+        if ((var = var_get(id)) == NULL) \
+                fatal("variable `%s' is not defined", id)
 
 #define ALPHA(c) (c == '_' || isalpha(c))
 #define ALNUM(c) (c == '_' || isalnum(c))
@@ -31,12 +36,14 @@
 /* Defined variables */
 static vhash *vars = NULL;
 
+/* Defined aliases */
+static vhash *alias = NULL;
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
 /* Internal functions */
 static vhash *read_colour_defs(FILE *fp);
-static vlist *var_decode(char *code);
 static char *var_encode(char *driver, char *var);
 
 /* Read and return colour definitions from a stream */
@@ -70,6 +77,16 @@ read_colour_defs(FILE *fp)
     return defs;
 }
 
+/* Set a variable alias */
+void
+var_alias(char *alias_id, char *id)
+{
+    if (id != NULL)
+        vh_sstore(alias, alias_id, id);
+    else
+        vh_delete(alias, alias_id);
+}
+
 /* Return RGB values from a variable */
 char *
 var_colour(char *id)
@@ -100,31 +117,12 @@ var_colour(char *id)
     return vh_sgetref(defs, name);
 }
 
-/* Decode an encoded variable */
-static vlist *
-var_decode(char *code)
-{
-    static vlist *list = NULL;
-    vscalar *val;
-
-    INIT_VARS;
-
-    if (list != NULL)
-        vl_destroy(list);
-    list = vl_split(code, NULL);
-
-    val = vh_get(vars, code);
-    vl_push(list, vs_copy(val));
-
-    return list;
-}
-
 /* Encode a variable */
 static char *
 var_encode(char *driver, char *var)
 {
     static char encbuf[BUFSIZ];
-    sprintf(encbuf, "%s %s", (driver == NULL ? "default" : driver), var);
+    sprintf(encbuf, "%s %s", (driver == NULL ? "global" : driver), var);
     return encbuf;
 }
 
@@ -136,6 +134,10 @@ var_get(char *id)
     char *key;
 
     INIT_VARS;
+
+    /* Check aliases */
+    if (vh_exists(alias, id))
+        id = vh_sgetref(alias, id);
 
     /* Check current output format first */
     if (ifm_format != NULL) {
@@ -156,33 +158,82 @@ var_get(char *id)
 int
 var_int(char *id)
 {
-    vscalar *var = var_get(id);
+    vscalar *var;
+    VAR_GET(id, var);
+    return (var != NULL ? vs_iget(var) : 0);
+}
 
-    if (var == NULL)
-        fatal("integer variable `%s' is not defined", id);
+/* List variables to stdout */
+void
+var_list(void)
+{
+    vscalar *elt, *val;
+    vlist *names;
+    char *name;
 
-    return vs_iget(var);
+    INIT_VARS;
+
+    /* Variables */
+    names = vh_sortkeys(vars, NULL);
+
+    printf("# Variables.\n");
+    vl_foreach(elt, names) {
+        name = vs_sgetref(elt);
+        printf("%s = ", name);
+        val = vh_get(vars, name);
+
+        switch (vs_type(val)) {
+        case V_STRING:
+            printf("\"%s\"", vs_sgetref(val));
+            break;
+        default:
+            printf("%s", vs_sget(val));
+            break;
+        }
+
+        printf(";\n");
+    }
+
+    vl_destroy(names);
+
+    /* Aliases */
+    names = vh_sortkeys(alias, NULL);
+
+    if (vl_length(names) > 0) {
+        printf("\n# Aliases.\n");
+
+        vl_foreach(elt, names) {
+            name = vs_sgetref(elt);
+            printf("%s == %s;\n", name, vh_sgetref(alias, name));
+        }
+    }
+
+    vl_destroy(names);
 }
 
 /* Return a real variable */
 double
 var_real(char *id)
 {
-    vscalar *var = var_get(id);
-
-    if (var == NULL)
-        fatal("real variable `%s' is not defined", id);
-
-    return vs_dget(var);
+    vscalar *var;
+    VAR_GET(id, var);
+    return (var != NULL ? vs_dget(var) : 0.0);
 }
 
 /* Set a scalar variable */
 void
 var_set(char *driver, char *id, vscalar *val)
 {
-    char *key = var_encode(driver, id);
+    char *key;
 
     INIT_VARS;
+
+    /* Check aliases */
+    if (vh_exists(alias, id))
+       id = vh_sgetref(alias, id);
+
+    /* Set variable */
+    key = var_encode(driver, id);
 
     if (val != NULL)
         vh_store(vars, key, val);
@@ -194,12 +245,9 @@ var_set(char *driver, char *id, vscalar *val)
 char *
 var_string(char *id)
 {
-    vscalar *var = var_get(id);
-
-    if (var == NULL)
-        fatal("string variable `%s' is not defined", id);
-
-    return vs_sgetcopy(var);
+    vscalar *var;
+    VAR_GET(id, var);
+    return (var != NULL ? vs_sgetcopy(var) : "");
 }
 
 /* Substitute variable values in a string */
@@ -260,7 +308,7 @@ var_subst(char *string)
             /* Get variable */
             save = *cp;
             *cp = '\0';
-            val = var_get(var);
+            VAR_GET(var, val);
             *cp = save;
             if (braceflag)
                 cp++;
