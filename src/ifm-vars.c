@@ -199,7 +199,7 @@ var_string(char *id)
     if (var == NULL)
         fatal("string variable `%s' is not defined", id);
 
-    return vs_sget(var);
+    return vs_sgetcopy(var);
 }
 
 /* Substitute variable values in a string */
