@@ -29,8 +29,8 @@ mapfuncs ps_mapfuncs = {
 
 /* Internal variables */
 static int ps_pagenum = 0;      /* Current page */
-static int ps_xoff;             /* Current X offset */
-static int ps_yoff;             /* Current Y offset */
+static double ps_xoff;          /* Current X offset */
+static double ps_yoff;          /* Current Y offset */
 static double ps_roomwidth;     /* Current room width factor */
 static double ps_roomheight;    /* Current room height factor */
 
@@ -128,8 +128,8 @@ ps_map_section(vhash *sect)
 
     /* Get section parameters */
     page = vh_iget(sect, "PAGE");
-    ps_xoff = vh_iget(sect, "XOFF");
-    ps_yoff = vh_iget(sect, "YOFF");
+    ps_xoff = vh_dget(sect, "XOFF");
+    ps_yoff = vh_dget(sect, "YOFF");
     ps_roomwidth = get_real("room_width", 0.8);
     ps_roomheight = get_real("room_height", 0.65);
 

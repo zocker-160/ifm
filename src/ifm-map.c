@@ -142,11 +142,11 @@ init_map(void)
 int
 pack_sections(int xmax, int ymax, int border)
 {
-    int xo1, yo1, xo2, yo2, xc1, yc1, xc2, yc2, v1, v2, rflag;
     int pos, packed, x1, y1, x2, y2, xo, yo, num, xlen, ylen;
     vlist *pages, *newpages, *psects, *opsects;
+    double xo1, yo1, xo2, yo2, r1, r2, ratio;
+    int v1, v2, rflag, xc1, yc1, xc2, yc2;
     vhash *page, *sect, *p1, *p2;
-    double r1, r2, ratio;
     vscalar *elt;
 
     /* Initialise -- one section per page */
@@ -255,9 +255,9 @@ pack_sections(int xmax, int ymax, int border)
                 sect = vs_pget(elt);
                 vl_ppush(psects, sect);
                 xo = vh_iget(sect, "XOFF");
-                vh_istore(sect, "XOFF", xo + xo1);
+                vh_dstore(sect, "XOFF", xo + xo1);
                 yo = vh_iget(sect, "YOFF");
-                vh_istore(sect, "YOFF", yo + yo1);
+                vh_dstore(sect, "YOFF", yo + yo1);
             }
 
             opsects = vh_pget(p2, "SECTS");
@@ -265,9 +265,9 @@ pack_sections(int xmax, int ymax, int border)
                 sect = vs_pget(elt);
                 vl_ppush(psects, sect);
                 xo = vh_iget(sect, "XOFF");
-                vh_istore(sect, "XOFF", xo + xo2);
+                vh_dstore(sect, "XOFF", xo + xo2);
                 yo = vh_iget(sect, "YOFF");
-                vh_istore(sect, "YOFF", yo + yo2);
+                vh_dstore(sect, "YOFF", yo + yo2);
             }
 
             /* Get rid of old pages */
