@@ -122,6 +122,8 @@ tk_map_start(void)
            var_string("link_text_colour"));
     printf("set ifm(linkfont) {%s}\n",
            var_string("link_text_fontdef"));
+    printf("set ifm(arrowsize) %g\n",
+           var_real("link_arrow_size"));
     printf("set ifm(linkupdown) {%s}\n",
            var_string("link_updown_string"));
     printf("set ifm(linkinout) {%s}\n",

@@ -4,9 +4,6 @@
 # under certain conditions; see the file COPYING for details.
 
 # Global variables (internal).
-set ifm(version) 1.0
-set ifm(edit)    1
-
 set ifm(mapcmd)   {ifm -map -format tk}
 set ifm(itemcmd)  {ifm -items -format tk}
 set ifm(taskcmd)  {ifm -tasks -format tk}
@@ -15,6 +12,7 @@ set ifm(printcmd) {ifm -map -format ps}
 set ifm(aboutcmd) {ifm -version}
 
 # Global variables (customizable).
+set ifm(edit)           1
 set ifm(editwidth)      80
 set ifm(editheight)     24
 set ifm(editfont)       {Courier 12 bold}
@@ -316,7 +314,12 @@ proc DrawMap {num} {
 		lappend cmd ${x}c ${y}c
 	    }
 
-	    if {$oneway} {lappend cmd -arrow last}
+	    if {$oneway} {
+		set a1 [expr $ifm(arrowsize) * $ifm(roomsize)]
+		set a2 $a1
+		set a3 [expr $a2 / 2]
+		lappend cmd -arrow last -arrowshape "${a1}c ${a2}c ${a3}c"
+	    }
 
 	    if {$special} {
 		lappend cmd -fill $ifm(linkspecialcol)
