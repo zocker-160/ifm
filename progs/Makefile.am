@@ -19,4 +19,6 @@ scr2ifm: scr2ifm.pl
 	cat $< >> $@
 	chmod +x $@
 
+CLEANFILES = scr2ifm
+
 @common_rules@
