@@ -114,6 +114,11 @@ The coordinates of the specified rooms are the same.  See L<"Conflicts">.
 
 A link line passes through the coordinates of a room.  See L<"Conflicts">.
 
+=item B<warning: room [name] has multiple [dir] links>
+
+More than one link connects to the specified room in a particular
+direction.
+
 =item B<warning: can't solve game ([num] tasks not done)>
 
 The game is unsolvable according to the current set of tasks.  This can be
