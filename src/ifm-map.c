@@ -1,0 +1,382 @@
+/*
+ *  Ifm version 1.0, Copyright (C) 1997 G. Hutchings
+ *  Ifm comes with ABSOLUTELY NO WARRANTY.
+ *  This is free software, and you are welcome to redistribute it
+ *  under certain conditions; see the file COPYING for details.
+ */
+
+/* Functions for building the map */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "ifm.h"
+#include "ifm-parse.h"
+
+vhash *map = NULL;              /* The map */
+
+vlist *rooms = NULL;            /* List of rooms */
+vlist *links = NULL;            /* List of links */
+vlist *joins = NULL;            /* List of joins */
+vlist *items = NULL;            /* List of items */
+vlist *tasks = NULL;            /* List of tasks */
+vlist *sects = NULL;            /* List of sections */
+
+vhash *rpos = NULL;             /* Room positions */
+vhash *vars = NULL;             /* Variables */
+
+vhash *roomtags = NULL;         /* Tag -> room mapping */
+vhash *itemtags = NULL;         /* Tag -> item mapping */
+vhash *tasktags = NULL;         /* Tag -> task mapping */
+
+vhash *curroom = NULL;          /* Current room */
+vhash *curlink = NULL;          /* Current link */
+vhash *curitem = NULL;          /* Current item */
+vhash *curjoin = NULL;          /* Current join */
+vhash *curtask = NULL;          /* Current task */
+
+vlist *curdirs = NULL;          /* Current direction list */
+
+vlist *curitems = NULL;         /* Current item list */
+vlist *curlinks = NULL;         /* Current link list */
+vlist *curjoins = NULL;         /* Current join list */
+vlist *curtasks = NULL;         /* Current task list */
+
+vhash *startroom = NULL;        /* Starting room */
+
+vhash *lastroom = NULL;         /* Last room visited */
+vhash *lastitem = NULL;         /* Last item mentioned */
+vhash *lasttask = NULL;         /* Last task mentioned */
+
+vlist *taskorder = NULL;        /* Ordered task list */
+vlist *sectnames = NULL;	/* List of section names */
+
+/* Add a direction to the current direction list */
+void
+add_dir(int dir)
+{
+    if (curdirs == NULL)
+	curdirs = vl_create();
+    vl_ipush(curdirs, dir);
+}
+
+/* Return an integer variable */
+int
+get_int(char *id, int def)
+{
+    if (vh_exists(vars, id))
+        return vh_iget(vars, id);
+    return def;
+}
+
+/* Convert direction to X/Y offset */
+void
+get_offset(int dir, int *xoff, int *yoff)
+{
+    *xoff = *yoff = 0;
+
+    switch (dir) {
+    case NORTH:
+	*yoff = 1;
+	break;
+    case EAST:
+	*xoff = 1;
+	break;
+    case SOUTH:
+	*yoff = -1;
+	break;
+    case WEST:
+	*xoff = -1;
+	break;
+    case NORTHEAST:
+	*xoff = 1;
+	*yoff = 1;
+	break;
+    case NORTHWEST:
+	*xoff = -1;
+	*yoff = 1;
+	break;
+    case SOUTHEAST:
+	*xoff = 1;
+	*yoff = -1;
+	break;
+    case SOUTHWEST:
+	*xoff = -1;
+	*yoff = -1;
+	break;
+    default:
+        fatal("internal: invalid direction offset");
+    }
+}
+
+/* Return a real variable */
+double
+get_real(char *id, double def)
+{
+    if (vh_exists(vars, id))
+        return vh_dget(vars, id);
+    return def;
+}
+
+/* Return a string variable */
+char *
+get_string(char *id, char *def)
+{
+    if (vh_exists(vars, id))
+        return vh_sget(vars, id);
+    return def;
+}
+
+/* Initialise the map */
+void
+init_map()
+{
+    map = vh_create();
+    rooms = vl_create();
+    links = vl_create();
+    items = vl_create();
+    joins = vl_create();
+    tasks = vl_create();
+    sects = vl_create();
+
+    rpos = vh_create();
+    vars = vh_create();
+
+    roomtags = vh_create();
+    itemtags = vh_create();
+    tasktags = vh_create();
+
+    taskorder = vl_create();
+
+    vh_pstore(map, "ROOMS", rooms);
+    vh_pstore(map, "LINKS", links);
+    vh_pstore(map, "ITEMS", items);
+    vh_pstore(map, "JOINS", joins);
+    vh_pstore(map, "TASKS", tasks);
+    vh_pstore(map, "SECTS", sects);
+
+    vh_pstore(map, "RPOS", rpos);
+    vh_pstore(map, "VARS", vars);
+
+    vh_pstore(map, "ROOMTAGS", roomtags);
+    vh_pstore(map, "ITEMTAGS", itemtags);
+    vh_pstore(map, "TASKTAGS", tasktags);
+}
+
+/* Resolve a tag */
+void
+resolve_tag(char *type, vscalar *elt, vhash *table)
+{
+    vhash *hash;
+    char *tag;
+
+    if (elt == NULL)
+        return;
+
+    if (vs_type(elt) != V_STRING)
+        return;
+
+    tag = vs_sval(elt);
+    hash = vh_pget(table, tag);
+
+    if (hash != NULL) {
+        vs_pset(elt, hash);
+    } else {
+        error("%s tag `%s' not defined", type, tag);
+        vh_pstore(table, tag, table);
+    }
+}
+
+/* Resolve a tag list */
+void
+resolve_tag_list(char *type, vlist *list, vhash *table)
+{
+    vscalar *elt;
+
+    if (list == NULL)
+        return;
+
+    FOREACH(elt, list)
+        resolve_tag(type, elt, table);
+}
+
+/* Resolve all tags */
+void
+resolve_tags()
+{
+    vhash *room, *item, *link, *join, *task;
+    vlist *list;
+    vscalar *elt;
+
+    /* Resolve room tags */
+    FOREACH(elt, rooms) {
+        room = vs_pval(elt);
+        resolve_tag_list("task", vh_pget(room, "AFTER"), tasktags);
+        resolve_tag_list("item", vh_pget(room, "NEED"), itemtags);
+    }
+
+    /* Resolve link tags */
+    FOREACH(elt, links) {
+        link = vs_pval(elt);
+        resolve_tag("room", vh_get(link, "FROM"), roomtags);
+        resolve_tag("room", vh_get(link, "TO"), roomtags);
+        resolve_tag_list("task", vh_pget(link, "AFTER"), tasktags);
+        resolve_tag_list("item", vh_pget(link, "NEED"), itemtags);
+    }
+
+    /* Resolve join tags */
+    FOREACH(elt, joins) {
+        join = vs_pval(elt);
+        resolve_tag("room", vh_get(join, "FROM"), roomtags);
+        resolve_tag("room", vh_get(join, "TO"), roomtags);
+        resolve_tag_list("task", vh_pget(join, "AFTER"), tasktags);
+        resolve_tag_list("item", vh_pget(join, "NEED"), itemtags);
+    }
+
+    /* Resolve item tags and build room items lists */
+    FOREACH(elt, items) {
+        item = vs_pval(elt);
+        resolve_tag("room", vh_get(item, "IN"), roomtags);
+        room = vh_pget(item, "IN");
+
+        if (room != NULL) {
+            vh_pstore(item, "ROOM", room);
+            list = vh_pget(room, "ITEMS");
+
+            if (list == NULL) {
+                list = vl_create();
+                vh_pstore(room, "ITEMS", list);
+            }
+
+            vl_ppush(list, item);
+        }
+    }
+
+    /* Resolve task tags */
+    FOREACH(elt, tasks) {
+        task = vs_pval(elt);
+        resolve_tag("room", vh_get(task, "IN"), roomtags);
+        resolve_tag("room", vh_get(task, "GOTO"), roomtags);
+        resolve_tag_list("task", vh_pget(task, "AFTER"), tasktags);
+        resolve_tag_list("item", vh_pget(task, "NEED"), itemtags);
+        resolve_tag_list("item", vh_pget(task, "GET"), itemtags);
+        vh_pstore(task, "ROOM", vh_pget(task, "IN"));
+    }
+}
+
+/* Set the main title */
+void
+set_main_title(char *str)
+{
+    vh_sstore(map, "TITLE", str);
+}
+
+/* Set a section title */
+void
+set_section_title(char *str)
+{
+    if (sectnames == NULL)
+	sectnames = vl_create();
+    vl_spush(sectnames, str);
+}
+
+/* Set a tag table entry */
+void
+set_tag(char *type, char *tag, vhash *val, vhash *table)
+{
+    if (vh_pget(table, tag) == NULL) {
+	vh_pstore(table, tag, val);
+	vh_sstore(val, "TAG", tag);
+    } else {
+	err("%s tag `%s' already defined", type, tag);
+    }
+}
+
+/* Set up sections */
+void
+setup_sections()
+{
+    int minx, miny, maxx, maxy, x, y, first, i;
+    vhash *sect, *room, *link;
+    vlist *list, *xpos, *ypos;
+    vscalar *elt;
+    char *title;
+
+    FOREACH(elt, sects) {
+        sect = vs_pval(elt);
+
+        /* Set title */
+        if (sectnames != NULL && vl_length(sectnames) > 0) {
+            title = vl_sshift(sectnames);
+            vh_sstore(sect, "TITLE", title);
+        }
+
+        /* Find width and length of section */
+        first = 1;
+        list = vh_pget(sect, "ROOMS");
+        FOREACH(elt, list) {
+            room = vs_pval(elt);
+            x = vh_iget(room, "X");
+            y = vh_iget(room, "Y");
+
+            if (first) {
+                minx = maxx = x;
+                miny = maxy = y;
+            } else {
+                minx = MIN(minx, x);
+                maxx = MAX(maxx, x);
+                miny = MIN(miny, y);
+                maxy = MAX(maxy, y);
+            }
+        }
+
+        list = vh_pget(sect, "LINKS");
+        FOREACH(elt, list) {
+            link = vs_pval(elt);
+
+            xpos = vh_pget(link, "X");
+            FOREACH(elt, xpos) {
+                x = vs_ival(elt);
+                minx = MIN(minx, x);
+                maxx = MAX(maxx, x);
+            }
+
+            ypos = vh_pget(link, "Y");
+            FOREACH(elt, ypos) {
+                y = vs_ival(elt);
+                miny = MIN(miny, y);
+                maxy = MAX(maxy, y);
+            }
+        }
+
+        vh_istore(sect, "XLEN", maxx - minx + 1);
+        vh_istore(sect, "YLEN", maxy - miny + 1);
+
+        /* Normalize all coordinates */
+        list = vh_pget(sect, "ROOMS");
+        FOREACH(elt, list) {
+            room = vs_pval(elt);
+            x = vh_iget(room, "X");
+            y = vh_iget(room, "Y");
+            vh_istore(room, "X", x - minx);
+            vh_istore(room, "Y", y - miny);
+        }
+
+        list = vh_pget(sect, "LINKS");
+        FOREACH(elt, list) {
+            link = vs_pval(elt);
+
+            xpos = vh_pget(link, "X");
+            for (i = 0; i < vl_length(xpos); i++) {
+                x = vl_iget(xpos, i);
+                vl_istore(xpos, i, x - minx);
+            }
+
+            ypos = vh_pget(link, "Y");
+            for (i = 0; i < vl_length(ypos); i++) {
+                y = vl_iget(ypos, i);
+                vl_istore(ypos, i, y - miny);
+            }
+        }
+    }
+}
