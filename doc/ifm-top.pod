@@ -62,15 +62,16 @@ keeping track of your progress in an Interactive Fiction game.
 
 =for inf node LANGUAGE, Language, Language specification
 =for inf node Format,, General layout of the input
-=for inf node Control,, Map sections and local variables
+=for inf node Control,, Titles and map sections
 =for inf node Tags,, Format of tags
-=for inf node Commands,, Format of commands
+=for inf node Commands,, General command syntax
 =for inf node Rooms,, The 'room' command
 =for inf node Items,, The 'item' command
 =for inf node Links,, The 'link' command
 =for inf node Joins,, The 'join' command
 =for inf node Tasks,, The 'task' command
-=for inf node Variables,, Format of variables
+=for inf node Variables,, Setting variables
+=for inf node Include Files,, Including other input files
 
 =for inf node DIAGNOSTICS, Diagnostics, Errors and warnings
 
