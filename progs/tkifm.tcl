@@ -256,6 +256,17 @@ proc DrawMap {num} {
 	    set puzzle [Get $room puzzle]
 	    set items [Get $room items]
 
+	    if {$ifm(roomshadow) > 0} {
+		set soff [expr $ifm(roomsize) * $ifm(roomshadow)]
+		set xmin [expr $xoff * $ifm(roomsize) + $xgap - $soff]
+		set ymin [expr $yoff * $ifm(roomsize) + $ygap - $soff]
+		set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
+		set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
+
+		$c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
+			-width $ifm(roomlinewidth) -fill black
+	    }
+
 	    set xmin [expr $xoff * $ifm(roomsize) + $xgap]
 	    set ymin [expr $yoff * $ifm(roomsize) + $ygap]
 	    set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]

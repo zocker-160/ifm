@@ -73,6 +73,7 @@ tk_map_start(void)
     printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
     printf("set ifm(roomheight) %g\n", get_real("room_height", 0.65));
     printf("set ifm(roomlinewidth) %d\n", get_int("room_linewidth", 2));
+    printf("set ifm(roomshadow) %g\n", get_real("room_shadow", 0.0));
     printf("set ifm(roomfont) {%s}\n", get_string("room_font",
                                                   "Times 10 bold"));
     printf("set ifm(puzzlecol) %s\n", get_string("room_puzzle_colour",

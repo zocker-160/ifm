@@ -190,6 +190,7 @@ ps_map_section(vhash *sect)
         printf("/labelfontsize %g def\n", get_real("label_fontsize", 6));
 
         printf("/roomshading %g def\n", 1 - get_real("room_shading", 0.0));
+        printf("/roomshadow %g def\n", get_real("room_shadow", 0.0));
 
         printf("/showitems %s def\n",
                get_int("show_items", 0) ? "true" : "false");
