@@ -1,7 +1,4 @@
-# Scr2ifm, copyright (C) 1997-98 G. Hutchings
-# Scr2ifm comes with ABSOLUTELY NO WARRANTY.
-# This is free software, and you are welcome to redistribute it
-# under certain conditions; see the file COPYING for details.
+# scr2ifm -- convert game transcript to IFM commands
 
 require 5.002;
 use Getopt::Std;
