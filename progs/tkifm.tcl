@@ -6,6 +6,7 @@
 # Global variables (internal).
 set ifm(version) 1.0
 set ifm(debug)   0
+set ifm(edit)    1
 
 set ifm(mapcmd)   {ifm -map   -format tk}
 set ifm(itemcmd)  {ifm -items -format tk}
@@ -45,10 +46,18 @@ proc MainWindow {} {
     set c $m.file
     menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "File" -menu $c -underline 0
-    $c add command -label "New"        -command New    -underline 0
-    $c add command -label "Open..."    -command Open   -underline 0
-    $c add command -label "Save"       -command Save   -underline 0
-    $c add command -label "Save As..." -command SaveAs -underline 5
+
+    if $ifm(edit) {
+	$c add command -label "New" -command New -underline 0
+    }
+
+    $c add command -label "Open..." -command Open -underline 0
+
+    if $ifm(edit) {
+	$c add command -label "Save"       -command Save   -underline 0
+	$c add command -label "Save As..." -command SaveAs -underline 5
+    }
+
     $c add command -label "Print..."   -command Print  -underline 0
     $c add separator
     $c add command -label "Redraw"     -command Redraw -underline 0
@@ -92,9 +101,9 @@ proc MainWindow {} {
 
     # Set up editing box.
     frame .edit
-    pack .edit -expand yes -fill both
     set t .edit.text
     set s .edit.scroll
+    set ifm(text) $t
 
     text $t -yscrollcommand "$s set" -setgrid true \
 	    -width $ifm(editwidth) -height $ifm(editheight) \
@@ -106,11 +115,14 @@ proc MainWindow {} {
     bind $t <B3-Motion> "$t scan dragto %x %y"
 
     scrollbar $s -command "$t yview"
+
+    pack .edit -expand yes -fill both
     pack $s -side right -fill y
     pack $t -expand yes -fill both
-    set ifm(text) $t
 
-    focus $ifm(text)
+    if $ifm(edit) {
+	focus $ifm(text)
+    }
 }
 
 # Draw a map section.
@@ -119,6 +131,8 @@ proc DrawMap {num} {
     global sectnum
 
     if {[MaybeSave] == 0} return
+    if {[MaybeRead] == 0} return
+
     if {$num > $sectnum} {
 	Message "Map section no longer exists!"
 	return
@@ -313,6 +327,7 @@ proc ShowItems {} {
 
     if [file exists $ifm(path)] {
 	if {[MaybeSave] == 0} return
+	if {[MaybeRead] == 0} return
     } else {
 	Message "You must save the current file first."
 	return
@@ -369,6 +384,7 @@ proc ShowTasks {} {
 
     if [file exists $ifm(path)] {
 	if {[MaybeSave] == 0} return
+	if {[MaybeRead] == 0} return
     } else {
 	Message "You must save the current file first."
 	return
@@ -479,11 +495,18 @@ proc ReadFile {file} {
 	set ifm(data) [read -nonewline $fd]
 	close $fd
 
+	$ifm(text) configure -state normal
 	$ifm(text) delete 0.0 end
 	$ifm(text) insert end $ifm(data)
-	append ifm(data) "\n"
-	GotoLine 1
 
+	if !$ifm(edit) {
+	    $ifm(text) configure -state disabled
+	}
+
+	append ifm(data) "\n"
+	set ifm(modtime) [file mtime $file]
+
+	GotoLine 1
 	BuildMap
     }
 }
@@ -498,8 +521,14 @@ proc SetFile {path} {
     set ifm(file) [file tail $path]
     set ifm(path) $path
     set ifm(data) "\n"
+
     wm iconname . $ifm(file)
-    wm title . $ifm(file)
+
+    if $ifm(edit) {
+	wm title . $ifm(file)
+    } else {
+	wm title . "$ifm(file) (read-only)"
+    }
 }
 
 # Add a section.
@@ -574,6 +603,7 @@ proc New {} {
     SetFile [file join $ifm(dir) $ifm(untitled)]
     $ifm(text) delete 0.0 end
     set ifm(data) ""
+
     GotoLine 1
 }
 
@@ -599,6 +629,8 @@ proc Save {} {
     puts -nonewline $fd $ifm(data)
     close $fd
 
+    set ifm(modtime) [file mtime $ifm(path)]
+
     BuildMap
 }
 
@@ -621,6 +653,7 @@ proc Print {} {
 
     if [file exists $ifm(path)] {
 	if {[MaybeSave] == 0} return
+	if {[MaybeRead] == 0} return
     } else {
 	Message "You must save the current file first."
 	return
@@ -659,6 +692,19 @@ proc MaybeSave {} {
 	set reply [Yesno "$ifm(path) has been modified.  Save it?" "yes"]
 	if {$reply == "cancel"} {return 0}
 	if {$reply == "yes"} Save
+    }
+
+    return 1
+}
+
+# Reread current file if required.
+proc MaybeRead {} {
+    global ifm
+
+    if [file exists $ifm(path)] {
+	if {[file mtime $ifm(path)] > $ifm(modtime)} {
+	    ReadFile $ifm(path)
+	}
     }
 
     return 1
