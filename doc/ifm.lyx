@@ -21,7 +21,7 @@
 \tocdepth 3
 \paragraph_separation indent
 \defskip medskip
-\quotes_language swedish
+\quotes_language english
 \quotes_times 2
 \papercolumns 1
 \papersides 1
@@ -30,13 +30,11 @@
 \layout Title
 
 IFM -- Interactive Fiction Mapper
-\newline 
-Version 4.2
 \layout Author
 
-by Glenn Hutchings 
+Glenn Hutchings 
 \layout Standard
-\pagebreak_top \pagebreak_bottom 
+\pagebreak_top 
 
 \begin_inset LatexCommand \tableofcontents{}
 
@@ -44,13 +42,16 @@ by Glenn Hutchings
 
 
 \layout Section
-
+\pagebreak_top 
 Introduction
 \begin_inset LatexCommand \label{sec:introduction}
 
 \end_inset 
 
 
+\layout Subsection
+
+About IFM
 \layout Standard
 
 IFM is a language for keeping track of your progress through an Interactive
@@ -59,6 +60,7 @@ IFM is a language for keeping track of your progress through an Interactive
  You can record each room you visit and its relation to other rooms, the
  initial locations of useful items you find, and the tasks you need to perform
  in order to solve the game.
+ This manual refers to version 4.2 of IFM.
 \layout Standard
 
 The IFM mapping commands are designed so that you can easily add to the
@@ -80,11 +82,11 @@ The IFM mapping commands are designed so that you can easily add to the
 The IFM task commands, if used, allow you to specify the order in which
  game-solving tasks must be done.
  The IFM program can then calculate and print a high-level 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 walkthrough
-\begin_inset Quotes srd
+\begin_inset Quotes erd
 \end_inset 
 
  of the game.
@@ -113,14 +115,21 @@ Several output formats are available, including PostScript and ASCII text
 \end_inset 
 
 .
-\layout Section
+\layout Subsection
 
-Operation
+Running IFM
 \begin_inset LatexCommand \label{sec:operation}
 
 \end_inset 
 
 
+\layout Standard
+
+IFM is run from the command line.
+ The general form of the command is:
+\layout LyX-Code
+
+ifm [options] [file]
 \layout Standard
 
 On startup, IFM does the following.
@@ -197,7 +206,7 @@ When producing output, the output format specified by the
 
 Some of the output formats use additional library files to do their work.
  For example, the PostScript output format adds a standard 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 prologue
@@ -245,7 +254,13 @@ Here's a list of the command-line options (which can be abbreviated):
 -f,\SpecialChar ~
 -format
 \family default 
- format Specify the output format (see *note Output Formats::).
+ format Specify the output format (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:output-formats}
+
+\end_inset 
+
+).
 \layout List
 \labelwidthstring MMMMMMMMMMM
 
@@ -254,7 +269,12 @@ Here's a list of the command-line options (which can be abbreviated):
 -o,\SpecialChar ~
 -output
 \family default 
- file Write to the specified file, instead of stdout.
+\SpecialChar ~
+
+\family typewriter 
+file
+\family default 
+ Write to the specified file, instead of stdout.
 \layout List
 \labelwidthstring MMMMMMMMMMM
 
@@ -342,13 +362,56 @@ vars Show a complete list of defined variables, in a format suitable for
  feeding back into IFM.
  See Section\SpecialChar ~
 
-\begin_inset LatexCommand \ref{sec:variables}
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
 .
-\layout Section
+\layout Subsection
 
+History of IFM
+\layout Standard
+
+When I started playing IF games, years ago, I did what many people probably
+ did -- made a rough map on paper of where I'd explored, so I could see
+ which directions I hadn't tried yet.
+ Inevitably, the maps always fell off the page and turned into a complete
+ mess.
+\layout Standard
+
+My first attempt at solving this problem was to make use of the tools I
+ had available to draw the map for me.
+ So I started typing the map network into a file, and wrote a small Perl
+ script to convert the data into something that groff could read and draw
+ a map from.
+ I also added a way of recording which items I'd found, and whether I'd
+ found a use for them yet.
+\layout Standard
+
+As it stood, this worked quite well -- it produced nice maps and lists of
+ items so I could see where I'd got to.
+ The only problem was that it was just as tedious making maps this way as
+ on paper, since I had to work out the offset of each room relative to a
+ fixed origin.
+\layout Standard
+
+Eventually I decided that enough was enough.
+ I wanted to be able to add stuff to the map as I played the game, without
+ having to worry about offsets or anything irrelevant like that.
+ Hence the main design criteria for IFM.
+ The other criteria were easy -- an input language, for flexibility and
+ extendability, and a program for converting files in this language into
+ different types of output.
+\layout Standard
+
+Partway through writing the initial version of IFM, I had the idea that
+ it would be nice to be able to somehow record not only the map and items
+ found so far, but what's been done to solve the game.
+ The concept of tasks appeared, which immediately tripled the size of the
+ program and caused all sorts of headaches.
+ But eventually it got to the stage where it might be worth releasing.
+\layout Section
+\pagebreak_top 
 Making Maps
 \begin_inset LatexCommand \label{sec:making-maps}
 
@@ -986,7 +1049,7 @@ The map is just weird.
  There seems to be no logic tying the rooms together.
  You're on your own.
 \layout Section
-
+\pagebreak_top 
 Solving the Game
 \begin_inset LatexCommand \label{sec:solving-game}
 
@@ -1175,9 +1238,7 @@ bunny
  You can list more than one item tag -- e.g.\SpecialChar ~
 
 \family typewriter 
-need\SpecialChar ~
-bunny\SpecialChar ~
-asbestos_gloves
+need bunny asbestos_gloves
 \family default 
 .
 \layout Standard
@@ -1323,7 +1384,7 @@ drop
  clause:
 \layout LyX-Code
 
-task "Throw spear at tree stump" need spear drop it tag target_practice;
+task "Throw spear at tree stump" need spear drop it;
 \layout Standard
 
 In this example, the spear is dropped in the same room that the task was
@@ -1845,7 +1906,7 @@ Another thing the solver doesn't know about is how easy or difficult it
  it's a lot more in terms of typing.
  You can avoid unnecessary trips through these doors by artificially changing
  the 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 length
@@ -1900,7 +1961,7 @@ Keeping fixes together
 \layout Standard
 
 It's probably best to keep all your 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 game tweaks
@@ -1908,7 +1969,7 @@ game tweaks
 \end_inset 
 
  together, separate from the 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 pure
@@ -1976,7 +2037,9 @@ room "Level B" tag LB dir e;
 \layout LyX-Code
 
 # Stop gratuitous travel between levels.
- link LB length 50;
+\layout LyX-Code
+
+link LB length 50;
 \layout Subsubsection*
 
 Debugging
@@ -2048,7 +2111,7 @@ all
 \layout Itemize
 
 Unsafe tasks in a 
-\begin_inset Quotes sld
+\begin_inset Quotes eld
 \end_inset 
 
 follow
@@ -2087,7 +2150,7 @@ need
  on in the path.
  This sort of path should be invalid, but isn't.
 \layout Section
-
+\pagebreak_top 
 Output Formats
 \begin_inset LatexCommand \label{sec:output-formats}
 
@@ -2284,6 +2347,24 @@ frotz
 \family default 
 ).
  This should eliminate most (but not all) of the problems of randomness.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+Task\SpecialChar ~
+dependencies\SpecialChar ~
+(
+\family typewriter 
+dot
+\family default 
+) This produces a graph of the dependencies of tasks on each other, in Graphviz
+ (dot) format.
+ You'll need to have Graphviz installed in order to display the graph (you
+ can get it from 
+\begin_inset LatexCommand \url{www.graphviz.org}
+
+\end_inset 
+
+).
 \layout List
 \labelwidthstring MMMMMMMMMMMMMM
 
@@ -2498,7 +2579,7 @@ special
 
 
 \layout Section
-
+\pagebreak_top 
 Language
 \begin_inset LatexCommand \label{sec:language}
 
@@ -4754,7 +4835,7 @@ include
  directive must be the first thing on a line.
  Note also that no semicolon is required after it.
 \layout Section
-
+\pagebreak_top 
 Diagnostics
 \layout Standard
 
@@ -5291,4 +5372,1004 @@ You've used an obsolete keyword.
  Consult the documentation and then try the suggested alternative instead.
  Note that multiple uses of an obsolete keyword only result in a single
  warning.
+\layout Section
+\pagebreak_top 
+Other IFM Programs
+\layout Standard
+
+There are a couple of other programs bundled with IFM, which you might find
+ useful.
+\layout Subsection
+
+Tkifm -- graphical map drawing
+\layout Standard
+
+tkifm is a graphical front end to IFM.
+ It provides a text editing window in which you can map out your game using
+ IFM commands, and a set of menus to view things.
+ The various features are as follows:
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Text\SpecialChar ~
+editing\SpecialChar ~
+window This is the main window, where you type IFM commands.
+ It provides all the usual text editing command bindings that come with
+ the Tcl/Tk text widget.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+File\SpecialChar ~
+menu The standard set of file commands: New, Open, Save, Save-As, Print
+ (to PostScript), Quit.
+ There's also a command called Redraw, which invokes IFM on the current
+ file again.
+ Normally you don't have to use this (it's done whenever you open a new
+ file or save the current one), but if you change your initialization file
+ (see below) the changes won't be noticed unless you do a Redraw.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Map\SpecialChar ~
+menu For each map section in your map, a menu entry appears here.
+ Selecting it will draw the appropriate map in another window.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Item\SpecialChar ~
+menu This contains a single menu item, which displays a list of items
+ in another window.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Task\SpecialChar ~
+menu This contains two menu items: 
+\begin_inset Quotes eld
+\end_inset 
+
+Task list (brief)
+\begin_inset Quotes erd
+\end_inset 
+
+, which displays a high-level walkthrough of the game in another window,
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Task list (debugging)
+\begin_inset Quotes erd
+\end_inset 
+
+ which does the same but gives detailed information about what the game
+ solver is up to.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Show\SpecialChar ~
+menu This contains two menu items: 
+\begin_inset Quotes eld
+\end_inset 
+
+Variables
+\begin_inset Quotes erd
+\end_inset 
+
+, which shows all the currently defined variables and their values, and
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Paths
+\begin_inset Quotes erd
+\end_inset 
+
+, which shows the file search path.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Help\SpecialChar ~
+menu This displays a small info panel about the current IFM version,
+ including copying restrictions.
+\layout Subsubsection*
+
+Using Your Own Editor
+\layout Standard
+
+If you'd like to use your own editor to edit IFM files, but still view results
+ with tkifm, you can.
+ tkifm recognizes when the file it is visiting gets modified, and rereads
+ it if so.
+ If you like, you can also disable all tkifm file modification commands
+ by setting the 
+\family typewriter 
+ifm(edit)
+\family default 
+ variable to zero (see below).
+ This is probably a good idea if using another editor, or else you might
+ accidentally save from tkifm and lose all your changes.
+\layout Subsubsection*
+
+Customization
+\layout Standard
+
+On startup, tkifm reads an initialization file in your home directory (the
+ one pointed at by the 
+\family typewriter 
+HOME
+\family default 
+ environment variable).
+ On Unix systems it is called 
+\family typewriter 
+.tkifmrc
+\family default 
+, and on Win32 systems it is called 
+\family typewriter 
+tkifm.ini
+\family default 
+.
+ From there, using Tcl commands, you can set various things that affect
+ the appearance of the program.
+ Here's an example file showing the valid variables, their format and defaults.
+\layout LyX-Code
+
+
+\size small 
+
+\begin_inset Include \verbatiminput{tkifm.txt}
+
+\end_inset 
+
+
+\layout Subsubsection*
+
+Errors and Warnings
+\layout Standard
+
+Any errors or warnings that occur when invoking IFM will be displayed in
+ a dialog.
+ The current line of the text window will be changed to point at the error
+ or warning line (if appropriate).
+\layout Subsection
+
+Scr2ifm -- converting transcripts to IFM maps
+\layout Standard
+
+scr2ifm reads one or more transcripts of an Interactive Fiction game and
+ produces a map of it in IFM format.
+ It works on Infocom-style transcripts -- those produced by Inform- and
+ TADS-generated games (and of course Infocom games themselves).
+ The idea is that you play your game in a carefree manner, without worrying
+ about mapping anything, and after the session use scr2ifm to get a map.
+ Well, that's the theory anyway.
+\layout Standard
+
+scr2ifm offers two basic ways of mapping: you can create an initial (incomplete)
+ map from your first transcript and then add the rest 
+\begin_inset Quotes eld
+\end_inset 
+
+by hand
+\begin_inset Quotes erd
+\end_inset 
+
+, or you can create a set of transcripts, each exploring different parts
+ of the game, and then merge them all into a final map.
+ Which you choose is up to you.
+\layout Subsubsection*
+
+Options
+\layout Standard
+
+These are the command-line options for scr2ifm:
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+-c\SpecialChar ~
+file 
+\family default 
+Append the given file of IFM and parameter commands to the end of the map.
+ This allows you to fix various problems in the resulting map.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+-o\SpecialChar ~
+file 
+\family default 
+Write output to the given file instead of stdout.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+-i 
+\family default 
+Indent the output nicely (according to 
+\emph on 
+my
+\emph default 
+ definition, anyway).
+ This makes things look better if you've added 
+\family typewriter 
+item
+\family default 
+ and 
+\family typewriter 
+task
+\family default 
+ commands.
+ Default is no indentation at all.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+-l 
+\family default 
+Add a comment to each IFM command indicating the file and line number of
+ the transcript command that generated it.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+-w 
+\family default 
+Don't print warnings.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+-h 
+\family default 
+Print a short usage message and exit.
+\layout Subsubsection*
+
+Operation
+\layout Standard
+
+scr2ifm works by recognizing several key things in the transcript:
+\layout Itemize
+
+The commands you type.
+ These are easy to spot, because they are preceded by a prompt (usually
+ ">").
+\layout Itemize
+
+When the current room changes.
+ This is not quite so easy, but still fairly simple.
+ When you enter a new room, a short room title is printed (for example,
+ "West of House").
+ The program looks for these short titles in the text that follows a command.
+ First, a line is checked for an invalid format -- things that never appear
+ in a title (e.g.\SpecialChar ~
+"?" or "!").
+ Then the word count is checked -- titles are hardly ever more than 7 or
+ 8 words long.
+ Finally the maximum length of an uncapitalized word is examined -- this
+ is almost always 3 or less in titles (the length of "the").
+\layout Itemize
+
+When a previously-visited room is visited again.
+ This is the most difficult thing to determine, since anything might have
+ changed in the room since the last visit.
+ If there is a description, an exact description match is tried.
+ If that fails, a substring match is attempted.
+ If 
+\emph on 
+that
+\emph default 
+ fails, the first few words are examined to see if they match.
+ If there's no description, an exact room name match is tried.
+ This isn't as reliable, which is why you should always create a transcript
+ in 
+\begin_inset Quotes eld
+\end_inset 
+
+verbose
+\begin_inset Quotes erd
+\end_inset 
+
+ mode.
+\layout Itemize
+
+Special IFM commands that are (hopefully) ignored completely by the game.
+\layout Standard
+
+Some of these checks can be tailored to a particular transcript.
+\layout Subsubsection*
+
+Making Transcripts
+\layout Standard
+
+For best results with scr2ifm, you should follow these guidelines when making
+ a transcript:
+\layout Itemize
+
+Always use 
+\begin_inset Quotes eld
+\end_inset 
+
+verbose
+\begin_inset Quotes erd
+\end_inset 
+
+ mode.
+ If you don't, then when you revisit a room you've been in before, no descriptio
+n will be printed.
+ In that case, scr2ifm will have to rely on the room name to tell where
+ it is.
+ If there's more than one room with that name, it'll get confused (and so
+ will you when you look at the map!).
+\layout Itemize
+
+After starting the script, look around.
+ Otherwise your starting room may not be included on the map, since the
+ room description may not get printed.
+\layout Itemize
+
+If there's a bend in a link (e.g.\SpecialChar ~
+if you leave a room by going east, and enter
+ the next room from the south) make sure you do the return journey.
+ Otherwise, scr2ifm won't know about the bend.
+\layout Itemize
+
+Avoid places where different rooms have the same room description (i.e.\SpecialChar ~
+mazes).
+ scr2ifm can't resolve cases like this, and will assume there's just a single
+ room.
+ Note that this doesn't exclude 
+\emph on 
+all
+\emph default 
+ mazes -- the 
+\begin_inset Quotes eld
+\end_inset 
+
+twisty passages, all different
+\begin_inset Quotes erd
+\end_inset 
+
+ maze from Colossal Cave would still work, since the descriptions are different.
+\layout Itemize
+
+If you play the game over several sessions, and create several separate
+ transcripts, pay attention to the starting rooms.
+ If a transcript starts in a room already visited in the previous transcript,
+ then its rooms will be added to the same map section.
+ If not, a new map section will be created (and you should use the 
+\family typewriter 
+map
+\family default 
+ command to give it a name).
+\layout Standard
+
+Some games will be more amenable to scr2ifm than others -- in general the
+ ones with reasonable map connections, where each connection makes sense
+ in relation to the others.
+ For these games, the order in which rooms are visited will probably make
+ no difference to the resulting map.
+ But for perverse games (e.g.\SpecialChar ~
+Colossal Cave, above ground) the order of visiting
+ makes a big difference.
+ In these cases, it's probably best to avoid trying to get all the connections
+ on the map -- you'll spew forth lots of IFM warnings otherwise, and the
+ map will look awful.
+ Sometimes it's worth having a second attempt at a transcript, choosing
+ different directions to go in, to see if it improves things.
+\layout Standard
+
+Another problem with mapping is that some games have these inconvenient
+ things called puzzles, which sometimes block you from exploring everywhere
+ so you can map it properly.
+ Come on, IF authors, let's get our priorities right!
+\layout Subsubsection*
+
+IFM Commands
+\layout Standard
+
+While you're making your transcript, you can use a subset of IFM commands
+ to add extra things that scr2ifm will recognize.
+ (Of course, the game almost certainly won't understand these commands,
+ and will print a suitable indignant reply.
+ But that shouldn't affect the state of things.) The commands recognized
+ are:
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+title\SpecialChar ~
+<name>
+\family default 
+ Give the map a title.
+ The name must be in double-quotes.
+ This command can appear anywhere, and has the same effect each time.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+map\SpecialChar ~
+<name>
+\family default 
+ Indicate that the current room starts a new map section with the given
+ name.
+ The name must be in double-quotes.
+ This is useful if it seems like the map divides into different sections
+ (e.g.\SpecialChar ~
+the floors of a house).
+\begin_deeper 
+\layout Standard
+
+If you use the 
+\family typewriter 
+map
+\family default 
+ command, you'll end up with two or more map sections.
+ The first map section is the one that contains the very first room, and
+ will have a default name unless you give it one using another 
+\family typewriter 
+map
+\family default 
+ command.
+\end_deeper 
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+item\SpecialChar ~
+<name>\SpecialChar ~
+[attrs] 
+\family default 
+Declare an item in the current room.
+ The name must be in double-quotes.
+ If you don't give it a tag attribute, one is generated automatically by
+ changing all invalid tag characters in the name to underscores.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+item\SpecialChar ~
+[attrs] 
+\family default 
+Add the given attributes to the last declared item, if any.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+item\SpecialChar ~
+delete 
+\family default 
+Delete the last declared item, if any.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+task\SpecialChar ~
+<name>\SpecialChar ~
+[attrs] 
+\family default 
+Declare a task in the current room in a similar manner to items.
+ The name must be in double-quotes.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+task\SpecialChar ~
+[attrs] 
+\family default 
+Add the given attributes to the last declared task, if any.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+task\SpecialChar ~
+delete
+\family default 
+ Delete the last declared task, if any.
+\layout Standard
+
+Note that scr2ifm knows almost nothing about IFM command syntax.
+ If there's a syntax error in a command, you'll have to manually edit the
+ resulting transcript (or delete the item/task and do it again).
+\layout Subsubsection*
+
+Fixing Problems
+\layout Standard
+
+The map produced by scr2ifm will not be perfect in a lot of cases.
+ When running it through IFM you might get warnings about overlapping rooms,
+ or crossed link lines.
+ These problems are usually fixed by stretching the link lines of some of
+ the rooms.
+ Some overlapping-room problems are caused by the program making a bad choice
+ of direction to put an up/down/in/out connection in.
+ Another problem might be not recognizing when a room is the same as a previousl
+y-visited room, because the room description changed too much between visits.
+\layout Standard
+
+You can fix most of these problems by creating a command file and specifying
+ it with the 
+\family typewriter 
+-c
+\family default 
+ option.
+ There are two types of entry: scr2ifm commands and IFM commands.
+ In a command file, blank lines and comment lines (those starting with a
+ 
+\family typewriter 
+#
+\family default 
+) are ignored.
+ If a command isn't recognized as a scr2ifm command, it's assumed to be
+ an IFM command, and is passed straight into the output verbatim.
+ You can use these to resolve conflicts in the generated map, by stretching
+ certain links or hiding them altogether.
+\layout Standard
+
+Here's a list of the commands available:
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+is_room\SpecialChar ~
+TEXT
+\family default 
+ Declare a line of text that is actually the name of a room.
+ Normally room names get recognized properly, but there may be some special
+ cases that aren't.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+not_room\SpecialChar ~
+TEXT
+\family default 
+ Declare a line of text that definitely isn't the name of a room.
+ This is for opposite cases to the above.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+use_name\SpecialChar ~
+TEXT
+\family default 
+ Use only the room name to decide whether a room has been previously visited.
+ This is for cases where a room description changes too much between visits
+ to be called the same room.
+ Note that this implies that there can only ever be one room with this name.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+set_option\SpecialChar ~
+LETTER
+\family default 
+ This is a convenience that lets you specify scr2ifm command-line options
+ in the command file instead.
+ E.g.
+ 
+\family typewriter 
+set_option\SpecialChar ~
+i
+\family default 
+ will indent output nicely.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+
+\family typewriter 
+set_param\SpecialChar ~
+VAR
+\family default 
+\SpecialChar ~
+=\SpecialChar ~
+
+\family typewriter 
+VALUE
+\family default 
+ This evaluates the given perl expression.
+ You can use this to set various parameters that control how the transcript
+ is parsed (see below).
+ Setting a value of 
+\family typewriter 
+undef
+\family default 
+ will remove that parameter (so that it won't be used).
+\layout Standard
+
+Here's a list of the parameters that control how the transcript is parsed,
+ and their defaults.
+ You can use the scr2ifm 
+\family typewriter 
+set_param
+\family default 
+ command to set them in the command file.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$name_remove 
+\family default 
+Matched text to remove before seeing if a line of text is a room name.
+ This is for getting rid of stuff like " (in the dodgem car)".
+ Default: 
+\family typewriter 
+
+\backslash 
+s+
+\backslash 
+(.+
+\backslash 
+)
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$name_maxwords
+\family default 
+ Maximum no.
+ of words in a room name.
+ Default: 8
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$name_maxuncap
+\family default 
+ Maximum length of an uncapitalized word in a room name.
+ Default: 3
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$name_invalid 
+\family default 
+Regexp which, if matched, signals an invalid room name.
+ Default: 
+\family typewriter 
+[.!?"]
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$desc_minwords
+\family default 
+ Minimum no.
+ of matching words required to match a room description.
+ Default: 20
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$cmd_prompt
+\family default 
+ Regexp matching a command prompt.
+ Default:
+\family typewriter 
+ ^>
+\backslash 
+s*
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$cmd_look 
+\family default 
+Regexp matching a 'look' command (case-insensitive).
+ Default: 
+\family typewriter 
+^l(ook)?$
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$cmd_undo
+\family default 
+ Regexp matching an UNDO command (case-insensitive).
+ It's assumed that only a single level of UNDO is available.
+ Default: 
+\family typewriter 
+^undo$
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+$cmd_teleport 
+\family default 
+Regexp matching commands that are known to cause a teleport to an arbitrary
+ room (case-insensitive).
+ Default: 
+\family typewriter 
+^(restart|restore)$
+\layout Subsubsection*
+
+Writing the Map
+\layout Standard
+
+Output from scr2ifm is as follows.
+ First, if the title of the map was specified with the 
+\family typewriter 
+title
+\family default 
+ command, it is printed.
+ Then, if there's more than one map section, a list of map section titles
+ is printed.
+\layout Standard
+
+Next, there's a list of IFM commands derived from the transcript.
+ Each time a new room is seen, a room command is output for it.
+ Each room is given a tag name formed by the initials of each capitalized
+ word in its name.
+ To make tags unique, the second and subsequent occurrences of a tag name
+ have that number appended.
+ For example, room 
+\begin_inset Quotes eld
+\end_inset 
+
+West of House
+\begin_inset Quotes erd
+\end_inset 
+
+ would get tag 
+\family typewriter 
+WH
+\family default 
+.
+\layout Standard
+
+If a movement command was up, down, in or out, then a compass direction
+ is chosen for it that doesn't clash with other rooms (if possible) and
+ the 
+\family typewriter 
+go
+\family default 
+ attribute is used to mark its real direction.
+ If a movement command isn't recognized, the same is done except this time
+ the 
+\family typewriter 
+cmd
+\family default 
+ attribute is used to record the command instead.
+\layout Standard
+
+If movement is seen between two already-visited rooms, a link command is
+ output (or a join, if the rooms appear to be on different map sections).
+ Link tags are built by concatenating the room tags of the linked rooms
+ with an underscore in between.
+ Link movement is dealt with in the same manner as for rooms.
+\layout Standard
+
+If the special 
+\family typewriter 
+item
+\family default 
+ or 
+\family typewriter 
+task
+\family default 
+ commands are seen, then an item or task command is output following the
+ room that it appears in.
+ If an item or task hasn't been given a tag, it is assigned one.
+ The tag is made by translating all invalid tag characters in the name to
+ underscores, capitalizing (to avoid clashes with IFM commands) and, if
+ the tag clashes with a previously-defined tag, adding a numerical suffix
+ to make it unique.
+ For example, 
+\begin_inset Quotes eld
+\end_inset 
+
+black rod
+\begin_inset Quotes erd
+\end_inset 
+
+ might get a tag 
+\family typewriter 
+Black_rod_2
+\family default 
+.
+\layout Standard
+
+Finally, the IFM commands from the file indicated by the 
+\family typewriter 
+-c
+\family default 
+ option are echoed (if any).
+\layout Subsubsection*
+
+Example Session
+\layout Standard
+
+Here's a simple example of scr2ifm in action on Colossal Cave.
+ First, the transcript in file 
+\family typewriter 
+advent.scr
+\family default 
+ (with annotation):
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent1.scr}
+
+\end_inset 
+
+
+\layout Standard
+
+The previous two commands are recommended after starting the transcript.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent2.scr}
+
+\end_inset 
+
+
+\layout Standard
+
+The previous four commands declare the given items to the program.
+ You don't have to bother with this if you don't want item locations on
+ your map.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent3.scr}
+
+\end_inset 
+
+
+\layout Standard
+
+Note that in this game we don't go in all possible directions -- there's
+ no logic to the connections, and it'd just make a complete mess on the
+ map.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent4.scr}
+
+\end_inset 
+
+
+\layout LyX-Code
+
+\layout Standard
+
+That last command declared a task -- again, you don't have to bother with
+ this if you don't want to.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent5.scr}
+
+\end_inset 
+
+
+\layout Standard
+
+Oops! Stumbled into the dark by mistake.
+ Without the UNDO, that would have meant 'Darkness' appeared on the map
+ as a room.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent6.scr}
+
+\end_inset 
+
+
+\layout Standard
+
+Goodness me! That was unexpected -- we've been teleported.
+ The link almost certainly won't look good on the map.
+ We have the option of UNDOing, right now, or fixing the map later.
+ Let's do the latter.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent7.scr}
+
+\end_inset 
+
+
+\layout Standard
+
+Ok, now to create a map.
+ To do that, use this command:
+\layout LyX-Code
+
+scr2ifm -o advent.ifm advent.scr
+\layout Standard
+
+To check for problems, just type:
+\layout LyX-Code
+
+ifm advent.ifm
+\layout Standard
+
+On the first run through, there are complaints about an overlapping room,
+ due to a bad choice of direction for the 
+\begin_inset Quotes eld
+\end_inset 
+
+down
+\begin_inset Quotes erd
+\end_inset 
+
+ link from Outside Grate, and the expected problems with the link between
+ the Debris Room and the Building.
+ A command file, 
+\family typewriter 
+advent.cmd
+\family default 
+, will fix these problems:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent.cmd}
+
+\end_inset 
+
+
+\layout Standard
+
+Now, if we invoke
+\layout LyX-Code
+
+scr2ifm -o advent.ifm -i -c advent.cmd advent.scr
+\layout Standard
+
+we get the following map:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{advent.ifm}
+
+\end_inset 
+
+
+\layout Subsubsection*
+
+Limitations
+\layout Standard
+
+Here's a list of things that scr2ifm doesn't currently deal with:
+\layout Itemize
+
+Mazes.
+ Different maze rooms that look identical (i.e.\SpecialChar ~
+have identical names 
+\emph on 
+and
+\emph default 
+ descriptions) will simply appear as a single room.
+\layout Itemize
+
+One-way links.
+ These aren't detected, so you'll have to add the appropriate IFM attribute
+ yourself (in a command file, or by fixing the map directly).
 \the_end
