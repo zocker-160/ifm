@@ -25,12 +25,12 @@ extern int mapnum;
 extern void add_dir(int dir);
 extern void get_offset(int dir, int *xoff, int *yoff);
 extern void init_map(void);
-extern void mark_joins(void);
 extern int pack_sections(int xmax, int ymax, int border);
 extern void resolve_tag(char *type, vscalar *elt, vhash *table);
 extern void resolve_tag_list(char *type, vlist *list, vhash *table);
 extern void resolve_tags(void);
 extern void set_tag(char *type, char *tag, vhash *val, vhash *table);
+extern void setup_room_names(int jflag, int tflag);
 extern void setup_sections(void);
 
 #endif

@@ -141,40 +141,6 @@ init_map(void)
     vh_pstore(map, "TASKTAGS", tasktags);
 }
 
-/* Mark joined rooms */
-void
-mark_joins(void)
-{
-    vhash *room, *join, *from, *to;
-    char tag[10], *name;
-    int jnum = 0;
-    vscalar *elt;
-
-    vl_foreach(elt, joins) {
-        join = vs_pget(elt);
-        from = vh_pget(join, "FROM");
-        to = vh_pget(join, "TO");
-
-        sprintf(tag, " (%d)", ++jnum);
-
-        name = vh_sgetref(from, "JDESC");
-        strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
-        strcat(buf, tag);
-        vh_sstore(from, "JDESC", buf);
-
-        name = vh_sgetref(to, "JDESC");
-        strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
-        strcat(buf, tag);
-        vh_sstore(to, "JDESC", buf);
-    }
-
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
-        if (!vh_exists(room, "JDESC"))
-            vh_sstore(room, "JDESC", vh_sgetref(room, "DESC"));
-    }
-}
-
 /* Pack sections onto virtual pages */
 int
 pack_sections(int xmax, int ymax, int border)
@@ -460,6 +426,56 @@ set_tag(char *type, char *tag, vhash *val, vhash *table)
 	vh_sstore(val, "TAG", tag);
     } else {
 	err("%s tag `%s' already defined", type, tag);
+    }
+}
+
+/* Set up room names */
+void
+setup_room_names(int jflag, int tflag)
+{
+    vhash *room, *join, *from, *to;
+    char tag[10], *name;
+    int jnum = 0;
+    vscalar *elt;
+
+    /* Add join numbers if required */
+    if (jflag) {
+        vl_foreach(elt, joins) {
+            join = vs_pget(elt);
+            from = vh_pget(join, "FROM");
+            to = vh_pget(join, "TO");
+
+            sprintf(tag, " (%d)", ++jnum);
+
+            name = vh_sgetref(from, "RDESC");
+            strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
+            strcat(buf, tag);
+            vh_sstore(from, "RDESC", buf);
+
+            name = vh_sgetref(to, "RDESC");
+            strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
+            strcat(buf, tag);
+            vh_sstore(to, "RDESC", buf);
+        }
+    }
+
+    /* Set room names of rooms that don't have one yet */
+    vl_foreach(elt, rooms) {
+        room = vs_pget(elt);
+        if (!vh_exists(room, "RDESC"))
+            vh_sstore(room, "RDESC", vh_sgetref(room, "DESC"));
+    }
+
+    /* Add tag names if required */
+    if (tflag) {
+        vl_foreach(elt, rooms) {
+            room = vs_pget(elt);
+            if (vh_exists(room, "TAG")) {
+                sprintf(buf, "%s [%s]", vh_sgetref(room, "RDESC"),
+                        vh_sgetref(room, "TAG"));
+                vh_sstore(room, "RDESC", buf);
+            }
+        }
     }
 }
 
