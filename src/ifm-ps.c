@@ -193,6 +193,8 @@ ps_map_section(vhash *sect)
         printf("/linklinewidth %g def\n", get_real("link_linewidth", 0.8));
         printf("/exitlinewidth %g def\n", get_real("exit_linewidth", 1.2));
 
+        printf("/arrowsize %g def\n", get_real("link_arrowsize", 0.08));
+
         rotate = (ps_rotflag ? ps_rotate : vh_iget(sect, "ROTATE"));
 
         printf("\n%d %d %s beginpage\n",
