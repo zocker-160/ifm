@@ -1,33 +1,35 @@
 =head1 OPERATION
 
-On startup, B<IFM> does the following.  Firstly, the initialization file is
-read.  This sets defaults used by everyone.  This file is called
+On startup, B<IFM> does the following.  Firstly, the system initialization
+file is read.  This sets defaults used by everyone.  This file is called
 F<ifm-init.ifm>, and is found by searching a standard set of directories.
 You can override this search path by setting the environment variable
 B<IFMPATH> to be a colon-separated list of directories.
 
 Then, if you have a personal initialization file, that is read.  This file
 is found in the directory specified by your B<HOME> environment variable.
-On Unix systems, it is called F<.ifmrc>, and on Win32 systems it is called
+On Unix systems it is called F<.ifmrc>, and on Win32 systems it is called
 F<ifm.ini>.  You can use this file to customize the default variable
 settings for different types of output.
 
-Then input from the file on the command-line is read.  If no file was
-specified, B<stdin> is read.  If any of the B<-map>, B<-items> or B<-tasks>
-options was specified, the appropriate output is produced.  If not, only a
-syntax check of the input is done.
+Then input from the file(s) on the command-line is read.  If no files were
+specified, C<stdin> is read.  A filename equal to F<-> also indicates that
+C<stdin> should be read at that point.
+
+If any of the B<-map>, B<-items>, B<-tasks> or B<-show> options was
+specified, the appropriate output is produced.  If not, only a syntax check
+of the input is done.
 
 When producing output, the output format specified by the B<-format> option
-is used.  If this was not specified, then the value of the variable called
-B<format> is used.  If that hasn't been set, the first format in the list
-which supports this type of output is chosen.
+is used.  If this was not specified, the first format in the list which
+supports this type of output is chosen.
 
 Some of the output formats use additional library files to do their work.
 For example, the PostScript output format adds a standard "prolog" file to
 all output.  These files are found using the same search path as the system
 initialization file (see above).
 
-Here's a list of the command-line options:
+Here's a list of the command-line options (which can be abbreviated):
 
 =over 4
 
@@ -73,17 +75,17 @@ path.  This option may be repeated.
 
 Don't read your personal init file.
 
-=item B<-v>, B<-version>
+=item B<-version>
 
 Print the program version.
 
 =item B<-help>
 
-Print a usage message, including the available output formats.
+Just print some usage information.
 
 =back
 
-The arguments to the B<-show> option can be:
+Here's a list of the B<-show> options (which can be abbreviated):
 
 =over 4
 
