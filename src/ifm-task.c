@@ -90,6 +90,8 @@ do_task(vhash *task, int print)
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
                 add_attr(task, "NOTE", "Gives %s", vh_sgetref(item, "DESC"));
+                if (!vh_iget(item, "USED"))
+                    add_attr(task, "NOTE", "Not used for anything yet");
             }
         }
 
@@ -130,9 +132,6 @@ do_task(vhash *task, int print)
 
             DEBUG1(3, "give item: %s", vh_sgetref(item, "DESC"));
             vh_istore(item, "TAKEN", 1);
-
-            if (!vh_iget(item, "USED"))
-                add_attr(task, "NOTE", "Not used for anything yet");
         }
     }
 
