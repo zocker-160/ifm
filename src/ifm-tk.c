@@ -25,7 +25,7 @@ mapfuncs tk_mapfuncs = {
     tk_map_room,
     tk_map_link,
     NULL,
-    tk_map_finish
+    NULL
 };
 
 /* Item function list */
@@ -58,17 +58,11 @@ tk_map_start(void)
     mark_joins();
 
     /* Set variables */
-    printf("set ifm(pagewidth) %s\n", get_string("page_width", "7i"));
-    printf("set ifm(pageheight) %s\n", get_string("page_height", "7i"));
-
     printf("set ifm(mapwidth) %d\n", get_int("map_width", 8));
     printf("set ifm(mapheight) %d\n", get_int("map_height", 6));
-
     printf("set ifm(mapcol) %s\n", get_string("map_colour", "Wheat"));
 
-    printf("set ifm(framewidth) %g\n", get_real("box_width", 3.0));
-    printf("set ifm(frameheight) %g\n", get_real("box_height", 3.0));
-
+    printf("set ifm(roomsize) %g\n", get_real("room_size", 3.0));
     printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
     printf("set ifm(roomheight) %g\n", get_real("room_height", 0.65));
 
@@ -91,8 +85,7 @@ tk_map_start(void)
     printf("set ifm(labelfont) {%s}\n", get_string("label_font",
                                                    "Times 8 bold"));
 
-    printf("set ifm(labelcol) %s\n", get_string("label_colour",
-                                                "red"));
+    printf("set ifm(labelcol) %s\n", get_string("label_colour", "red"));
 }
 
 void
@@ -143,33 +136,6 @@ tk_map_link(vhash *link)
            updown, inout,
            vh_iget(link, "ONEWAY"),
            vh_iget(link, "SPECIAL"));
-}
-
-void
-tk_map_finish(void)
-{
-    vhash *join, *from, *to, *h1, *h2;
-    int go, updown, inout;
-    vscalar *elt;
-    vlist *keys;
-    char *key;
-
-    /* Write joins */
-    vl_foreach(elt, joins) {
-        join = vs_pget(elt);
-        from = vh_pget(join, "FROM");
-        to = vh_pget(join, "TO");
-
-        go = vh_iget(join, "GO");
-        updown = (go == UP || go == DOWN);
-        inout = (go == IN || go == OUT);
-
-        printf("AddJoin %d %d %d %d %d\n",
-               vh_iget(from, "NUM"),
-               vh_iget(to, "NUM"),
-               updown, inout,
-               vh_iget(join, "ONEWAY"));
-    }
 }
 
 /* Item functions */
