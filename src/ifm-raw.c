@@ -67,7 +67,6 @@ raw_task_entry(vhash *task)
     int score = vh_iget(task, "SCORE");
     char *note = vh_sgetref(task, "NOTE");
     static vhash *last = NULL;
-    vscalar *elt;
 
     printf("%s\t%s\t%s\t%s\n",
            (room == last || room == NULL ? "" : vh_sgetref(room, "DESC")),

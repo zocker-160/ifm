@@ -72,10 +72,10 @@ void
 text_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
-    int dist, type, score;
     static int moved = 0;
     static int count = 0;
     char *note = NULL;
+    int type, score;
     vhash *item;
 
     if (count == 0) {

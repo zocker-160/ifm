@@ -138,7 +138,7 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int i, output = O_NONE, sysinit = 1, initfile = 1;
+    int output = O_NONE, sysinit = 1, initfile = 1;
     vhash *opts;
     vlist *args;
     char *file;

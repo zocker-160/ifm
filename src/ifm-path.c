@@ -36,7 +36,7 @@ static int sort_tasks(vscalar **v1, vscalar **v2);
 void
 connect_rooms(void)
 {
-    vhash *room, *link, *join, *reach, *from, *to, *task;
+    vhash *room, *link, *join, *reach, *from, *to;
     int oneway, len, goflag, dir;
     vlist *rlist;
     vscalar *elt;
@@ -212,7 +212,7 @@ connect_rooms(void)
 int
 find_path(vhash *from, vhash *to, int *dist, int *len)
 {
-    vhash *node, *reach, *task, *item, *last, *step;
+    vhash *node, *reach, *task, *item, *step;
     vlist *need, *after, *before, *rlist;
     static vqueue *visit = NULL;
     int addnode, ndist, nlen;
@@ -280,7 +280,6 @@ find_path(vhash *from, vhash *to, int *dist, int *len)
         vh_pstore(from, "AP_LAST", NULL);
     }
 
-    last = from;
     fp_visit++;
 
     while (vq_length(visit) > 0) {

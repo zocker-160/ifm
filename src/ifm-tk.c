@@ -52,8 +52,6 @@ errfuncs tk_errfuncs = {
 void
 tk_map_start(void)
 {
-    char *title = get_string("title", NULL);
-
     /* Set room names */
     setup_room_names(1, get_int("show_tags", 0));
 

@@ -21,7 +21,6 @@ vlist *items = NULL;            /* List of items */
 vlist *tasks = NULL;            /* List of tasks */
 vlist *sects = NULL;            /* List of sections */
 
-vhash *rpos = NULL;             /* Room positions */
 vhash *vars = NULL;             /* Variables */
 
 vhash *roomtags = NULL;         /* Tag -> room mapping */
@@ -52,8 +51,17 @@ vlist *sectnames = NULL;	/* List of section names */
 
 int mapnum = 0;                 /* Current map section number */
 
+/* Internal stuff */
+static vhash *rpos = NULL;      /* Room positions */
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
+
+/* Internal functions */
+static void put_room_at(vhash *room, int sect, int x, int y);
+static vhash *room_at(int sect, int x, int y);
+static void resolve_tag(char *type, vscalar *elt, vhash *table);
+static void resolve_tag_list(char *type, vlist *list, vhash *table);
 
 /* Initialise the map */
 void
@@ -92,7 +100,7 @@ init_map(void)
 }
 
 /* Put room at a given location */
-void
+static void
 put_room_at(vhash * room, int sect, int x, int y)
 {
     sprintf(buf, "%d,%d,%d", sect, x, y);
@@ -102,7 +110,7 @@ put_room_at(vhash * room, int sect, int x, int y)
 }
 
 /* Resolve a tag */
-void
+static void
 resolve_tag(char *type, vscalar *elt, vhash *table)
 {
     vhash *hash;
@@ -126,7 +134,7 @@ resolve_tag(char *type, vscalar *elt, vhash *table)
 }
 
 /* Resolve a tag list */
-void
+static void
 resolve_tag_list(char *type, vlist *list, vhash *table)
 {
     vscalar *elt;
@@ -216,7 +224,7 @@ resolve_tags(void)
 }
 
 /* Return room at given location */
-vhash *
+static vhash *
 room_at(int sect, int x, int y)
 {
     sprintf(buf, "%d,%d,%d", sect, x, y);

@@ -51,9 +51,6 @@ static double ps_yoff;          /* Current Y offset */
 static double ps_roomwidth;     /* Current room width factor */
 static double ps_roomheight;    /* Current room height factor */
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static char *ps_string(char *str);
 
@@ -215,8 +212,8 @@ void
 ps_map_room(vhash *room)
 {
     static vlist *px = NULL, *py = NULL;
-    char *str, *itemlist = NULL;
     vlist *items, *ex, *ey;
+    char *itemlist = NULL;
     int x, y;
 
     /* Write coords */

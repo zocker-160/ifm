@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ifm.h"
-
-static char buf[BUFSIZ];
 %}
 
 %union {
