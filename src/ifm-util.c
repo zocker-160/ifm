@@ -95,22 +95,26 @@ get_var(char *id)
 FILE *
 open_libfile(char *name)
 {
-    char *envdir, *ifmdir = IFMDIR;
+    static vlist *pathlist = NULL;
+    vscalar *elt;
     FILE *fp;
 
-    /* Try as-is */
-    if ((fp = fopen(name, "r")) != NULL)
-        return fp;
+    /* Create path list if required */
+    if (pathlist == NULL) {
+        char *env = getenv("IFMPATH");
+        pathlist = vl_split(env != NULL ? env : IFMPATH, ":");
+    }
 
-    /* Try library directory */
-    if ((envdir = getenv("IFM_LIB")) != NULL)
-        ifmdir = envdir;
-    sprintf(buf, "%s/%s", ifmdir, name);
-    if ((fp = fopen(buf, "r")) != NULL)
-        return fp;
+    /* Try each path */
+    vl_foreach(elt, pathlist) {
+        sprintf(buf, "%s/%s", vs_sgetref(elt), name);
+        if ((fp = fopen(buf, "r")) != NULL)
+            return fp;
+    }
 
     /* Give up */
-    fatal("can't find `%s' in current directory or %s\n", name, ifmdir);
+    fatal("can't find `%s' in any of these directories:\n   %s",
+          name, vl_join(pathlist, "\n   "));
 
     /* Shut lint up */
     return NULL;
