@@ -11,13 +11,13 @@
 ##################################################################
 
 # The default values are designed to give nice results in all
-# formats.  The default for PostScript is to produce maps for
-# monochrome printing on A4 paper.
+# formats.  The default for PostScript and Fig is to produce maps
+# for monochrome printing on A4 paper.
 
 # The map output formats differ in their treatment of fonts.  In
-# PostScript, the font and font size are specified separately,
-# via the *_font and *_fontsize variables.  In Tk, they are both
-# specified together, via the *_fontdef variables.
+# PostScript and Fig, the font and font size are specified
+# separately, via the *_font and *_fontsize variables.  In Tk,
+# they are both specified together, via the *_fontdef variables.
 
 # In PostScript output, a font size represents the maximum
 # desired size -- the actual size may be scaled down in order to
@@ -29,9 +29,9 @@
 # General variables
 ##################################################################
 
-# Space allocated for each room, in cm.  In PostScript, this is
-# the maximum size -- the actual size may be reduced in order to
-# fit things on the page.
+# Space allocated for each room, in cm.  In PostScript and Fig,
+# this is the maximum size -- the actual size may be reduced in
+# order to fit things on the page.
 room_size = 3;
 
 # Proportion of the room space that's taken up by the room
@@ -54,13 +54,13 @@ room_colour = "white";
 # both of the offsets.
 room_shadow_xoff = 0.05;
 room_shadow_yoff = 0.05;
-room_shadow_colour = "grey30";
+room_shadow_colour = "grey50";
 
 # Width and colour of the room box lines.
 room_border_width = 1;
 room_border_colour = "black";
 
-# Whether to draw dashed room borders (PostScript only).
+# Whether to draw dashed room borders (not Tk).
 room_border_dashed = 0;
 
 # Width and colour of the room exit lines.
@@ -69,11 +69,11 @@ room_exit_colour = "black";
 
 # Colour, font and fontsize of room description text.
 room_text_colour = "black";
-ps room_text_font = "Times-Bold";
-ps room_text_fontsize = 10;
+room_text_font = "Times-Bold";
+room_text_fontsize = 10;
+room_text_fontdef = "Times 10 bold";
 fig room_text_font = "Times Bold";
-fig room_text_fontsize = 10;
-tk room_text_fontdef = "Times 10 bold";
+fig room_text_fontsize = 16;
 
 # Whether to append room tag names to room descriptions.  If so,
 # they are appended in square brackets, like [this].
@@ -84,11 +84,10 @@ show_items = 1;
 
 # Colour, font and fontsize of item description text (if shown).
 item_text_colour = "black";
-ps item_text_font = "Times-Italic";
-ps item_text_fontsize = 6;
+item_text_font = "Times-Italic";
+item_text_fontsize = 6;
+item_text_fontdef = "Times 8 italic";
 fig item_text_font = "Times Italic";
-fig item_text_fontsize = 6;
-tk item_text_fontdef = "Times 8 italic";
 
 ##################################################################
 # Link style variables
@@ -102,20 +101,19 @@ link_colour = "black";
 # room space.
 link_arrow_size = 0.08;
 
-# Whether to draw link lines as splines (Tk only).
+# Whether to draw link lines as splines (not PostScript).
 link_spline = 1;
 
-# Whether to draw dashed link lines (PostScript only).
+# Whether to draw dashed link lines (not Tk).
 link_dashed = 0;
 
 # Appearance of text that's associated with link lines.  The Tk
 # default is to colour them differently for readability.
-ps link_text_font = "Times-Roman";
-ps link_text_fontsize = 6;
-fig link_text_font = "Times Roman";
-fig link_text_fontsize = 6;
-tk link_text_fontdef = "Times 8 bold";
+link_text_font = "Times-Roman";
+link_text_fontsize = 6;
+link_text_fontdef = "Times 8 bold";
 link_text_colour = "black";
+fig link_text_font = "Times Roman";
 tk link_text_colour = "red";
 
 # Text strings indicating up/down/in/out on links.
@@ -123,12 +121,8 @@ link_updown_string = "U/D";
 link_inout_string = "I/O";
 
 ##################################################################
-# PostScript setup variables
+# PostScript/Fig setup variables
 ##################################################################
-
-# Prolog file that gets prepended to all the PostScript output.
-# This defines all the procedures for drawing everything.
-prolog_file = "ifm-pro.ps";
 
 # File of colour definitions, which contains the RGB values of each
 # colour referred to below (and a good many more).  It's just the
@@ -146,15 +140,10 @@ page_size = "A4";
 page_width = undef;
 page_height = undef;
 
-# Whether to rotate each page to landscape.  If not defined, then
-# rotation is decided on a per-page basis in order to get the best
-# fit.
-page_rotate = undef;
-
 # Margin space to be left on each page, in cm.
 page_margin = 2;
 
-# Whether to show a border around each PostScript page.
+# Whether to show a border around each page.
 show_border = 0;
 
 # Colour of the page border (if drawn).
@@ -168,17 +157,40 @@ show_title = 1;
 
 # Appearance of the main title (if shown).
 title_font = "Times-Bold";
+fig title_font = "Times Bold";
 title_fontsize = 18;
 title_colour = "black";
 
 # Appearance of the title printed above each map section.
 map_text_font = "Times-Bold";
+fig map_text_font = "Times Bold";
 map_text_fontsize = 14;
 map_text_colour = "black";
 
-# Scale factor which is applied to all PostScript fonts.  This is
-# a convenience variable to make font adjustments easier.
+# Scale factor which is applied to all fonts.  This is a
+# convenience variable to make font adjustments easier.
 font_scale = 1;
+
+##################################################################
+# PostScript setup variables
+##################################################################
+
+# Prolog file that gets prepended to all the PostScript output.
+# This defines all the procedures for drawing everything.
+prolog_file = "ifm-pro.ps";
+
+# Whether to rotate each page to landscape.  If not defined, then
+# rotation is decided on a per-page basis in order to get the best
+# fit.
+page_rotate = undef;
+
+##################################################################
+# Fig setup variables
+##################################################################
+
+# Whether to scale the layout to fit on a single page.  If you
+# turn this off, you can get poster output.
+fit_page = 1;
 
 ##################################################################
 # Tk setup variables
