@@ -1,4 +1,11 @@
-/* Text interface to ifm, in -*- C -*- mode */
+/*
+ *  Ifm version 1.0, Copyright (C) 1997 G. Hutchings
+ *  Ifm comes with ABSOLUTELY NO WARRANTY.
+ *  This is free software, and you are welcome to redistribute it
+ *  under certain conditions; see the file COPYING for details.
+ */
+
+/* Text output driver */
 
 /* Prototypes */
 void text_item_entry(vhash *item);
