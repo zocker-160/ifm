@@ -8,7 +8,7 @@ scr2ifm [options] file [file...]
 
 =begin inf
 
-SCR2IFM -- create an IFM map from a game transcript
+scr2ifm -- create an IFM map from a game transcript
 ***************************************************
 
 This Info file describes scr2ifm, a program for creating maps in IFM (*note
@@ -301,31 +301,31 @@ Here's a list of the commands available:
 
 =over 4
 
-=item is_room <text>
+=item is_room TEXT
 
 Declare a line of text that is actually the name of a room.  Normally room
 names get recognized properly, but there may be some special cases that
 aren't.
 
-=item not_room <text>
+=item not_room TEXT
 
 Declare a line of text that definitely isn't the name of a room.  This is
 for opposite cases to the above.
 
-=item use_name <text>
+=item use_name TEXT
 
 Use only the room name to decide whether a room has been previously
 visited.  This is for cases where a room description changes too much
 between visits to be called the same room.  Note that this implies that
 there can only ever be one room with this name.
 
-=item set_option <letter>
+=item set_option LETTER
 
 This is a convenience that lets you specify B<scr2ifm> command-line options
 in the command file instead.  E.g. 'set_option i' will indent output
 nicely.
 
-=item set_param <var> = <value>
+=item set_param VAR = VALUE
 
 This evaluates the given perl expression.  You can use this to set various
 parameters that control how the transcript is parsed (see below).  Setting
