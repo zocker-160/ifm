@@ -78,6 +78,10 @@ fig_map_start(void)
     else
         orient = FIG_UNDEF;
 
+#if 1
+    page_margin = 0.0;
+#endif
+
     /* Get initial dimensions, in rooms */
     fig_width = page_width - 2 * page_margin;
     fig_height = page_height - 2 * page_margin;
@@ -90,15 +94,13 @@ fig_map_start(void)
     while (1) {
         fig_debug("trying map size: %d x %d", width, height);
 
-        if (orient != FIG_LANDSCAPE &&
-            pack_sections(width, height, 1) == 1) {
+        if (orient != FIG_LANDSCAPE && pack_sections(width, height, 1) == 1) {
             orient = FIG_PORTRAIT;
             fig_debug("using portrait");
             break;
         }
 
-        if (orient != FIG_PORTRAIT &&
-            pack_sections(height, width, 1) == 1) {
+        if (orient != FIG_PORTRAIT && pack_sections(height, width, 1) == 1) {
             orient = FIG_LANDSCAPE;
             tmp = page_width;
             page_width = page_height;
@@ -111,9 +113,15 @@ fig_map_start(void)
         height = (int) (width * ratio) + 1;
     }
 
-    sect = vl_phead(sects);
-    width = vh_iget(sect, "PXLEN");
-    height = vh_iget(sect, "PYLEN");
+    vl_foreach(elt, sects) {
+        sect = vs_pget(elt);
+        if (!vh_iget(sect, "NOPRINT")) {
+            width = vh_iget(sect, "PXLEN");
+            height = vh_iget(sect, "PYLEN");
+            vl_break(sects);
+            break;
+        }
+    }
 
     if (orient == FIG_PORTRAIT) {
         fig_width = width * room_size;
@@ -133,6 +141,10 @@ fig_map_start(void)
     fig_debug("page size: %g x %g", page_width, page_height);
     fig_debug("fig size: %g x %g", fig_width, fig_height);
 
+#if 1
+    fig_origin_x = 0;
+    fig_origin_y = fig_height - height * room_size;
+#else
     fig_origin_x = (page_width - width * room_size) / 2;
     fig_origin_y = (page_height - height * room_size) / 2;
     fig_origin_x = V_MAX(fig_origin_x, page_margin);
@@ -140,6 +152,7 @@ fig_map_start(void)
 
     fig_debug("page margin: %g", page_margin);
     fig_debug("fig origin: %g x %g", fig_origin_x, fig_origin_y);
+#endif
 
     if (var_int("fit_page")) {
         xscale = (page_width - 2 * page_margin) / fig_width;
@@ -155,6 +168,7 @@ fig_map_start(void)
     fig_set_orientation(fig, orient);
     fig_set_papersize(fig, page_size);
 
+#if 0
     /* Draw border if required */
     if (show_border) {
         box = fig_create_box(fig,
@@ -169,6 +183,7 @@ fig_map_start(void)
     if (show_title && vh_exists(map, "TITLE")) {
         /* FINISH ME */
     }
+#endif
 }
 
 void
@@ -184,7 +199,7 @@ fig_map_section(vhash *sect)
     /* Set section offsets */
     fig_xoff = vh_dget(sect, "XOFF");
     fig_yoff = vh_dget(sect, "YOFF");
-    //fig_debug("offsets: %g, %g", fig_xoff, fig_yoff);
+    fig_debug("offsets: %g, %g", fig_xoff, fig_yoff);
 
     /* Print title if required */
     if (vh_exists(sect, "TITLE")) {
@@ -201,7 +216,7 @@ fig_map_section(vhash *sect)
 void
 fig_map_room(vhash *room)
 {
-    float xp, yp, width, height, border = 0.0;
+    float xp, yp, width, height, xborder = 0.05, yborder = 0.0;
     static vlist *px = NULL, *py = NULL;
     vhash *line, *box, *text;
     vlist *items, *ex, *ey;
@@ -265,10 +280,10 @@ fig_map_room(vhash *room)
 
     /* Draw room text (and items if any) */
     if (itemlist == NULL) {
-        xp = x + (1 - room_width) / 2 + border;
-        yp = y + (1 - room_height) / 2 + border;
-        width = room_size * room_width * (1 - 2 * border);
-        height = room_size * room_height * (1 - 2 * border);
+        xp = x + (1 - room_width) / 2 + xborder;
+        yp = y + (1 - room_height) / 2 + yborder;
+        width = room_size * room_width * (1 - 2 * xborder);
+        height = room_size * room_height * (1 - 2 * yborder);
         text = fig_create_textbox(fig_room, room_text_font, room_text_fontsize,
                                   FIG_JUSTIFY_CENTRE,
                                   MAPX(xp), MAPY(yp), width, height,
@@ -279,10 +294,10 @@ fig_map_room(vhash *room)
     } else {
         text = fig_create_textbox(fig_room, room_text_font, room_text_fontsize,
                                   FIG_JUSTIFY_CENTRE,
-                                  MAPX(xp + border),
-                                  MAPY(yp + border),
-                                  width * (1 - 2 * border),
-                                  height * (1 - 2 * border) / 2,
+                                  MAPX(xp + xborder),
+                                  MAPY(yp + yborder),
+                                  width * (1 - 2 * xborder),
+                                  height * (1 - 2 * yborder) / 2,
                                   "%s", vh_sgetref(room, "DESC"));
 
         fig_set_depth(text, 50);
@@ -290,10 +305,10 @@ fig_map_room(vhash *room)
 
         text = fig_create_textbox(fig_room, item_text_font, item_text_fontsize,
                                   FIG_JUSTIFY_CENTRE,
-                                  MAPX(xp + border),
+                                  MAPX(xp + xborder),
                                   MAPY(yp - 0.3),
-                                  width * (1 - 2 * border),
-                                  height * (1 - 2 * border) / 2,
+                                  width * (1 - 2 * xborder),
+                                  height * (1 - 2 * yborder) / 2,
                                   "%s", itemlist);            
 
         fig_set_depth(text, 50);
@@ -332,6 +347,7 @@ fig_map_room(vhash *room)
                                    MAPX(x2), MAPY(y2));
             set_colour(line, room_exit_colour);
             fig_set_linewidth(line, room_exit_width);
+            fig_set_depth(line, 150);
         }
     }
 }
@@ -361,7 +377,6 @@ fig_map_link(vhash *link)
     for (i = 0; i < np; i++) {
         xp = vl_dget(x, i) + 0.5;
         yp = vl_dget(y, i) + 0.5 - room_height;
-        fig_debug("point: %g, %g", xp, yp);
         fig_create_point(line, MAPX(xp), MAPY(yp));
     }
 
@@ -371,6 +386,7 @@ fig_map_link(vhash *link)
     if (link_dashed)
         fig_set_linestyle(line, FIG_DASH);
 
+    fig_set_depth(line, 150);
     fig_set_arrow(line, vh_iget(link, "ONEWAY"), 0);
 
     /* Add text if required */
