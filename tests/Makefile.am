@@ -13,7 +13,7 @@ task-unsafe.ifm
 
 IFM		= $(top_srcdir)/src/ifm
 
-TKIFM		= $(top_srcdir)/tkifm/tkifm
+TKIFM		= wish -f $(top_srcdir)/tkifm/tkifm.tcl
 
 MAKETEST	= perl Maketests $(IFM)
 
