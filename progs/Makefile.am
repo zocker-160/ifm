@@ -1,10 +1,10 @@
 ## Automake template for scr2ifm.
 
+bin_SCRIPTS = scr2ifm
+
 infodir = $(prefix)/info
 
 info_DATA = scr2ifm.info
-
-bin_SCRIPTS = scr2ifm
 
 EXTRA_DIST = scr2ifm.pl scr2ifm.txt scr2ifm.html scr2ifm.info
 
