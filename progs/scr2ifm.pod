@@ -180,29 +180,30 @@ The commands recognized are:
 
 =over 4
 
-=item title "<name>"
+=item title <name>
 
-Give the map a title.  This command can appear anywhere, and has the same
-effect each time.
+Give the map a title.  The name must be in double-quotes.  This command can
+appear anywhere, and has the same effect each time.
 
-=item map "<name>"
+=item map <name>
 
 Indicate that the current room starts a new map section with the given
-name.  This is useful if it seems like the map divides into different
-sections (e.g. the floors of a house).  But it can lead to errors if you
-move from one section to another via a room that hasn't had 'map' declared
-on it, since B<ifm> will try to link rooms on different map sections.
+name.  The name must be in double-quotes.  This is useful if it seems like
+the map divides into different sections (e.g. the floors of a house).  But
+it can lead to errors if you move from one section to another via a room
+that hasn't had 'map' declared on it, since B<ifm> will try to link rooms
+on different map sections.
 
 If you use the 'map' command, you'll end up with two or more map sections.
 The first map section is the one that contains the very first room, and
 will have a default name unless you give it one using another 'map'
 command.
 
-=item item "<name>" <attrs>
+=item item <name> <attrs>
 
-Declare an item in the current room.  If you don't give it a tag attribute,
-one is generated automatically by changing all invalid tag characters in
-the name to underscores.
+Declare an item in the current room.  The name must be in double-quotes.
+If you don't give it a tag attribute, one is generated automatically by
+changing all invalid tag characters in the name to underscores.
 
 =item item <attrs>
 
@@ -212,9 +213,10 @@ Add the given attributes to the last declared item, if any.
 
 Delete the last declared item, if any.
 
-=item task "<name>" <attrs>
+=item task <name> <attrs>
 
-Declare a task in the current room in a similar manner to items.
+Declare a task in the current room in a similar manner to items.  The name
+must be in double-quotes.
 
 =item task <attrs>
 
@@ -227,8 +229,8 @@ Delete the last declared task, if any.
 =back
 
 Note that B<scr2ifm> knows almost nothing about B<ifm> command syntax.  If
-you screw up a command, you'll have to manually edit the resulting
-transcript (or delete the item/task and do it again).
+there's a syntax error in a command, you'll have to manually edit the
+resulting transcript (or delete the item/task and do it again).
 
 =head1 CUSTOMIZATION
 
@@ -282,9 +284,10 @@ Regexp matching a 'look' command (case-insensitive).
 Regexp matching an UNDO command (case-insensitive).  It's assumed that only
 a single level of UNDO is available.
 
-=item $cmd_invalid (default: '^re(start|store)$')
+=item $cmd_teleport (default: '^(restart|restore)$')
 
-Regexp matching commands that aren't allowed (case-insensitive).
+Regexp matching commands that are known to cause a teleport to an arbitrary
+room (case-insensitive).
 
 =back
 
