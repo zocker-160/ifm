@@ -548,10 +548,10 @@ setup_sections(void)
                 miny = maxy = y;
                 first = 0;
             } else {
-                minx = MIN(minx, x);
-                maxx = MAX(maxx, x);
-                miny = MIN(miny, y);
-                maxy = MAX(maxy, y);
+                minx = V_MIN(minx, x);
+                maxx = V_MAX(maxx, x);
+                miny = V_MIN(miny, y);
+                maxy = V_MAX(maxy, y);
             }
         }
 
@@ -562,15 +562,15 @@ setup_sections(void)
             xpos = vh_pget(link, "X");
             vl_foreach(elt, xpos) {
                 x = vs_iget(elt);
-                minx = MIN(minx, x);
-                maxx = MAX(maxx, x);
+                minx = V_MIN(minx, x);
+                maxx = V_MAX(maxx, x);
             }
 
             ypos = vh_pget(link, "Y");
             vl_foreach(elt, ypos) {
                 y = vs_iget(elt);
-                miny = MIN(miny, y);
-                maxy = MAX(maxy, y);
+                miny = V_MIN(miny, y);
+                maxy = V_MAX(maxy, y);
             }
         }
 

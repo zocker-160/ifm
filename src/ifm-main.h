@@ -9,32 +9,9 @@
 #define O_ITEMS 0x2             /* Item list */
 #define O_TASKS 0x4             /* Task list */
 
-/* Debugging stuff */
-#define DEBUG0(level, msg) \
-        if (ifm_debug) { \
-                indent(level); \
-                printf(msg); \
-                putchar('\n'); \
-        }
-
-#define DEBUG1(level, msg, arg1) \
-        if (ifm_debug) { \
-                indent(level); \
-                printf(msg, arg1); \
-                putchar('\n'); \
-        }
-
-#define DEBUG2(level, msg, arg1, arg2) \
-        if (ifm_debug) { \
-                indent(level); \
-                printf(msg, arg1, arg2); \
-                putchar('\n'); \
-        }
-
 /* External vars */
 extern char *progname;
 extern int line_number;
-extern int ifm_debug;
 extern char ifm_input[];
 extern vlist *ifm_search;
 extern char *ifm_format;
@@ -42,7 +19,6 @@ extern char *ifm_format;
 /* Advertised functions */
 extern int parse_input(char *file, int libflag, int required);
 extern void yyerror(char *msg);
-extern void debug(char *fmt, ...);
 extern void err(char *fmt, ...);
 extern void warn(char *fmt, ...);
 extern void fatal(char *fmt, ...);

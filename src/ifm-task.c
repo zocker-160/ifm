@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <vars.h>
 
@@ -144,7 +145,7 @@ do_task(vhash *task, int print)
     case T_DROP:
         item = vh_pget(task, "DATA");
         vh_istore(item, "TAKEN", 0);
-        DEBUG1(3, "drop item: %s", vh_sgetref(item, "DESC"));
+        solver_msg(3, "drop item: %s", vh_sgetref(item, "DESC"));
         if (vh_iget(item, "LOST"))
             print = 0;
 
@@ -178,7 +179,7 @@ do_task(vhash *task, int print)
 
     if (print) {
         vl_ppush(taskorder, task);
-        DEBUG1(2, "do task: %s", vh_sgetref(task, "DESC"));
+        solver_msg(2, "do task: %s", vh_sgetref(task, "DESC"));
     }
 
     /* Flag it as done */
@@ -194,7 +195,7 @@ do_task(vhash *task, int print)
                 vh_istore(task, "SCORE", score);
             }
 
-            DEBUG1(3, "give item: %s", vh_sgetref(item, "DESC"));
+            solver_msg(3, "give item: %s", vh_sgetref(item, "DESC"));
             vh_istore(item, "TAKEN", 1);
         }
     }
@@ -203,7 +204,7 @@ do_task(vhash *task, int print)
     if ((list = vh_pget(task, "LOSE")) != NULL) {
         vl_foreach(elt, list) {
             item = vs_pget(elt);
-            DEBUG1(3, "lose item: %s", vh_sgetref(item, "DESC"));
+            solver_msg(3, "lose item: %s", vh_sgetref(item, "DESC"));
             vh_istore(item, "TAKEN", 0);
         }
     }
@@ -374,7 +375,7 @@ filter_tasks(void)
                 vh_istore(task, "DONE", 1);
                 filtered++;
                 numfiltered++;
-                DEBUG1(3, "ignore task: %s", vh_sgetref(task, "DESC"));
+                solver_msg(3, "ignore task: %s", vh_sgetref(task, "DESC"));
             }
         }
     } while (filtered);
@@ -436,7 +437,7 @@ goto_room(vhash *task)
         if (vh_iget(room, "FINISH"))
             add_attr(mtask, "NOTE", "Finishes the game");
 
-        DEBUG1(2, "move to: %s", vh_sgetref(room, "DESC"));
+        solver_msg(2, "move to: %s", vh_sgetref(room, "DESC"));
         last = room;
     }
 
@@ -577,9 +578,9 @@ order_tasks(vhash *before, vhash *after)
         if (after != before) {
             depend = vh_pget(after, "DEPEND");
             vl_ppush(depend, before);
-            DEBUG2(2, "task order: do `%s' before `%s'",
-                   vh_sgetref(before, "DESC"),
-                   vh_sgetref(after, "DESC"));
+            solver_msg(2, "task order: do `%s' before `%s'",
+                       vh_sgetref(before, "DESC"),
+                       vh_sgetref(after, "DESC"));
         }
 
         after = vh_pget(after, "PREV");
@@ -617,7 +618,7 @@ setup_tasks(void)
     vscalar *elt;
     char *msg;
 
-    DEBUG0(0, "\nSetting up tasks...");
+    solver_msg(0, "\nSetting up tasks...");
 
     /* Create 'goto room' steps */
     vl_foreach(elt, rooms) {
@@ -646,7 +647,7 @@ setup_tasks(void)
     }
 
     /* Set up task 'follow' links */
-    DEBUG0(1, "Adding dependencies for task 'follow' entries");
+    solver_msg(1, "Adding dependencies for task 'follow' entries");
 
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
@@ -772,7 +773,7 @@ setup_tasks(void)
     }
 
     /* Process items */
-    DEBUG0(1, "Adding dependencies for item 'before/after' lists");
+    solver_msg(1, "Adding dependencies for item 'before/after' lists");
 
     vl_foreach(elt, items) {
         item = vs_pget(elt);
@@ -820,7 +821,7 @@ setup_tasks(void)
         }
     }
 
-    DEBUG0(1, "Adding dependencies for task 'need/get/give/after' lists");
+    solver_msg(1, "Adding dependencies for task 'need/get/give/after' lists");
 
     /* Process task 'need/get/give/after/drop' stuff */
     vl_foreach(elt, tasks) {
@@ -883,7 +884,7 @@ setup_tasks(void)
     }
 
     /* Process task 'lose' stuff */
-    DEBUG0(1, "Adding dependencies for task 'lose' lists");
+    solver_msg(1, "Adding dependencies for task 'lose' lists");
 
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
@@ -953,10 +954,10 @@ solve_game(void)
     location = startroom;
     next = NULL;
 
-    DEBUG0(0, "\nSolving game...");
+    solver_msg(0, "\nSolving game...");
 
     do {
-        DEBUG1(1, "Location: %s", vh_sgetref(location, "DESC"));
+        solver_msg(1, "Location: %s", vh_sgetref(location, "DESC"));
 
         /* Initialise path searches from this room */
         init_path(location);
@@ -1055,12 +1056,23 @@ solve_game(void)
             if (!ignore)
                 warn_failure();
             else
-                DEBUG1(2, "%d ignored tasks\n", ignore);
+                solver_msg(2, "%d ignored tasks\n", ignore);
             break;
         } else {
-            DEBUG0(2, "no more tasks\n");
+            solver_msg(2, "no more tasks\n");
         }
     } while (tasksleft);
+}
+
+/* Print solver message */
+void
+solver_msg(int level, char *fmt, ...)
+{
+    if (TASK_VERBOSE) {
+        indent(level);
+        V_VPRINT(buf, fmt);
+        printf("%s\n", buf);
+    }
 }
 
 /* Build task dependency graph */
@@ -1119,15 +1131,15 @@ task_status(vhash *room, vhash *step)
 
     if (vh_iget(step, "IGNORE")) {
         if (!vh_iget(step, "IGNORED")) {
-            DEBUG1(2, "consider: %s", vh_sgetref(step, "DESC"));
-            DEBUG0(3, "not possible: explicitly ignored");
+            solver_msg(2, "consider: %s", vh_sgetref(step, "DESC"));
+            solver_msg(3, "not possible: explicitly ignored");
             vh_istore(step, "IGNORED", 1);
         }
 
         return TS_IGNORED;
     }
 
-    DEBUG1(2, "consider: %s", vh_sgetref(step, "DESC"));
+    solver_msg(2, "consider: %s", vh_sgetref(step, "DESC"));
 
     /* If task is done elsewhere, make sure you can get there */
     taskroom = vh_pget(step, "ROOM");
@@ -1167,7 +1179,7 @@ task_status(vhash *room, vhash *step)
         }
     }
 
-    if (ifm_debug) {
+    if (TASK_VERBOSE) {
         indent(2);
         printf("possible: %s", vh_sgetref(step, "DESC"));
 

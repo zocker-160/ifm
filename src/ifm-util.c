@@ -230,19 +230,19 @@ pack_sections(int xmax, int ymax, int border)
 
             /* Try combining pages in X direction */
             xc1 = x1 + x2 + border;
-            yc1 = MAX(y1, y2);
+            yc1 = V_MAX(y1, y2);
             v1 = (xc1 <= xmax && yc1 <= ymax);
             r1 = (double) xc1 / yc1;
 
             /* Try combining pages in Y direction */
-            xc2 = MAX(x1, x2);
+            xc2 = V_MAX(x1, x2);
             yc2 = y1 + y2 + border;
             v2 = (xc2 <= xmax && yc2 <= ymax);
             r2 = (double) xc2 / yc2;
 
             /* See which is best */
             if (v1 && v2) {
-                if (ABS(ratio - r1) < ABS(ratio - r2))
+                if (V_ABS(ratio - r1) < V_ABS(ratio - r2))
                     v2 = 0;
                 else
                     v1 = 0;

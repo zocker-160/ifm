@@ -116,9 +116,6 @@ static vlist *sections = NULL;
 /* Parse function */
 extern void yyparse();
 
-/* Debugging flag */
-int ifm_debug = 0;
-
 /* Internal functions */
 static void print_map(void);
 static void print_items(void);
@@ -196,9 +193,6 @@ main(int argc, char *argv[])
     v_option('I', "include", V_OPT_LIST, "dir",
              "Prepend directory to search path");
 
-    v_option('d', "debug", V_OPT_FLAG, NULL,
-             "Print debugging information");
-
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
 
@@ -254,9 +248,6 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "noinit"))
         initfile = 0;
-
-    if (vh_exists(opts, "debug"))
-        ifm_debug = 1;
 
     if (vh_exists(opts, "show"))
         info = vh_sgetref(opts, "show");
@@ -374,7 +365,7 @@ main(int argc, char *argv[])
     if (info != NULL)
         show_info(info);
 
-    if (output == O_NONE && !ifm_debug)
+    if (output == O_NONE && !TASK_VERBOSE)
         printf("Syntax appears OK\n");
 
     if (output & O_MAP)
@@ -546,7 +537,7 @@ parse_input(char *file, int libflag, int required)
 
     line_number = 0;
 
-    if (file == NULL || STREQ(file, "-")) {
+    if (file == NULL || V_STREQ(file, "-")) {
         strcpy(ifm_input, "<stdin>");
         yyin = stdin;
     } else if ((yyin = open_file(file, libflag, required)) == NULL) {
@@ -663,20 +654,10 @@ select_format(char *str, int output)
 void
 yyerror(char *msg)
 {
-    if (STREQ(msg, "parse error"))
+    if (V_STREQ(msg, "parse error"))
         err("syntax error");
     else
         err(msg);
-}
-
-/* Give a debugging message */
-void
-debug(char *fmt, ...)
-{
-    if (ifm_debug) {
-        V_VPRINT(buf, fmt);
-        fprintf(stderr, "%s\n", buf);
-    }
 }
 
 /* Give a parse error */
@@ -773,7 +754,7 @@ show_info(char *type)
     else if (nmatch > 1)
         fatal("ambiguous info type: %s", type);
 
-    (*showopts[match].func)();
+    showopts[match].func();
     exit(0);
 }
 

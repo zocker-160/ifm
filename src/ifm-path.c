@@ -57,8 +57,8 @@ connect_rooms(void)
     char *cmd, id[10];
     vscalar *elt;
 
-    DEBUG0(0, "Task debugging information\n");
-    DEBUG0(0, "Connecting rooms...");
+    solver_msg(0, "Task debugging information\n");
+    solver_msg(0, "Connecting rooms...");
 
     /* Initialise */
     graph = vg_create();
@@ -114,7 +114,7 @@ connect_rooms(void)
 
         link_rooms(from, to, reach);
 
-        if (ifm_debug) {
+        if (TASK_VERBOSE) {
             indent(1);
             list = vh_pget(reach, "CMD");
             printf("link `%s' to `%s' (%s)",
@@ -156,7 +156,7 @@ connect_rooms(void)
 
             link_rooms(to, from, reach);
 
-            if (ifm_debug) {
+            if (TASK_VERBOSE) {
                 indent(1);
                 list = vh_pget(reach, "CMD");
                 printf("link `%s' to `%s' (%s)",
@@ -210,7 +210,7 @@ connect_rooms(void)
 
         link_rooms(from, to, reach);
 
-        if (ifm_debug) {
+        if (TASK_VERBOSE) {
             indent(1);
             list = vh_pget(reach, "CMD");
             printf("join `%s' to `%s' (%s)",
@@ -251,7 +251,7 @@ connect_rooms(void)
 
             link_rooms(to, from, reach);
 
-            if (ifm_debug) {
+            if (TASK_VERBOSE) {
                 indent(1);
                 list = vh_pget(reach, "CMD");
                 printf("join `%s' to `%s' (%s)",
@@ -288,7 +288,7 @@ find_path(vhash *step, vhash *from, vhash *to)
     start_room = from;
 #endif
 
-    if (ifm_debug) {
+    if (TASK_VERBOSE) {
         indent(3);
         printf("find path: `%s' to `%s'",
                vh_sgetref(from, "DESC"),
@@ -296,7 +296,7 @@ find_path(vhash *step, vhash *from, vhash *to)
     }
 
     if (step != NULL && vh_iget(step, "BLOCK")) {
-        if (ifm_debug)
+        if (TASK_VERBOSE)
             printf("\n");
 
         path_task = step;
@@ -314,12 +314,12 @@ find_path(vhash *step, vhash *from, vhash *to)
         path_task = NULL;
         vg_use_cache(graph, 1);
 
-        if (ifm_debug && path_room != from)
+        if (TASK_VERBOSE && path_room != from)
             printf("\n");
 
         len = PATH_LENGTH(from, to);
 
-        if (ifm_debug && path_room == from) {
+        if (TASK_VERBOSE && path_room == from) {
             if (len < 0)
                 printf(" (cached: no path)\n");
             else
@@ -426,7 +426,7 @@ init_path(vhash *room)
             /* Find path to task room */
             vh_istore(step, "BLOCK", 1);
 
-            if (ifm_debug) {
+            if (TASK_VERBOSE) {
                 indent(2);
                 printf("update path: %s\n", vh_sgetref(step, "DESC"));
                 indent(2);
@@ -442,9 +442,9 @@ init_path(vhash *room)
     }
 
     /* Cache paths from this room */
-    DEBUG0(2, "updating path cache");
+    solver_msg(2, "updating path cache");
     dist = vg_path_cache(graph, NODE(room));
-    DEBUG1(2, "updated path cache (max dist %g)", dist);
+    solver_msg(2, "updated path cache (max dist %g)", dist);
 
     /* Record distance of each task */
     vl_foreach(elt, tasklist) {
@@ -466,7 +466,7 @@ init_path(vhash *room)
     /* Sort tasks according to distance */
     vl_sort_inplace(tasklist, sort_tasks);
 
-    if (ifm_debug) {
+    if (TASK_VERBOSE) {
         vhash *room;
 
         vl_foreach(elt, tasklist) {
@@ -536,7 +536,7 @@ void
 modify_path(void)
 {
     path_modify = 1;
-    DEBUG0(2, "flag path cache update");
+    solver_msg(2, "flag path cache update");
 }
 
 /* Return list of reachable rooms from a given room */
@@ -617,7 +617,7 @@ use_link(char *fnode, char *tnode, vscalar *s)
                 item = vs_pget(elt);
                 block = vh_pget(item, "BLOCK");
                 if (block != NULL && block == path_task) {
-                    if (ifm_debug) {
+                    if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
                         room = vg_node_pget(graph, tnode);
                         printf("blocked link: %s (must leave %s)\n",
@@ -640,7 +640,7 @@ use_link(char *fnode, char *tnode, vscalar *s)
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
                 if (!vh_iget(item, "TAKEN")) {
-                    if (ifm_debug) {
+                    if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
                         room = vg_node_pget(graph, tnode);
                         printf("blocked link: %s (need %s)\n",
@@ -664,7 +664,7 @@ use_link(char *fnode, char *tnode, vscalar *s)
                 task = vs_pget(elt);
                 tstep = vh_pget(task, "STEP");
                 if (vh_iget(tstep, "DONE")) {
-                    if (ifm_debug) {
+                    if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
                         room = vg_node_pget(graph, tnode);
                         printf("blocked link: %s (done `%s')\n",
@@ -687,7 +687,7 @@ use_link(char *fnode, char *tnode, vscalar *s)
                 task = vs_pget(elt);
                 tstep = vh_pget(task, "STEP");
                 if (!vh_iget(tstep, "DONE")) {
-                    if (ifm_debug) {
+                    if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
                         room = vg_node_pget(graph, tnode);
                         printf("blocked link: %s (not done `%s')\n",
@@ -730,7 +730,7 @@ use_node(char *node, vscalar *s, double dist)
             item = vs_pget(elt);
             block = vh_pget(item, "BLOCK");
             if (block != NULL && block == path_task) {
-                if (ifm_debug) {
+                if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
                     printf("blocked room: %s (must leave %s)\n",
                            vh_sgetref(room, "DESC"),
@@ -748,7 +748,7 @@ use_node(char *node, vscalar *s, double dist)
         vl_foreach(elt, list) {
             item = vs_pget(elt);
             if (!vh_iget(item, "TAKEN")) {
-                if (ifm_debug) {
+                if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
                     printf("blocked room: %s (need %s)\n",
                            vh_sgetref(room, "DESC"),
@@ -767,7 +767,7 @@ use_node(char *node, vscalar *s, double dist)
             task = vs_pget(elt);
             tstep = vh_pget(task, "STEP");
             if (vh_iget(tstep, "DONE")) {
-                if (ifm_debug) {
+                if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
                     printf("blocked room: %s (done `%s')\n",
                            vh_sgetref(room, "DESC"),
@@ -785,7 +785,7 @@ use_node(char *node, vscalar *s, double dist)
             task = vs_pget(elt);
             tstep = vh_pget(task, "STEP");
             if (!vh_iget(tstep, "DONE")) {
-                if (ifm_debug) {
+                if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
                     printf("blocked room: %s (not done `%s')\n",
                            vh_sgetref(room, "DESC"),
