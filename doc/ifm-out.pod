@@ -22,6 +22,11 @@ try to get a good fit on the page.  Also, portrait or landscape is chosen
 depending on whichever gives the best fit.  Fonts of room and item text are
 scaled to fit them in the room boxes, if required.
 
+To view the PostScript file on-screen, you'll need a PostScript previewer.
+I recommend Ghostview, which is free and is available for most systems.
+This can also print the map on your printer, even if the printer doesn't
+normally print PostScript files.
+
 =item Tk commands (tk)
 
 This produces commands for input to B<tkifm>, a simple graphical interface
@@ -105,14 +110,77 @@ value.  The attributes should be self-explanatory.
 
 =back
 
+=head2 Customization
+
+You can change the appearance of many map features according to your taste.
+You do this by setting the values of the variables that control those
+features.  This section tells you how to use variables -- for a complete
+list of the customization variables available, see L<"Output Variables">.
+
+As a first example, the background colour of rooms is determined by the
+variable 'room_colour'.  Its default value is "white".  It can be changed
+like this:
+
+    room_colour = "beige";
+
+Setting a variable like this will affect all output formats.  But in some
+cases you don't want to do that.  A good example is the one above -- if you
+don't have a colour printer, you may not want to have beige rooms printed
+(they'll come out greyish).  To get around that, you can set variables that
+are specific to a particular output format:
+
+    tk room_colour = "beige";
+
+This says to set the variable to "beige" only if producing Tk output.  The
+default for all other formats is still "white".
+
+You can also customize the appearance of individual rooms and links on the
+map, by using different display styles.  A display style is just a group of
+variable settings with a given name.  For example, suppose you're making a
+map of Colossal Cave and want to mark rooms where you can refill your water
+bottle.  You can define a style called, say, "water", like this:
+
+    style "water";
+    room_colour = "light blue";
+    endstyle;
+
+The values of variables that are set between the 'style' and 'endstyle'
+clauses only apply to things drawn in that style.  Now, if you declare
+rooms like this:
+
+    room "At End Of Road";
+    room "Inside Building" style "water" dir e go in;
+
+then the room "Inside Building" will be drawn with a light blue background.
+You can customize individual links in a similar manner.
+
+If you assign a style (say, called B<newstyle>) to a room or link, but
+don't define it anywhere in your input, then B<IFM> will look for a file
+called F<newstyle.ifm> using the standard search path.  If the file exists,
+it is expected to define style B<newstyle>.  For example, you could put the
+"water" style definition above into a file called F<water.ifm> somewhere on
+the B<IFM> search path, and it would be read automatically.
+
 =head2 Output Variables
 
-There are many variables available for customizing the different sorts of
-output.  Their names, descriptions and default values are all contained in
-the B<IFM> initialization file.  You can change this file to set global
-defaults for everybody, or alternatively set your own preferences in your
-personal init file.
+There are many variables available for customizing output.  At the moment,
+only map output can be customized.
+
+The names, descriptions and default values of the customization variables
+are all contained in the B<IFM> initialization file.  You can change this
+file to set global defaults for everybody, or alternatively set your own
+preferences in your personal init file.
 
 Here's the original initialization file that came bundled with B<IFM>.
 
 =display ../lib/ifm-init.ifm
+
+Previous versions of B<IFM> had two object attributes which are now
+implemented as display styles: the room 'puzzle' attribute, and the link
+'special' attribute.  Here's the 'puzzle' style:
+
+=display ../lib/puzzle.ifm
+
+And here's the 'special' style:
+
+=display ../lib/special.ifm

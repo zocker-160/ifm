@@ -50,7 +50,8 @@ keeping track of your progress in an Interactive Fiction game.
 =for inf node Map Output,, Creating game maps
 =for inf node Item List Output,, Listing items in the game
 =for inf node Task List Output,, Listing tasks needed to solve the game
-=for inf node Output Variables,, Customizing output
+=for inf node Customization,, Changing the appearance of things
+=for inf node Output Variables,, Variables controlling output
 
 =for inf node LANGUAGE, Language, Language specification
 =for inf node Symbols,, Symbols used in the language spec
@@ -64,6 +65,7 @@ keeping track of your progress in an Interactive Fiction game.
 =for inf node Joins,, The 'join' command
 =for inf node Tasks,, The 'task' command
 =for inf node Variables,, Setting variables
+=for inf node Styles,, Variable styles
 =for inf node Expressions,, Arithmetic expressions
 =for inf node Include Files,, Including other input files
 
