@@ -601,7 +601,13 @@ proc Get {var attr} {
 }
 
 # Allow customizations.
-set rcfile [file join $env(HOME) .tkifm]
+if {$tcl_platform(platform) == "unix"} {
+    set rcname ".tkifmrc"
+} else {
+    set rcname "tkifm.ini"
+}
+
+set rcfile [file join $env(HOME) $rcname]
 if [file readable $rcfile] {source $rcfile}
 
 # Boot up.
