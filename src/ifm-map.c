@@ -217,6 +217,7 @@ resolve_tags(void)
         resolve_tag("room", vh_get(task, "DROPROOM"), roomtags);
 
         resolve_tag_list("task", vh_pget(task, "AFTER"), tasktags);
+        resolve_tag_list("task", vh_pget(task, "DO"), tasktags);
         resolve_tag_list("item", vh_pget(task, "NEED"), itemtags);
         resolve_tag_list("item", vh_pget(task, "GET"), itemtags);
         resolve_tag_list("item", vh_pget(task, "GIVE"), itemtags);

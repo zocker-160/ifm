@@ -532,10 +532,12 @@ link_size(char *fnode, char *tnode, vscalar *s)
 
 /* Flag path modification */
 void
-modify_path(void)
+modify_path(int print)
 {
     path_modify = 1;
-    solver_msg(2, "flag path cache update");
+
+    if (print)
+        solver_msg(2, "flag path cache update");
 }
 
 /* Return list of reachable rooms from a given room */

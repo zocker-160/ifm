@@ -26,7 +26,7 @@
 
 (defconst ifm-special-regexp
   (regexp-opt '("endstyle" "style" "title" "map" "start" "finish" "safe"
-		"ignore" "require") 'words)
+		"require") 'words)
   "Regexp matching special keywords in IFM mode.")
 
 (defconst ifm-builtin-regexp
@@ -34,7 +34,7 @@
   "Regexp matching builtin names in IFM mode.")
 
 (defconst ifm-keyword-regexp
-  (regexp-opt '("after" "before" "cmd" "d" "down" "dir" "drop" "except"
+  (regexp-opt '("after" "before" "cmd" "d" "do" "down" "dir" "drop" "except"
 		"exit" "follow" "from" "get" "give" "go" "goto" "hidden"
 		"ignore" "in" "item" "join" "keep" "leave" "length" "link"
 		"lose" "lost" "need" "nodrop" "nolink" "nopath" "note"

@@ -137,6 +137,7 @@ text_item_entry(vhash *item)
 void
 text_task_entry(vhash *task)
 {
+    vlist *triggers = vh_pget(task, "DO");
     vlist *notes = vh_pget(task, "NOTE");
     vhash *room = vh_pget(task, "ROOM");
     vlist *cmds = vh_pget(task, "CMD");
@@ -145,6 +146,7 @@ text_task_entry(vhash *task)
     static int count = 0;
     int type, score;
     vscalar *elt;
+    vhash *otask;
     char *title;
 
     if (count == 0) {
@@ -187,6 +189,15 @@ text_task_entry(vhash *task)
         }
 
         moved = 0;
+    }
+
+    if (triggers != NULL) {
+        vl_foreach(elt, triggers) {
+            otask = vs_pget(elt);
+            if (type != T_MOVE)
+                printf("   ");
+            put_string("   also does: %s\n", vh_sgetref(otask, "DESC"));
+        }
     }
 
     if ((score = vh_iget(task, "SCORE")) > 0) {

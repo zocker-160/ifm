@@ -71,7 +71,7 @@ syntax keyword ifmRoomOpt contained link join note need after before leave cmd
 syntax keyword ifmRoomOpt contained nolink nopath nodrop style
 syntax keyword ifmItemOpt contained in note need after before style
 syntax keyword ifmTaskOpt contained in cmd note need after follow get give lose
-syntax keyword ifmTaskOpt contained drop goto style
+syntax keyword ifmTaskOpt contained drop goto style do
 syntax keyword ifmLinkOpt contained to cmd need after before leave nopath style
 syntax keyword ifmJoinOpt contained to cmd need after before leave nopath style
 "    These options don't have arguments

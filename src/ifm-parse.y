@@ -76,7 +76,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token	      AFTER NEED GET SCORE JOIN GO REQUIRE ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE STYLE ENDSTYLE WITH IGNORE
+%token        NOPATH NONE STYLE ENDSTYLE WITH IGNORE DO
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -870,6 +870,10 @@ task_attr	: TAG ID
 		| GET item_list
 		{
                     SET_LIST(curobj, "GET", curitems);
+		}
+		| DO task_list
+		{
+                    SET_LIST(curobj, "DO", curtasks);
 		}
 		| DROP item_list_all
 		{

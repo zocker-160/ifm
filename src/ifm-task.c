@@ -37,9 +37,9 @@ static char buf[BUFSIZ];
 
 /* Internal functions */
 static void add_task(vhash *task);
-static int do_task(vhash *task, int print);
+static int do_task(vhash *task, int print, int recurse);
 static void drop_item(vhash *item, vhash *room, vlist *until, int print);
-static void filter_tasks(void);
+static void filter_tasks(int print);
 static void goto_room(vhash *task);
 static void invert_items(vhash *obj, char *attr);
 static vhash *new_task(int type, vhash *data);
@@ -118,12 +118,15 @@ check_cycles(void)
 
 /* Perform a task */
 static int
-do_task(vhash *task, int print)
+do_task(vhash *task, int print, int recurse)
 {
-    int scoretask = 1, score, filter = 0;
+    int scoretask = 1, score, filter = 0, modpath = 0;
+    vhash *item, *room, *otask, *step;
     vlist *list, *until;
-    vhash *item, *room;
     vscalar *elt;
+
+    if (vh_iget(task, "DONE"))
+        return 1;
 
     /* Do the task */
     switch (vh_iget(task, "TYPE")) {
@@ -177,7 +180,7 @@ do_task(vhash *task, int print)
     if (!scoretask)
         vh_delete(task, "SCORE");
 
-    if (print) {
+    if (print || recurse) {
         vl_ppush(taskorder, task);
         solver_msg(2, "do task: %s", vh_sgetref(task, "DESC"));
     }
@@ -222,17 +225,42 @@ do_task(vhash *task, int print)
         }
     }
 
+    /* Do any other tasks */
+    if ((list = vh_pget(task, "DO")) != NULL) {
+        vl_foreach(elt, list) {
+            otask = vs_pget(elt);
+            step = vh_pget(otask, "STEP");
+            if (vh_iget(step, "DONE"))
+                continue;
+
+            if (vh_iget(step, "MODPATH")) {
+                vh_delete(step, "MODPATH");
+                vh_istore(task, "MODPATH", 1);
+            }
+
+            solver_msg(3, "also do: %s", vh_sgetref(step, "DESC"));
+
+            add_attr(step, "CMD", NULL);
+            vh_pstore(step, "ROOM", location);
+
+            if (!do_task(step, 0, 1))
+                vh_istore(task, "FINISH", 1);
+        }
+    }
+
     /* Teleport to new location if required */
-    if ((room = vh_pget(task, "GOTO")) != NULL)
+    if ((room = vh_pget(task, "GOTO")) != NULL) {
+        solver_msg(2, "goto room: %s", vh_sgetref(room, "DESC"));
         location = room;
+    }
 
     /* Flag path modification if required */
     if (vh_iget(task, "MODPATH"))
-        modify_path();
+        modify_path(print);
 
     /* Flag redundant tasks as done */
     if (filter)
-        filter_tasks();
+        filter_tasks(print);
 
     /* Return whether to try more tasks */
     if (vh_iget(task, "FINISH"))
@@ -259,7 +287,7 @@ drop_item(vhash *item, vhash *room, vlist *until, int print)
     /* Drop the item */
     vh_pstore(item, "ROOM", room);
     step = new_task(T_DROP, item);
-    do_task(step, print);
+    do_task(step, print, 0);
 
     /* Create new task step to get it back */
     step = new_task(T_GET, item);
@@ -291,10 +319,11 @@ drop_item(vhash *item, vhash *room, vlist *until, int print)
 
 /* Filter redundant tasks from the task list */
 static void
-filter_tasks(void)
+filter_tasks(int print)
 {
     int canfilter, filter, filtered, numfiltered = 0, alldone;
-    vhash *task, *otask, *item;
+    vhash *task, *otask, *item, *step;
+    char *reason;
     vscalar *elt;
     vlist *list;
 
@@ -312,10 +341,8 @@ filter_tasks(void)
             filter = 1;
 
             /* Check simple non-filtering cases */
-            if (vh_iget(task, "DONE") ||
-                vh_iget(task, "FINISH") ||
-                vh_iget(task, "SCORE") ||
-                vh_iget(task, "MODPATH") ||
+            if (vh_iget(task, "DONE") || vh_iget(task, "FINISH") ||
+                vh_iget(task, "SCORE") || vh_iget(task, "MODPATH") ||
                 vh_exists(task, "NEXT"))
                 filter = 0;
 
@@ -337,6 +364,7 @@ filter_tasks(void)
             if (filter && (list = vh_pget(task, "GET")) != NULL) {
                 alldone = 1;
                 canfilter = 1;
+                reason = "items already carried";
 
                 vl_foreach(elt, list) {
                     item = vs_pget(elt);
@@ -352,6 +380,7 @@ filter_tasks(void)
             if (filter && (list = vh_pget(task, "GIVE")) != NULL) {
                 alldone = 1;
                 canfilter = 1;
+                reason = "items already carried";
 
                 vl_foreach(elt, list) {
                     item = vs_pget(elt);
@@ -363,25 +392,43 @@ filter_tasks(void)
                     filter = 0;
             }
 
+            /* Can filter do-task tasks if they're all done */
+            if (filter && (list = vh_pget(task, "DO")) != NULL) {
+                alldone = 1;
+                reason = "tasks already done";
+
+                vl_foreach(elt, list) {
+                    otask = vs_pget(elt);
+                    step = vh_pget(otask, "STEP");
+                    if (!vh_iget(step, "DONE"))
+                        alldone = 0;
+                }
+
+                if (alldone)
+                    canfilter = 1;
+            }
+
             /* Can filter get-item tasks for carried items */
             if (!vh_iget(task, "DONE") && vh_iget(task, "TYPE") == T_GET) {
-                item = vh_pget(task, "DATA");
                 canfilter = 1;
+                reason = "item already carried";
+                item = vh_pget(task, "DATA");
                 filter = vh_iget(item, "TAKEN");
             }
 
             /* Filter if required */
             if (canfilter && filter) {
-                vh_istore(task, "DONE", 1);
                 filtered++;
                 numfiltered++;
-                solver_msg(3, "ignore task: %s", vh_sgetref(task, "DESC"));
+                vh_istore(task, "DONE", 1);
+                solver_msg(3, "ignore task: %s (%s)",
+                           vh_sgetref(task, "DESC"), reason);
             }
         }
     } while (filtered);
 
     if (numfiltered)
-        modify_path();
+        modify_path(print);
 }
 
 /* Move to a room to do something */
@@ -525,6 +572,7 @@ new_task(int type, vhash *data)
         vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
         vh_pstore(step, "DROPROOM", vh_pget(data, "DROPROOM"));
         vh_pstore(step, "DROPUNTIL", vh_pget(data, "DROPUNTIL"));
+        vh_pstore(step, "DO", vh_pget(data, "DO"));
         vh_pstore(step, "GET", vh_pget(data, "GET"));
         vh_pstore(step, "GIVE", vh_pget(data, "GIVE"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
@@ -983,7 +1031,7 @@ solve_game(void)
 
                     /* Nah, dump it */
                     step = new_task(T_DROP, item);
-                    do_task(step, 1);
+                    do_task(step, 1, 0);
                     count++;
                 }
 
@@ -1035,18 +1083,20 @@ solve_game(void)
         if (step != NULL) {
             /* Do the task */
             goto_room(step);
-            tasksleft = do_task(step, 1);
+            tasksleft = do_task(step, 1, 0);
             next = vh_pget(step, "NEXT");
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
             warn_failure();
             if (ignore)
-                solver_msg(2, "%d ignored tasks\n", ignore);
+                solver_msg(2, "%d ignored tasks", ignore);
             break;
         } else {
-            solver_msg(2, "no more tasks\n");
+            solver_msg(2, "no more tasks");
         }
     } while (tasksleft);
+
+    solver_msg(0, "");
 }
 
 /* Print solver message */

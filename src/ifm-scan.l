@@ -95,6 +95,7 @@ VAR             \${ID}
 "cmd"		{ return CMD; }
 "d"		{ return DOWN; }
 "dir"		{ return DIR; }
+"do"		{ return DO; }
 "down"		{ return DOWN; }
 "drop"		{ return DROP; }
 "e"		{ return EAST; }

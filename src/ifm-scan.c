@@ -282,38 +282,38 @@ static void yy_fatal_error YY_PROTO(( yyconst char msg[] ));
 	*yy_cp = '\0'; \
 	yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 86
-#define YY_END_OF_BUFFER 87
+#define YY_NUM_RULES 87
+#define YY_END_OF_BUFFER 88
 static yyconst short int yy_accept[255] =
     {   0,
-        0,    0,   87,   85,    3,    4,    5,    2,   85,   85,
-       84,   81,   81,   81,   81,   11,   15,   81,   81,   81,
-       81,   81,   81,   81,   81,   42,   81,   81,   58,   81,
-       73,   77,    2,    3,    2,   82,   83,    0,   84,    0,
-       81,   81,   81,   81,   81,   81,   81,   81,   81,   81,
-       81,   81,   81,   81,   81,   81,   81,   26,   81,   81,
-       30,   31,   81,   81,   81,   81,   81,   81,   81,   43,
-       81,   53,   81,   81,   81,   81,   81,   81,   61,   81,
-       81,   67,   81,   81,   72,   81,   76,   81,   81,    2,
-       82,   80,   81,    7,    8,   81,   10,   12,   81,   81,
+        0,    0,   88,   86,    3,    4,    5,    2,   86,   86,
+       85,   82,   82,   82,   82,   11,   16,   82,   82,   82,
+       82,   82,   82,   82,   82,   43,   82,   82,   59,   82,
+       74,   78,    2,    3,    2,   83,   84,    0,   85,    0,
+       82,   82,   82,   82,   82,   82,   82,   13,   82,   82,
+       82,   82,   82,   82,   82,   82,   82,   27,   82,   82,
+       31,   32,   82,   82,   82,   82,   82,   82,   82,   44,
+       82,   54,   82,   82,   82,   82,   82,   82,   62,   82,
+       82,   68,   82,   82,   73,   82,   77,   82,   82,    2,
+       83,   81,   82,    7,    8,   82,   10,   12,   82,   82,
 
-       81,   81,   81,   81,   81,   81,   81,   23,   81,   81,
-       81,   81,   81,   81,   81,   81,   81,   81,   81,   81,
-       41,   81,   81,   81,   81,   81,   81,   81,   81,   55,
-       81,   81,   81,   81,   81,   81,   81,   68,   81,   81,
-       81,   81,   81,   81,   81,    2,   80,   81,   81,   13,
-       14,   16,   81,   81,   19,   81,   81,   22,   24,   27,
-       81,   81,   32,   33,   34,   35,   81,   81,   38,   39,
-       40,   44,   81,   81,   48,   81,   81,   52,   81,   81,
-       57,   59,   81,   81,   81,   81,   69,   81,   81,   81,
-       81,   78,   79,    2,    6,   81,   81,   81,   81,   81,
+       82,   82,   82,   82,   82,   82,   82,   24,   82,   82,
+       82,   82,   82,   82,   82,   82,   82,   82,   82,   82,
+       42,   82,   82,   82,   82,   82,   82,   82,   82,   56,
+       82,   82,   82,   82,   82,   82,   82,   69,   82,   82,
+       82,   82,   82,   82,   82,    2,   81,   82,   82,   14,
+       15,   17,   82,   82,   20,   82,   82,   23,   25,   28,
+       82,   82,   33,   34,   35,   36,   82,   82,   39,   40,
+       41,   45,   82,   82,   49,   82,   82,   53,   82,   82,
+       58,   60,   82,   82,   82,   82,   70,   82,   82,   82,
+       82,   79,   80,    2,    6,   82,   82,   82,   82,   82,
 
-       25,   81,   81,   36,   81,   81,   81,   81,   49,   81,
-       81,   60,   62,   65,   66,   70,   71,   74,   75,    1,
-        9,   81,   18,   20,   21,   28,   29,   37,   45,   46,
-       47,   81,   81,   54,   81,   81,   81,    1,   81,   81,
-       81,   56,   81,   81,   17,   81,   81,   81,   81,   50,
-       51,   63,   64,    0
+       26,   82,   82,   37,   82,   82,   82,   82,   50,   82,
+       82,   61,   63,   66,   67,   71,   72,   75,   76,    1,
+        9,   82,   19,   21,   22,   29,   30,   38,   46,   47,
+       48,   82,   82,   55,   82,   82,   82,    1,   82,   82,
+       82,   57,   82,   82,   18,   82,   82,   82,   82,   51,
+       52,   64,   65,    0
     } ;
 
 static yyconst int yy_ec[256] =
@@ -933,17 +933,17 @@ YY_RULE_SETUP
 case 13:
 YY_RULE_SETUP
 #line 98 "ifm-scan.l"
-{ return DOWN; }
+{ return DO; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 99 "ifm-scan.l"
-{ return DROP; }
+{ return DOWN; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 100 "ifm-scan.l"
-{ return EAST; }
+{ return DROP; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
@@ -953,307 +953,307 @@ YY_RULE_SETUP
 case 17:
 YY_RULE_SETUP
 #line 102 "ifm-scan.l"
-{ return ENDSTYLE; }
+{ return EAST; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 103 "ifm-scan.l"
-{ return EXCEPT; }
+{ return ENDSTYLE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 104 "ifm-scan.l"
-{ return EXIT; }
+{ return EXCEPT; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 105 "ifm-scan.l"
-{ return FINISH; }
+{ return EXIT; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 106 "ifm-scan.l"
-{ return FOLLOW; }
+{ return FINISH; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 107 "ifm-scan.l"
-{ return FROM; }
+{ return FOLLOW; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 108 "ifm-scan.l"
-{ return GET; }
+{ return FROM; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 109 "ifm-scan.l"
-{ return GIVE; }
+{ return GET; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 110 "ifm-scan.l"
-{ return GIVEN; }
+{ return GIVE; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 111 "ifm-scan.l"
-{ return GO; }
+{ return GIVEN; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 112 "ifm-scan.l"
-{ return GOTO; }
+{ return GO; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 113 "ifm-scan.l"
-{ return HIDDEN; }
+{ return GOTO; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 114 "ifm-scan.l"
-{ return IGNORE; }
+{ return HIDDEN; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 115 "ifm-scan.l"
-{ return IN; }
+{ return IGNORE; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 116 "ifm-scan.l"
-{ return IT; }
+{ return IN; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 117 "ifm-scan.l"
-{ return ITEM; }
+{ return IT; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 118 "ifm-scan.l"
-{ return JOIN; }
+{ return ITEM; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 119 "ifm-scan.l"
-{ return KEEP; }
+{ return JOIN; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 120 "ifm-scan.l"
-{ return LAST; }
+{ return KEEP; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 121 "ifm-scan.l"
-{ return LEAVE; }
+{ return LAST; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 122 "ifm-scan.l"
-{ return LENGTH; }
+{ return LEAVE; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 123 "ifm-scan.l"
-{ return LINK; }
+{ return LENGTH; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 124 "ifm-scan.l"
-{ return LOSE; }
+{ return LINK; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 125 "ifm-scan.l"
-{ return LOST; }
+{ return LOSE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 126 "ifm-scan.l"
-{ return MAP; }
+{ return LOST; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 127 "ifm-scan.l"
-{ return NORTH; }
+{ return MAP; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 128 "ifm-scan.l"
-{ return NORTHEAST; }
+{ return NORTH; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 129 "ifm-scan.l"
-{ return NEED; }
+{ return NORTHEAST; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
 #line 130 "ifm-scan.l"
-{ return NODROP; }
+{ return NEED; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 131 "ifm-scan.l"
-{ return NOLINK; }
+{ return NODROP; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 132 "ifm-scan.l"
-{ return NOPATH; }
+{ return NOLINK; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 133 "ifm-scan.l"
-{ return NONE; }
+{ return NOPATH; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 134 "ifm-scan.l"
-{ return NORTH; }
+{ return NONE; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
 #line 135 "ifm-scan.l"
-{ return NORTHEAST; }
+{ return NORTH; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
 #line 136 "ifm-scan.l"
-{ return NORTHWEST; }
+{ return NORTHEAST; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
 #line 137 "ifm-scan.l"
-{ return NOTE; }
+{ return NORTHWEST; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
 #line 138 "ifm-scan.l"
-{ return NORTHWEST; }
+{ return NOTE; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
 #line 139 "ifm-scan.l"
-{ return ONEWAY; }
+{ return NORTHWEST; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
 #line 140 "ifm-scan.l"
-{ return OUT; }
+{ return ONEWAY; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
 #line 141 "ifm-scan.l"
-{ return REQUIRE; }
+{ return OUT; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
 #line 142 "ifm-scan.l"
-{ return ROOM; }
+{ return REQUIRE; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
 #line 143 "ifm-scan.l"
-{ return SOUTH; }
+{ return ROOM; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
 #line 144 "ifm-scan.l"
-{ return SAFE; }
+{ return SOUTH; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
 #line 145 "ifm-scan.l"
-{ return SCORE; }
+{ return SAFE; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
 #line 146 "ifm-scan.l"
-{ return SOUTHEAST; }
+{ return SCORE; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
 #line 147 "ifm-scan.l"
-{ return SOUTH; }
+{ return SOUTHEAST; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
 #line 148 "ifm-scan.l"
-{ return SOUTHEAST; }
+{ return SOUTH; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
 #line 149 "ifm-scan.l"
-{ return SOUTHWEST; }
+{ return SOUTHEAST; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
 #line 150 "ifm-scan.l"
-{ return START; }
+{ return SOUTHWEST; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
 #line 151 "ifm-scan.l"
-{ return STYLE; }
+{ return START; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
 #line 152 "ifm-scan.l"
-{ return SOUTHWEST; }
+{ return STYLE; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
 #line 153 "ifm-scan.l"
-{ return TAG; }
+{ return SOUTHWEST; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
 #line 154 "ifm-scan.l"
-{ return TASK; }
+{ return TAG; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
 #line 155 "ifm-scan.l"
-{ return TIMES; }
+{ return TASK; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
 #line 156 "ifm-scan.l"
-{ return TITLE; }
+{ return TIMES; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
 #line 157 "ifm-scan.l"
-{ return TO; }
+{ return TITLE; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
 #line 158 "ifm-scan.l"
-{ return UP; }
+{ return TO; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
 #line 159 "ifm-scan.l"
-{ return UNDEF; }
+{ return UP; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
 #line 160 "ifm-scan.l"
-{ return UNTIL; }
+{ return UNDEF; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
 #line 161 "ifm-scan.l"
-{ return UP; }
+{ return UNTIL; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
 #line 162 "ifm-scan.l"
-{ return WEST; }
+{ return UP; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
@@ -1263,19 +1263,16 @@ YY_RULE_SETUP
 case 79:
 YY_RULE_SETUP
 #line 164 "ifm-scan.l"
-{ return WITH; }
+{ return WEST; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 166 "ifm-scan.l"
-{
-    yylval.sval = v_strdup(yytext);
-    return ID;
-}
+#line 165 "ifm-scan.l"
+{ return WITH; }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 171 "ifm-scan.l"
+#line 167 "ifm-scan.l"
 {
     yylval.sval = v_strdup(yytext);
     return ID;
@@ -1283,39 +1280,47 @@ YY_RULE_SETUP
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 176 "ifm-scan.l"
+#line 172 "ifm-scan.l"
+{
+    yylval.sval = v_strdup(yytext);
+    return ID;
+}
+	YY_BREAK
+case 83:
+YY_RULE_SETUP
+#line 177 "ifm-scan.l"
 {
     yylval.sval = v_strdup(&yytext[1]);
     return VAR;
 }
 	YY_BREAK
-case 83:
+case 84:
 YY_RULE_SETUP
-#line 181 "ifm-scan.l"
+#line 182 "ifm-scan.l"
 {
     yylval.dval = atof(yytext);
     return REAL;
 }
 	YY_BREAK
-case 84:
+case 85:
 YY_RULE_SETUP
-#line 186 "ifm-scan.l"
+#line 187 "ifm-scan.l"
 {
     yylval.ival = atoi(yytext);
     return INTEGER;
 }
 	YY_BREAK
-case 85:
-YY_RULE_SETUP
-#line 191 "ifm-scan.l"
-{ return yytext[0]; }
-	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 193 "ifm-scan.l"
+#line 192 "ifm-scan.l"
+{ return yytext[0]; }
+	YY_BREAK
+case 87:
+YY_RULE_SETUP
+#line 194 "ifm-scan.l"
 ECHO;
 	YY_BREAK
-#line 1319 "lex.yy.c"
+#line 1324 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2203,7 +2208,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 193 "ifm-scan.l"
+#line 194 "ifm-scan.l"
 
 
 /* Parse a preprocessor line */
