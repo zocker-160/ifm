@@ -1,0 +1,179 @@
+##################################################################
+# IFM init file.  This file contains the default definitions for
+# all variables used by the output formats.
+##################################################################
+
+##################################################################
+# Control
+##################################################################
+
+# Default output format.  If undefined, defaults are chosen in the
+# order specified by the format list in `ifm -h' output.
+format = undef;
+
+##################################################################
+# PostScript setup
+##################################################################
+
+# Prolog file that gets prepended to all the PostScript output.
+# This defines all the procedures for drawing everything.
+ps prolog_file = "ifm-pro.ps";
+
+# File of colour definitions, which contains the RGB values of each
+# colour referred to below (and a good many more).  It's just the
+# rgb.txt file found on Unix/X11 systems.  See that file for a list
+# of available colours.  You can use the same colour names for the
+# Tk output, since it uses the standard X colours.
+ps colour_file = "ifm-rgb.txt";
+
+# Default page size.  Available page sizes are: A3, A4, A, B, C,
+# Legal, Letter.  You can also set a custom page size by defining
+# the 'page_width' and 'page_height' variables to the width and
+# height of the page, in cm.
+ps page_size = "A4";
+
+# Whether to rotate each page to landscape.  If not defined, then
+# rotation is decided on a per-page basis in order to get the best
+# fit.
+ps page_rotate = undef;
+
+# The margin space to be left on each page, in cm.
+ps page_margin = 2;
+
+# Colour of the page border (if drawn).
+ps page_border_colour = "black";
+
+# Colour of the page background.
+ps page_background_colour = "white";
+
+# Appearance of the main title printed on each page.
+ps title_font = "Times-Bold";
+ps title_fontsize = 18;
+ps title_colour = "black";
+
+# Appearance of the title printed above each map section.
+ps map_text_font = "Times-Bold";
+ps map_text_fontsize = 14;
+ps map_text_colour = "black";
+
+# Scale factor which is applied to all PostScript fonts.  This is
+# a convenience variable to make font adjustments easier.
+ps font_scale = 1;
+
+##################################################################
+# Tk setup
+##################################################################
+
+# Maximum width and height of the map canvas window, in rooms.
+tk canvas_width = 8;
+tk canvas_height = 6;
+
+# Background colour of the map canvas.
+tk canvas_background_colour = "wheat";
+
+##################################################################
+# Rooms
+##################################################################
+
+# The space allocated for each room, in cm.  This isn't the actual
+# size of each room -- see below.
+room_size = 3;
+
+# The proportion of the room space that's taken up by the room
+# dimensions.  These values should be less than 1 or you'll have
+# no space left for link lines.
+room_width = 0.8;
+room_height = 0.65;
+
+# The default background colour of rooms.
+room_colour = "white";
+
+# The background colour of rooms that are marked with the 'puzzle'
+# attribute.
+room_puzzle_colour = "grey";
+
+# The size and colour of room 'shadows'.  This is a pseudo-3D
+# effect which makes rooms look raised off the page.  The size
+# is a proportion of the allocated room space -- a good value is
+# 0.04.
+room_shadow_size = 0;
+room_shadow_colour = "grey30";
+
+# The width and colour of the room box lines.  Note that tk output
+# only uses integer width values.
+room_border_width = 1;
+room_border_colour = "black";
+
+# The width and colour of the room exit lines.  Note that tk output
+# only uses integer width values.
+room_exit_width = 1;
+room_exit_colour = "black";
+
+# Colour, font and fontsize of room description text.
+room_text_colour = "black";
+ps room_text_font = "Times-Bold";
+ps room_text_fontsize = 10;
+tk room_text_fontdef = "Times 10 bold";
+
+# Colour, font and fontsize of item description text.
+item_text_colour = "black";
+ps item_text_font = "Times-Italic";
+ps item_text_fontsize = 6;
+tk item_text_fontdef = "Times 8 italic";
+
+##################################################################
+# Links
+##################################################################
+
+# Width and colour of link lines.  Note that tk output only uses
+# integer width values.
+link_line_width = 1;
+link_colour = "black";
+
+# Size of oneway link arrows, as a proportion of the allocated
+# room space (PostScript only).
+ps link_arrow_size = 0.08;
+
+# Whether to draw link lines as splines (Tk only).
+tk link_spline = 1;
+
+# Appearance of link lines that are marked 'special'.  Default for
+# PostScript is to be black, and dashed.  Default for Tk (which
+# can't dash lines) is to be coloured different.
+ps link_special_dashed = 1;
+ps link_special_colour = "black";
+tk link_special_colour = "blue";
+
+# Appearance of text that's associated with link lines.  The Tk
+# default is to colour them different for readability.
+ps link_text_font = "Times-Roman";
+ps link_text_fontsize = 6;
+ps link_text_colour = "black";
+tk link_text_fontdef = "Times 8 bold";
+tk link_text_colour = "red";
+
+# Text strings indicating up/down/in/out on links.
+link_updown_string = "U/D";
+link_inout_string = "I/O";
+
+##################################################################
+# Optional features
+##################################################################
+
+# Whether to show the main title on each PostScript page.
+ps show_title = 1;
+
+# Whether to show a border around each PostScript page.
+ps show_border = 0;
+
+# Whether to show room tags on maps.  If so, rooms that have tags
+# have the tag appended to the room name in square brackets, like
+# [this].  This can be useful when adding new rooms.
+show_tags = 0;
+
+# Whether to show non-hidden item descriptions in rooms.
+show_items = 1;
+
+##################################################################
+# End of file
+##################################################################
