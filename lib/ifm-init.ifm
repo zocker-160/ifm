@@ -195,7 +195,9 @@ link_text_fontdef = "Times 8 bold"; # tk
 link_text_colour = "black";	# ps fig
 tk.link_text_colour = "red";	# tk
 
-# Text strings indicating up/down/in/out on links.
+# Text strings indicating up/down/in/out on links.  PostScript is currently
+# a special case: the strings either side of the '/' are extracted and
+# printed at either ends of the link, near the room they come from.
 link_updown_string = "U/D";	# ps fig tk
 link_inout_string = "I/O";	# ps fig tk
 
