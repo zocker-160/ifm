@@ -57,8 +57,9 @@ AC_SUBST_FILE(common_rules)
 dnl Write Makefiles.
 AC_OUTPUT(
 Makefile
-lib/Makefile
+vars/Makefile
 src/Makefile
+lib/Makefile
 doc/Makefile
 scr2ifm/Makefile
 tkifm/Makefile
