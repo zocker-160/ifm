@@ -24,9 +24,6 @@
 
 # In Tk output, all line width values are interpreted as integers.
 
-# Include standard aliases.
-include <ifm-alias.ifm>
-
 ##############################################################################
 # General variables
 ##############################################################################
@@ -246,7 +243,7 @@ task_graph_orphans = 0;		# dot
 task_graph_attr = "";		# dot
 
 # Node attributes, in Graphviz format.
-task_graph_node = "";		# dot
+task_graph_node = "shape=box";  # dot
 
 # Link attributes, in Graphviz format.
 task_graph_link = "";		# dot
