@@ -56,15 +56,19 @@ raw_map_start(void)
 {
     char *title;
 
-    if (VAR_DEF("title"))
-        printf("title: %s\n", var_string("title"));
+    if (vh_exists(map, "TITLE"))
+        title = vh_sgetref(map, "TITLE");
+    else
+        title = "Interactive Fiction map";
+
+    put_string("title: %s\n", title);
 }
 
 void
 raw_map_section(vhash *sect)
 {
     if (vh_exists(sect, "TITLE")) {
-        printf("\nsection: %s\n", vh_sgetref(sect, "TITLE"));
+        put_string("\nsection: %s\n", vh_sgetref(sect, "TITLE"));
         printf("width: %d\n", vh_iget(sect, "XLEN"));
         printf("height: %d\n", vh_iget(sect, "YLEN"));
     }
@@ -77,7 +81,7 @@ raw_map_room(vhash *room)
     vscalar *elt;
     vhash *item;
 
-    printf("\nroom: %s\n", vh_sgetref(room, "DESC"));
+    put_string("\nroom: %s\n", vh_sgetref(room, "DESC"));
     printf("id: %d\n", vh_iget(room, "ID"));
     printf("pos: %d %d\n", vh_iget(room, "X"), vh_iget(room, "Y"));
 
@@ -130,7 +134,7 @@ raw_map_link(vhash *link)
 
     if ((cmds = vh_pget(link, "CMD")) != NULL) {
         vl_foreach(elt, cmds)
-            printf("cmd: %s\n", vs_sgetref(elt));
+            put_string("cmd: %s\n", vs_sgetref(elt));
     }
 }
 
@@ -158,7 +162,7 @@ raw_map_join(vhash *join)
 
     if ((cmds = vh_pget(join, "CMD")) != NULL) {
         vl_foreach(elt, cmds)
-            printf("cmd: %s\n", vs_sgetref(elt));
+            put_string("cmd: %s\n", vs_sgetref(elt));
     }
 }
 
@@ -176,7 +180,7 @@ raw_item_entry(vhash *item)
         printf("\n");
     first = 0;
 
-    printf("item: %s\n", vh_sgetref(item, "DESC"));
+    put_string("item: %s\n", vh_sgetref(item, "DESC"));
 
     printf("id: %d\n", vh_iget(item, "ID"));
 
@@ -184,14 +188,14 @@ raw_item_entry(vhash *item)
         printf("tag: %s\n", vh_sgetref(item, "TAG"));
 
     if (room != NULL)
-        printf("room: %s\n", vh_sgetref(room, "DESC"));
+        put_string("room: %s\n", vh_sgetref(room, "DESC"));
 
     if (score > 0)
         printf("score: %d\n", score);
 
     if (notes != NULL) {
         vl_foreach(elt, notes)
-            printf("note: %s\n", vs_sgetref(elt));
+            put_string("note: %s\n", vs_sgetref(elt));
     }
 }
 
@@ -210,17 +214,17 @@ raw_task_entry(vhash *task)
         printf("\n");
     first = 0;
 
-    printf("task: %s\n", vh_sgetref(task, "DESC"));
+    put_string("task: %s\n", vh_sgetref(task, "DESC"));
 
     if (vh_exists(task, "TAG"))
         printf("tag: %s\n", vh_sgetref(task, "TAG"));
 
     if (room != NULL)
-        printf("room: %s\n", vh_sgetref(room, "DESC"));
+        put_string("room: %s\n", vh_sgetref(room, "DESC"));
 
     if (cmds != NULL) {
         vl_foreach(elt, cmds)
-            printf("cmd: %s\n", vs_sgetref(elt));
+            put_string("cmd: %s\n", vs_sgetref(elt));
     }
 
     if (score > 0)
@@ -228,6 +232,6 @@ raw_task_entry(vhash *task)
 
     if (notes != NULL) {
         vl_foreach(elt, notes)
-            printf("note: %s\n", vs_sgetref(elt));
+            put_string("note: %s\n", vs_sgetref(elt));
     }
 }

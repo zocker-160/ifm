@@ -20,6 +20,7 @@
 #include "ifm-driver.h"
 #include "ifm-map.h"
 #include "ifm-util.h"
+#include "ifm-vars.h"
 #include "ifm-rec.h"
 
 /* Task function list */
@@ -50,6 +51,7 @@ rec_task_entry(vhash *task)
 static void
 putline(char *str)
 {
+    str = var_subst(str);
     while (*str != '\0')
         putchar(toupper(*str++));
     putchar('\n');

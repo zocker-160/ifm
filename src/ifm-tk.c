@@ -82,8 +82,10 @@ tk_map_start(void)
            var_real("room_height"));
     printf("set ifm(roomlinewidth) %g\n",
            var_real("room_border_width"));
-    printf("set ifm(roomshadow) %g\n",
-           var_real("room_shadow_size"));
+    printf("set ifm(roomshadowx) %g\n",
+           var_real("room_shadow_xoff"));
+    printf("set ifm(roomshadowy) %g\n",
+           var_real("room_shadow_yoff"));
     printf("set ifm(roomfont) {%s}\n",
            var_string("room_text_fontdef"));
     printf("set ifm(puzzlecol) %s\n",
@@ -144,9 +146,9 @@ tk_map_section(vhash *sect)
     else
         strcpy(buf, title);
 
-    printf("AddSect {%s} %d %d\n", buf,
-           vh_iget(sect, "XLEN"),
-           vh_iget(sect, "YLEN"));
+    put_string("AddSect {%s} %d %d\n", buf,
+               vh_iget(sect, "XLEN"),
+               vh_iget(sect, "YLEN"));
 }
 
 void
@@ -178,10 +180,10 @@ tk_map_room(vhash *room)
     /* Do room command */
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
-    printf("AddRoom {%s} {%s} %d %d %d\n",
-           vh_sgetref(room, "RDESC"),
-           (itemlist != NULL ? itemlist : ""), x, y,
-           vh_iget(room, "PUZZLE"));
+    put_string("AddRoom {%s} {%s} %d %d %d\n",
+               vh_sgetref(room, "RDESC"),
+               (itemlist != NULL ? itemlist : ""), x, y,
+               vh_iget(room, "PUZZLE"));
 
     /* Do room exit commands (if any) */
     ex = vh_pget(room, "EX");

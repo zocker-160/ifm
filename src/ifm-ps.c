@@ -123,13 +123,13 @@ ps_map_start(void)
     num_pages = pack_sections(width, height, 1);
 
     /* Print header */
-    if (VAR_DEF("title"))
-        title = var_string("title");
+    if (vh_exists(map, "TITLE"))
+        title = vh_sgetref(map, "TITLE");
     else
         title = "Interactive Fiction map";
 
     printf("%%!PS-Adobe-3.0\n");
-    printf("%%%%Title: %s\n", title);
+    put_string("%%%%Title: %s\n", title);
     printf("%%%%Creator: IFM v%s\n", VERSION);
     printf("%%%%Pages: %d\n", num_pages);
     printf("%%%%EndComments\n\n");
@@ -162,8 +162,8 @@ ps_map_start(void)
     if (title != NULL) {
         printf("/showtitle %s def\n",
                var_int("show_title") ? "true" : "false");
-        printf("/titlestring %s def\n",
-               ps_string(title));
+        put_string("/titlestring %s def\n",
+                   ps_string(title));
         printf("/titlefont /%s def\n",
                var_string("title_font"));
         printf("/titlefontsize %g def\n",
@@ -201,8 +201,10 @@ ps_map_start(void)
            var_real("room_border_width"));
     printf("/roompuzzlecolour [%s] def\n",
            var_colour("room_puzzle_colour"));
-    printf("/roomshadow %g def\n",
-           var_real("room_shadow_size"));
+    printf("/roomshadowx %g def\n",
+           var_real("room_shadow_xoff"));
+    printf("/roomshadowy %g def\n",
+           var_real("room_shadow_yoff"));
     printf("/roomshadowcolour [%s] def\n",
            var_colour("room_shadow_colour"));
     printf("/roomexitcolour [%s] def\n",
@@ -278,8 +280,8 @@ ps_map_section(vhash *sect)
         xpos = (double) (xlen - 1) / 2;
         ylen = vh_iget(sect, "YLEN");
         ypos = ylen - 1;
-        printf("%s %g %g map\n", ps_string(vh_sgetref(sect, "TITLE")),
-               xpos + ps_xoff, ypos + ps_yoff);
+        put_string("%s %g %g map\n", ps_string(vh_sgetref(sect, "TITLE")),
+                   xpos + ps_xoff, ypos + ps_yoff);
     }
 }
 
@@ -294,9 +296,9 @@ ps_map_room(vhash *room)
     /* Write coords */
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
-    printf("%s %g %g",
-           ps_string(vh_sgetref(room, "RDESC")),
-           x + ps_xoff, y + ps_yoff);
+    put_string("%s %g %g",
+               ps_string(vh_sgetref(room, "RDESC")),
+               x + ps_xoff, y + ps_yoff);
 
     /* Write item list (if any) */
     items = vh_pget(room, "ITEMS");
@@ -318,7 +320,7 @@ ps_map_room(vhash *room)
     }
 
     if (itemlist != NULL)
-        printf(" %s true", ps_string(itemlist));
+        put_string(" %s true", ps_string(itemlist));
     else
         printf(" false");
 

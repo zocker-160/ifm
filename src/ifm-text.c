@@ -59,10 +59,10 @@ text_item_entry(vhash *item)
         char *title = "Interactive Fiction game";
         if (VAR_DEF("title"))
             title = var_string("title");
-        printf("Item list for %s\n", title);
+        put_string("Item list for %s\n", title);
     }
 
-    printf("\n%s:\n", vh_sgetref(item, "DESC"));
+    put_string("\n%s:\n", vh_sgetref(item, "DESC"));
     if (room == NULL) {
         printf("   carried at the start of the game\n");
     } else {
@@ -77,7 +77,7 @@ text_item_entry(vhash *item)
 
     if (notes != NULL) {
         vl_foreach(elt, notes)
-            printf("   note: %s\n", vs_sgetref(elt));
+            put_string("   note: %s\n", vs_sgetref(elt));
     }
 }
 
@@ -98,35 +98,35 @@ text_task_entry(vhash *task)
         char *title = "Interactive Fiction game";
         if (VAR_DEF("title"))
             title = var_string("title");
-        printf("High-level walkthrough for %s\n", title);
+        put_string("High-level walkthrough for %s\n", title);
     }
 
     type = vh_iget(task, "TYPE");
 
     if (type == T_MOVE) {
         if (count == 0)
-            printf("\nStart: %s\n", vh_sgetref(startroom, "DESC"));
+            put_string("\nStart: %s\n", vh_sgetref(startroom, "DESC"));
         if (!moved)
             printf("\n");
-        printf("%s", vh_sgetref(task, "DESC"));
+        put_string("%s", vh_sgetref(task, "DESC"));
         if (cmds != NULL)
-            printf(" (%s)", vl_join(cmds, ". "));
+            put_string(" (%s)", vl_join(cmds, ". "));
         printf("\n");
 
         travel++;
         moved++;
     } else {
         if (room != NULL && (moved || room != lastroom))
-            printf("\n%s:\n", vh_sgetref(room, "DESC"));
+            put_string("\n%s:\n", vh_sgetref(room, "DESC"));
         else if (!count)
             printf("\nFirstly:\n");
 
-        printf("   %s\n", vh_sgetref(task, "DESC"));
+        put_string("   %s\n", vh_sgetref(task, "DESC"));
 
         if (cmds != NULL) {
             if (vl_length(cmds) > 0) {
                 vl_foreach(elt, cmds)
-                    printf("      cmd: %s\n", vs_sgetref(elt));
+                    put_string("      cmd: %s\n", vs_sgetref(elt));
             } else {
                 printf("      no action required\n");
             }
@@ -145,7 +145,7 @@ text_task_entry(vhash *task)
         vl_foreach(elt, notes) {
             if (type != T_MOVE)
                 printf("   ");
-            printf("   note: %s\n", vs_sgetref(elt));
+            put_string("   note: %s\n", vs_sgetref(elt));
         }
     }
 
