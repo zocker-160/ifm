@@ -13,6 +13,24 @@
 #include <math.h>
 #include "ifm.h"
 
+/* Direction info (same order as direction enum list) */
+struct d_info dirinfo[] = {
+    "",    "none",      D_NONE,      D_NONE,       0,  0,
+    "N",   "north",     D_NORTH,     D_SOUTH,      0,  1,
+    "S",   "south",     D_SOUTH,     D_NORTH,      0, -1,
+    "E",   "east",      D_EAST,      D_WEST,       1,  0,
+    "W",   "west",      D_WEST,      D_EAST,      -1,  0,
+    "NE",  "northeast", D_NORTHEAST, D_SOUTHWEST,  1,  1,
+    "SW",  "southwest", D_SOUTHWEST, D_NORTHEAST, -1, -1,
+    "NW",  "northwest", D_NORTHWEST, D_SOUTHEAST, -1,  1,
+    "SE",  "southeast", D_SOUTHEAST, D_NORTHWEST,  1, -1,
+    "U",   "up",        D_UP,        D_DOWN,       0,  0,
+    "D",   "down",      D_DOWN,      D_UP,         0,  0,
+    "IN",  "in",        D_IN,        D_OUT,        0,  0,
+    "OUT", "out",       D_OUT,       D_IN,         0,  0,
+    NULL,  NULL,        D_NONE,      D_NONE,       0,  0
+};
+
 /* Variable encoding buffer */
 static char encbuf[BUFSIZ];
 
@@ -22,6 +40,19 @@ static char buf[BUFSIZ];
 /* Internal functions */
 static vlist *var_decode(char *code);
 static char *var_encode(char *driver, char *type, int mapnum, char *var);
+
+/* Return direction given offsets */
+int
+get_direction(int xoff, int yoff)
+{
+    int dir;
+
+    for (dir = 0; dirinfo[dir].sname != NULL; dir++)
+        if (xoff == dirinfo[dir].xoff && yoff == dirinfo[dir].yoff)
+            return dir;
+
+    return D_NONE;
+}
 
 /* Return an integer variable */
 int
@@ -122,6 +153,178 @@ open_libfile(char *name)
 
     /* Shut lint up */
     return NULL;
+}
+
+/* Pack sections onto virtual pages */
+int
+pack_sections(int xmax, int ymax, int border)
+{
+    int pos, packed, x1, y1, x2, y2, xo, yo, num, xlen, ylen;
+    vlist *pages, *newpages, *psects, *opsects;
+    double xo1, yo1, xo2, yo2, r1, r2, ratio;
+    int v1, v2, rflag, xc1, yc1, xc2, yc2;
+    vhash *page, *sect, *p1, *p2;
+    vscalar *elt;
+
+    /* Initialise -- one section per page */
+    pages = vl_create();
+    vl_foreach(elt, sects) {
+        sect = vs_pget(elt);
+        xlen = vh_iget(sect, "XLEN");
+        ylen = vh_iget(sect, "YLEN");
+
+        page = vh_create();
+        vh_istore(page, "XLEN", xlen);
+        vh_istore(page, "YLEN", ylen);
+        vl_ppush(pages, page);
+
+        psects = vl_create();
+        vh_pstore(page, "SECTS", psects);
+        vl_ppush(psects, sect);
+    }
+
+    ratio = (double) xmax / ymax;
+
+    /* Pack sections */
+    do {
+        pos = packed = 0;
+        newpages = vl_create();
+
+        while (pos < vl_length(pages)) {
+            /* Get next page */
+            p1 = vl_pget(pages, pos);
+            x1 = vh_iget(p1, "XLEN");
+            y1 = vh_iget(p1, "YLEN");
+
+            /* Check if it's better off rotated */
+            vh_istore(p1, "ROTATE", ((x1 < y1 && xmax > ymax) ||
+                                     (x1 > y1 && xmax < ymax)));
+
+            /* Check if this is the last page */
+            if (pos + 1 == vl_length(pages)) {
+                vl_ppush(newpages, p1);
+                break;
+            }
+
+            /* Get following page */
+            p2 = vl_pget(pages, pos + 1);
+            x2 = vh_iget(p2, "XLEN");
+            y2 = vh_iget(p2, "YLEN");
+
+            /* Try combining pages in X direction */
+            xc1 = x1 + x2 + border;
+            yc1 = MAX(y1, y2);
+            v1 = (xc1 <= xmax && yc1 <= ymax);
+            r1 = (double) xc1 / yc1;
+
+            /* Try combining pages in Y direction */
+            xc2 = MAX(x1, x2);
+            yc2 = y1 + y2 + border;
+            v2 = (xc2 <= xmax && yc2 <= ymax);
+            r2 = (double) xc2 / yc2;
+
+            /* See which is best */
+            if (v1 && v2) {
+                if (ABS(ratio - r1) < ABS(ratio - r2))
+                    v2 = 0;
+                else
+                    v1 = 0;
+            }
+
+            /* Just copy page if nothing can be done */
+            if (!v1 && !v2) {
+                vl_ppush(newpages, p1);
+                pos++;
+                continue;
+            }
+
+            /* Create merged page */
+            page = vh_create();
+            psects = vl_create();
+            vh_pstore(page, "SECTS", psects);
+            xo1 = yo1 = xo2 = yo2 = 0;
+
+            if (v1) {
+                vh_istore(page, "XLEN", xc1);
+                vh_istore(page, "YLEN", yc1);
+                xo2 = x1 + border;
+
+                if (y1 < y2)
+                    yo1 = (yc1 - y1) / 2;
+                else
+                    yo2 = (yc1 - y2) / 2;
+            }
+
+            if (v2) {
+                vh_istore(page, "XLEN", xc2);
+                vh_istore(page, "YLEN", yc2);
+                yo1 = y2 + border;
+
+                if (x1 < x2)
+                    xo1 = (xc2 - x1) / 2;
+                else
+                    xo2 = (xc2 - x2) / 2;
+            }
+
+            /* Copy sections to new page, updating offsets */
+            opsects = vh_pget(p1, "SECTS");
+            vl_foreach(elt, opsects) {
+                sect = vs_pget(elt);
+                vl_ppush(psects, sect);
+                xo = vh_iget(sect, "XOFF");
+                vh_dstore(sect, "XOFF", xo + xo1);
+                yo = vh_iget(sect, "YOFF");
+                vh_dstore(sect, "YOFF", yo + yo1);
+            }
+
+            opsects = vh_pget(p2, "SECTS");
+            vl_foreach(elt, opsects) {
+                sect = vs_pget(elt);
+                vl_ppush(psects, sect);
+                xo = vh_iget(sect, "XOFF");
+                vh_dstore(sect, "XOFF", xo + xo2);
+                yo = vh_iget(sect, "YOFF");
+                vh_dstore(sect, "YOFF", yo + yo2);
+            }
+
+            /* Get rid of old pages */
+            vh_destroy(p1);
+            vh_destroy(p2);
+
+            /* Add merged page to list and go to next page pair */
+            vl_ppush(newpages, page);
+            pos += 2;
+            packed++;
+        }
+
+        /* Switch to new page list */
+        vl_destroy(pages);
+        pages = newpages;
+    } while (packed);
+
+    /* Give each section its page info and clean up */
+    num = 0;
+    vl_foreach(elt, pages) {
+        page = vs_pget(elt);
+        psects = vh_pget(page, "SECTS");
+        xlen = vh_iget(page, "XLEN");
+        ylen = vh_iget(page, "YLEN");
+        rflag = vh_iget(page, "ROTATE");
+
+        num++;
+        vl_foreach(elt, psects) {
+            sect = vs_pget(elt);
+            vh_istore(sect, "PAGE", num);
+            vh_istore(sect, "PXLEN", xlen);
+            vh_istore(sect, "PYLEN", ylen);
+            vh_istore(sect, "ROTATE", rflag);
+        }
+
+        vh_destroy(page);
+    }
+
+    vl_destroy(pages);
+    return num;
 }
 
 /* Return the library file search path */
