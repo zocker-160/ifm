@@ -31,6 +31,7 @@ static char buf[BUFSIZ];
 static void add_task(vhash *task);
 static int do_task(vhash *task, int print);
 static void drop_item(vhash *item, vhash *room, vlist *until, int print);
+static void filter_tasks(void);
 static void goto_room(vhash *task);
 static vhash *new_task(int type, vhash *data);
 static void order_tasks(vhash *before, vhash *after);
@@ -109,11 +110,7 @@ do_task(vhash *task, int print)
 
     if (print) {
         vl_ppush(taskorder, task);
-
-        if (ifm_debug) {
-            indent(2);
-            printf("do task: %s\n", vh_sgetref(task, "DESC"));
-        }
+        DEBUG1(2, "do task: %s", vh_sgetref(task, "DESC"));
     }
 
     /* Flag it as done */
@@ -130,22 +127,7 @@ do_task(vhash *task, int print)
             }
 
             vh_istore(item, "TAKEN", 1);
-
-            if (ifm_debug) {
-                indent(2);
-                printf("give: %s\n", vh_sgetref(item, "DESC"));
-            }
-        }
-
-        /* Flag get-item tasks for carried items as done */
-        vl_foreach(elt, tasklist) {
-            step = vs_pget(elt);
-            if (vh_iget(step, "TYPE") != T_GET)
-                continue;
-
-            item = vh_pget(step, "DATA");
-            if (vh_iget(item, "TAKEN"))
-                vh_istore(step, "DONE", 1);
+            DEBUG1(3, "give item: %s", vh_sgetref(item, "DESC"));
         }
     }
 
@@ -154,11 +136,7 @@ do_task(vhash *task, int print)
         vl_foreach(elt, list) {
             item = vs_pget(elt);
             vh_istore(item, "TAKEN", 0);
-
-            if (ifm_debug) {
-                indent(2);
-                printf("lose: %s\n", vh_sgetref(item, "DESC"));
-            }
+            DEBUG1(3, "lose item: %s", vh_sgetref(item, "DESC"));
         }
     }
 
@@ -172,11 +150,7 @@ do_task(vhash *task, int print)
         vl_foreach(elt, list) {
             item = vs_pget(elt);
             drop_item(item, room, until, 0);
-
-            if (ifm_debug) {
-                indent(2);
-                printf("drop: %s\n", vh_sgetref(item, "DESC"));
-            }
+            DEBUG1(3, "drop item: %s", vh_sgetref(item, "DESC"));
         }
     }
 
@@ -187,6 +161,9 @@ do_task(vhash *task, int print)
     /* Flag path modification if required */
     if (vh_iget(task, "MODPATH"))
         modify_path();
+
+    /* Flag redundant tasks as done */
+    filter_tasks();
 
     /* Return whether to try more tasks */
     if (vh_iget(task, "FINISH"))
@@ -241,6 +218,86 @@ drop_item(vhash *item, vhash *room, vlist *until, int print)
         add_task(step);
         vh_istore(step, "OPTIONAL", 1);
     }
+}
+
+/* Filter redundant tasks from the task list */
+static void
+filter_tasks(void)
+{
+    int canfilter, filter, filtered, alldone;
+    vhash *task, *otask, *item;
+    vscalar *elt;
+    vlist *list;
+
+    do {
+        filtered = 0;
+
+        vl_foreach(elt, tasklist) {
+            task = vs_pget(elt);
+            canfilter = 0;
+            filter = 1;
+
+            if (vh_iget(task, "DONE") ||
+                vh_iget(task, "FINISH") ||
+                vh_iget(task, "SCORE") ||
+                vh_iget(task, "MODPATH") ||
+                vh_exists(task, "NEXT"))
+                filter = 0;
+
+            if (filter && (list = vh_pget(task, "ALLOW")) != NULL) {
+                alldone = 1;
+
+                vl_foreach(elt, list) {
+                    otask = vs_pget(elt);
+                    if (!vh_iget(otask, "DONE"))
+                        alldone = 0;
+                }
+
+                if (!alldone)
+                    filter = 0;
+            }
+
+            if (filter && (list = vh_pget(task, "GET")) != NULL) {
+                alldone = 1;
+                canfilter = 1;
+
+                vl_foreach(elt, list) {
+                    item = vs_pget(elt);
+                    if (!vh_exists(item, "TAKEN"))
+                        alldone = 0;
+                }
+
+                if (!alldone)
+                    filter = 0;
+            }
+
+            if (filter && (list = vh_pget(task, "GIVE")) != NULL) {
+                alldone = 1;
+                canfilter = 1;
+
+                vl_foreach(elt, list) {
+                    item = vs_pget(elt);
+                    if (!vh_exists(item, "TAKEN"))
+                        alldone = 0;
+                }
+
+                if (!alldone)
+                    filter = 0;
+            }
+
+            if (!vh_iget(task, "DONE") && vh_iget(task, "TYPE") == T_GET) {
+                item = vh_pget(task, "DATA");
+                canfilter = 1;
+                filter = vh_exists(item, "TAKEN");
+            }
+
+            if (canfilter && filter) {
+                vh_istore(task, "DONE", 1);
+                filtered++;
+                DEBUG1(3, "ignore task: %s", vh_sgetref(task, "DESC"));
+            }
+        }
+    } while (filtered);
 }
 
 /* Move to a room to do something */
@@ -301,11 +358,7 @@ goto_room(vhash *task)
         if (vh_iget(room, "FINISH"))
             add_note(mtask, "Finishes the game");
 
-        if (ifm_debug) {
-            indent(2);
-            printf("move to: %s\n", vh_sgetref(room, "DESC"));
-        }
-
+        DEBUG1(2, "move to: %s", vh_sgetref(room, "DESC"));
         last = room;
     }
 
@@ -353,14 +406,15 @@ new_task(int type, vhash *data)
         if (vh_exists(data, "CMD"))
             vh_sstore(step, "CMD", vh_sgetref(data, "CMD"));
 
-        vh_pstore(step, "NEED", vh_pget(data, "NEED"));
-        vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
-        vh_pstore(step, "GIVE", vh_pget(data, "GIVE"));
-        vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
         vh_pstore(step, "DROP", vh_pget(data, "DROP"));
         vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
         vh_pstore(step, "DROPROOM", vh_pget(data, "DROPROOM"));
         vh_pstore(step, "DROPUNTIL", vh_pget(data, "DROPUNTIL"));
+        vh_pstore(step, "GET", vh_pget(data, "GET"));
+        vh_pstore(step, "GIVE", vh_pget(data, "GIVE"));
+        vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
+        vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
+        vh_pstore(step, "NEED", vh_pget(data, "NEED"));
         break;
     default:
         fatal("internal: unknown task type");
@@ -406,13 +460,9 @@ order_tasks(vhash *before, vhash *after)
         if (after != before) {
             depend = vh_pget(after, "DEPEND");
             vl_ppush(depend, before);
-
-            if (ifm_debug) {
-                indent(2);
-                printf("do `%s' before `%s'\n",
-                       vh_sgetref(before, "DESC"),
-                       vh_sgetref(after, "DESC"));
-            }
+            DEBUG2(2, "do `%s' before `%s'",
+                   vh_sgetref(before, "DESC"),
+                   vh_sgetref(after, "DESC"));
         }
 
         after = vh_pget(after, "PREV");
@@ -428,9 +478,9 @@ setup_tasks(void)
     vhash *step, *istep, *oitem;
     int num = 0, leaveall;
     vscalar *elt;
+    char *msg;
 
-    if (ifm_debug)
-        printf("\nSetting up tasks...\n");
+    DEBUG0(0, "\nSetting up tasks...");
 
     /* Create 'goto room' steps */
     vl_foreach(elt, rooms) {
@@ -458,17 +508,13 @@ setup_tasks(void)
         add_task(step);
     }
 
-    /* Process tasks (1st pass) */
-    if (ifm_debug) {
-        indent(1);
-        printf("Adding dependencies for task 'follow' entries\n");
-    }
+    /* Set up task 'follow' links */
+    DEBUG0(1, "Adding dependencies for task 'follow' entries");
 
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
 
-        /* Deal with 'follow' tasks */
         if ((otask = vh_pget(task, "FOLLOW")) != NULL) {
             step = vh_pget(otask, "STEP");
             if (vh_exists(step, "NEXT") && vh_pget(step, "NEXT") != tstep)
@@ -619,10 +665,7 @@ setup_tasks(void)
     }
 
     /* Process items */
-    if (ifm_debug) {
-        indent(1);
-        printf("Adding dependencies for item 'before/after' lists\n");
-    }
+    DEBUG0(1, "Adding dependencies for item 'before/after' lists");
 
     vl_foreach(elt, items) {
         item = vs_pget(elt);
@@ -669,12 +712,9 @@ setup_tasks(void)
         }
     }
 
-    if (ifm_debug) {
-        indent(1);
-        printf("Adding dependencies for task 'need/get/give/after' lists\n");
-    }
+    DEBUG0(1, "Adding dependencies for task 'need/get/give/after' lists");
 
-    /* Process tasks (2nd pass) */
+    /* Process task 'need/get/give/after/drop' stuff */
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
@@ -759,17 +799,13 @@ setup_tasks(void)
         }
     }
 
-    if (ifm_debug) {
-        indent(1);
-        printf("Adding dependencies for task 'lose' lists\n");
-    }
+    /* Process task 'lose' stuff */
+    DEBUG0(1, "Adding dependencies for task 'lose' lists");
 
-    /* Process tasks (3rd pass) */
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
 
-        /* Add dependencies for tasks which lose items */
         if ((list = vh_pget(tstep, "LOSE")) != NULL) {
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
@@ -784,6 +820,23 @@ setup_tasks(void)
                 /* If item is needed for paths, mark task unsafe */
                 if (vh_exists(item, "NEEDED"))
                     vh_sstore(tstep, "UNSAFE", "loses item needed for paths");
+            }
+        }
+    }
+
+    /* Propagate 'unsafe' flags for 'follow' tasks */
+    vl_foreach(elt, tasks) {
+        task = vs_pget(elt);
+        tstep = vh_pget(task, "STEP");
+
+        if (vh_exists(tstep, "PREV") &&
+            vh_exists(tstep, "UNSAFE") &&
+            !vh_iget(tstep, "SAFE")) {
+            step = vh_pget(tstep, "PREV");
+            msg = vh_sgetref(tstep, "UNSAFE");
+            while (step != NULL) {
+                vh_sstore(step, "UNSAFE", msg);
+                step = vh_pget(step, "PREV");
             }
         }
     }
@@ -813,14 +866,10 @@ solve_game(void)
     location = startroom;
     next = NULL;
 
-    if (ifm_debug)
-        printf("\nSolving game...\n");
+    DEBUG0(0, "\nSolving game...");
 
     do {
-        if (ifm_debug) {
-            indent(1);
-            printf("Location: %s\n", vh_sgetref(location, "DESC"));
-        }
+        DEBUG1(1, "Location: %s", vh_sgetref(location, "DESC"));
 
         /* Initialise path searches from this room */
         init_path(location);
@@ -915,9 +964,8 @@ solve_game(void)
 
             vl_destroy(tmp);
             break;
-        } else if (ifm_debug) {
-            indent(2);
-            printf("no more tasks\n\n");
+        } else {
+            DEBUG0(2, "no more tasks\n");
         }
     } while (tasksleft);
 }
@@ -955,15 +1003,12 @@ task_possible(vhash *room, vhash *step)
     if (require_task(step) != NULL)
         return 0;
 
+    DEBUG1(2, "consider: %s", vh_sgetref(step, "DESC"));
+
+    /* If task is done elsewhere, make sure you can get there */
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
 
-    if (ifm_debug) {
-        indent(2);
-        printf("consider: %s\n", vh_sgetref(step, "DESC"));
-    }
-
-    /* If task is done elsewhere, make sure you can get there */
     if (taskroom != NULL && taskroom != room) {
         if ((len = find_path(step, room, taskroom)) == NOPATH)
             return 0;
