@@ -56,8 +56,8 @@ static int use_node(char *node, vscalar *s, double dist);
 void
 connect_rooms(void)
 {
+    int oneway, len, goflag, dir, num = 0, uselen = 0;
     vhash *room, *link, *join, *reach, *from, *to;
-    int oneway, len, goflag, dir, num = 0;
     vlist *cmdfrom, *cmdto, *list;
     char *cmd, id[10];
     vscalar *elt;
@@ -67,10 +67,6 @@ connect_rooms(void)
 
     /* Initialise */
     graph = vg_create();
-
-    vg_use_node_function(graph, use_node);
-    vg_use_link_function(graph, use_link);
-    vg_link_size_function(graph, link_size);
 
     /* Create room nodes */
     vl_foreach(elt, rooms) {
@@ -88,6 +84,8 @@ connect_rooms(void)
 
         oneway = vh_iget(link, "ONEWAY");
         len = vh_iget(link, "LEN");
+        if (len)
+            uselen++;
 
         from = vh_pget(link, "FROM");
         to = vh_pget(link, "TO");
@@ -181,6 +179,8 @@ connect_rooms(void)
 
         oneway = vh_iget(join, "ONEWAY");
         len = vh_iget(join, "LEN");
+        if (len)
+            uselen++;
 
         from = vh_pget(join, "FROM");
         to = vh_pget(join, "TO");
@@ -265,6 +265,13 @@ connect_rooms(void)
             }
         }
     }
+
+    /* Set graph functions */
+    vg_use_node_function(graph, use_node);
+    vg_use_link_function(graph, use_link);
+
+    if (uselen)
+        vg_link_size_function(graph, link_size);
 }
 
 /* Return length of a path between two rooms */
@@ -434,17 +441,9 @@ init_path(vhash *room)
     }
 
     /* Cache paths from this room */
-    if (ifm_debug) {
-        indent(2);
-        printf("updating path cache\n");
-    }
-
+    DEBUG0(2, "updating path cache");
     dist = vg_path_cache(graph, NODE(room));
-
-    if (ifm_debug) {
-        indent(2);
-        printf("updated path cache (max dist %g)\n", dist);
-    }
+    DEBUG1(2, "updated path cache (max dist %g)", dist);
 
     /* Record distance of each task */
     vl_foreach(elt, tasklist) {
