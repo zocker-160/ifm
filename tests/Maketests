@@ -3,6 +3,8 @@
 # Create IFM test programs.
 
 $ifmprog = shift;
+$srcdir = '$SRCDIR';
+$builddir = '$BUILDDIR';
 
 foreach $ifmfile (@ARGV) {
     die "Can't find $ifmfile\n" unless -f $ifmfile;
@@ -13,6 +15,7 @@ foreach $ifmfile (@ARGV) {
     $testfile = $prefix . ".test";
     $expfile = $prefix . ".exp";
     $listfile = $prefix . ".list";
+    $outfile = $prefix . ".out";
 
     # Skip it if up to date.
     next if -f $testfile
@@ -37,10 +40,12 @@ foreach $ifmfile (@ARGV) {
     # Write test program.
     open(OUT, "> $testfile") or die "Can't open $testfile: $!\n";
 
-    print OUT "#! /bin/sh\n";
-    print OUT "$ifmprog -w -$output -format raw <<END\n";
+    print OUT "#! /bin/sh\n\n";
+    print OUT "$builddir/src/ifm -w -$output -format raw 2>&1 ";
+    print OUT "> $builddir/tests/$outfile <<END\n";
     print OUT @prog;
-    print OUT "END\n";
+    print OUT "END\n\n";
+    print OUT "cmp -s $srcdir/tests/$expfile $builddir/tests/$outfile\n";
     close OUT;
 
     chmod 0775, $testfile;
