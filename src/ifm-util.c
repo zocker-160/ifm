@@ -91,6 +91,31 @@ get_var(char *id)
     return NULL;
 }
 
+/* Open a library file for reading */
+FILE *
+open_libfile(char *name)
+{
+    char *envdir, *ifmdir = IFMDIR;
+    FILE *fp;
+
+    /* Try as-is */
+    if ((fp = fopen(name, "r")) != NULL)
+        return fp;
+
+    /* Try library directory */
+    if ((envdir = getenv("IFM_LIB")) != NULL)
+        ifmdir = envdir;
+    sprintf(buf, "%s/%s", ifmdir, name);
+    if ((fp = fopen(name, "r")) != NULL)
+        return fp;
+
+    /* Give up */
+    fatal("can't find `%s' in current directory or %s\n", name, ifmdir);
+
+    /* Shut lint up */
+    return NULL;
+}
+
 /* Set a scalar variable */
 void
 set_var(char *driver, char *type, char *var, vscalar *val)
