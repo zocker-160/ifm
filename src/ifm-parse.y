@@ -44,8 +44,8 @@ static int modify;
 
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
-%token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE NEXT UNDEF
-%token        PREV CMD LEAVE
+%token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
+%token        LEAVE UNDEF
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -596,13 +596,9 @@ task_attr	: TAG IDENT
                 {
                     vh_sstore(curtask, "GOTO", $2);
                 }
-                | NEXT IDENT
+                | FOLLOW IDENT
                 {
-                    vh_sstore(curtask, "NEXT", $2);
-                }
-                | PREV IDENT
-                {
-                    vh_sstore(curtask, "PREV", $2);
+                    vh_sstore(curtask, "FOLLOW", $2);
                 }
 		| IN IDENT
 		{

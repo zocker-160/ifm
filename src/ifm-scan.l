@@ -91,6 +91,7 @@ WHITE		[ \t\f]*
 "e"		{ return EAST; }
 "east"		{ return EAST; }
 "exit"		{ return EXIT; }
+"follow"        { return FOLLOW; }
 "from"		{ return FROM; }
 "get"           { return GET; }
 "given"         { return GIVEN; }
@@ -111,7 +112,6 @@ WHITE		[ \t\f]*
 "n"		{ return NORTH; }
 "ne"		{ return NORTHEAST; }
 "need"          { return NEED; }
-"next"          { return NEXT; }
 "north"		{ return NORTH; }
 "northeast"	{ return NORTHEAST; }
 "northwest"	{ return NORTHWEST; }
@@ -119,7 +119,6 @@ WHITE		[ \t\f]*
 "nw"		{ return NORTHWEST; }
 "oneway"	{ return ONEWAY; }
 "out"		{ return OUT; }
-"prev"          { return PREV; }
 "puzzle"	{ return PUZZLE; }
 "room"		{ return ROOM; }
 "s"		{ return SOUTH; }

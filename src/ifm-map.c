@@ -226,8 +226,7 @@ resolve_tags(void)
         task = vs_pget(elt);
         resolve_tag("room", vh_get(task, "IN"), roomtags);
         resolve_tag("room", vh_get(task, "GOTO"), roomtags);
-        resolve_tag("task", vh_get(task, "PREV"), tasktags);
-        resolve_tag("task", vh_get(task, "NEXT"), tasktags);
+        resolve_tag("task", vh_get(task, "FOLLOW"), tasktags);
         resolve_tag_list("task", vh_pget(task, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(task, "NEED"), itemtags);
         resolve_tag_list("item", vh_pget(task, "GET"), itemtags);
