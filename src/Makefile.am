@@ -16,7 +16,7 @@ EXTRA_DIST = ifm-parse.c ifm-scan.c
 
 VARS = ../vars/src
 
-ifm_LDADD = -lvars-local
+ifm_LDADD = -lvars
 
 ifm_LDFLAGS = -L$(VARS)
 
@@ -24,7 +24,7 @@ YFLAGS = -d -v
 
 INCLUDES = -I$(VARS) -DSYSINIT=\"ifm-init.ifm\" -DIFMPATH=\"$(pkgdatadir):.\"
 
-$(bin_PROGRAMS): $(VARS)/libvars-local.a
+$(bin_PROGRAMS): $(VARS)/libvars.a
 
 ifm-parse.h: ifm-parse.c
 
