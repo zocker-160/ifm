@@ -80,6 +80,12 @@ The game isn't solvable because there's one or more chains of tasks where
 each must be done before the next, but the last must be done before the
 first.  See L<"Finding a Solution">.
 
+=item B<error: [type] variable [name] is not defined>
+
+A customization variable needed by an output format is not defined.  You
+should only see these errors if you have modified or overridden the system
+initialization file.  The remedy is to define the variable somewhere.
+
 =back
 
 Here's the list of warning messages.  If only warnings occur, then output
