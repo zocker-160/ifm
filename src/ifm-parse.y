@@ -153,8 +153,8 @@ room_stmt	: ROOM string
                     curroom = vh_create();
 		    vh_sstore(curroom, "DESC", $2);
                     vh_istore(curroom, "ID", ++roomid);
-                    if (current_style() != NULL)
-                        vh_sstore(curroom, "STYLE", current_style());
+                    vh_pstore(curroom, "STYLE", current_styles());
+                    vh_pstore(curroom, "LINK_STYLE", current_styles());
                     implicit = 0;
                     modify = 0;
 		}
@@ -216,8 +216,8 @@ room_stmt	: ROOM string
                                   vh_pget(curroom, "LINK_LEAVE"));
                         vh_istore(link, "LEAVEALL",
                                   vh_iget(curroom, "LINK_LEAVEALL"));
-                        vh_sstore(link, "STYLE",
-                                  vh_sgetref(curroom, "LINK_STYLE"));
+                        vh_pstore(link, "STYLE",
+                                  vh_pget(curroom, "LINK_STYLE"));
                         vh_pstore(link, "FROM_CMD",
                                   vh_pget(curroom, "FROM_CMD"));
                         vh_pstore(link, "TO_CMD",
@@ -237,8 +237,6 @@ room_stmt	: ROOM string
                             WARN_IGNORED(go);
                         if (vh_exists(curroom, "ONEWAY"))
                             WARN_IGNORED(oneway);
-                        if (vh_exists(curroom, "SPECIAL"))
-                            WARN_IGNORED(special);
                         if (vh_exists(curroom, "LEN"))
                             WARN_IGNORED(length);
                         if (vh_exists(curroom, "NOPATH"))
@@ -440,7 +438,8 @@ room_attr	: TAG ID
 		}
                 | STYLE string
                 {
-                    vh_sstore(curroom, ATTR(STYLE), $2);
+                    add_attr(curroom, ATTR(STYLE), $2);
+                    ref_style($2);
                 }
 		;
 
@@ -485,8 +484,7 @@ item_stmt	: ITEM string
                     curitem = vh_create();
                     vh_sstore(curitem, "DESC", $2);
                     vh_istore(curitem, "ID", ++itemid);
-                    if (current_style() != NULL)
-                        vh_sstore(curitem, "STYLE", current_style());
+                    vh_pstore(curitem, "STYLE", current_styles());
                     modify = 0;
                 }
                 item_attrs ';'
@@ -570,7 +568,8 @@ item_attr	: TAG ID
                 }
                 | STYLE string
                 {
-                    vh_sstore(curitem, "STYLE", $2);
+                    add_attr(curitem, "STYLE", $2);
+                    ref_style($2);
                 }
 		;
 
@@ -620,8 +619,7 @@ link_stmt	: LINK room TO room
                     curlink = vh_create();
                     vh_store(curlink, "FROM", $2);
                     vh_store(curlink, "TO", $4);
-                    if (current_style() != NULL)
-                        vh_sstore(curlink, "STYLE", current_style());
+                    vh_pstore(curlink, "STYLE", current_styles());
                     modify = 0;
                 }
                 link_attrs ';'
@@ -663,7 +661,7 @@ link_attr	: DIR dir_list
 		| SPECIAL
 		{
                     obsolete("`special' attribute", "`style \"special\"'");
-                    vh_sstore(curlink, "STYLE", "special");
+                    add_attr(curlink, "STYLE", "special");
 		}
 		| HIDDEN
 		{
@@ -719,7 +717,8 @@ link_attr	: DIR dir_list
 		}
                 | STYLE string
                 {
-                    vh_sstore(curlink, "STYLE", $2);
+                    add_attr(curlink, "STYLE", $2);
+                    ref_style($2);
                 }
                 ; 
 
@@ -732,8 +731,7 @@ join_stmt	: JOIN room TO room
                     curjoin = vh_create();
                     vh_store(curjoin, "FROM", $2);
                     vh_store(curjoin, "TO", $4);
-                    if (current_style() != NULL)
-                        vh_sstore(curjoin, "STYLE", current_style());
+                    vh_pstore(curjoin, "STYLE", current_styles());
                     modify = 0;
                 }
                 join_attrs ';'
@@ -825,7 +823,8 @@ join_attr	: GO compass
 		}
                 | STYLE string
                 {
-                    vh_sstore(curjoin, "STYLE", $2);
+                    add_attr(curjoin, "STYLE", $2);
+                    ref_style($2);
                 }
 		;
 
@@ -837,8 +836,7 @@ task_stmt	: TASK string
                 {
                     curtask = vh_create();
                     vh_sstore(curtask, "DESC", $2);
-                    if (current_style() != NULL)
-                        vh_sstore(curtask, "STYLE", current_style());
+                    vh_pstore(curtask, "STYLE", current_styles());
                     modify = 0;
                 }
                 task_attrs ';'
@@ -981,7 +979,8 @@ task_attr	: TAG ID
 		}
                 | STYLE string
                 {
-                    vh_sstore(curtask, "STYLE", $2);
+                    add_attr(curtask, "STYLE", $2);
+                    ref_style($2);
                 }
 		;
 

@@ -529,7 +529,7 @@ new_task(int type, vhash *data)
             vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
 
         if (vh_exists(data, "STYLE"))
-            vh_sstore(step, "STYLE", vh_sgetref(data, "STYLE"));
+            vh_pstore(step, "STYLE", vh_pget(data, "STYLE"));
 
         if (vh_exists(data, "CMD"))
             vh_pstore(step, "CMD", vh_pget(data, "CMD"));
