@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS	= foreign
 SUBDIRS			= @BUILD@
 DIST_SUBDIRS		= vars src lib doc tests scr2ifm tkifm
-EXTRA_DIST		= README.src README.win32 README.maps
+EXTRA_DIST		= README.unix README.win32 README.maps
 
 dist-hook:;		cp -rp $(srcdir)/config $(srcdir)/contrib $(distdir)
 
@@ -23,7 +23,7 @@ DOCS			= doc/ifm.txt doc/ifm.html tkifm/tkifm.txt \
 			  tkifm/tkifm.html scr2ifm/scr2ifm.txt \
 			  scr2ifm/scr2ifm.html 
 
-LIBS			= lib/ifm-pro.ps lib/ifm-rgb.txt
+LIBS			= lib/ifm-init.ifm lib/ifm-pro.ps lib/ifm-rgb.txt
 
 ZIPFILES		= $(IFM) $(LIB) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
 
