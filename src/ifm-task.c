@@ -228,6 +228,24 @@ setup_tasks(void)
         task_pair(step, step);
     }
 
+    /* Process tasks (1st pass) */
+    vl_foreach(elt, tasks) {
+        task = vs_pget(elt);
+        tstep = vh_pget(task, "STEP");
+
+        /* Deal with 'follow' tasks */
+        if ((otask = vh_pget(task, "FOLLOW")) != NULL) {
+            step = vh_pget(otask, "STEP");
+            if (vh_exists(step, "NEXT")
+                && vh_pget(step, "NEXT") != tstep)
+                err("more than one task needs to follow `%s' immediately",
+                    vh_sgetref(otask, "DESC"));
+            vh_pstore(step, "NEXT", tstep);
+            vh_pstore(tstep, "PREV", step);
+            task_pair(step, tstep);
+        }
+    }
+
     /* Process rooms and map connections */
     vl_foreach(elt, rooms) {
         room = vs_pget(elt);
@@ -362,35 +380,10 @@ setup_tasks(void)
         }
     }
 
-    /* Process tasks (1st pass) */
+    /* Process tasks (2nd pass) */
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
-
-        /* Deal with 'next' tasks */
-        if ((otask = vh_pget(tstep, "NEXT")) != NULL) {
-            if (vh_exists(otask, "FOLLOW")
-                && vh_pget(otask, "FOLLOW") != task)
-                err("more than one task requires `%s' to be done next",
-                    vh_sgetref(otask, "DESC"));
-            vh_pstore(otask, "FOLLOW", task);
-            step = vh_pget(otask, "STEP");
-            vh_istore(tstep, "UNSAFE", 1);
-            task_pair(tstep, step);
-        }
-
-        /* Deal with 'prev' tasks */
-        if ((otask = vh_pget(tstep, "PREV")) != NULL) {
-            if (vh_exists(task, "FOLLOW")
-                && vh_pget(task, "FOLLOW") != otask)
-                err("more than one task requires `%s' to be done next",
-                    vh_sgetref(task, "DESC"));
-            vh_pstore(task, "FOLLOW", otask);
-            step = vh_pget(otask, "STEP");
-            vh_pstore(step, "NEXT", task);
-            vh_istore(step, "UNSAFE", 1);
-            task_pair(step, tstep);
-        }
 
         /* Must get required items before doing this task */
         if ((list = vh_pget(task, "NEED")) != NULL) {
@@ -436,7 +429,7 @@ setup_tasks(void)
         }
     }
 
-    /* Process tasks (2nd pass) */
+    /* Process tasks (3rd pass) */
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
@@ -579,8 +572,7 @@ solve_game(void)
                 room = nextroom;
             if (gotoroom != NULL)
                 room = gotoroom;
-            task = vh_pget(step, "NEXT");
-            next = (task == NULL ? NULL : vh_pget(task, "STEP"));
+            next = vh_pget(step, "NEXT");
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
             vlist *tmp = vl_create();
@@ -608,34 +600,39 @@ solve_game(void)
 static void
 task_pair(vhash *before, vhash *after)
 {
-    vlist *prev;
+    vhash *start = after;
+    vlist *depend;
 
     if (tasklist == NULL)
         tasklist = vl_create();
 
-    if (!vh_iget(before, "SEEN")) {
-        vh_istore(before, "SEEN", 1);
-        vl_ppush(tasklist, before);
-        vh_pstore(before, "PREVIOUS", vl_create());
-    }
+    do {
+        if (!vh_iget(before, "SEEN")) {
+            vh_istore(before, "SEEN", 1);
+            vl_ppush(tasklist, before);
+            vh_pstore(before, "DEPEND", vl_create());
+        }
 
-    if (!vh_iget(after, "SEEN")) {
-        vh_istore(after, "SEEN", 1);
-        vl_ppush(tasklist, after);
-        vh_pstore(after, "PREVIOUS", vl_create());
-    }
+        if (!vh_iget(after, "SEEN")) {
+            vh_istore(after, "SEEN", 1);
+            vl_ppush(tasklist, after);
+            vh_pstore(after, "DEPEND", vl_create());
+        }
 
-    if (before != after) {
-        prev = vh_pget(after, "PREVIOUS");
-        vl_ppush(prev, before);
-    }
+        if (before != after) {
+            depend = vh_pget(after, "DEPEND");
+            vl_ppush(depend, before);
+        }
 
-    if (ifm_verbose && before != after) {
-        indent(1);
-        printf("do `%s' before `%s'\n",
-               vh_sgetref(before, "DESC"),
-               vh_sgetref(after, "DESC"));
-    }
+        if (ifm_verbose && before != after) {
+            indent(1);
+            printf("do `%s' before `%s'\n",
+                   vh_sgetref(before, "DESC"),
+                   vh_sgetref(after, "DESC"));
+        }
+
+        after = vh_pget(after, "PREV");
+    } while (after != NULL && after != start);
 }
 
 /* Return whether a task is possible */
@@ -644,16 +641,15 @@ task_possible(vhash *room, vhash *step)
 {
     vhash *before, *taskroom, *gotoroom;
     int len = 0, safe;
+    vlist *depend;
     vscalar *elt;
-    vlist *prev;
 
-    /* All previous tasks must be done */
-    prev = vh_pget(step, "PREVIOUS");
-    if (prev != NULL) {
-        vl_foreach(elt, prev) {
+    /* All dependent tasks must be done */
+    if ((depend = vh_pget(step, "DEPEND")) != NULL) {
+        vl_foreach(elt, depend) {
             before = vs_pget(elt);
             if (!vh_iget(before, "DONE")) {
-                vl_break(prev);
+                vl_break(depend);
                 return 0;
             }
         }
@@ -753,8 +749,6 @@ task_step(int type, vhash *data)
         room = vh_pget(data, "ROOM");
         strcpy(buf, desc);
         vh_pstore(step, "NEED", vh_pget(data, "NEED"));
-        vh_pstore(step, "NEXT", vh_pget(data, "NEXT"));
-        vh_pstore(step, "PREV", vh_pget(data, "PREV"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
         vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
         vh_sstore(step, "NOTE", vh_sgetref(data, "NOTE"));
