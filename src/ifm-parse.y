@@ -182,9 +182,13 @@ item_attr	: TAG IDENT
                 {
                     set_item_items();
                 }
+                | BEFORE task_list
+                {
+                    set_item_tasks("BEFORE");
+                }
                 | AFTER task_list
                 {
-                    set_item_after();
+                    set_item_tasks("AFTER");
                 }
 		| SCORE INTEGER
 		{
@@ -219,6 +223,10 @@ link_attr	: DIR dir_list
 		| SPECIAL
 		{
 		    set_link_attr("SPECIAL", "1");
+		}
+		| HIDDEN
+		{
+		    set_link_attr("HIDDEN", "1");
 		}
                 | NEED item_list
                 {
@@ -257,6 +265,10 @@ join_attr	: GO go_flag
 		| ONEWAY
 		{
 		    set_join_attr("ONEWAY", "1");
+		}
+		| HIDDEN
+		{
+		    set_join_attr("HIDDEN", "1");
 		}
                 | NEED item_list
                 {
