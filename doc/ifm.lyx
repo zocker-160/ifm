@@ -73,8 +73,15 @@ Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
  with no Front-Cover Texts, and with no Back-Cover Texts.
- A copy of the license is included in the section entitled "GNU Free Documentati
-on License."
+ A copy of the license is included in the section entitled 
+\begin_inset Quotes eld
+\end_inset 
+
+GNU Free Documentation License.
+\begin_inset Quotes erd
+\end_inset 
+
+
 \layout Standard
 \pagebreak_top 
 
@@ -225,8 +232,8 @@ Partway through writing the initial version of IFM, I had the idea that
  program and caused all sorts of headaches.
 \layout Standard
 
-Eventually it got to the stage where it might be worth releasing, so in
- June 1998 the first version appeared in the IF archive.
+But eventually it got to the stage where it might be worth releasing, so
+ in June 1998 the first version appeared in the IF archive.
  Very soon after that, I got a lot of feedback from one Dave Chapeskie (
 \family typewriter 
 dchapes@ddm.on.ca
@@ -243,6 +250,21 @@ dchapes@ddm.on.ca
 
 And now, finally, it's finished and I can go back to that IF game I was
  playing.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Oh all right.
+ Maybe 
+\emph on 
+one
+\emph default 
+ more feature\SpecialChar \ldots{}
+
+\end_inset 
+
+
 \layout Section
 \pagebreak_top 
 Making Maps
@@ -892,7 +914,15 @@ As well as making a map of your game, you can record the steps you took
 Introduction to Tasks
 \layout Standard
 
-The basic game-solving action is called a task in IFM-speak.
+The basic game-solving action is called a 
+\begin_inset Quotes eld
+\end_inset 
+
+task
+\begin_inset Quotes erd
+\end_inset 
+
+ in IFM-speak.
  To introduce a task, you use the 
 \family typewriter 
 task
@@ -1006,7 +1036,11 @@ room "Mission Control" ...;
 task "Activate launch sequence" tag activate;
 \layout LyX-Code
 
+\layout LyX-Code
+
 ...
+\layout LyX-Code
+
 \layout LyX-Code
 
 room "Rocket Cabin" ...;
@@ -1147,13 +1181,130 @@ give
 task "Buy beer" need money give beer_mug;
 \layout Standard
 
-Note that 
+The 
 \family typewriter 
 give
 \family default 
- overrides all other restrictions placed on getting items.
- If another task was previously required in order to get the item, and that
- task serves no other useful purpose, it will now be ignored.
+ clause overrides all other restrictions placed on getting items; the item
+ is just teleported into your possession.
+\layout Subsubsection
+
+Ignoring Tasks
+\layout Standard
+
+In some circumstances, all the effects of doing a task occur before the
+ task is done.
+ If this happens, the task will be ignored.
+ For example, if a task A gives an item, but that item is first given by
+ task B, then task A will be ignored (provided it doesn't do anything else
+ of importance).
+\layout Standard
+
+If a task has no effect, it is 
+\emph on 
+not
+\emph default 
+ ignored --- it's assumed that you've recorded that you did something but
+ don't know why yet.
+ Also, tasks which finish the game or score points are never ignored.
+\layout Standard
+
+You can explicitly ignore a task using the 
+\family typewriter 
+ignore
+\family default 
+ attribute.
+ This is useful while you're solving the game (see 
+\begin_inset LatexCommand \prettyref{sec:tweaking}
+
+\end_inset 
+
+) and when the task can be done by other tasks (see the next section).
+\layout Subsubsection
+
+Doing Other Tasks
+\layout Standard
+
+You can arrange for a task to automatically do other tasks after it is done,
+ using the 
+\family typewriter 
+do
+\family default 
+ clause.
+ For example:
+\layout LyX-Code
+
+room "Control Room";
+\layout LyX-Code
+
+task "Press airlock button" do open_airlock;
+\layout LyX-Code
+
+\layout LyX-Code
+
+...
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Outer Airlock";
+\layout LyX-Code
+
+task "Open airlock" tag open_airlock;
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Inner Airlock" dir s after last;
+\layout Standard
+
+In this example, the airlock can be opened in one of two ways: manually,
+ when in the Outer Airlock, or via the button in the Control Room.
+ Pressing the button will cause the 
+\begin_inset Quotes eld
+\end_inset 
+
+open airlock
+\begin_inset Quotes erd
+\end_inset 
+
+ task to be done immediately afterwards.
+ Note that if the manual method is used first, the press-button task will
+ be ignored.
+\layout Standard
+
+The 
+\family typewriter 
+do
+\family default 
+ clause causes 
+\emph on 
+any
+\emph default 
+ task to be done --- even tasks that have prerequisites, and explicitly
+ ignored ones.
+ This is useful in that you can create special ignored tasks that can be
+ done by any of a set of other tasks, whichever gets there first.
+ The 
+\family typewriter 
+do
+\family default 
+ clause is also recursive: a task can do another task which in turn does
+ another, and so on.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+However, you can't create an infinite loop since each task can only be done
+ once.
+\end_inset 
+
+
+\layout Standard
+
+Note that any task which does an unsafe task in this way is itself marked
+ unsafe.
 \layout Subsection
 
 Handling Items
@@ -1490,9 +1641,6 @@ after
  For example:
 \layout LyX-Code
 
-...
-\layout LyX-Code
-
 room "Cemetery" dir s from winding_path;
 \layout LyX-Code
 
@@ -1500,24 +1648,15 @@ task "Unlock the iron door" need rusty_key;
 \layout LyX-Code
 
 room "Crypt" dir s go down after last;
-\layout LyX-Code
-
-...
 \layout Standard
 
 Here's another example:
-\layout LyX-Code
-
-...
 \layout LyX-Code
 
 room "Dimly-lit Passage" dir e;
 \layout LyX-Code
 
 room "Dark Passage" dir e need candle;
-\layout LyX-Code
-
-...
 \layout Standard
 
 In this case it is the link between the two rooms that is blocked off until
@@ -1835,9 +1974,21 @@ If there was a possible task, do it and remove it from the list.
  Move to the room the task was done in (if any).
  If not, then the game is unsolvable.
  Give up.
+\layout Enumerate
+
+Finally, examine the list of remaining tasks to see if any are now redundant
+ and can be removed.
+ A redundant task is one that only does something that's already been done
+ (e.g.\SpecialChar ~
+go and get an item that you've already been given).
 \layout Subsection
 
 Tweaking the Solution
+\begin_inset LatexCommand \label{sec:tweaking}
+
+\end_inset 
+
+
 \layout Standard
 
 There will be some situations (quite a few, actually) where the game solver
@@ -1964,7 +2115,11 @@ ignore
  This means that anything dependent on those tasks or items will not be
  done either.
  The game will very probably be unsolvable as a result, unless you've ignored
- an unused item.
+ an unused item, or ignored a task that's done via a 
+\family typewriter 
+do
+\family default 
+ clause.
 \layout Subsubsection
 
 Keeping fixes together
@@ -3053,7 +3208,15 @@ As a first example, the background colour of rooms is determined by the
 room_colour
 \family default 
 .
- Its default value is "white".
+ Its default value is 
+\begin_inset Quotes eld
+\end_inset 
+
+white
+\begin_inset Quotes erd
+\end_inset 
+
+.
  It can be changed like this:
 \layout LyX-Code
 
@@ -3273,13 +3436,13 @@ scope
 \begin_inset Float table
 placement htbp
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="4" columns="3">
+<lyxtabular version="3" rows="6" columns="3">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0pt">
 <column alignment="left" valignment="top" leftline="true" width="0pt">
@@ -3340,7 +3503,7 @@ Global
 
 \layout Standard
 
-Use Helvetica fonts everywhere
+Use Helvetica fonts everywhere in maps
 \end_inset 
 </cell>
 </row>
@@ -3372,7 +3535,7 @@ Mark room as containing a puzzle
 \end_inset 
 </cell>
 </row>
-<row topline="true" bottomline="true">
+<row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -3399,6 +3562,62 @@ Link
 \layout Standard
 
 Mark link as being special in some way
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+reckless
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Global
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Treat all tasks as safe when solving the game
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+verbose
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Global
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Print verbose solver messages
 \end_inset 
 </cell>
 </row>
@@ -3704,25 +3923,13 @@ map STRING;
 \layout Standard
 
 This sets the title of the next map section.
- Also, any variables set after this command are local to the next map section
- (see 
-\begin_inset LatexCommand \prettyref{sec:variables}
-
-\end_inset 
-
-).
  If you use this command at all, then the number of uses should be the same
  as the actual number of map sections.
- But note that the 
+ It's conventional (but not required) to put the 
 \family typewriter 
 map
 \family default 
- command doesn't have to be near the room that starts a new map section,
- so you could (for example) put all the 
-\family typewriter 
-map
-\family default 
- commands and their local variables at the start of the input.
+ command just before the room that starts a new map section.
 \layout Standard
 
 If your map uses features that are only present in later versions of IFM,
@@ -4220,6 +4427,8 @@ start
 \family default 
  Indicate that this is the room the player starts in.
  Default is for the first room mentioned to be the start room.
+ If more than one room has this attribute, the last one declared takes precedenc
+e.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -4362,8 +4571,15 @@ hidden
 \family typewriter 
 keep
 \family default 
- Indicate that this item shouldn't ever be dropped (no "drop" task should
- be generated).
+ Indicate that this item shouldn't ever be dropped (no 
+\begin_inset Quotes eld
+\end_inset 
+
+drop
+\begin_inset Quotes erd
+\end_inset 
+
+ task should be generated).
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -4414,7 +4630,15 @@ never go out of your way to pick it up).
 given
 \family default 
  Indicate that this item didn't have to be picked up when it entered the
- inventory (no "get" task should be generated).
+ inventory (no 
+\begin_inset Quotes eld
+\end_inset 
+
+get
+\begin_inset Quotes erd
+\end_inset 
+
+ task should be generated).
  This attribute is obsolete --- you should use the task 
 \family typewriter 
 give
@@ -4432,7 +4656,14 @@ give
 \family typewriter 
 lost
 \family default 
- Indicate that this item wasn't dropped when it left the inventory (no "drop"
+ Indicate that this item wasn't dropped when it left the inventory (no 
+\begin_inset Quotes eld
+\end_inset 
+
+drop
+\begin_inset Quotes erd
+\end_inset 
+
  task should be generated).
  Normally you should use the task 
 \family typewriter 
@@ -5057,7 +5288,7 @@ Tasks
 \layout Standard
 
 You can indicate tasks which need to be done in order to solve the game
- using the 'task' command
+ using the command
 \layout LyX-Code
 
 task STRING [attribute-list];
@@ -5135,7 +5366,41 @@ ID
 
 \newline 
 Indicate that this task must be done immediately after the specified one.
- Not even a "drop item" task is allowed in between.
+ Not even a 
+\begin_inset Quotes eld
+\end_inset 
+
+drop item
+\begin_inset Quotes erd
+\end_inset 
+
+ task is allowed in between.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+do\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that doing this task also causes the specified other tasks to be
+ done (if they aren't done already).
+ These other tasks are done immediately, without regard for any prerequisite
+ items or tasks they might need, and their effects are carried out --- including
+ any 
+\begin_inset Quotes eld
+\end_inset 
+
+do
+\begin_inset Quotes erd
+\end_inset 
+
+ clauses they might have, recursively.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -5207,7 +5472,15 @@ Indicate that doing this task drops the specified items in the current room
 in
 \family default 
  clause) if you're carrying them.
- No "drop" message is generated.
+ No 
+\begin_inset Quotes eld
+\end_inset 
+
+drop
+\begin_inset Quotes erd
+\end_inset 
+
+ message is generated.
  If there's an 
 \family typewriter 
 until
@@ -5249,9 +5522,32 @@ except
 goto\SpecialChar ~
 ID
 \family default 
- Indicate that you get "teleported" to the specified room when this task
- is done.
- This happens after "give" and "drop" actions.
+ Indicate that you get 
+\begin_inset Quotes eld
+\end_inset 
+
+teleported
+\begin_inset Quotes erd
+\end_inset 
+
+ to the specified room when this task is done.
+ This happens after 
+\begin_inset Quotes eld
+\end_inset 
+
+give
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+drop
+\begin_inset Quotes erd
+\end_inset 
+
+ actions.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -5269,7 +5565,16 @@ one that can't cause the game solver to get
 \family typewriter 
 ignore
 \family default 
- Don't ever do this task when solving the game.
+ Don't ever do this task explicitly when solving the game.
+ The task may still be done via a 
+\begin_inset Quotes eld
+\end_inset 
+
+do
+\begin_inset Quotes erd
+\end_inset 
+
+ action.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -6703,7 +7008,7 @@ Task list (brief)
 \begin_inset Quotes eld
 \end_inset 
 
-Task list (debugging)
+Task list (verbose)
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6952,21 +7257,57 @@ scr2ifm
 
 The commands you type.
  These are easy to spot, because they are preceded by a prompt (usually
- ">").
+ 
+\family typewriter 
+>
+\family default 
+).
 \layout Itemize
 
 When the current room changes.
  This is not quite so easy, but still fairly simple.
  When you enter a new room, a short room title is printed (for example,
- "West of House").
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+West of House
+\begin_inset Quotes erd
+\end_inset 
+
+).
  The program looks for these short titles in the text that follows a command.
  First, a line is checked for an invalid format --- things that never appear
  in a title (e.g.\SpecialChar ~
-"?" or "!").
+
+\begin_inset Quotes eld
+\end_inset 
+
+?
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+!
+\begin_inset Quotes erd
+\end_inset 
+
+).
  Then the word count is checked --- titles are hardly ever more than 7 or
  8 words long.
  Finally the maximum length of an uncapitalized word is examined --- this
- is almost always 3 or less in titles (the length of "the").
+ is almost always 3 or less in titles (the length of 
+\begin_inset Quotes eld
+\end_inset 
+
+the
+\begin_inset Quotes erd
+\end_inset 
+
+).
 \layout Itemize
 
 When a previously-visited room is visited again.
@@ -7366,7 +7707,15 @@ set_param
 $name_remove 
 \family default 
 Matched text to remove before seeing if a line of text is a room name.
- This is for getting rid of stuff like " (in the dodgem car)".
+ This is for getting rid of stuff like 
+\begin_inset Quotes eld
+\end_inset 
+
+ (in the dodgem car)
+\begin_inset Quotes erd
+\end_inset 
+
+.
  Default: 
 \family typewriter 
 
