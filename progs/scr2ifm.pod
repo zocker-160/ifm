@@ -24,7 +24,7 @@ game transcripts.
 =for inf node IFM COMMANDS, Ifm Commands, Adding items and tasks
 =for inf node FIXING PROBLEMS, Fixing Problems, Patching things up
 =for inf node EXAMPLE SESSION, Example, Example scr2ifm session
-=for inf node RESTRICTIONS, Restrictions, Limitations of scr2ifm
+=for inf node LIMITATIONS, Limitations, What scr2ifm can't do
 
 =head1 DESCRIPTION
 
@@ -60,13 +60,13 @@ Write output to the given file instead of stdout.
 =item B<-i>
 
 Indent the output nicely (according to I<my> definition, anyway).  This
-makes things look better if you've added 'item' and 'task' commands.
-Default is no indentation at all.
+makes things look better if you've added 'item' and 'task' commands (see
+L<"IFM COMMANDS">).  Default is no indentation at all.
 
 =item B<-l>
 
 Add a comment to each B<ifm> command indicating the file and line number of
-the command in the transcript file that generated it.
+the transcript command that generated it.
 
 =item B<-w>
 
@@ -104,12 +104,12 @@ this is almost always 3 or less in titles (the length of "the").
 
 When a previously-visited room is visited again.  This is the most
 difficult thing to determine, since anything might have changed in the room
-If there is a description, an exact description match is tried.  If that
-fails, a substring match is attempted.  If I<that> fails, the first few
-words are examined to see if they match.  If there's no description, an
-exact room name match is tried.  This isn't as reliable, which is why you
-should always create a transcript in 'verbose' mode (see L<"MAKING
-TRANSCRIPTS">).
+since the last visit.  If there is a description, an exact description
+match is tried.  If that fails, a substring match is attempted.  If I<that>
+fails, the first few words are examined to see if they match.  If there's
+no description, an exact room name match is tried.  This isn't as reliable,
+which is why you should always create a transcript in 'verbose' mode (see
+L<"MAKING TRANSCRIPTS">).
 
 =item *
 
@@ -121,12 +121,17 @@ Special B<ifm> commands that are (hopefully) ignored completely by the game
 Some of these checks can be tailored to a particular transcript -- see
 L<"FIXING PROBLEMS">.
 
-Output from B<scr2ifm> is as follows.  First, there's a list of B<ifm>
-commands derived from the transcript.  Each time a new room is seen, a room
-command is output for it.  Each room is given a tag name formed by the
-initials of each capitalized word in its name.  To make tags unique, the
-second and subsequent occurrences of a tag name have that number appended.
-For example, room 'West of House' would get tag 'WH'.
+Output from B<scr2ifm> is as follows.  First, if the title of the map was
+specified with the 'title' command (see L<"IFM COMMANDS">), it is printed.
+Then, if there's more than one map section, a list of map section titles is
+printed.
+
+Next, there's a list of B<ifm> commands derived from the transcript.  Each
+time a new room is seen, a room command is output for it.  Each room is
+given a tag name formed by the initials of each capitalized word in its
+name.  To make tags unique, the second and subsequent occurrences of a tag
+name have that number appended.  For example, room 'West of House' would
+get tag 'WH'.
 
 If a movement command was up, down, in or out, then a compass direction is
 chosen for it that doesn't clash with other rooms (if possible) and the
@@ -135,9 +140,10 @@ isn't recognized, the same is done except this time the 'cmd' attribute is
 used to record the command instead.
 
 If movement is seen between two already-visited rooms, a link command is
-output.  Link tags are built by concatenating the room tags of the linked
-rooms with an underscore in between.  Link movement is dealt with in the
-same manner as for rooms.
+output (or a join, if the rooms appear to be on different map sections).
+Link tags are built by concatenating the room tags of the linked rooms with
+an underscore in between.  Link movement is dealt with in the same manner
+as for rooms.
 
 If the special 'item' or 'task' commands are seen (see L<"IFM COMMANDS">),
 then an item or task command is output following the room that it appears
@@ -653,10 +659,24 @@ we get the following map:
     link IDR_IB hidden;
     join IDR to IB cmd "xyzzy";
 
-=head1 RESTRICTIONS
+=head1 LIMITATIONS
 
-There's currently no support for mapping mazes.  Different maze rooms that
-look identical will simply appear as a single room.
+Here's a list of things that B<scr2ifm> doesn't currently deal with:
+
+=over 4
+
+=item *
+
+Mazes.  Different maze rooms that look identical (i.e. have identical names
+I<and> descriptions) will simply appear as a single room.
+
+=item *
+
+One-way links.  These aren't detected, so you'll have to add the
+appropriate B<ifm> attribute yourself (in a command file, or by fixing the
+map directly).
+
+=back
 
 =for inf skipnode
 
