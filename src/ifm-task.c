@@ -84,8 +84,7 @@ build_tasks(void)
         task = vs_pget(elt);
         step = task_step(T_USER, task);
         vh_pstore(task, "STEP", step);
-        if (vh_pget(task, "GOTO") != NULL)
-            task_pair(step, step);
+        task_pair(step, step);
     }
 
     /* Add prerequisites for doing tasks */
@@ -437,6 +436,16 @@ task_pair(vhash *before, vhash *after)
         prev = vh_pget(after, "PREV");
         vl_ppush(prev, before);
     }
+
+#ifdef DEBUG
+    if (before != after)
+        debug("Task pair: do `%s' before `%s'",
+              vh_sgetref(before, "DESC"),
+              vh_sgetref(after, "DESC"));
+    else
+        debug("Task: do `%s'",
+              vh_sgetref(before, "DESC"));
+#endif
 }
 
 /* Return priority of a task, or 0 if it's not possible */
@@ -493,7 +502,7 @@ task_priority(vhash *room, vhash *step)
     /* If no return path, lower the priority */
     if (gotoroom != NULL)
         taskroom = gotoroom;
-    if (!find_path(NULL, taskroom, room))
+    if (taskroom != NULL && !find_path(NULL, taskroom, room))
         priority -= 200;
 
     return priority;
