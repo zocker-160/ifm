@@ -1,4 +1,4 @@
-# Tkifm version 1.0, Copyright (C) 1997-98 G. Hutchings
+# Tkifm, copyright (C) 1997-98 G. Hutchings
 # TkIfm comes with ABSOLUTELY NO WARRANTY.
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; see the file COPYING for details.
@@ -143,6 +143,8 @@ proc DrawMap {num} {
 	Message "Map section no longer exists!"
 	return
     }
+
+    Busy
 
     # Get attributes.
     set sect sect$num
@@ -325,6 +327,8 @@ proc DrawMap {num} {
     set b $w.bye
     button $b -text "Dismiss" -command "destroy $w"
     pack $b -fill x
+
+    Unbusy
 }
 
 # Show item list.
@@ -340,10 +344,12 @@ proc ShowItems {} {
     }
 
     # Get item data.
+    Busy
     set result [RunProgram $ifm(itemcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
+	Unbusy
 	Error [lindex $result 2]
 	return
     }
@@ -354,8 +360,9 @@ proc ShowItems {} {
 	TextWindow "Items" .items $itemlist $ifm(itemwidth) $ifm(itemheight)
     } else {
 	Message "No items found"
-	return
     }
+
+    Unbusy
 }
 
 # Show task list.
@@ -371,10 +378,13 @@ proc ShowTasks {} {
     }
 
     # Get task data.
+    Busy
+
     set result [RunProgram $ifm(taskcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
+	Unbusy
 	Error [lindex $result 2]
 	return
     }
@@ -386,6 +396,8 @@ proc ShowTasks {} {
     } else {
 	Message "No tasks found"
     }
+
+    Unbusy
 }
 
 # Show debugging output.
@@ -401,10 +413,13 @@ proc ShowDebug {} {
     }
 
     # Get task data.
+    Busy
+
     set result [RunProgram $ifm(debugcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
+	Unbusy
 	Error [lindex $result 2]
 	return
     }
@@ -412,6 +427,8 @@ proc ShowDebug {} {
     # Display results.
     TextWindow "Debugging Output" .debug $data \
 	    $ifm(debugwidth) $ifm(debugheight)
+
+    Unbusy
 }
 
 # Display a text window.
@@ -496,10 +513,12 @@ proc BuildMap {} {
 proc ReadFile {file} {
     global ifm
 	
+    Busy
     SetFile $file
 
     if [file exists $file] {
 	if [catch {set fd [open $file r]}] {
+	    Unbusy
 	    Error "Can't open $file"
 	    return
 	}
@@ -521,6 +540,8 @@ proc ReadFile {file} {
 	GotoLine 1
 	BuildMap
     }
+
+    Unbusy
 }
 
 # Set the current input pathname.
@@ -637,6 +658,7 @@ proc Save {} {
 	return
     }
 
+    Busy
     set ifm(data) [$ifm(text) get 0.0 end]
     puts -nonewline $fd $ifm(data)
     close $fd
@@ -644,6 +666,7 @@ proc Save {} {
     set ifm(modtime) [file mtime $ifm(path)]
 
     BuildMap
+    Unbusy
 }
 
 # Save current file under another name.
@@ -678,22 +701,28 @@ proc Print {} {
     if {$file == ""} return
 
     # Get PostScript data.
+    Busy
+
     set result [RunProgram $ifm(printcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
+	Unbusy
 	Error [lindex $result 2]
 	return
     }
 
     # Write file.
     if [catch {set fd [open $file w]}] {
+	Unbusy
 	Error "Can't save $file"
 	return
     }
 
     puts $fd $data
     close $fd
+
+    Unbusy
 }
 
 # Save current file if required.
@@ -728,7 +757,9 @@ proc Redraw {} {
 
     if [file exists $ifm(path)] {
 	if {[MaybeSave] == 0} return
+	Busy
 	BuildMap
+	Unbusy
     } else {
 	Message "You must save the current file first."
     }
@@ -756,12 +787,13 @@ proc About {} {
 
 # Run a program and return its results.
 proc RunProgram {prog args} {
-    set result {}
-    set msg {}
-    set err [catch {set result [eval exec $prog $args]} errmsg]
-    set ok [expr !$err]
+    global ifm
 
-    return [list $ok $result $errmsg]
+    set result {}
+    set errmsg {}
+    set err [catch {set result [eval exec $prog $args]} errmsg]
+
+    return [list [expr !$err] $result $errmsg]
 }
 
 # Return whether source has been modified.
@@ -813,13 +845,18 @@ proc Truncate {link wid ht} {
 }
 
 # Set busy state.
-proc Busy {win} {
-    $win configure -cursor watch
+proc Busy {} {
+    global ifm
+    set ifm(oldcursor) [$ifm(text) cget -cursor]
+    $ifm(text) configure -cursor watch
+    update idletasks
 }
 
 # Set unbusy state.
-proc Unbusy {win} {
-    $win configure -cursor left_ptr
+proc Unbusy {} {
+    global ifm
+    $ifm(text) configure -cursor $ifm(oldcursor)
+    update idletasks
 }
 
 # Ask a yes/no question.
