@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include "fig-attr.h"
 #include "fig-object.h"
+#include "fig-util.h"
 
 #define SCALE FIG_RESOLUTION
 
@@ -16,10 +17,24 @@ static vhash *fig_create_object(vhash *parent, int type);
 
 /* Create a new figure */
 vhash *
-fig_create(int units)
+fig_create(int units, float scale)
 {
     vlist *objects;
+    char *uname;
     vhash *obj;
+
+    switch (units) {
+    case FIG_INCHES:
+        uname = "Inches";
+        break;
+    case FIG_METRIC:
+        uname = "Metric";
+        scale *= 0.375;
+        break;
+    default:
+        fig_fatal("invalid units");
+        break;
+    }
 
     obj = fig_create_object(NULL, FIG_ROOT);
 
@@ -27,8 +42,8 @@ fig_create(int units)
     fig_set_orientation(obj, FIG_LANDSCAPE);
 
     vh_istore(obj, "RESOLUTION", SCALE);
-    vh_sstore(obj, "UNITS", units == FIG_INCHES ? "Inches" : "Metric");
-    vh_dstore(obj, "SCALE", units == FIG_INCHES ? 1.0 : 0.375);
+    vh_sstore(obj, "UNITS", uname);
+    vh_dstore(obj, "SCALE", scale);
 
     return obj;
 }
@@ -262,16 +277,4 @@ void
 fig_destroy(vhash *figure)
 {
     v_destroy(figure);
-}
-
-/* Get the root figure of an object */
-vhash *
-fig_get_figure(vhash *object)
-{
-    vhash *parent;
-
-    while ((parent = vh_pget(object, "PARENT")) != NULL)
-        object = parent;
-
-    return object;
 }

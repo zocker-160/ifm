@@ -33,7 +33,7 @@ enum {
     FIG_OPEN_XSPLINE, FIG_CLOSED_XSPLINE
 };
 
-extern vhash *fig_create(int orient);
+extern vhash *fig_create(int orient, float scale);
 extern vhash *fig_create_arc(vhash *parent, int subtype, float cx, float cy,
                              float x1, float y1, float x2, float y2, float x3,
                              float y3);
@@ -53,6 +53,5 @@ extern vhash *fig_create_spline(vhash *parent, int subtype);
 extern vhash *fig_create_text(vhash *parent, float x, float y, char *fmt,
                               ...);
 extern void fig_destroy(vhash *figure);
-extern vhash *fig_get_figure(vhash *object);
 
 #endif

@@ -71,9 +71,9 @@ tkifm = @tkifm@
 
 noinst_LIBRARIES = libfig.a
 
-SRCS = fig-attr.c fig-file.c fig-object.c
+SRCS = fig-attr.c fig-file.c fig-object.c fig-util.c
 
-HDRS = fig-attr.h fig-file.h fig-object.h fig.h
+HDRS = fig-attr.h fig-file.h fig-object.h fig-util.h fig.h
 
 libfig_a_SOURCES = $(SRCS) $(HDRS)
 
@@ -101,7 +101,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libfig_a_LIBADD = 
-libfig_a_OBJECTS =  fig-attr.o fig-file.o fig-object.o
+libfig_a_OBJECTS =  fig-attr.o fig-file.o fig-object.o fig-util.o
 AR = ar
 testfig_OBJECTS =  testfig.o
 testfig_DEPENDENCIES =  libfig.a
@@ -117,7 +117,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/fig-attr.P .deps/fig-file.P .deps/fig-object.P \
-.deps/testfig.P
+.deps/fig-util.P .deps/testfig.P
 SOURCES = $(libfig_a_SOURCES) $(testfig_SOURCES)
 OBJECTS = $(libfig_a_OBJECTS) $(testfig_OBJECTS)
 

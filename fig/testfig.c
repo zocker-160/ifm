@@ -9,7 +9,7 @@ main(void)
 
     v_debug(V_DBG_PTRS);
 
-    figure = fig_create(FIG_INCHES);
+    figure = fig_create(FIG_INCHES, 1.0);
     group = fig_create_compound(figure);
     text = fig_create_text(group, 6.0, 6.0, "Hi there");
     box = fig_create_box(group, 3.0, 3.0, 2.0, 2.0);

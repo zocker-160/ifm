@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include "fig-attr.h"
 #include "fig-object.h"
+#include "fig-util.h"
 
 /* Font list */
 static char *fontlist[] = {

@@ -2,9 +2,9 @@
 
 noinst_LIBRARIES = libfig.a
 
-SRCS = fig-attr.c fig-file.c fig-object.c
+SRCS = fig-attr.c fig-file.c fig-object.c fig-util.c
 
-HDRS = fig-attr.h fig-file.h fig-object.h fig.h
+HDRS = fig-attr.h fig-file.h fig-object.h fig-util.h fig.h
 
 libfig_a_SOURCES = $(SRCS) $(HDRS)
 
