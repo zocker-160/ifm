@@ -330,6 +330,8 @@ setup_links(void)
 	link = vs_pget(elt);
         if (vh_iget(link, "HIDDEN"))
             continue;
+        if (vh_iget(link, "NOLINK"))
+            continue;
 
 	from = vh_pget(link, "FROM");
 	fname = vh_sgetref(from, "DESC");
@@ -346,6 +348,12 @@ setup_links(void)
                 fname, tname);
 	    continue;
 	}
+
+        if (from == to && vh_pget(link, "DIR") == NULL) {
+            err("can't link `%s' to itself without at least one direction",
+                fname);
+            continue;
+        }
 
         /* Add link to section links */
         list = vh_pget(sect, "LINKS");
@@ -534,6 +542,7 @@ setup_sections(void)
             if (first) {
                 minx = maxx = x;
                 miny = maxy = y;
+                first = 0;
             } else {
                 minx = MIN(minx, x);
                 maxx = MAX(maxx, x);
