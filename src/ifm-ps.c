@@ -41,13 +41,13 @@ static struct paper_st {
     char *name;
     double width, height;
 } paper_sizes[] = {
-    "A3",       11.69,  16.54,
-    "A4",       8.27,   11.69,
-    "A",        8.5,    11.0,
-    "B",        11.0,   17.0,
-    "C",        17.0,   22.0,
-    "Legal",    8.5,    14.0,
-    "Letter",   8.5,    11.0,
+    "A3",       29.7,   42.01,
+    "A4",       21.0,   29.7,
+    "A",        21.59,  27.94,
+    "B",        27.94,  43.18,
+    "C",        43.18,  55.88,
+    "Legal",    21.59,  35.56,
+    "Letter",   21.59,  27.94,
     NULL,       0.0,    0.0
 };
 
@@ -55,21 +55,26 @@ static struct paper_st {
 static int ps_rotate = 0;       /* Whether to rotate pages */
 static int ps_rotflag = 0;      /* Whether to override auto-rotation */
 static int ps_pagenum = 0;      /* Current page */
+
 static double ps_xoff;          /* Current X offset */
 static double ps_yoff;          /* Current Y offset */
-static double ps_roomwidth;     /* Current room width factor */
-static double ps_roomheight;    /* Current room height factor */
+static double ps_page_width;    /* Width of a page (cm) */
+static double ps_page_height;   /* Height of a page (cm) */
+static double ps_room_width;    /* Current room width factor */
+static double ps_room_height;   /* Current room height factor */
+static double ps_font_scale;    /* Font scaling factor */
 
 /* Internal functions */
+static int ps_getsize(char *pagesize, double *width, double *height);
 static char *ps_string(char *str);
 
 /* Map functions */
 void
 ps_map_start(void)
 {
-    int ylen, c, num_pages, width, height, i, found;
-    double page_width, page_height;
+    int ylen, c, num_pages, width, height;
     char *title, *pagesize;
+    double boxsize;
     vscalar *elt;
     vhash *sect;
     FILE *fp;
@@ -86,11 +91,6 @@ ps_map_start(void)
     /* Set room names */
     setup_room_names(1, get_int("show_tags", 0));
 
-    /* Pack sections */
-    width = get_int("map_width", 8);
-    height = get_int("map_height", 12);
-    num_pages = pack_sections(width, height, 1);
-
     /* Check overriding of page rotation */
     ps_rotflag = (get_var("page_rotate") != NULL);
     if (ps_rotflag)
@@ -98,21 +98,29 @@ ps_map_start(void)
 
     /* Get paper size */
     pagesize = get_string("page_size", "A4");
-
-    for (i = 0, found = 0; paper_sizes[i].name != NULL; i++) {
-        if (!strcasecmp(pagesize, paper_sizes[i].name)) {
-            page_width = paper_sizes[i].width;
-            page_height = paper_sizes[i].height;
-            found = 1;
-        }
-    }
-    
-    if (!found)
+    if (!ps_getsize(pagesize, &ps_page_width, &ps_page_height))
         warn("invalid page size: %s", pagesize);
 
-    /* Allow override */
-    page_width = get_real("page_width", page_width);
-    page_height = get_real("page_height", page_height);
+    ps_page_width = get_real("page_width", ps_page_width);
+    ps_page_height = get_real("page_height", ps_page_height);
+
+    /* Get global font scaling factor */
+    ps_font_scale = get_real("font_scale", 1.0);
+    ps_font_scale = V_MAX(ps_font_scale, 0.1);
+
+    /* Get desired dimensions, in rooms */
+    width = get_int("map_width", 8);
+    height = get_int("map_height", 12);
+
+    if ((boxsize = get_real("room_size", 0.0)) > 0) {
+        width = (int) (ps_page_width / boxsize);
+        height = (int) (ps_page_height / boxsize);
+        width = V_MAX(width, 1);
+        height = V_MAX(height, 1);
+    }
+
+    /* Pack sections */
+    num_pages = pack_sections(width, height, 1);
 
     /* Print header */
     title = get_string("title", NULL);
@@ -131,15 +139,16 @@ ps_map_start(void)
     fclose(fp);
 
     /* Print variables */
-    printf("/origpagewidth %g inch def\n", page_width);
-    printf("/origpageheight %g inch def\n", page_height);
-    printf("/pagemargin %g inch def\n", get_real("page_margin", 0.7));
+    printf("/origpagewidth %g cm def\n", ps_page_width);
+    printf("/origpageheight %g cm def\n", ps_page_height);
+    printf("/pagemargin %g cm def\n", get_real("page_margin", 2.0));
 
     printf("/origmapwidth %d def\n", width);
     printf("/origmapheight %d def\n", height);
 
     printf("/titlefont /%s def\n", get_string("title_font", "Times-Bold"));
-    printf("/titlefontsize %g def\n", get_real("title_fontsize", 18));
+    printf("/titlefontsize %g def\n",
+           get_real("title_fontsize", 18) * ps_font_scale);
 
     if (title != NULL)
         printf("/titlestring %s def\n", ps_string(title));
@@ -163,8 +172,8 @@ ps_map_section(vhash *sect)
     page = vh_iget(sect, "PAGE");
     ps_xoff = vh_dget(sect, "XOFF");
     ps_yoff = vh_dget(sect, "YOFF");
-    ps_roomwidth = get_real("room_width", 0.8);
-    ps_roomheight = get_real("room_height", 0.65);
+    ps_room_width = get_real("room_width", 0.8);
+    ps_room_height = get_real("room_height", 0.65);
 
     /* Start a new page if required */
     if (page != ps_pagenum) {
@@ -175,19 +184,23 @@ ps_map_section(vhash *sect)
         printf("\n%%%%Page: %d\n\n", ps_pagenum);
 
         printf("/mapfont /%s def\n", get_string("map_font", "Times-Bold"));
-        printf("/mapfontsize %g def\n", get_real("map_fontsize", 14));
+        printf("/mapfontsize %g def\n",
+               get_real("map_fontsize", 14) * ps_font_scale);
 
-        printf("/roomwidth %g def\n", ps_roomwidth);
-        printf("/roomheight %g def\n", ps_roomheight);
+        printf("/roomwidth %g def\n", ps_room_width);
+        printf("/roomheight %g def\n", ps_room_height);
 
         printf("/roomfont /%s def\n", get_string("room_font", "Times-Bold"));
-        printf("/roomfontsize %g def\n", get_real("room_fontsize", 10));
+        printf("/roomfontsize %g def\n",
+               get_real("room_fontsize", 10) * ps_font_scale);
 
         printf("/itemfont /%s def\n", get_string("item_font", "Times-Italic"));
-        printf("/itemfontsize %g def\n", get_real("item_fontsize", 6));
+        printf("/itemfontsize %g def\n",
+               get_real("item_fontsize", 6) * ps_font_scale);
 
         printf("/labelfont /%s def\n", get_string("label_font", "Times-Roman"));
-        printf("/labelfontsize %g def\n", get_real("label_fontsize", 6));
+        printf("/labelfontsize %g def\n",
+               get_real("label_fontsize", 6) * ps_font_scale);
 
         printf("/roomshading %g def\n", 1 - get_real("room_shading", 0.0));
         printf("/roomshadow %g def\n", get_real("room_shadow", 0.0));
@@ -203,7 +216,7 @@ ps_map_section(vhash *sect)
 
         rotate = (ps_rotflag ? ps_rotate : vh_iget(sect, "ROTATE"));
 
-        printf("\n%d %d %s beginpage\n",
+        printf("\n%d %d %s beginpage\n\n",
                vh_iget(sect, "PXLEN"),
                vh_iget(sect, "PYLEN"),
                (rotate ? "true" : "false"));
@@ -215,7 +228,7 @@ ps_map_section(vhash *sect)
         xpos = (double) (xlen - 1) / 2;
         ylen = vh_iget(sect, "YLEN");
         ypos = ylen - 1;
-        printf("\n%s %g %g map\n", ps_string(vh_sgetref(sect, "TITLE")),
+        printf("%s %g %g map\n\n", ps_string(vh_sgetref(sect, "TITLE")),
                xpos + ps_xoff, ypos + ps_yoff);
     }
 }
@@ -278,7 +291,7 @@ ps_map_room(vhash *room)
             vl_istore(py, 0, y);
             vl_istore(px, 1, x + vl_ishift(ex));
             vl_istore(py, 1, y + vl_ishift(ey));
-            truncate_points(px, py, ps_roomwidth, ps_roomheight);
+            truncate_points(px, py, ps_room_width, ps_room_height);
             x1 = vl_dget(px, 0);
             y1 = vl_dget(py, 0);
             x2 = vl_dget(px, 1);
@@ -307,7 +320,7 @@ ps_map_link(vhash *link)
 
     x = vh_pget(link, "X");
     y = vh_pget(link, "Y");
-    truncate_points(x, y, ps_roomwidth, ps_roomheight);
+    truncate_points(x, y, ps_room_width, ps_room_height);
 
     printf("[");
     np = vl_length(x);
@@ -335,6 +348,23 @@ void
 ps_map_finish(void)
 {
     printf("\nendpage\n");
+}
+
+/* Get page dimensions given a page description */
+static int
+ps_getsize(char *pagesize, double *width, double *height)
+{
+    int i;
+
+    for (i = 0; paper_sizes[i].name != NULL; i++) {
+        if (!strcasecmp(pagesize, paper_sizes[i].name)) {
+            *width = paper_sizes[i].width;
+            *height = paper_sizes[i].height;
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 /* Return a string suitable for passing to PostScript */
