@@ -11,9 +11,8 @@ scr2ifm [options] file [file...]
 SCR2IFM -- create an IFM map from a game transcript
 ***************************************************
 
-This Info file describes version 1.0 of scr2ifm, a program for creating
-maps in Ifm (*note Ifm:(ifm).) format from one or more files containing
-game transcripts.
+This Info file describes scr2ifm, a program for creating maps in IFM (*note
+Ifm:(ifm).) format from one or more files containing game transcripts.
 
 =end inf
 
