@@ -64,37 +64,65 @@ tk_map_start(void)
     /* Set room names */
     setup_room_names(1, get_int("show_tags", 0));
 
-    /* Set variables */
-    printf("set ifm(mapwidth) %d\n", get_int("map_width", 8));
-    printf("set ifm(mapheight) %d\n", get_int("map_height", 6));
-    printf("set ifm(mapcol) %s\n", get_string("map_colour", "wheat"));
+    /* Canvas variables */
+    printf("set ifm(mapwidth) %d\n",
+           get_int("canvas_width", 8));
+    printf("set ifm(mapheight) %d\n",
+           get_int("canvas_height", 6));
+    printf("set ifm(mapcol) %s\n",
+           get_string("canvas_background_colour", "wheat"));
 
-    printf("set ifm(roomsize) %g\n", get_real("room_size", 3.0));
-    printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
-    printf("set ifm(roomheight) %g\n", get_real("room_height", 0.65));
-    printf("set ifm(roomlinewidth) %d\n", get_int("room_linewidth", 2));
-    printf("set ifm(roomshadow) %g\n", get_real("room_shadow", 0.0));
-    printf("set ifm(roomfont) {%s}\n", get_string("room_font",
-                                                  "Times 10 bold"));
-    printf("set ifm(puzzlecol) %s\n", get_string("room_puzzle_colour",
-                                                 "grey80"));
+    /* Room variables */
+    printf("set ifm(roomsize) %g\n",
+           get_real("room_size", 3.0));
+    printf("set ifm(roomwidth) %g\n",
+           get_real("room_width", 0.8));
+    printf("set ifm(roomheight) %g\n",
+           get_real("room_height", 0.65));
+    printf("set ifm(roomlinewidth) %g\n",
+           get_real("room_border_width", 1.0));
+    printf("set ifm(roomshadow) %g\n",
+           get_real("room_shadow_size", 0.0));
+    printf("set ifm(roomfont) {%s}\n",
+           get_string("room_text_fontdef", "Times 10 bold"));
+    printf("set ifm(puzzlecol) %s\n",
+           get_string("room_puzzle_colour", "grey"));
+    printf("set ifm(roomtextcol) %s\n",
+           get_string("room_text_colour", "black"));
+    printf("set ifm(bordercol) %s\n",
+           get_string("room_border_colour", "black"));
+    printf("set ifm(roomcol) %s\n",
+           get_string("room_colour", "white"));
+    printf("set ifm(shadowcol) %s\n",
+           get_string("room_shadow_colour", "grey30"));
+    printf("set ifm(exitwidth) %g\n",
+           get_real("room_exit_width", 1.0));
+    printf("set ifm(exitcol) %s\n",
+           get_string("room_exit_colour", "black"));
 
-    printf("set ifm(exitlinewidth) %d\n", get_int("exit_linewidth", 2));
-    printf("set ifm(exitcol) %s\n", get_string("exit_colour", "red"));
+    /* Item variables */
+    printf("set ifm(showitems) %d\n",
+           get_int("show_items", 0));
+    printf("set ifm(itemfont) {%s}\n",
+           get_string("item_text_fontdef", "Times 8 italic"));
+    printf("set ifm(itemcol) {%s}\n",
+           get_string("item_text_colour", "black"));
 
-    printf("set ifm(showitems) %d\n", get_int("show_items", 0));
-    printf("set ifm(itemfont) {%s}\n", get_string("item_font",
-                                                  "Times 8 italic"));
-
-    printf("set ifm(linklinewidth) %d\n", get_int("link_linewidth", 1));
-    printf("set ifm(curvelines) %s\n", (get_int("link_spline", 1) ?
-                                        "true" : "false"));
-    printf("set ifm(specialcol) %s\n", get_string("link_special_colour",
-                                                  "blue"));
-
-    printf("set ifm(labelcol) %s\n", get_string("label_colour", "red"));
-    printf("set ifm(labelfont) {%s}\n", get_string("label_font",
-                                                   "Times 8 bold"));
+    /* Link variables */
+    printf("set ifm(linkwidth) %g\n",
+           get_real("link_line_width", 1.0));
+    printf("set ifm(linkspline) %s\n",
+           (get_int("link_spline", 1) ? "true" : "false"));
+    printf("set ifm(linkspecialcol) %s\n",
+           get_string("link_special_colour", "blue"));
+    printf("set ifm(linkcol) %s\n",
+           get_string("link_text_colour", "red"));
+    printf("set ifm(linkfont) {%s}\n",
+           get_string("link_text_fontdef", "Times 8 bold"));
+    printf("set ifm(linkupdown) {%s}\n",
+           get_string("link_updown_string", "U/D"));
+    printf("set ifm(linkinout) {%s}\n",
+           get_string("link_inout_string", "I/O"));
 }
 
 void
