@@ -53,17 +53,14 @@ tk_map_start(void)
     printf("set ifm(pagewidth) %s\n", get_string("page_width", "7i"));
     printf("set ifm(pageheight) %s\n", get_string("page_height", "7i"));
 
-    printf("set ifm(mapwidth) %d\n", get_int("map_width", 10));
-    printf("set ifm(mapheight) %d\n", get_int("map_height", 8));
+    printf("set ifm(mapwidth) %d\n", get_int("map_width", 8));
+    printf("set ifm(mapheight) %d\n", get_int("map_height", 6));
 
     printf("set ifm(framewidth) %g\n", get_real("box_width", 3.0));
     printf("set ifm(frameheight) %g\n", get_real("box_height", 3.0));
 
     printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
     printf("set ifm(roomheight) %g\n", get_real("room_height", 0.65));
-
-    printf("set ifm(highlight) %s\n", get_string("room_highlight",
-                                                 "SeaGreen1"));
 
     printf("set ifm(roomfont) {%s}\n", get_string("room_font",
                                                   "Times 10 bold"));
@@ -85,7 +82,7 @@ tk_map_section(vhash *sect)
     num++;
 
     if (title == NULL)
-        sprintf(buf, "Section %d", num);
+        sprintf(buf, "Map section %d", num);
     else
         strcpy(buf, title);
 
