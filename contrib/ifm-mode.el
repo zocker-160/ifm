@@ -14,6 +14,58 @@
   (setq ifm-mode-map (make-sparse-keymap))
   (define-key ifm-mode-map "\t" 'indent-relative))
 
+(defconst ifm-structure-regexp
+  (regexp-opt '("room") 'words)
+  "Regexp matching structure keywords in IFM mode.")
+
+(defconst ifm-direction-regexp
+  (regexp-opt '("n" "north" "ne" "northeast" "e" "east" "se" "southeast"
+		"s" "south" "sw" "southwest" "w" "west" "nw" "northwest")
+	      'words)
+  "Regexp matching direction names in IFM mode.")
+
+(defconst ifm-special-regexp
+  (regexp-opt '("endstyle" "style" "title" "map" "include" "start" "finish"
+		"safe" "ignore")
+	      'words)
+  "Regexp matching special keywords in IFM mode.")
+
+(defconst ifm-builtin-regexp
+  (regexp-opt '("all" "any" "it" "last" "none" "undef")
+	      'words)
+  "Regexp matching builtin names in IFM mode.")
+
+(defconst ifm-keyword-regexp
+  (regexp-opt '("after" "before" "cmd" "d" "down" "dir" "drop" "except"
+		"exit" "follow" "from" "get" "give" "go" "goto" "hidden"
+		"in" "item" "join" "keep" "leave" "length" "link" "lose"
+		"lost" "need" "nolink" "nopath" "note" "oneway" "out"
+		"score" "tag" "task" "to" "u" "up" "until" "with")
+	      'words)
+  "Regexp matching general keywords in IFM mode.")
+
+(defconst ifm-obsolete-regexp
+  (regexp-opt '("given" "puzzle" "special" "times") 'words)
+  "Regexp matching obsolete keywords in IFM mode.")
+
+(defconst ifm-font-lock-keywords
+  (list
+   (cons "#.*" font-lock-comment-face)
+   (cons "\"[^\"]*\"" font-lock-string-face)
+   (cons ifm-special-regexp font-lock-constant-face)
+   (cons ifm-structure-regexp font-lock-function-name-face)
+   (cons ifm-direction-regexp font-lock-variable-name-face)
+   (cons ifm-keyword-regexp font-lock-keyword-face)
+   (cons ifm-builtin-regexp font-lock-builtin-face)
+   (cons ifm-obsolete-regexp font-lock-warning-face)
+   )
+  "Font-lock keywords in IFM mode.")
+
+(add-hook 'ifm-mode-hook
+	  (function (lambda ()
+		      (make-local-variable 'font-lock-defaults)
+		      (setq font-lock-defaults '(ifm-font-lock-keywords t)))))
+
 (defun ifm-mode ()
   "Major mode for editing Interactive Fiction maps.
 
@@ -35,7 +87,7 @@ before doing anything else."
   (if ifm-mode-syntax-table
       nil
     (setq ifm-mode-syntax-table (copy-syntax-table))
-    (modify-syntax-entry ?_ "w" ifm-mode-syntax-table)
+    ;;(modify-syntax-entry ?_ "w" ifm-mode-syntax-table)
     (set-syntax-table ifm-mode-syntax-table))
   ;; Activate keymap.
   (use-local-map ifm-mode-map)
