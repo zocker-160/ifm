@@ -40,40 +40,20 @@ static struct driver_st {
     taskfuncs *tfunc;
     errfuncs  *efunc;
 } drivers[] = {
-#ifdef PS
-    {
-        "ps", "PostScript",
-        &ps_mapfuncs, NULL, NULL, NULL
-    },
-#endif
+    { "ps", "PostScript",
+      &ps_mapfuncs, NULL, NULL, NULL },
 
-#ifdef TEXT
-    {
-        "text", "Nicely-formatted ASCII text",
-        NULL, &text_itemfuncs, &text_taskfuncs, NULL
-    },
-#endif
+    { "text", "Nicely-formatted ASCII text",
+      NULL, &text_itemfuncs, &text_taskfuncs, NULL },
 
-#ifdef TK
-    {
-        "tk", "Tcl/Tk program commands",
-        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs
-    },
-#endif
+    { "tk", "Tcl/Tk program commands",
+      &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs },
 
-#ifdef RAW
-    {
-        "raw", "Raw ASCII text fields",
-        &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL
-    },
-#endif
+    { "raw", "Raw ASCII text fields",
+      &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL },
 
-#ifdef REC
-    {
-        "rec", "Recording of game commands",
-        NULL, NULL, &rec_taskfuncs, NULL
-    },
-#endif
+    { "rec", "Recording of game commands",
+      NULL, NULL, &rec_taskfuncs, NULL }
 };
 
 #define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))

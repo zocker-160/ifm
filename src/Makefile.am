@@ -23,9 +23,8 @@ EXTRA_DIST = $(LIBFILES)
 
 YFLAGS = -d -v
 
-INCLUDES = -DPS -DTEXT -DTK -DRAW -DREC -DPS_PROLOG=\"$(PS_PROLOG)\"	\
--DSYSINIT=\"$(pkgdatadir)/ifm-init.ifm\" -DIFMPATH=\".:$(pkgdatadir)\"	\
--I$(IFMLIBDIR)
+INCLUDES = -I$(IFMLIBDIR) -DSYSINIT=\"$(pkgdatadir)/ifm-init.ifm\"	\
+-DIFMPATH=\".:$(pkgdatadir)\" -DPS_PROLOG=\"$(PS_PROLOG)\"
 
 $(bin_PROGRAMS): $(IFMLIBDIR)/libvars.a
 
