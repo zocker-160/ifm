@@ -1,9 +1,6 @@
-#! @perl@
-
-### scr2ifm -- convert game transcript to IFM
+### scr2ifm -- convert game transcript to IFM format
 
 require 5.002;
-
 use Getopt::Std;
 
 # Compass direction command -> direction mapping.
