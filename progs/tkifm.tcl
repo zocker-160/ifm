@@ -3,6 +3,19 @@
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; see the file COPYING for details.
 
+# Global variables.
+set ifm(mapcmd)  {ifm -map   -format tk}
+set ifm(itemcmd) {ifm -items -format text}
+set ifm(taskcmd) {ifm -tasks -format text}
+
+set ifm(editfont) {Courier 12 bold}
+set ifm(textfont) {Times 12 bold}
+
+set ifm(file) "untitled.ifm"
+set ifm(path) "untitled.ifm"
+set ifm(filetypes) {{"IFM files" {.ifm}} {"All files" *}}
+set ifm(compiled) ""
+
 # Set up the main window.
 proc MainWindow {file} {
     global ifm sects
@@ -16,7 +29,6 @@ proc MainWindow {file} {
     set c $m.file
     menu $c
     $m add cascade -label "File" -menu $c -underline 0
-
     $c add command -label "Open..."    -command Open   -underline 0
     $c add command -label "Save"       -command Save   -underline 0
     $c add command -label "Save As..." -command SaveAs -underline 5
@@ -35,14 +47,12 @@ proc MainWindow {file} {
     set c $m.items
     menu $c
     $m add cascade -label "Items" -menu $c -underline 0
-
     $c add command -label "Item list" -command ShowItems -underline 0
 
     # Task options.
     set c $m.tasks
     menu $c
     $m add cascade -label "Tasks" -menu $c -underline 0
-
     $c add command -label "Task list" -command ShowTasks -underline 0
 
     # Configure menu.
@@ -66,7 +76,6 @@ proc MainWindow {file} {
     if {$file != ""} {
 	Input $file
 	Compile $file
-	SetModified 0
     }
 
     focus .
@@ -110,7 +119,8 @@ proc DrawMap {sect} {
 	    -scrollregion "0 0 ${width}c ${height}c" \
 	    -xscrollcommand "$f.xscroll set" \
 	    -yscrollcommand "$f.yscroll set" \
-	    -relief sunken
+	    -relief sunken \
+	    -bg $ifm(mapcol)
     scrollbar $f.xscroll -command "$c xview" -orient horiz
     scrollbar $f.yscroll -command "$c yview"
 
@@ -138,6 +148,11 @@ proc DrawMap {sect} {
 
 	    set cmd "$c create line"
 	    for {set i 0} {$i < [llength $xlist]} {incr i} {
+		if {$i > 0} {
+		    set xlast $x
+		    set ylast $y
+		}
+
 		set xoff [lindex $xlist $i]
 		set yoff [lindex $ylist $i]
 		set yoff [expr $ylen - 1 - $yoff]
@@ -147,8 +162,24 @@ proc DrawMap {sect} {
 	    }
 
 	    if {$oneway} {lappend cmd -arrow last}
-	    lappend cmd -width 2 -smooth $ifm(curvelines)
+	    if {$special} {lappend cmd -fill $ifm(specialcol)}
+
+	    lappend cmd -width $ifm(linklinewidth) -smooth $ifm(curvelines)
 	    eval $cmd
+
+	    if {$updown || $inout} {
+		set xmid [expr ($x + $xlast) / 2]
+		set ymid [expr ($y + $ylast) / 2]
+
+		if {$updown} {
+		    set text "U/D"
+		} else {
+		    set text "I/O"
+		}
+
+		$c create text ${xmid}c ${ymid}c -text $text \
+			-font $ifm(labelfont) -fill $ifm(labelcol)
+	    }
 	}
     }
 
@@ -170,7 +201,7 @@ proc DrawMap {sect} {
 	    if {$puzzle} {set fillcol $ifm(puzzlecol)}
 
 	    $c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
-		    -width 2 -fill $fillcol
+		    -width $ifm(roomlinewidth) -fill $fillcol
 
 	    set xc [expr ( $xmin + $xmax ) / 2]
 	    set yc [expr ( $ymin + $ymax ) / 2]
@@ -211,7 +242,7 @@ proc ShowItems {} {
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
-    $t insert 0.0 $data
+    $t insert end $data
     $t configure -state disabled
 
     focus $w
@@ -244,7 +275,7 @@ proc ShowTasks {} {
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
-    $t insert 0.0 $data
+    $t insert end $data
     $t configure -state disabled
 
     focus $w
@@ -265,15 +296,21 @@ proc Input {file} {
 	Error "Can't open $file"
 	return
     }
+
+    set ifm(data) [read -nonewline $fd]
+    close $fd
 	
     set ifm(file) [file tail $file]
     set ifm(path) $file
+
     $ifm(text) delete 0.0 end
-    $ifm(text) insert 0.0 [read -nonewline $fd]
-    $ifm(text) tag add text 0.0 end
-    $ifm(text) tag bind text <KeyPress> {SetModified 1}
+    $ifm(text) insert end $ifm(data)
+    append ifm(data) "\n"
+
     set ifm(compiled) ""
-    close $fd
+
+    wm iconname . $ifm(file)
+    wm title . $ifm(file)
 }
 
 # Compile IFM source.
@@ -438,18 +475,6 @@ proc AddTask {desc note roomnum score} {
     Set $var score $score
 }
 
-# Set a variable reference.
-proc Set {var attr val} {
-    global $var
-    set ${var}($attr) $val
-}
-
-# Return value of a variable reference.
-proc Get {var attr} {
-    global $var
-    return [set ${var}($attr)]
-}
-
 # Open a file and parse it.
 proc Open {} {
     global ifm
@@ -460,7 +485,6 @@ proc Open {} {
     if [string length $file] {
 	Input $file
 	Compile $file
-	SetModified 0
     }
 }
 
@@ -473,10 +497,9 @@ proc Save {} {
 	return
     }
 
-    puts -nonewline $fd [$ifm(text) get 0.0 end]
+    set ifm(data) [$ifm(text) get 0.0 end]
+    puts -nonewline $fd $ifm(data)
     close $fd
-
-    SetModified 0
 }
 
 # Save current file under another name.
@@ -496,7 +519,7 @@ proc SaveAs {} {
 proc MaybeSave {} {
     global ifm
 
-    if $ifm(modified) {
+    if [Modified] {
 	set reply [Yesno "$ifm(path) has been modified.  Save it?" "yes"]
 	if {$reply == "cancel"} {return 0}
 	if {$reply == "yes"} Save
@@ -513,6 +536,14 @@ proc Redraw {} {
     Compile $ifm(path)
 }
 
+# Quit.
+proc Quit {} {
+    global ifm
+
+    if {[MaybeSave] == 0} return
+    destroy .
+}
+
 # Run a program and return its results.
 proc RunProgram {prog args} {
     set result {}
@@ -523,18 +554,12 @@ proc RunProgram {prog args} {
     return [list $ok $result $errmsg]
 }
 
-# Set file modified flag.
-proc SetModified {flag} {
+# Return whether source has been modified.
+proc Modified {} {
     global ifm
-
-    set ifm(modified) $flag
-    wm iconname . $ifm(file)
-
-    if {$flag} {
-	wm title . "$ifm(file) (modified)"
-    } else {
-	wm title . "$ifm(file)"
-    }
+    set curdata [$ifm(text) get 0.0 end]
+    if {$ifm(data) != $curdata} {return 1}
+    return 0
 }
 
 # Truncate links to join on to boxes properly.
@@ -595,37 +620,27 @@ proc Error {message} {
 	    -default ok -title "Oops!" -icon error
 }
 
-# Quit.
-proc Quit {} {
-    if {[MaybeSave] == 0} return
-    destroy .
+# Set a variable reference.
+proc Set {var attr val} {
+    global $var
+    set ${var}($attr) $val
 }
 
-# Global variables.
-set ifm(mapcmd)  {ifm -map   -format tk}
-set ifm(itemcmd) {ifm -items -format text}
-set ifm(taskcmd) {ifm -tasks -format text}
-
-set ifm(editfont) {Courier 12 bold}
-set ifm(textfont) {Times 12 bold}
-
-set ifm(file) "untitled.ifm"
-set ifm(path) "untitled.ifm"
-set ifm(filetypes) {{"IFM files" {.ifm}} {"All files" *}}
-set ifm(compiled) ""
-set ifm(modified) 1
+# Return value of a variable reference.
+proc Get {var attr} {
+    global $var
+    return [set ${var}($attr)]
+}
 
 # Allow customizations.
 set rcfile [file join $env(HOME) .tkifm]
 if [file readable $rcfile] {source $rcfile}
 
 # Parse arguments.
-set file ""
-
-switch $argc {
-    1 { 
-	set file [lindex $argv 0]
-    }
+if {$argc == 1} {
+    set file [lindex $argv 0]
+} else {
+    set file ""
 }
 
 # Boot up.
