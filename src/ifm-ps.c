@@ -34,6 +34,9 @@ static double ps_yoff;          /* Current Y offset */
 static double ps_roomwidth;     /* Current room width factor */
 static double ps_roomheight;    /* Current room height factor */
 
+/* Scribble buffer */
+static char buf[BUFSIZ];
+
 /* Internal functions */
 static char *ps_string(char *str);
 
@@ -41,9 +44,9 @@ static char *ps_string(char *str);
 void
 ps_map_start(void)
 {
-    char *title, *name, tag[10], buf[BUFSIZ];
     int ylen, c, num_pages, width, height;
     vhash *sect, *join, *from, *to;
+    char *title, *name, tag[10];
     vscalar *elt;
     int jnum = 0;
     FILE *fp;
@@ -154,7 +157,7 @@ ps_map_section(vhash *sect)
         printf("/itemfontsize %g def\n", get_real("item_fontsize", 6));
 
         printf("/labelfont /%s def\n", get_string("label_font", "Times-Roman"));
-        printf("/labelfontsize %g def\n", get_real("label_fontsize", 8));
+        printf("/labelfontsize %g def\n", get_real("label_fontsize", 6));
 
         printf("/roomshading %g def\n", 1 - get_real("room_shading", 0.0));
 
