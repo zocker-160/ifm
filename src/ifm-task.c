@@ -322,11 +322,7 @@ goto_room(vhash *task)
         return;
 
     /* Add movement tasks */
-    if (vh_iget(task, "BLOCK"))
-        path = vh_pget(task, "PATH");
-    else
-        path = get_path(room);
-
+    path = get_path(task, room);
     last = location;
 
     vl_foreach(elt, path) {
@@ -535,7 +531,7 @@ setup_tasks(void)
     /* Process rooms and map connections */
     vl_foreach(elt, rooms) {
         room = vs_pget(elt);
-        rlist = vh_pget(room, "REACH");
+        rlist = reachable_rooms(room);
 
         /* Flag 'before' tasks for this room as unsafe */
         if ((list = vh_pget(room, "BEFORE")) != NULL) {
@@ -544,6 +540,16 @@ setup_tasks(void)
                 step = vh_pget(task, "STEP");
                 vh_istore(step, "MODPATH", 1);
                 vh_sstore(step, "UNSAFE", "closes off room");
+            }
+        }
+
+        /* Mention 'after' tasks for this room */
+        if ((list = vh_pget(room, "AFTER")) != NULL) {
+            vl_foreach(elt, list) {
+                task = vs_pget(elt);
+                step = vh_pget(task, "STEP");
+                vh_istore(step, "MODPATH", 1);
+                add_task(step);
             }
         }
 
