@@ -12,7 +12,7 @@ main(void)
     figure = fig_create(FIG_INCHES);
     group = fig_create_compound(figure);
     text = fig_create_text(group, 6.0, 6.0, "Hi there");
-    box = fig_create_box(group, 3.0, 3.0, 5.0, 6.0);
+    box = fig_create_box(group, 3.0, 3.0, 2.0, 2.0);
     line = fig_create_line(figure, 1.0, 1.0, 7.0, 3.0);
     spline = fig_create_spline(figure, FIG_OPEN_INTERP);
 
@@ -30,12 +30,13 @@ main(void)
     fig_set_fillcolour(box, 1.0, 1.0, 0.0);
     fig_set_colour(box, 0.0, 1.0, 0.0);
     fig_set_colour(text, 1.0, 0.0, 0.0);
+    fig_set_name(group, "My group");
     fig_set_name(box, "My box");
     fig_set_arrow(line, 1, 0);
     fig_set_arrow(spline, 1, 0);
 
 #if 0
-    pic = fig_create_picture(figure, 4.0, 2.0, 6.6, 6.0, "piccie.jpg");
+    pic = fig_create_picture(figure, 4.0, 2.0, 2.6, 4.0, "piccie.jpg");
     fig_set_depth(pic, 50);
 #endif
 
