@@ -60,40 +60,21 @@ add_task(vhash *task)
 void
 check_cycles(void)
 {
-    char *before, *after, *line, *id;
-    vlist *list, *tsort, *cycles;
-    int count = 0;
+    vlist *tsort, *cycles;
+    char *line, *id;
     vscalar *elt;
     vhash *step;
+    vlist *list;
     vbuffer *b;
     vgraph *g;
+    int count;
 
     /* Don't bother if no tasks */
     if (tasklist == NULL || vl_length(tasklist) == 0)
         return;
 
-    /* Build directed graph */
-    g = vg_create();
-
-    vl_foreach(elt, tasklist) {
-        step = vs_pget(elt);
-        sprintf(buf, "T%d", ++count);
-        vh_sstore(step, "ID", buf);
-        vg_node_pstore(g, buf, step);
-    }
-
-    vl_foreach(elt, tasklist) {
-        step = vs_pget(elt);
-        if ((list = vh_pget(step, "DEPEND")) == NULL)
-            continue;
-
-        after = vh_sgetref(step, "ID");
-        vl_foreach(elt, list) {
-            step = vs_pget(elt);
-            before = vh_sgetref(step, "ID");
-            vg_link_oneway(g, before, after);
-        }
-    }
+    /* Build task graph */
+    g = task_graph();
 
     /* Do topological sort */
     if ((tsort = vg_tsort(g)) != NULL) {
@@ -1062,6 +1043,44 @@ solve_game(void)
             DEBUG0(2, "no more tasks\n");
         }
     } while (tasksleft);
+}
+
+/* Build task dependency graph */
+vgraph *
+task_graph(void)
+{
+    char *before, *after;
+    int count = 0;
+    vscalar *elt;
+    vlist *list;
+    vhash *step;
+    vgraph *g;
+
+    g = vg_create();
+
+    if (tasklist != NULL) {
+        vl_foreach(elt, tasklist) {
+            step = vs_pget(elt);
+            sprintf(buf, "T%d", ++count);
+            vh_sstore(step, "ID", buf);
+            vg_node_pstore(g, buf, step);
+        }
+
+        vl_foreach(elt, tasklist) {
+            step = vs_pget(elt);
+            if ((list = vh_pget(step, "DEPEND")) == NULL)
+                continue;
+
+            after = vh_sgetref(step, "ID");
+            vl_foreach(elt, list) {
+                step = vs_pget(elt);
+                before = vh_sgetref(step, "ID");
+                vg_link_oneway(g, before, after);
+            }
+        }
+    }
+
+    return g;
 }
 
 /* Return current status of a task */
