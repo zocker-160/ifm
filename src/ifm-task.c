@@ -17,8 +17,9 @@
 #include "ifm-vars.h"
 
 #define TS_INVALID 0
-#define TS_UNSAFE  1
-#define TS_SAFE    2
+#define TS_IGNORED 1
+#define TS_UNSAFE  2
+#define TS_SAFE    3
 
 /* Task step list */
 vlist *tasklist = NULL;
@@ -538,6 +539,8 @@ new_task(int type, vhash *data)
     if (vh_exists(data, "NOTE") && type != T_DROP)
         vh_pstore(step, "NOTE", vh_pget(data, "NOTE"));
 
+    vh_istore(step, "IGNORE", vh_iget(data, "IGNORE"));
+
     vh_sstore(step, "DESC", buf);
     vh_pstore(step, "ROOM", room);
     vh_istore(step, "SCORE", score);
@@ -922,8 +925,8 @@ setup_tasks(void)
 void
 solve_game(void)
 {
+    int drop, dropped, tasksleft, status, ignore = 0;
     vhash *step, *trystep, *item, *task, *next;
-    int drop, dropped, tasksleft, status;
     vlist *itasks;
     vscalar *elt;
 
@@ -1019,6 +1022,12 @@ solve_game(void)
             if ((status = task_status(location, trystep)) == TS_INVALID)
                 continue;
 
+            /* Check task isn't ignored */
+            if (status == TS_IGNORED) {
+                ignore++;
+                continue;
+            }
+
             if (status == TS_SAFE) {
                 /* A safe task -- choose it */
                 step = trystep;
@@ -1037,7 +1046,10 @@ solve_game(void)
             next = vh_pget(step, "NEXT");
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
-            warn_failure();
+            if (!ignore)
+                warn_failure();
+            else
+                DEBUG1(2, "%d ignored tasks\n", ignore);
             break;
         } else {
             DEBUG0(2, "no more tasks\n");
@@ -1095,6 +1107,20 @@ task_status(vhash *room, vhash *step)
     if (require_task(step) != NULL)
         return TS_INVALID;
 
+    /* Task must not be ignored */
+    if (vh_iget(step, "IGNORED"))
+        return TS_INVALID;
+
+    if (vh_iget(step, "IGNORE")) {
+        if (!vh_iget(step, "IGNORED")) {
+            DEBUG1(2, "consider: %s", vh_sgetref(step, "DESC"));
+            DEBUG0(3, "not possible: explicitly ignored");
+            vh_istore(step, "IGNORED", 1);
+        }
+
+        return TS_IGNORED;
+    }
+
     DEBUG1(2, "consider: %s", vh_sgetref(step, "DESC"));
 
     /* If task is done elsewhere, make sure you can get there */
@@ -1116,6 +1142,7 @@ task_status(vhash *room, vhash *step)
         /* If no return path, mark it as unsafe */
         if (gotoroom == NULL)
             gotoroom = taskroom;
+
         if (gotoroom != NULL && find_path(NULL, gotoroom, room) == NOPATH)
             safemsg = "no return path";
 
@@ -1125,6 +1152,7 @@ task_status(vhash *room, vhash *step)
 
             if (droproom == NULL)
                 droproom = taskroom;
+
             if (droproom == NULL)
                 droproom = location;
 
@@ -1136,10 +1164,13 @@ task_status(vhash *room, vhash *step)
     if (ifm_debug) {
         indent(2);
         printf("possible: %s", vh_sgetref(step, "DESC"));
+
         if (len > 0)
             printf(" (dist %d)", len);
+
         if (safemsg != NULL)
             printf(" (unsafe: %s)", safemsg);
+
         printf("\n");
     }
 

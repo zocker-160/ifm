@@ -75,6 +75,9 @@ dot_task_finish(void)
             continue;
 
         step = vg_node_pget(g, node);
+        if (vh_iget(step, "IGNORE"))
+            continue;
+
         room = vh_pget(step, "ROOM");
         name = room ? vh_sgetref(room, "DESC") : "";
 

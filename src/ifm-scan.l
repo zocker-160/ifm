@@ -114,6 +114,7 @@ VAR             \${ID}
 "go"		{ return GO; }
 "goto"		{ return GOTO; }
 "hidden"	{ return HIDDEN; }
+"ignore"	{ return IGNORE; }
 "in"		{ return IN; }
 "it"		{ return IT; }
 "item"		{ return ITEM; }

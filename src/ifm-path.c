@@ -472,7 +472,7 @@ init_path(vhash *room)
         vl_foreach(elt, tasklist) {
             step = vs_pget(elt);
 
-            if (vh_iget(step, "DONE"))
+            if (vh_iget(step, "DONE") || vh_iget(step, "IGNORED"))
                 continue;
 
             if ((len = vh_iget(step, "DIST")) == BIG)

@@ -76,7 +76,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH
+%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH IGNORE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -95,6 +95,8 @@ static int instyle = 0;         /* Set variable in different style? */
 %left	      '*' '/' '%'
 %left	      PLUS MINUS
 %right	      '^'
+
+%expect 4
 
 %%
 
@@ -525,6 +527,10 @@ item_attr	: TAG ID
 		{
                     vh_istore(curobj, "LOST", 1);
 		}
+		| IGNORE
+		{
+                    vh_istore(curobj, "IGNORE", 1);
+		}
 		| KEEP
 		{
                     vh_istore(curobj, "KEEP", 1);
@@ -931,6 +937,10 @@ task_attr	: TAG ID
 		| IN ANY
 		{
                     vh_istore(curobj, "NOROOM", 1);
+		}
+		| IGNORE
+		{
+                    vh_istore(curobj, "IGNORE", 1);
 		}
                 | SAFE
                 {
