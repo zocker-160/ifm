@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS	= foreign
 SUBDIRS			= @BUILD@
 DIST_SUBDIRS		= lib src doc tests scr2ifm tkifm
-EXTRA_DIST		= README.src README.win32 README.maps README.lib
+EXTRA_DIST		= README.src README.win32 README.maps
 
 dist-hook:;		cp -rp config contrib $(distdir)
 
