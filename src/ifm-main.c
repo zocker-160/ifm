@@ -101,6 +101,7 @@ static void draw_items(int fmt);
 static void draw_tasks(int fmt);
 static int itemsort(vscalar **ip1, vscalar **ip2);
 static int parse_input(char *file, int required);
+static void print_version(void);
 static int select_format(char *str);
 static int default_format(int output);
 static void usage(void);
@@ -149,6 +150,9 @@ main(int argc, char *argv[])
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
+    v_option('V', "version", V_OPT_FLAG, NULL,
+             "Print program version");
+
     v_option('h', "help", V_OPT_FLAG, NULL,
              "This help message");
 
@@ -162,6 +166,9 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "help"))
         usage();
+
+    if (vh_exists(opts, "version"))
+        print_version();
 
     if (vh_exists(opts, "map"))
         output |= O_MAP;
@@ -581,6 +588,16 @@ fatal(char *fmt, ...)
     VPRINT(buf, fmt);
     fprintf(stderr, "%s: error: %s\n", progname, buf);
     exit(1);
+}
+
+/* Print program version and exit */
+static void
+print_version(void)
+{
+    printf("This is Ifm version %s, copyright (C) G. Hutchings\n", VERSION);
+    printf("Ifm is free software, and comes with ABSOLUTELY NO WARRANTY.\n");
+
+    exit(0);
 }
 
 /* Print a usage message and exit */
