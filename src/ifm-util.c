@@ -13,6 +13,98 @@
 #include <math.h>
 #include "ifm.h"
 
+/* Return an integer variable */
+int
+get_int(char *id, int def)
+{
+    vscalar *var = get_var(id);
+
+    if (var != NULL)
+        return vs_ival(var);
+    return def;
+}
+
+/* Return a real variable */
+double
+get_real(char *id, double def)
+{
+    vscalar *var = get_var(id);
+
+    if (var != NULL)
+        return vs_dval(var);
+    return def;
+}
+
+/* Return a string variable */
+char *
+get_string(char *id, char *def)
+{
+    vscalar *var = get_var(id);
+
+    if (var != NULL)
+        return vs_svalcopy(var);
+    return def;
+}
+
+/* Return a scalar variable from the symbol table */
+vscalar *
+get_var(char *id)
+{
+    vhash *h1, *h2;
+    vscalar *var;
+
+    /* Try driver-based symbol table first */
+    if (ifm_format != NULL) {
+        h1 = vh_pget(vars, ifm_format);
+
+        if (ifm_output != NULL) {
+            h2 = vh_pget(h1, ifm_output);
+            var = vh_get(h2, id);
+        }
+
+        if (var == NULL) {
+            h2 = vh_pget(h1, "global");
+            var = vh_get(h2, id);
+        }
+    }
+
+    /* If not, try main symbol table */
+    if (var == NULL) {
+        h1 = vh_pget(vars, "default");
+
+        if (ifm_output != NULL) {
+            h2 = vh_pget(h1, ifm_output);
+            var = vh_get(h2, id);
+        }
+
+        if (var == NULL) {
+            h2 = vh_pget(h1, "global");
+            var = vh_get(h2, id);
+        }
+    }
+
+    return var;
+}
+
+/* Set a scalar variable */
+void
+set_var(char *table1, char *table2, char *var, vscalar *val)
+{
+    vhash *h1, *h2;
+
+    h1 = vh_pget(vars, table1);
+
+    if (h1 != NULL) {
+        h2 = vh_pget(h1, table2);
+        if (h2 != NULL)
+            vh_store(h2, var, val);
+        else
+            err("no such output type: %s", table2);
+    } else {
+        warn("no such output driver: %s", table1);
+    }
+}
+
 /* Split a line based on a given width/height ratio */
 vlist *
 split_line(char *string, double ratio)

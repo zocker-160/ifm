@@ -28,8 +28,6 @@
 				      va_end(ap); \
 			        }
 
-#define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
-
 /* What's my name? */
 char *progname;
 
@@ -44,6 +42,12 @@ int ifm_errors = 0;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
+
+/* Output format */
+char *ifm_format = NULL;
+
+/* Type of output */
+char *ifm_output = NULL;
 
 /* Debugging flag */
 int ifm_debug = 0;
@@ -61,9 +65,11 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-    int c, format = -1, output = O_NONE;
+    int c, i, output = O_NONE, format = -1;
     extern void yyparse();
     extern char *optarg;
+    vhash *symtab;
+    vscalar *fmt;
 
 #ifdef DEBUG
     extern int yydebug;
@@ -123,6 +129,23 @@ main(int argc, char *argv[])
     status("Running %s", progname);
     init_map();
 
+    /* Set up symbol tables */
+    symtab = vh_create();
+    vh_pstore(vars, "default", symtab);
+    vh_pstore(symtab, "global", vh_create());
+    vh_pstore(symtab, "map", vh_create());
+    vh_pstore(symtab, "item", vh_create());
+    vh_pstore(symtab, "task", vh_create());
+
+    for (i = 0; i < NUM_DRIVERS; i++) {
+        symtab = vh_create();
+        vh_pstore(vars, drivers[i].name, symtab);
+        vh_pstore(symtab, "global", vh_create());
+        vh_pstore(symtab, "map", vh_create());
+        vh_pstore(symtab, "item", vh_create());
+        vh_pstore(symtab, "task", vh_create());
+    }
+
     /* Parse input */
     status("Parsing input...");
     yyparse();
@@ -165,21 +188,23 @@ main(int argc, char *argv[])
     if (output != O_NONE && format < 0) {
         switch (output) {
         case O_MAP:
-            strcpy(buf, "map_output");
+            ifm_output = "map";
             break;
         case O_ITEMS:
-            strcpy(buf, "item_output");
+            ifm_output = "item";
             break;
         case O_TASKS:
-            strcpy(buf, "task_output");
+            ifm_output = "task";
             break;
         }
 
-        if (vh_exists(vars, buf))
-            format = select_format(vh_sget(vars, buf));
+        if ((fmt = get_var("output")) != NULL)
+            format = select_format(vs_sval(fmt));
         else
             format = default_format(output);
     }
+
+    ifm_format = drivers[format].name;
 
     /* Do what's required */
     switch (output) {

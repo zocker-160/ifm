@@ -20,11 +20,12 @@ static char buf[BUFSIZ];
     int ival;
     double dval;
     char sval[BUFSIZ];
+    vscalar *vval;
 }
 
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE TITLE SECTION JOIN GO SPECIAL ANY LAST
-%token        GIVEN LOST KEEP START GOTO
+%token        GIVEN LOST KEEP START GOTO MAP
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -34,6 +35,8 @@ static char buf[BUFSIZ];
 %token <sval> STRING IDENT
 
 %type  <ival> go_flag dir
+
+%type  <vval> var
 
 %%
 
@@ -292,17 +295,37 @@ ctrl_stmt	: TITLE STRING ';'
 		{
 		    set_section_title($2);
 		}
-                | IDENT '=' STRING ';'
+                | IDENT '=' var ';'
                 {
-                    vh_sstore(vars, $1, $3);
+                    set_var("default", "global", $1, $3);
                 }
-                | IDENT '=' INTEGER ';'
+                | IDENT IDENT '=' var ';'
                 {
-                    vh_istore(vars, $1, $3);
+                    set_var($1, "global", $2, $4);
                 }
-                | IDENT '=' REAL ';'
+                | MAP IDENT '=' var ';'
                 {
-                    vh_dstore(vars, $1, $3);
+                    set_var("default", "map", $2, $4);
+                }
+                | ITEM IDENT '=' var ';'
+                {
+                    set_var("default", "item", $2, $4);
+                }
+                | TASK IDENT '=' var ';'
+                {
+                    set_var("default", "task", $2, $4);
+                }
+                | IDENT MAP IDENT '=' var ';'
+                {
+                    set_var($1, "map", $3, $5);
+                }
+                | IDENT ITEM IDENT '=' var ';'
+                {
+                    set_var($1, "item", $3, $5);
+                }
+                | IDENT TASK IDENT '=' var ';'
+                {
+                    set_var($1, "task", $3, $5);
                 }
 		;
 
@@ -374,10 +397,15 @@ dir		: NORTH		{ $$ = NORTH;	  }
 		| SOUTHWEST	{ $$ = SOUTHWEST; }
 		;
 
-go_flag		: IN	{ $$ = IN;   }
-		| OUT	{ $$ = OUT;  }
-		| UP	{ $$ = UP;   }
-		| DOWN	{ $$ = DOWN; }
+go_flag		: IN            { $$ = IN;   }
+		| OUT           { $$ = OUT;  }
+		| UP            { $$ = UP;   }
+		| DOWN          { $$ = DOWN; }
 		;
+
+var             : INTEGER       { $$ = vs_iset(NULL, $1); }
+                | REAL          { $$ = vs_dset(NULL, $1); }
+                | STRING        { $$ = vs_sset(NULL, $1); }
+                ;
 
 %%

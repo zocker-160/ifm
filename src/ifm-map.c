@@ -60,15 +60,6 @@ add_dir(int dir)
     vl_ipush(curdirs, dir);
 }
 
-/* Return an integer variable */
-int
-get_int(char *id, int def)
-{
-    if (vh_exists(vars, id))
-        return vh_iget(vars, id);
-    return def;
-}
-
 /* Convert direction to X/Y offset */
 void
 get_offset(int dir, int *xoff, int *yoff)
@@ -107,24 +98,6 @@ get_offset(int dir, int *xoff, int *yoff)
     default:
         fatal("internal: invalid direction offset");
     }
-}
-
-/* Return a real variable */
-double
-get_real(char *id, double def)
-{
-    if (vh_exists(vars, id))
-        return vh_dget(vars, id);
-    return def;
-}
-
-/* Return a string variable */
-char *
-get_string(char *id, char *def)
-{
-    if (vh_exists(vars, id))
-        return vh_sget(vars, id);
-    return def;
 }
 
 /* Initialise the map */

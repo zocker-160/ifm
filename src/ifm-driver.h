@@ -24,6 +24,8 @@
 #include "text.drv"
 #endif
 
+#define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
+
 struct driver_st {
     char *name, *desc;
     mapfuncs  *mfunc;
