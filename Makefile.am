@@ -19,7 +19,7 @@ dist-config:
 
 dist-extra:
 	for dir in $(EXTRA_DIRS); do					\
-	   cp -rp $(top_srcdir)/$$dir $(distdir);			\
+	   cp -frp $(top_srcdir)/$$dir $(distdir);			\
 	   rm -rf $(distdir)/$$dir/CVS;					\
 	   rm -f $(distdir)/$$dir/.cvsignore;				\
 	   rm -f $(distdir)/$$dir/*~;					\

@@ -22,7 +22,7 @@ FIG_BIN = $(top_builddir)/fig
 VARS_SRC = $(top_srcdir)/vars/src
 VARS_BIN = $(top_builddir)/vars/src
 
-ifm_LDADD = -lfig -lvars -lm
+ifm_LDADD = -lfig -lvars-noinst -lm
 
 ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
 
@@ -36,7 +36,7 @@ GPPDEF = -DGPPPATH=\"$(pkglibdir)/gpp\"
 
 INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(SYSDEF) $(PATHDEF) $(GPPDEF)
 
-$(bin_PROGRAMS): $(FIG_BIN)/libfig.a $(VARS_BIN)/libvars.a
+$(bin_PROGRAMS): $(FIG_BIN)/libfig.a $(VARS_BIN)/libvars-noinst.la
 
 ifm-parse.h: ifm-parse.c
 

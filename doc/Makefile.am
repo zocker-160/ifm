@@ -1,6 +1,7 @@
 ## Automake template for IFM documentation.
 
-docdir = $(prefix)/doc/ifm
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
 
 # Main targets.
 
@@ -57,20 +58,24 @@ html: fig ifm.tex ifm.aux
 
 install-doc: install-html install-pdf
 
-install-html:
+install-html: $(ifmdocdir)
 	@ if test -d $(srcdir)/$(HTML_DIR); then			\
 	   set -x;							\
-	   $(mkinstalldirs) $(docdir);					\
-	   rm -rf $(docdir)/$(HTML_DIR);				\
-	   cp -r $(srcdir)/$(HTML_DIR) $(docdir);			\
+	   rm -rf $(ifmdocdir)/$(HTML_DIR);				\
+	   cp -rf $(srcdir)/$(HTML_DIR) $(ifmdocdir);			\
 	fi
 
-install-pdf:
+install-pdf: $(ifmdocdir)
 	@ if test -f $(srcdir)/ifm.pdf; then				\
 	   set -x;							\
-	   $(mkinstalldirs) $(docdir);					\
-	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(docdir);			\
+	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(ifmdocdir);			\
 	fi
+
+$(ifmdocdir):
+	- chmod u+w $(prefix)
+	$(mkinstalldirs) $(docdir)
+	- chmod u+w $(docdir)
+	$(mkinstalldirs) $(ifmdocdir)
 
 # Distribution stuff.
 
@@ -80,7 +85,7 @@ cover.ifm tkifm.txt macros.tex
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
-	   cp -r $(srcdir)/$(HTML_DIR) $(distdir);			\
+	   cp -rf $(srcdir)/$(HTML_DIR) $(distdir);			\
 	fi
 	if test -f $(srcdir)/ifm.pdf; then				\
 	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
@@ -105,6 +110,10 @@ test:; opera `pwd`/$(HTML_DIR)/index.htm
 distclean-local: clean-doc
 
 install-data-hook: install-doc
+
+uninstall-hook:
+	- chmod -R u+w $(ifmdocdir)
+	rm -rf $(ifmdocdir)
 
 dist-hook: dist-doc
 

@@ -39,6 +39,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+host_triplet = @host@
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
@@ -55,6 +56,7 @@ CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
@@ -69,6 +71,8 @@ LEX = @LEX@
 LEXLIB = @LEXLIB@
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LIBS = @LIBS@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 OBJEXT = @OBJEXT@
@@ -95,10 +99,18 @@ am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@
 am__quote = @am__quote@
 bindir = @bindir@
+build = @build@
 build_alias = @build_alias@
+build_cpu = @build_cpu@
+build_os = @build_os@
+build_vendor = @build_vendor@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
+host = @host@
 host_alias = @host_alias@
+host_cpu = @host_cpu@
+host_os = @host_os@
+host_vendor = @host_vendor@
 ifm2dev = @ifm2dev@
 ifm2tex = @ifm2tex@
 includedir = @includedir@
@@ -119,7 +131,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
 
-docdir = $(prefix)/doc/ifm
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
 
 
 # General rules.
@@ -174,6 +187,15 @@ $(srcdir)/Makefile.in:  Makefile.am $(top_srcdir)/etc/Makefile.common $(top_srcd
 	  $(AUTOMAKE) --gnu  doc/Makefile
 Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+	-rm -f libtool
 uninstall-info-am:
 tags: TAGS
 TAGS:
@@ -249,11 +271,12 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 
-distclean-am: clean-am distclean-generic distclean-local
+distclean-am: clean-am distclean-generic distclean-libtool \
+	distclean-local
 
 dvi: dvi-am
 
@@ -281,7 +304,7 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-generic
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 pdf: pdf-am
 
@@ -292,15 +315,18 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-info-am
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 
-.PHONY: all all-am check check-am clean clean-generic distclean \
-	distclean-generic distclean-local distdir dvi dvi-am info \
-	info-am install install-am install-data install-data-am \
-	install-exec install-exec-am install-info install-info-am \
-	install-man install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am uninstall \
-	uninstall-am uninstall-info-am
+.PHONY: all all-am check check-am clean clean-generic clean-libtool \
+	distclean distclean-generic distclean-libtool distclean-local \
+	distdir dvi dvi-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
+	uninstall-info-am
 
 
 # Main targets.
@@ -334,24 +360,28 @@ html: fig ifm.tex ifm.aux
 
 install-doc: install-html install-pdf
 
-install-html:
+install-html: $(ifmdocdir)
 	@ if test -d $(srcdir)/$(HTML_DIR); then			\
 	   set -x;							\
-	   $(mkinstalldirs) $(docdir);					\
-	   rm -rf $(docdir)/$(HTML_DIR);				\
-	   cp -r $(srcdir)/$(HTML_DIR) $(docdir);			\
+	   rm -rf $(ifmdocdir)/$(HTML_DIR);				\
+	   cp -rf $(srcdir)/$(HTML_DIR) $(ifmdocdir);			\
 	fi
 
-install-pdf:
+install-pdf: $(ifmdocdir)
 	@ if test -f $(srcdir)/ifm.pdf; then				\
 	   set -x;							\
-	   $(mkinstalldirs) $(docdir);					\
-	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(docdir);			\
+	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(ifmdocdir);			\
 	fi
+
+$(ifmdocdir):
+	- chmod u+w $(prefix)
+	$(mkinstalldirs) $(docdir)
+	- chmod u+w $(docdir)
+	$(mkinstalldirs) $(ifmdocdir)
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
-	   cp -r $(srcdir)/$(HTML_DIR) $(distdir);			\
+	   cp -rf $(srcdir)/$(HTML_DIR) $(distdir);			\
 	fi
 	if test -f $(srcdir)/ifm.pdf; then				\
 	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
@@ -371,6 +401,10 @@ test:; opera `pwd`/$(HTML_DIR)/index.htm
 distclean-local: clean-doc
 
 install-data-hook: install-doc
+
+uninstall-hook:
+	- chmod -R u+w $(ifmdocdir)
+	rm -rf $(ifmdocdir)
 
 dist-hook: dist-doc
 
