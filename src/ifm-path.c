@@ -548,9 +548,8 @@ init_path(vhash *room)
     vhash *step, *item, *taskroom;
     static vhash *last = NULL;
     extern vlist *tasklist;
+    int len, flag, offset;
     vlist *list, *path;
-    int len, flag;
-    double offset;
     vscalar *elt;
 
     /* If room changed, or path modified, need update */
@@ -624,24 +623,38 @@ init_path(vhash *room)
     vl_foreach(elt, tasklist) {
         step = vs_pget(elt);
 
-        if (!vh_iget(step, "BLOCK")) {
-            if ((room = vh_pget(step, "ROOM")) == NULL)
-                len = 0;
-            else if (vh_iget(room, "AP_VISIT") == ap_visit)
-                len = vh_iget(room, "AP_LEN");
-            else
-                len = BIG;
-        } else {
+        if (vh_iget(step, "BLOCK"))
             len = vh_iget(step, "SORT");
-        }
+        else if ((room = vh_pget(step, "ROOM")) == NULL)
+            len = 0;
+        else if (vh_iget(room, "AP_VISIT") == ap_visit)
+            len = vh_iget(room, "AP_LEN");
+        else
+            len = BIG;
 
         /* Put 'get-item' tasks a bit further */
-        offset = (vh_iget(step, "TYPE") == T_GET ? 0.5 : 0.0);
-        vh_dstore(step, "SORT", len + offset);
+        offset = (vh_iget(step, "TYPE") == T_GET);
+        vh_istore(step, "SORT", 2 * len + offset);
+        vh_istore(step, "DIST", len);
     }
 
     /* Sort tasks according to distance */
     vl_sort_inplace(tasklist, sort_tasks);
+
+    if (ifm_verbose) {
+        vl_foreach(elt, tasklist) {
+            step = vs_pget(elt);
+            if (vh_iget(step, "DONE"))
+                continue;
+            if (vh_iget(step, "DIST") == BIG)
+                continue;
+
+            indent(3);
+            printf("dist: %s (%d)\n",
+                   vh_sgetref(step, "DESC"),
+                   vh_iget(step, "DIST"));
+        }
+    }
 }
 
 /* Flag path modification */
@@ -662,8 +675,8 @@ sort_tasks(vscalar **v1, vscalar **v2)
 {
     vhash *t1 = vs_pget(*v1);
     vhash *t2 = vs_pget(*v2);
-    double s1 = vh_dget(t1, "SORT");
-    double s2 = vh_dget(t2, "SORT");
+    int s1 = vh_iget(t1, "SORT");
+    int s2 = vh_iget(t2, "SORT");
 
     if (s1 < s2)
         return -1;
