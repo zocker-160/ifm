@@ -189,7 +189,6 @@ build_tasks(void)
                     vh_istore(item, "NEEDED", 1);
                     step = vh_pget(item, "STEP");
                     task_pair(step, step);
-                    vh_istore(step, "OPENPATH", 1);
                 }
             }
 
@@ -199,7 +198,6 @@ build_tasks(void)
                     task = vs_pget(elt);
                     step = vh_pget(task, "STEP");
                     task_pair(step, step);
-                    vh_istore(step, "OPENPATH", 1);
                 }
             }
         }
@@ -468,12 +466,6 @@ task_priority(vhash *room, vhash *step)
             }
         }
     }
-
-#if 0
-    /* If task doesn't open up new paths, lower the priority */
-    if (!vh_iget(step, "OPENPATH"))
-        priority -= 100;
-#endif
 
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
