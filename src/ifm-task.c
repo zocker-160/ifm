@@ -528,7 +528,7 @@ new_task(int type, vhash *data)
 {
     char *desc = vh_sgetref(data, "DESC");
     int score = vh_iget(data, "SCORE");
-    static int count = 0;
+    static int taskid = 0;
     vhash *room, *step;
 
     step = vh_create();
@@ -567,12 +567,12 @@ new_task(int type, vhash *data)
         if (vh_exists(data, "CMD"))
             vh_pstore(step, "CMD", vh_pget(data, "CMD"));
 
-        vh_istore(step, "HIDDEN", vh_iget(data, "HIDDEN"));
-        vh_pstore(step, "DROP", vh_pget(data, "DROP"));
         vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
+        vh_istore(step, "HIDDEN", vh_iget(data, "HIDDEN"));
+        vh_pstore(step, "DO", vh_pget(data, "DO"));
+        vh_pstore(step, "DROP", vh_pget(data, "DROP"));
         vh_pstore(step, "DROPROOM", vh_pget(data, "DROPROOM"));
         vh_pstore(step, "DROPUNTIL", vh_pget(data, "DROPUNTIL"));
-        vh_pstore(step, "DO", vh_pget(data, "DO"));
         vh_pstore(step, "GET", vh_pget(data, "GET"));
         vh_pstore(step, "GIVE", vh_pget(data, "GIVE"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
@@ -597,7 +597,7 @@ new_task(int type, vhash *data)
     vh_sstore(step, "DESC", buf);
     vh_pstore(step, "ROOM", room);
     vh_istore(step, "SCORE", score);
-    vh_istore(step, "COUNT", ++count);
+    vh_istore(step, "ID", taskid++);
 
     return step;
 }
@@ -1152,7 +1152,7 @@ task_graph(void)
         vl_foreach(elt, tasklist) {
             step = vs_pget(elt);
             sprintf(buf, "T%d", ++count);
-            vh_sstore(step, "ID", buf);
+            vh_sstore(step, "NODE", buf);
             vg_node_pstore(g, buf, step);
         }
 
@@ -1161,10 +1161,10 @@ task_graph(void)
             if ((list = vh_pget(step, "DEPEND")) == NULL)
                 continue;
 
-            after = vh_sgetref(step, "ID");
+            after = vh_sgetref(step, "NODE");
             vl_foreach(elt, list) {
                 step = vs_pget(elt);
-                before = vh_sgetref(step, "ID");
+                before = vh_sgetref(step, "NODE");
                 vg_link_oneway(g, before, after);
             }
         }

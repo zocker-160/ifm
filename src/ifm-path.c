@@ -583,8 +583,8 @@ sort_tasks(vscalar **v1, vscalar **v2)
         return 1;
 
     /* Try order of declaration */
-    s1 = vh_iget(t1, "COUNT");
-    s2 = vh_iget(t2, "COUNT");
+    s1 = vh_iget(t1, "ID");
+    s2 = vh_iget(t2, "ID");
 
     if (s1 < s2)
         return -1;
