@@ -1,7 +1,10 @@
 =head1 LANGUAGE
 
-This section gives a formal description of the B<IFM> input language.  In
-the sections below, the following symbols are used:
+This section gives a formal description of the B<IFM> input language.
+
+=head2 Symbols
+
+In the following sections, these symbols are used:
 
 =over 10
 
@@ -22,13 +25,15 @@ that too (B<\\>).  You can continue strings on several lines -- a
 newline-and-whitespace sequence is translated into a single space, just
 like in B<TADS> and B<Inform>.
 
-=item B<INTEGER>
+Note that dollars ($) are special inside strings -- they mark the start of
+a variable substitution.  See L<"Variables"> for details.  If you want a
+literal dollar symbol in a string, use $$.
 
-An integer.
+=item B<NUMBER>
 
-=item B<REAL>
-
-A real number.
+An number, or an arithmetic expression (see L<"Expressions">).  If the
+context requires an integer, the number is silently rounded to the largest
+integer not greater than this value.
 
 =item B<COMPASS>
 
@@ -130,13 +135,13 @@ where STRING is a description of the room.  Room attributes can be:
 
 Give the room a tag name, so that you can refer to it elsewhere.
 
-=item dir COMPASS [INTEGER] [COMPASS [INTEGER]...] [from ID]
+=item dir COMPASS [NUMBER] [COMPASS [NUMBER]...] [from ID]
 
 Specify the position of the room relative to the room with the given tag ID
 (which must be defined before it is used).  If no 'from' clause is
 specified, the last defined room is used instead.  There can be more than
 one direction given -- the new room is placed relative to the previous one
-using them.  Following a direction with an integer means to repeat it that
+using them.  Following a direction with a number means to repeat it that
 many times.
 
 The 'dir' clause creates an implicit link between this room and the
@@ -169,7 +174,7 @@ to or from the room in that direction.
 
 Append a note to the room's note list.
 
-=item score INTEGER
+=item score NUMBER
 
 Indicate that you score the specified number of points when visiting this
 room for the first time.
@@ -235,7 +240,7 @@ Indicate that there is an unsolved puzzle in this room.
 
 Indicate that the direction link to this room is special.
 
-=item length INTEGER
+=item length NUMBER
 
 Indicate that the direction link to this room has the specified length
 (default 1).  This only affects the calculation of the 'nearest' task when
@@ -286,7 +291,7 @@ declared), then this item is initially carried by the player.
 
 Append a note to the item's note list.
 
-=item score INTEGER
+=item score NUMBER
 
 Indicate that you get points the first time you pick this item up.
 
@@ -390,7 +395,7 @@ still used when solving the game.
 
 Indicate that this link should not be used by the game solver.
 
-=item length INTEGER
+=item length NUMBER
 
 Indicate that this link has the specified length (default 1).  This only
 affects the calculation of the 'nearest' task when solving the game -- see
@@ -471,7 +476,7 @@ still used when solving the game.
 
 Indicate that this join should not be used by the game solver.
 
-=item length INTEGER
+=item length NUMBER
 
 Indicate that this join has the specified length (default 1).  This only
 affects the calculation of the 'nearest' task when solving the game -- see
@@ -582,7 +587,7 @@ stuck.
 
 Indicate that doing this task finishes the game.
 
-=item score INTEGER
+=item score NUMBER
 
 Indicate that you get the specified score for doing this task.
 
@@ -590,9 +595,9 @@ Indicate that you get the specified score for doing this task.
 
 Append a note to the task's note list.
 
-=item cmd STRING [INTEGER]
+=item cmd STRING [NUMBER]
 
-Specify the exact command you type to do the task.  If an integer follows
+Specify the exact command you type to do the task.  If a number follows
 the command, do the command that many times.  Multiple 'cmd' clauses
 concatenate into a list of commands.
 
@@ -607,23 +612,63 @@ Indicate that no command is required to do this task.
 Various aspects of output are controlled by variables.  These are set using
 the following syntax:
 
-    [FORMAT] IDENT = INTEGER | REAL | STRING | undef;
+    [FORMAT] IDENT = NUMBER | STRING | undef;
 
 B<FORMAT>, if specified, is the name of a specific output format -- the
 variable then applies only to that output format.  B<IDENT> is the name of
-the variable, and it can take an integer, real or string value.  Note that
-setting a variable to the value 'undef' effectively removes it.
+the variable, and it can take a numeric or string value.  Note that setting
+a variable to the value 'undef' effectively removes it.
 
-Note that it is not an error to refer to an unknown output format or
-variable.  This is so that maps using new formats will continue to work
-with old versions of B<IFM>.  One slight drawback of this is that if you
-mistype a format or variable there will be no obvious way of telling -- and
-no effect on your output either.
+You can use the value of a defined variable anywhere in the input where a
+number or string is expected, by prefixing it with a dollar ($) symbol.
+
+All strings that are printed by B<IFM> output formats undergo variable
+substitution -- that is, parts of the string which look like variable
+references get the value of the variable inserted.  If you want a literal $
+inside a string, use $$.
+
+Variables can have 'aliases' -- that is, other names.  A variable alias is
+set using the syntax
+
+    alias_name == var_name;
+
+This has the effect that whenever variable 'alias_name' is set or accessed,
+then variable 'var_name' is actually set or accessed instead.  Note that if
+a variable already exists with name 'alias_name', its value is hidden while
+the alias is in force.  Aliases can be removed by saying
+
+    alias_name == undef;
 
 Some output formats use variables so that you can customize them.  They
 expect certain variables to be defined, and give an error if they aren't.
 The default values for these variables are set in the initialization file
 -- see L<"Output Variables">.
+
+=head2 Expressions
+
+Whenever a number is expected in B<IFM> input, you can supply an arithmetic
+expression.  An expression can be a number or a variable value, or a
+combination using the following constructs (in order of precedence):
+
+    ( expr )		parentheses
+    expr ^ expr		exponentiation
+    + expr		unary plus
+    - expr		unary minus
+    expr * expr		times
+    expr / expr		divide
+    expr % expr		remainder
+    expr + expr		plus
+    expr - expr		minus
+
+Note that in expressions, all variables are treated as numeric.  If a
+variable is set to be a string and is then used in an expression, its
+numeric value will be read from the string.  For most strings, this will be
+zero.  A special case is when the expression consists of a single variable
+reference -- then the variable value is copied exactly.  For example:
+
+    name = "foo";	# Variable "name" has value "foo"
+    name2 = $name;	# Variable "name2" now also has value "foo"
+    name3 = $name + 1;	# Variable "name3" has value 1
 
 =head2 Include Files
 
@@ -641,5 +686,5 @@ to the current directory.  The second form does a directory search to find
 the file, using the B<IFM> search path (which can be set via the B<-I>
 command line option or the B<IFMPATH> environment variable).
 
-Note that to be recognized, the 'include' directive must be the first thing
-on a line.  Note also that no semicolon is required after it.
+Note that to be recognized as such, the 'include' directive must be the
+first thing on a line.  Note also that no semicolon is required after it.

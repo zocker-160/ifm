@@ -59,6 +59,11 @@ Don't print warnings.
 
 Print debugging information.
 
+=item B<-s>, B<-show> type
+
+Show one of several types of information, and exit.  See below for a list
+of valid arguments.
+
 =item B<-I>, B<-include> F<dir>
 
 Prepend the specified directory to the library and include file search
@@ -68,10 +73,6 @@ path.  This option may be repeated.
 
 Don't read your personal init file.
 
-=item B<-showpath>
-
-Show the directories that are searched for library and include files.
-
 =item B<-v>, B<-version>
 
 Print the program version.
@@ -79,5 +80,20 @@ Print the program version.
 =item B<-help>
 
 Print a usage message, including the available output formats.
+
+=back
+
+The arguments to the B<-show> option can be:
+
+=over 4
+
+=item B<path>
+
+Show the directories that are searched for library and include files.
+
+=item B<vars>
+
+Show a complete list of defined variables, in a format suitable for feeding
+back into B<IFM>.  See L<"Variables">.
 
 =back

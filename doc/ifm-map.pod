@@ -6,8 +6,7 @@ not complete -- see L<"LANGUAGE"> for a full list of commands.
 =head2 Example Map
 
 The traditional Infocom-style way of drawing interactive fiction maps is
-the 'boxes-and-lines' method.  Here is an example map to represent using
-B<IFM> commands.
+the 'boxes-and-lines' method.  For example:
 
     +--------------+   +--------------+   +--------------+
     |              |   |              |   |              |
@@ -22,6 +21,9 @@ B<IFM> commands.
     |    Garage    |   |  Dining Room |-----------+
     |              |   |              |
     +--------------+   +--------------+
+
+In the following sections, we'll introduce the B<IFM> commands used to draw
+this example.
 
 =head2 Adding Rooms
 
@@ -81,7 +83,7 @@ indicate using the 'oneway' attribute like this:
 
     room "Study" dir e n oneway;
 
-This is indicated on the map, probably by an arrow.
+This is indicated on the map by an arrow.
 
 =head2 Adding Links
 
@@ -130,8 +132,7 @@ tedious.  Alternatively, you can use the 'exit' clause, like this:
 
 This says that there are two unexplored exits from this room, in the
 northwest and east directions.  When a map is drawn, this fact will be
-displayed (probably by a small line poking out of the room in those
-directions).
+displayed by a small line poking out of the room in those directions.
 
 When you come to actually explore those directions, and add links to new
 rooms, the corresponding room exit markers will no longer be drawn.  So you
@@ -152,7 +153,8 @@ into different sections:
 
 =item *
 
-Some maps can be very large, and may not look good on a single sheet.
+Some maps can be very large, and may not look good on a single piece of
+paper.
 
 =item *
 

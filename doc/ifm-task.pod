@@ -368,7 +368,7 @@ There will be some situations (quite a few, actually) where the game solver
 doesn't do things the way you want it to.  This section gives a few tips,
 and some new keywords, for modifying things.
 
-=head3 Making things safe
+B<Making things safe>
 
 Firstly, the game solver is completely paranoid.  It has to be, because it
 doesn't do any lookahead past the current task.  It won't do anything
@@ -384,7 +384,7 @@ from, by doing other tasks, you can stop the solver from avoiding it.  But
 bear in mind that by doing this you are taking full responsibility if the
 solver gets stuck.
 
-=head3 Changing path lengths
+B<Changing path lengths>
 
 Another thing the solver doesn't know about is how easy or difficult it is
 to get from place to place on the map.  Suppose you're in a game which is
@@ -404,7 +404,7 @@ to tasks in rooms in the same level as you are now, (hopefully) minimizing
 the number of level changes.  Note that the 'length' attribute doesn't
 affect map drawing at all.
 
-=head3 Closing off paths
+B<Closing off paths>
 
 There may be times when you want a map connection to appear on the map, but
 not be used in solving the game -- for example, it may be certain death to
@@ -415,7 +415,7 @@ Another use for this attribute is to force the game solver to do things in
 a different order.  This might be preferable to adding fake task
 dependencies.
 
-=head3 Keeping fixes together
+B<Keeping fixes together>
 
 It's probably best to keep all your 'game tweaks' together, separate from
 the 'pure' game, and commented appropriately.  You can do this by using
@@ -456,7 +456,7 @@ So the two-level example above could be split into:
     # Stop gratuitous travel between levels.
     link LB length 50;
 
-=head3 Debugging
+B<Debugging>
 
 Finally... you can gain an insight into what the game solver's up to by
 using the B<-debug> command-line option.  This produces reams of output

@@ -52,15 +52,8 @@ keeping track of your progress in an Interactive Fiction game.
 =for inf node Task List Output,, Listing tasks needed to solve the game
 =for inf node Output Variables,, Customizing output
 
-=for inf node OUTPUT VARIABLES, Output Variables, Variables used by output formats
-=for inf node Room Variables,, Setting the appearance of rooms
-=for inf node Link Variables,, Setting the appearance of links
-=for inf node Feature Variables,, Enabling optional features
-=for inf node PostScript Page Variables,, Controlling PostScript pages
-=for inf node Tk Window Variables,, Setting Tk window attributes
-=for inf node Miscellaneous Variables,, Other useful variables
-
 =for inf node LANGUAGE, Language, Language specification
+=for inf node Symbols,, Symbols used in the language spec
 =for inf node Format,, General layout of the input
 =for inf node Control,, Titles and map sections
 =for inf node Tags,, Format of tags
@@ -71,6 +64,7 @@ keeping track of your progress in an Interactive Fiction game.
 =for inf node Joins,, The 'join' command
 =for inf node Tasks,, The 'task' command
 =for inf node Variables,, Setting variables
+=for inf node Expressions,, Arithmetic expressions
 =for inf node Include Files,, Including other input files
 
 =for inf node DIAGNOSTICS, Diagnostics, Errors and warnings

@@ -2,10 +2,14 @@
 
 B<IFM> has three different types of output (a map, a list of items, and a
 list of tasks) and several different output formats.  Not all types of
-output are produced by each output format.  Some output formats can be
-customized by using variables, as described below.
+output are produced by each output format.
 
 =head2 Map Output
+
+Maps are drawn in the classic Infocom style.  Rooms are drawn as boxes, and
+links as are drawn as lines (oneway with an arrow).  Joins are marked by
+adding a 'join number' to the room text of the joined rooms.  Non-hidden
+items can be shown in their initial rooms.
 
 The following output formats produce maps:
 
@@ -15,26 +19,25 @@ The following output formats produce maps:
 
 Several map sections may be printed per page.  Automatic packing is done to
 try to get a good fit on the page.  Also, portrait or landscape is chosen
-depending on whichever gives the best fit.
-
-Rooms are drawn as boxes (puzzle rooms are dashed).  Links as are drawn as
-lines (oneway with an arrow, special links are dashed).  Joins are marked
-by adding a 'join number' to the room text of the joined rooms.  Non-hidden
-items can be shown in their initial rooms.
-
-Titles, room text, item text and labels each have their own fonts, and are
-scaled automatically with the map.
+depending on whichever gives the best fit.  Fonts of room and item text are
+scaled to fit them in the room boxes, if required.
 
 =item Tk commands (tk)
 
-This produces commands for input to B<tkifm> (*note Tkifm:(tkifm).), a
-simple graphical interface to B<IFM>.  It isn't very useful to produce this
-output yourself -- B<tkifm> does that internally to build its map pictures.
-But you can control its display by setting variables in the usual way.
+This produces commands for input to B<tkifm>, a simple graphical interface
+to B<IFM>.  It isn't very useful to produce this output yourself --
+B<tkifm> does that internally to build its map pictures.  But you can
+control its display by setting variables in the usual way.
+
+=begin inf
+
+See *note Tkifm:(tkifm). for a description of B<tkifm>.
+
+=end inf
 
 =item Raw data (raw)
 
-This produces raw lists of data for sending to other programs.  Each entry
+This produces raw data intended for use by other programs.  Each entry
 consists of a number of data lines, and is separated from other entries by
 a blank line.  Each data line consists of an attribute, a colon, and its
 value.  The attributes should be self-explanatory.
@@ -54,7 +57,7 @@ self-explanatory.
 
 =item Raw data (raw)
 
-This produces raw lists of data for sending to other programs.  Each entry
+This produces raw data intended for use by other programs.  Each entry
 consists of a number of data lines, and is separated from other entries by
 a blank line.  Each data line consists of an attribute, a colon, and its
 value.  The attributes should be self-explanatory.
@@ -95,7 +98,7 @@ problems of randomness.
 
 =item Raw data (raw)
 
-This produces raw lists of data for sending to other programs.  Each entry
+This produces raw data intended for use by other programs.  Each entry
 consists of a number of data lines, and is separated from other entries by
 a blank line.  Each data line consists of an attribute, a colon, and its
 value.  The attributes should be self-explanatory.
@@ -106,6 +109,10 @@ value.  The attributes should be self-explanatory.
 
 There are many variables available for customizing the different sorts of
 output.  Their names, descriptions and default values are all contained in
-the default B<IFM> initialization file, which is reproduced below.
+the B<IFM> initialization file.  You can change this file to set global
+defaults for everybody, or alternatively set your own preferences in your
+personal init file.
+
+Here's the original initialization file that came bundled with B<IFM>.
 
 =display ../lib/ifm-init.ifm

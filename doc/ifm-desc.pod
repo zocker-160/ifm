@@ -20,5 +20,5 @@ for examples of how to do this.
 
 Several output formats are available, including PostScript and ASCII text
 -- see L<"OUTPUT FORMATS">.  Some of the output formats have a set of
-variables which control the appearance of the output -- see L<"OUTPUT
-VARIABLES">.
+variables which control the appearance of the output -- see L<"Output
+Variables">.
