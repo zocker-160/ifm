@@ -165,9 +165,11 @@ resolve_tags(void)
         resolve_tag_list("task", vh_pget(room, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(room, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(room, "NEED"), itemtags);
+        resolve_tag_list("item", vh_pget(room, "LEAVE"), itemtags);
         resolve_tag_list("task", vh_pget(room, "LINK_BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(room, "LINK_AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(room, "LINK_NEED"), itemtags);
+        resolve_tag_list("item", vh_pget(room, "LINK_LEAVE"), itemtags);
     }
 
     /* Resolve link tags */
@@ -178,6 +180,7 @@ resolve_tags(void)
         resolve_tag_list("task", vh_pget(link, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(link, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(link, "NEED"), itemtags);
+        resolve_tag_list("item", vh_pget(link, "LEAVE"), itemtags);
     }
 
     /* Resolve join tags */
@@ -188,6 +191,7 @@ resolve_tags(void)
         resolve_tag_list("task", vh_pget(join, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(join, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(join, "NEED"), itemtags);
+        resolve_tag_list("item", vh_pget(join, "LEAVE"), itemtags);
     }
 
     /* Resolve item tags and build room item lists */
@@ -336,6 +340,7 @@ setup_links(void)
         vh_pstore(link, "BEFORE", vh_pget(room, "LINK_BEFORE"));
         vh_pstore(link, "AFTER", vh_pget(room, "LINK_AFTER"));
         vh_pstore(link, "NEED", vh_pget(room, "LINK_NEED"));
+        vh_pstore(link, "LEAVE", vh_pget(room, "LINK_LEAVE"));
 
         if ((str = vh_sgetref(room, "FROM_CMD")) != NULL)
             vh_sstore(link, "FROM_CMD", str);
