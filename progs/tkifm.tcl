@@ -306,9 +306,10 @@ proc ShowItems {} {
     set t $w.text
     set s $w.scroll
     text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(textwidth) -height $ifm(textheight) \
-	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
-	    -bg $ifm(textbackground)
+	    -width $ifm(textwidth) -height $ifm(textheight) -wrap word \
+	    -fg $ifm(textforeground) \
+	    -bg $ifm(textbackground) \
+	    -font $ifm(textfont)
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
@@ -342,8 +343,10 @@ proc ShowTasks {} {
     set t $w.text
     set s $w.scroll
     text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(textwidth) -height $ifm(textheight) \
-	    -wrap word -font $ifm(textfont)
+	    -width $ifm(textwidth) -height $ifm(textheight) -wrap word \
+	    -fg $ifm(textforeground) \
+	    -bg $ifm(textbackground) \
+	    -font $ifm(textfont)
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
