@@ -29,18 +29,24 @@ AC_PATH_PROGS(WISH, wish8.0 wish80 wish, no)
 
 tkifm=tkifm
 AC_SUBST(tkifm)
+
 if test $WISH = no; then
-   AC_MSG_WARN(wish not found -- not building tkifm)
+   AC_MSG_WARN(wish not found -- not building wish scripts)
    tkifm=
 fi
 
 dnl Check for perl.
 AC_PATH_PROGS(PERL, perl5.002 perl5 perl, no)
 
+ifm2dev=ifm2dev
+AC_SUBST(ifm2dev)
+
 scr2ifm=scr2ifm
 AC_SUBST(scr2ifm)
+
 if test $PERL = no; then
-   AC_MSG_WARN(perl not found -- not building scr2ifm)
+   AC_MSG_WARN(perl not found -- not building perl scripts)
+   ifm2dev=
    scr2ifm=
 fi
 

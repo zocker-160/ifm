@@ -66,6 +66,7 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
+ifm2dev = @ifm2dev@
 scr2ifm = @scr2ifm@
 tkifm = @tkifm@
 
@@ -88,9 +89,8 @@ INCLUDES = -I$(VARS)
 testfig_SOURCES = testfig.c
 testfig_LDFLAGS = -L$(VARS)
 testfig_LDADD = libfig.a -lvars -lm
-#	xfig test.fig
 
-CLEANFILES = test.fig* testfig
+CLEANFILES = test.fig* test.eps testfig
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ../etc/config.h
 CONFIG_CLEAN_FILES = 

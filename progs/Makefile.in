@@ -67,13 +67,13 @@ VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
 
-bin_SCRIPTS = @tkifm@ @scr2ifm@
+bin_SCRIPTS = @tkifm@ @ifm2dev@ @scr2ifm@
 
-EXTRA_SCRIPTS = tkifm scr2ifm
+EXTRA_SCRIPTS = tkifm ifm2dev scr2ifm
 
 EXTRA_DIST = tkifm.tcl scr2ifm.pl
 
-CLEANFILES = tkifm scr2ifm
+CLEANFILES = $(bin_SCRIPTS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ../etc/config.h
 CONFIG_CLEAN_FILES = 
@@ -210,6 +210,13 @@ scr2ifm: scr2ifm.pl
 	echo '#! $(PERL)' > $@
 	cat $< >> $@
 	chmod +x $@
+
+ifm2dev: ifm2dev.pl
+	echo '#! $(PERL)' > $@
+	cat $< >> $@
+	chmod +x $@
+
+test:; perl ifm2dev.pl -L png -v lgop.ifm
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -1,8 +1,8 @@
 ## Automake template for IFM extra programs.
 
-bin_SCRIPTS = @tkifm@ @scr2ifm@
+bin_SCRIPTS = @tkifm@ @ifm2dev@ @scr2ifm@
 
-EXTRA_SCRIPTS = tkifm scr2ifm
+EXTRA_SCRIPTS = tkifm ifm2dev scr2ifm
 
 EXTRA_DIST = tkifm.tcl scr2ifm.pl
 
@@ -16,4 +16,11 @@ scr2ifm: scr2ifm.pl
 	cat $< >> $@
 	chmod +x $@
 
-CLEANFILES = tkifm scr2ifm
+ifm2dev: ifm2dev.pl
+	echo '#! $(PERL)' > $@
+	cat $< >> $@
+	chmod +x $@
+
+CLEANFILES = $(bin_SCRIPTS)
+
+test:; perl ifm2dev.pl -L png -v lgop.ifm
