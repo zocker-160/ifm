@@ -65,7 +65,7 @@ keeping track of your progress in an Interactive Fiction game.
 =for inf node Joins,, The 'join' command
 =for inf node Tasks,, The 'task' command
 =for inf node Variables,, Setting variables
-=for inf node Styles,, Variable styles
+=for inf node Styles,, Display styles
 =for inf node Expressions,, Arithmetic expressions
 =for inf node Include Files,, Including other input files
 
