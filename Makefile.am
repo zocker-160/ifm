@@ -11,6 +11,8 @@ dist-hook:;		cp -rp $(srcdir)/config $(srcdir)/contrib $(distdir)
 
 ## Stuff for Win32 distribution.
 
+.PHONY:			ziptest
+
 ZIPDIR			= ../ifm
 
 EXE			= ifm.exe
@@ -19,7 +21,7 @@ FILES			= README README.win32 README.maps NEWS COPYING
 
 PROGS			= src/$(EXE) tkifm/tkifm.tcl scr2ifm/scr2ifm.pl
 
-DLL			= /bin/cygwin1.dll
+DLL			= $(bindir)/cygwin1.dll
 
 DOCS			= doc/ifm.txt doc/ifm.html tkifm/tkifm.txt \
 			  tkifm/tkifm.html scr2ifm/scr2ifm.txt \
@@ -31,7 +33,7 @@ ZIPFILES		= $(IFM) $(LIB) $(SCR2IFM) $(TKIFM) $(DOCS) $(CYGDLL)
 
 zip:;			$(MAKE) all zipdir
 
-ziptest:;		$(MAKE) ZIPDIR=zip EXE=ifm DLL="" zipdir
+ziptest:;		$(MAKE) ZIPDIR=ziptest EXE=ifm DLL="" zipdir
 
 zipdir:;		rm -rf $(ZIPDIR)
 			mkdir $(ZIPDIR)
