@@ -586,7 +586,7 @@ dist-touch:
 
 dist-cleanup:
 	rm -f $(distdir)/etc/config.h
-	rm -f $(distdir)/etc/stamp-h
+	rm -f $(distdir)/etc/stamp-h*
 
 log:;	@ echo
 	@ echo Finding source changes in the last $(DAYS) days...
