@@ -18,9 +18,11 @@ HELP2MAN = help2man -N -n "$(MAN_TITLE)"
 
 # Main targets.
 
-doc: fig pdf html man
+doc: fig pdf html rtf man
 
 pdf: ifm.pdf
+
+rtf: ifm.rtf
 
 fig: cover.eps example.eps advent.eps
 
@@ -43,13 +45,14 @@ mantest: man
 
 # General rules.
 
-SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex
+SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex .rtf
 
 .lyx.ps:;	lyx --export ps $< > $@
 .lyx.tex:;	lyx --export latex $< > $@
+.lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
+.lyx.rtf:;	lyx2rtf -d2 $<
 .ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
-.lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
 .ifm.fig:;	$(IFMCMD) -m -f fig -o $@ $<
 .fig.eps:;	fig2dev -L eps $< > $@
 .fig.png:;	fig2dev -L png $< > $@
