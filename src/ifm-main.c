@@ -185,23 +185,26 @@ main(int argc, char *argv[])
     v_option('o', "output", V_OPT_ARG, "file",
              "Write output to file");
 
-    v_optgroup("Other options:");
+    v_optgroup("Auxiliary options:");
+
+    v_option('s', "set", V_OPT_LIST, "var=val",
+             "Set a customization variable");
 
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
-    v_option('d', "debug", V_OPT_FLAG, NULL,
-             "Print debugging information");
-
     v_option('I', "include", V_OPT_LIST, "dir",
              "Prepend directory to search path");
+
+    v_option('d', "debug", V_OPT_FLAG, NULL,
+             "Print debugging information");
 
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
 
     v_optgroup("Information options:");
 
-    v_option('s', "show", V_OPT_ARG, "type",
+    v_option('\0', "show", V_OPT_ARG, "type",
              "Show information");
 
     v_option('v', "version", V_OPT_FLAG, NULL,
@@ -309,6 +312,18 @@ main(int argc, char *argv[])
     load_styles();
     if (ifm_errors)
         return 1;
+
+    /* Set any variables from command line */
+    if ((list = vh_pget(opts, "set")) != NULL) {
+        char *cp;
+        vl_foreach(elt, list) {
+            spec = vs_sgetref(elt);
+            if ((cp = strchr(spec, '=')) != NULL) {
+                *cp++ = '\0';
+                var_set(NULL, spec, vs_screate(cp));
+            }
+        }
+    }
 
     /* Set output format if not already specified */
     if (output != O_NONE && ifm_fmt == F_NONE)
@@ -659,7 +674,7 @@ void
 debug(char *fmt, ...)
 {
     if (ifm_debug) {
-        VPRINT(buf, fmt);
+        V_VPRINT(buf, fmt);
         fprintf(stderr, "%s\n", buf);
     }
 }
@@ -671,7 +686,7 @@ err(char *fmt, ...)
     errfuncs *func = NULL;
 
     ifm_errors++;
-    VPRINT(buf, fmt);
+    V_VPRINT(buf, fmt);
 
     if (ifm_fmt >= 0)
         func = drivers[ifm_fmt].efunc;
@@ -694,7 +709,7 @@ warn(char *fmt, ...)
     if (!warning_flag)
         return;
 
-    VPRINT(buf, fmt);
+    V_VPRINT(buf, fmt);
 
     if (ifm_fmt >= 0)
         func = drivers[ifm_fmt].efunc;
@@ -710,7 +725,7 @@ warn(char *fmt, ...)
 void
 fatal(char *fmt, ...)
 {
-    VPRINT(buf, fmt);
+    V_VPRINT(buf, fmt);
     fprintf(stderr, "%s: error: %s\n", progname, buf);
     exit(1);
 }
@@ -766,10 +781,14 @@ show_info(char *type)
 static void
 show_maps(void)
 {
+    vlist *rooms;
     vscalar *elt;
     char *title;
     vhash *sect;
     int num = 1;
+
+    printf("%s\t%s\t%s\t%s\t%s\n",
+           "No.", "Rooms", "Width", "Height", "Name");
 
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
@@ -781,7 +800,12 @@ show_maps(void)
             title = buf;
         }
 
-        printf("%d\t%s\n", num++, title);
+        rooms = vh_pget(sect, "ROOMS");
+        printf("%d\t%d\t%d\t%d\t%s\n",
+               num++, vl_length(rooms),
+               vh_iget(sect, "XLEN"),
+               vh_iget(sect, "YLEN"),
+               title);
     }
 }
 
@@ -802,11 +826,11 @@ usage()
 
     printf("\nOutput formats (may be abbreviated):\n");
     for (i = 0; i < NUM_DRIVERS; i++)
-        printf("    %-15s    %s\n", drivers[i].name, drivers[i].desc);
+        printf("    %-15s     %s\n", drivers[i].name, drivers[i].desc);
 
     printf("\nShow options (may be abbreviated):\n");
     for (i = 0; showopts[i].name != NULL; i++)
-        printf("    %-15s    %s\n", showopts[i].name, showopts[i].desc);
+        printf("    %-15s     %s\n", showopts[i].name, showopts[i].desc);
 
     exit(0);
 }
