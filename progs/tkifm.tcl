@@ -3,41 +3,62 @@
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; see the file COPYING for details.
 
-# Global variables (internal).
+# Whether to allow editing.
+set ifm(edit) 1
+
+# Edit window dimensions.
+set ifm(editwidth) 80
+set ifm(editheight) 24
+
+# Editing font.
+set ifm(editfont) {Courier 12 bold}
+
+# Edit window colours.
+set ifm(editforeground) black
+set ifm(editbackground) wheat
+
+# Item list window dimensions.
+set ifm(itemwidth) 50
+set ifm(itemheight) 30
+
+# Task list (brief) window dimensions.
+set ifm(taskwidth) 50
+set ifm(taskheight) 30
+
+# Task list (debugging) window dimensions.
+set ifm(debugwidth) 80
+set ifm(debugheight) 30
+
+# Variable window dimensions.
+set ifm(varswidth) 50
+set ifm(varsheight) 30
+
+# Text window font.
+set ifm(textfont) {Times 12 bold}
+
+# Text window colours.
+set ifm(textforeground) black
+set ifm(textbackground) wheat
+
+# Whether to allow tearoff menus.
+set ifm(tearoff) 1
+
+# IFM exec variables.
 set ifm(mapcmd)   {ifm -map -format tk}
 set ifm(itemcmd)  {ifm -items -format tk}
 set ifm(taskcmd)  {ifm -tasks -format tk}
 set ifm(debugcmd) {ifm -debug -format tk}
 set ifm(printcmd) {ifm -map -format ps}
+set ifm(varscmd)  {ifm -show vars}
+set ifm(pathcmd)  {ifm -show path}
 set ifm(aboutcmd) {ifm -version}
 
-# Global variables (customizable).
-set ifm(edit)           1
-set ifm(editwidth)      80
-set ifm(editheight)     24
-set ifm(editfont)       {Courier 12 bold}
-set ifm(editforeground) black
-set ifm(editbackground) wheat
-
-set ifm(itemwidth)      50
-set ifm(itemheight)     30
-
-set ifm(taskwidth)      50
-set ifm(taskheight)     30
-
-set ifm(debugwidth)     80
-set ifm(debugheight)    30
-
-set ifm(textfont)       {Times 12 bold}
-set ifm(textforeground) black
-set ifm(textbackground) wheat
-
-set ifm(roomitemratio) 0.5
-
+# Internal variables.
 set ifm(untitled) "untitled.ifm"
 set ifm(ifmfiles) {{"IFM files" {.ifm}} {"All files" *}}
 set ifm(psfiles)  {{"PostScript files" {.ps}} {"All files" *}}
-set ifm(tearoff)  1
+
+set ifm(roomitemratio) 0.5
 
 # Set up the main window.
 proc MainWindow {} {
@@ -74,7 +95,7 @@ proc MainWindow {} {
     set c $m.sect
     menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "Map" -menu $c -underline 0
-    set ifm(mapmenu) $m.sect
+    set ifm(mapmenu) $c
 
     # Item options.
     set c $m.items
@@ -86,13 +107,15 @@ proc MainWindow {} {
     set c $m.tasks
     menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "Tasks" -menu $c -underline 0
-    $c add command -label "Task list" -command ShowTasks -underline 0
+    $c add command -label "Task list (brief)" -command ShowTasks -underline 0
+    $c add command -label "Task list (debugging)" -command ShowDebug -underline 0
 
-    # Debug options.
-    set c $m.debug
+    # Show options.
+    set c $m.show
     menu $c -tearoff $ifm(tearoff)
-    $m add cascade -label "Debug" -menu $c -underline 0
-    $c add command -label "Debugging output" -command ShowDebug -underline 0
+    $m add cascade -label "Show" -menu $c -underline 0
+    $c add command -label "Variables" -command ShowVars -underline 0
+    $c add command -label "Search path" -command ShowPath -underline 0
 
     # Help options.
     set c $m.help
@@ -134,8 +157,7 @@ proc DrawMap {num} {
     global ifm rooms links exits
     global sectnum
 
-    if {[MaybeSave] == 0} return
-    if {[MaybeRead] == 0} return
+    if [NeedSave] return
 
     if {$num > $sectnum} {
 	Message "Map section no longer exists!"
@@ -359,13 +381,7 @@ proc DrawMap {num} {
 proc ShowItems {} {
     global ifm
 
-    if [file exists $ifm(path)] {
-	if {[MaybeSave] == 0} return
-	if {[MaybeRead] == 0} return
-    } else {
-	Message "You must save the current file first."
-	return
-    }
+    if [NeedSave] return
 
     # Get item data.
     Busy
@@ -393,13 +409,7 @@ proc ShowItems {} {
 proc ShowTasks {} {
     global ifm
 
-    if [file exists $ifm(path)] {
-	if {[MaybeSave] == 0} return
-	if {[MaybeRead] == 0} return
-    } else {
-	Message "You must save the current file first."
-	return
-    }
+    if [NeedSave] return
 
     # Get task data.
     Busy
@@ -428,13 +438,7 @@ proc ShowTasks {} {
 proc ShowDebug {} {
     global ifm
 
-    if [file exists $ifm(path)] {
-	if {[MaybeSave] == 0} return
-	if {[MaybeRead] == 0} return
-    } else {
-	Message "You must save the current file first."
-	return
-    }
+    if [NeedSave] return
 
     # Get task data.
     Busy
@@ -453,6 +457,48 @@ proc ShowDebug {} {
 	    $ifm(debugwidth) $ifm(debugheight)
 
     Unbusy
+}
+
+# Show defined variables.
+proc ShowVars {} {
+    global ifm
+
+    if [NeedSave] return
+
+    # Get variables.
+    Busy
+
+    set result [RunProgram $ifm(varscmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Unbusy
+	Error [lindex $result 2]
+	return
+    }
+
+    # Display results.
+    TextWindow "Variables" .vars $data \
+	    $ifm(varswidth) $ifm(varsheight)
+
+    Unbusy
+}
+
+# Show search path.
+proc ShowPath {} {
+    global ifm
+
+    # Get path.
+    set result [RunProgram $ifm(pathcmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Error [lindex $result 2]
+	return
+    }
+
+    # Display results.
+    Message "Search path: $data"
 }
 
 # Display a text window.
@@ -833,6 +879,21 @@ proc GotoLine {num} {
     global ifm
     $ifm(text) mark set insert "$num.0"
     $ifm(text) see insert
+}
+
+# Return whether save is required.
+proc NeedSave {} {
+    global ifm
+
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} {return 1}
+	if {[MaybeRead] == 0} {return 1}
+    } else {
+	Message "You must save the current file first."
+	return 1
+    }
+
+    return 0
 }
 
 # Truncate links to join on to boxes properly.

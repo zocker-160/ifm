@@ -42,7 +42,7 @@ The standard set of file commands: New, Open, Save, Save-As, Print (to
 PostScript), Quit.  There's also a command called Redraw, which invokes
 B<IFM> on the current file again.  Normally you don't have to use this
 (it's done whenever you open a new file or save the current one), but if
-you change your initialisation file (see below) the changes won't be
+you change your initialization file (see below) the changes won't be
 noticed unless you do a Redraw.
 
 =item Map menu
@@ -57,18 +57,21 @@ window.
 
 =item Task menu
 
-This contains a single menu item, which displays a high-level walkthrough
-of the game in another window.
+This contains two menu items: 'Task list (brief)', which displays a
+high-level walkthrough of the game in another window, and 'Task list
+(debugging)' which does the same but gives detailed information about what
+the game solver is up to.
 
-=item Debugging output menu
+=item Show menu
 
-This contains a single menu item, which displays some debugging information
-in another window.
+This contains two menu items: 'Variables', which shows all the currently
+defined variables and their values, and 'Paths', which shows the file
+search path.
 
 =item Help menu
 
-At the moment this just displays a small info panel about the current
-B<IFM> version.
+This displays a small info panel about the current B<IFM> version,
+including copying restrictions.
 
 =back
 
@@ -78,11 +81,13 @@ If you'd like to use your own editor to edit B<IFM> files, but still view
 results with B<tkifm>, you can.  B<tkifm> recognizes when the file it is
 visiting gets modified, and rereads it if so.  If you like, you can also
 disable all B<tkifm> file modification commands by setting the C<ifm(edit)>
-variable to zero (see L<"CUSTOMIZATION">).
+variable to zero (see L<"CUSTOMIZATION">).  This is probably a good idea if
+using another editor, or else you might accidentally save from B<tkifm> and
+lose all your changes.
 
 =head1 CUSTOMIZATION
 
-On startup, B<tkifm> reads an initialisation file in your home directory
+On startup, B<tkifm> reads an initialization file in your home directory
 (the one pointed at by the B<HOME> environment variable).  On Unix systems
 it is called F<.tkifmrc>, and on Win32 systems it is called F<tkifm.ini>.
 From there, using Tcl commands, you can set various things that affect the
@@ -109,13 +114,17 @@ variables, their format and defaults.
     set ifm(itemwidth) 50
     set ifm(itemheight) 30
 
-    # Task list window dimensions.
+    # Task list (brief) window dimensions.
     set ifm(taskwidth) 50
     set ifm(taskheight) 30
 
-    # Debugging output window dimensions.
+    # Task list (debugging) window dimensions.
     set ifm(debugwidth) 80
     set ifm(debugheight) 30
+
+    # Variable window dimensions.
+    set ifm(varswidth) 50
+    set ifm(varsheight) 30
 
     # Text window font.
     set ifm(textfont) {Times 12 bold}
