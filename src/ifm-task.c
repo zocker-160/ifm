@@ -722,6 +722,7 @@ setup_tasks(void)
                     step = vh_pget(item, "STEP");
                     vh_istore(step, "MODPATH", 1);
                     add_task(step);
+                    add_list(item, "NROOMS", room);
                 }
             }
         }
@@ -772,6 +773,7 @@ setup_tasks(void)
                     step = vh_pget(item, "STEP");
                     vh_istore(step, "MODPATH", 1);
                     add_task(step);
+                    add_list(item, "NLINKS", reach);
                 }
             }
         }
