@@ -1,9 +1,0 @@
-Unix version of IFM
-*******************
-
-Read the INSTALL file for installation instructions.
-
-IFM has been built and tested on SGIs running IRIX 5.3 and 6.2 with gcc,
-GNU/Linux with gcc, and Windows 95/NT with Cygnus gcc.  It's also known to
-work on Solaris and FreeBSD.  It will probably get up and go on other UNIX
-platforms, but hasn't been tried.
