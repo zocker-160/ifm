@@ -84,14 +84,19 @@ text_task_entry(vhash *task)
     vhash *room = vh_pget(task, "ROOM");
     int score = vh_iget(task, "SCORE");
     char *note = vh_sgetref(task, "NOTE");
+    int dist = vh_iget(task, "DIST");
     static vhash *last = NULL;
     static int flag = 0;
     vscalar *elt;
 
-    if (room != last && room != NULL)
-        printf("\n%s:\n", vh_sgetref(room, "DESC"));
-    else if (last == NULL && flag++ == 0)
+    if (room != last && room != NULL) {
+        printf("\n%s", vh_sgetref(room, "DESC"));
+        if (dist > 0)
+            printf(" (%d room%s away)", dist, dist > 1 ? "s" : "");
+        printf(":\n");
+    } else if (last == NULL && flag++ == 0) {
         printf("\nFirstly:\n");
+    }
 
     printf("   %s\n", vh_sgetref(task, "DESC"));
 
