@@ -353,6 +353,59 @@ set_var(char *driver, char *type, char *var, vscalar *val)
         vh_delete(vars, key);
 }
 
+/* Set up room names */
+void
+setup_room_names(int jflag, int tflag)
+{
+    vhash *room, *join, *from, *to;
+    char tag[10], *name;
+    int jnum = 0;
+    vscalar *elt;
+
+    /* Add join numbers if required */
+    if (jflag) {
+        vl_foreach(elt, joins) {
+            join = vs_pget(elt);
+            if (vh_iget(join, "HIDDEN"))
+                continue;
+
+            from = vh_pget(join, "FROM");
+            to = vh_pget(join, "TO");
+
+            sprintf(tag, " (%d)", ++jnum);
+
+            name = vh_sgetref(from, "RDESC");
+            strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
+            strcat(buf, tag);
+            vh_sstore(from, "RDESC", buf);
+
+            name = vh_sgetref(to, "RDESC");
+            strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
+            strcat(buf, tag);
+            vh_sstore(to, "RDESC", buf);
+        }
+    }
+
+    /* Set room names of rooms that don't have one yet */
+    vl_foreach(elt, rooms) {
+        room = vs_pget(elt);
+        if (!vh_exists(room, "RDESC"))
+            vh_sstore(room, "RDESC", vh_sgetref(room, "DESC"));
+    }
+
+    /* Add tag names if required */
+    if (tflag) {
+        vl_foreach(elt, rooms) {
+            room = vs_pget(elt);
+            if (vh_exists(room, "TAG")) {
+                sprintf(buf, "%s [%s]", vh_sgetref(room, "RDESC"),
+                        vh_sgetref(room, "TAG"));
+                vh_sstore(room, "RDESC", buf);
+            }
+        }
+    }
+}
+
 /* Split a line based on a given width/height ratio */
 vlist *
 split_line(char *string, double ratio)

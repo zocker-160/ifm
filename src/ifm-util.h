@@ -34,7 +34,8 @@ extern void indent(int num);
 extern FILE *open_libfile(char *name);
 extern int pack_sections(int xmax, int ymax, int border);
 extern vlist *search_path(void);
-extern void set_var(char *table1, char *table2, char *var, vscalar *val);
+extern void set_var(char *driver, char *type, char *var, vscalar *val);
+extern void setup_room_names(int jflag, int tflag);
 extern vlist *split_line(char *string, double ratio);
 extern void truncate_points(vlist *x, vlist *y, double wid, double ht);
 
