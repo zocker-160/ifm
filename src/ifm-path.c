@@ -681,7 +681,7 @@ void
 modify_path(void)
 {
     path_modify = 1;
-    DEBUG0(2, "flag path update");
+    DEBUG0(2, "flag path cache update");
 }
 
 /* Task sorting function */
