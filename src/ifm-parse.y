@@ -72,11 +72,11 @@ static int instyle = 0;         /* Set variable in different style? */
     vscalar *vval;
 }
 
-%token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
-%token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
+%token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN NODROP NOTE TASK
+%token	      AFTER NEED GET SCORE JOIN GO REQUIRE ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH IGNORE REQUIRE NODROP
+%token        NOPATH NONE STYLE ENDSTYLE WITH IGNORE
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -96,7 +96,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %left	      PLUS MINUS
 %right	      '^'
 
-%expect 4
+%expect 1
 
 %%
 
@@ -197,8 +197,6 @@ room_stmt	: ROOM string
                                   vh_iget(curobj, "GO"));
                         vh_istore(link, "ONEWAY",
                                   vh_iget(curobj, "ONEWAY"));
-                        vh_istore(link, "SPECIAL",
-                                  vh_iget(curobj, "SPECIAL"));
                         vh_istore(link, "NODROP",
                                   vh_iget(curobj, "NODROP"));
                         vh_istore(link, "NOLINK",
@@ -428,18 +426,6 @@ room_attr	: TAG ID
                     add_attr(curobj, "NOTE", $2);
 		}
                 | STYLE style_list
-		| SPECIAL
-		{
-                    obsolete("`special' attribute", "`style special'");
-                    add_attr(curobj, ATTR(STYLE), "special");
-                    ref_style("special");
-		}
-		| PUZZLE
-		{
-                    obsolete("`puzzle' attribute", "`style puzzle'");
-                    add_attr(curobj, ATTR(STYLE), "puzzle");
-                    ref_style("puzzle");
-		}
 		;
 
 room_list	: room_elt
@@ -718,12 +704,6 @@ link_attr	: DIR dir_list
                         CHANGE_ERROR(tag);
 		}
                 | STYLE style_list
-		| SPECIAL
-		{
-                    obsolete("`special' attribute", "`style special'");
-                    add_attr(curobj, "STYLE", "special");
-                    ref_style("special");
-		}
                 ; 
 
 /************************************************************************/
@@ -1026,7 +1006,6 @@ vars_stmt       : set_var
                         pop_style(NULL);
                     instyle = 0;
                 }
-                | alias_var
                 ;
 
 set_var         : ID '=' exp in_style ';'
@@ -1058,30 +1037,10 @@ set_var         : ID '=' exp in_style ';'
                 }
                 ;
 
-alias_var       : ID ALIAS ID ';'
-                {
-                    var_alias($1, $3);
-                }
-                | ID ALIAS UNDEF ';'
-                {
-                    var_alias($1, NULL);
-                }
-                ;
-
 in_style        : /* empty */
                 | IN STYLE ID
                 {
                     push_style($3);
-                    instyle++;
-                }
-                | IN STYLE PUZZLE
-                {
-                    push_style("puzzle");
-                    instyle++;
-                }
-                | IN STYLE SPECIAL
-                {
-                    push_style("special");
                     instyle++;
                 }
                 ;
@@ -1094,25 +1053,9 @@ style_stmt      : STYLE ID ';'
                 {
                     push_style($2);
                 }
-                | STYLE PUZZLE ';'
-                {
-                    push_style("puzzle");
-                }
-                | STYLE SPECIAL ';'
-                {
-                    push_style("special");
-                }
                 | ENDSTYLE ID ';'
                 {
                     pop_style($2);
-                }
-                | ENDSTYLE PUZZLE ';'
-                {
-                    pop_style("puzzle");
-                }
-                | ENDSTYLE SPECIAL ';'
-                {
-                    pop_style("special");
                 }
                 | ENDSTYLE ';'
                 {
@@ -1128,16 +1071,6 @@ style_elt       : ID
                 {
                     add_attr(curobj, "STYLE", $1);
                     ref_style($1);
-                }
-                | PUZZLE
-                {
-                    add_attr(curobj, "STYLE", "puzzle");
-                    ref_style("puzzle");
-                }
-                | SPECIAL
-                {
-                    add_attr(curobj, "STYLE", "special");
-                    ref_style("special");
                 }
                 ;
 

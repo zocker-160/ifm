@@ -15,25 +15,14 @@
 #include "ifm-util.h"
 #include "ifm-parse.h"
 
-#define MAX_INCLUDE 100
-
 #define yywrap() 1
-
-/* Include file stack */
-static vlist *istack = NULL;
-
-/* Include level */
-static int ilevel = 0;
 
 /* Internal string buffer */
 static vbuffer *sbuf = NULL;
 
 /* Internal functions */
-static void push_include(char *file, int libflag);
-static void pop_include(void);
+static void parse_prep_line(char *str);
 %}
-
-%state INC
 
 LETTER		[A-Za-z_]
 DIGIT		[0-9]
@@ -45,51 +34,59 @@ VAR             \${ID}
 
 %%
 
-#.*		; /* Ignore comments */
+^\#line.* {
+    /* Preprocessor line */
+    parse_prep_line(yytext);
+}
 
-[ \t\f\r]+	; /* Strip whitespace */
+#.* /* Ignore other comments */
 
-\n              {
-		    line_number++;
-		}
+[ \t\f\r]+ /* Strip whitespace */
 
-\"		{
-		    int c, quote = 0, eatspace = 0;
+\n {
+    line_number++;
+}
 
-                    /* Initialise buffer */
-                    if (sbuf == NULL)
-                        sbuf = vb_create();
-                    else
-                        vb_empty(sbuf);
+\" {
+    /* Quoted string */
 
-		    /* Slurp string in, one char at a time */
-		    while (1) {
-                        c = input();
+    int c, quote = 0, eatspace = 0;
 
-                        if        (c == EOF) {
-                            yyerror("unterminated string");
-                            break;
-                        } else if (c == '"' && !quote) {
-                            break;
-                        } else if (c == '\\' && !quote) {
-                            quote = 1;
-                            continue;
-                        } else if (c == '\n') {
-                            vb_putc(sbuf, ' ');
-                            eatspace = 1;
-                            line_number++;
-                        } else if (!eatspace || !isspace(c)) {
-                            vb_putc(sbuf, c);
-                        }
+    /* Initialise buffer */
+    if (sbuf == NULL)
+        sbuf = vb_create();
+    else
+        vb_empty(sbuf);
 
-                        if (!isspace(c))
-                            eatspace = 0;
-                        quote = 0;
-		    }
+    /* Slurp string in, one char at a time */
+    while (1) {
+        c = input();
 
-		    yylval.sval = vb_getcopy(sbuf);
-		    return STRING;
-		}
+        if        (c == EOF) {
+            yyerror("unterminated string");
+            break;
+        } else if (c == '"' && !quote) {
+            break;
+        } else if (c == '\\' && !quote) {
+            quote = 1;
+            continue;
+        } else if (c == '\n') {
+            vb_putc(sbuf, ' ');
+            eatspace = 1;
+            line_number++;
+        } else if (!eatspace || !isspace(c)) {
+            vb_putc(sbuf, c);
+        }
+
+        if (!isspace(c))
+            eatspace = 0;
+
+        quote = 0;
+    }
+
+    yylval.sval = vb_getcopy(sbuf);
+    return STRING;
+}
 
 "after"		{ return AFTER; }
 "all"		{ return ALL; }
@@ -141,7 +138,6 @@ VAR             \${ID}
 "nw"		{ return NORTHWEST; }
 "oneway"	{ return ONEWAY; }
 "out"		{ return OUT; }
-"puzzle"	{ return PUZZLE; }
 "require"       { return REQUIRE; }
 "room"		{ return ROOM; }
 "s"		{ return SOUTH; }
@@ -151,7 +147,6 @@ VAR             \${ID}
 "south"		{ return SOUTH; }
 "southeast"	{ return SOUTHEAST; }
 "southwest"	{ return SOUTHWEST; }
-"special"	{ return SPECIAL; }
 "start"		{ return START; }
 "style"		{ return STYLE; }
 "sw"		{ return SOUTHWEST; }
@@ -168,112 +163,63 @@ VAR             \${ID}
 "west"		{ return WEST; }
 "with"          { return WITH; }
 
-^"include"      {
-                    BEGIN(INC);
-                }
+{ID}\.{ID} {
+    yylval.sval = v_strdup(yytext);
+    return ID;
+}
 
-<INC>\"[^\"]+\"[ \t]*$ {
-                    v_chop(yytext);
-                    push_include(&yytext[1], 0);
-                    BEGIN(INITIAL);
-                }
+{ID} {
+    yylval.sval = v_strdup(yytext);
+    return ID;
+}
 
-<INC>\<[^>]+\>[ \t]*$ {
-                    v_chop(yytext);
-                    push_include(&yytext[1], 1);
-                    BEGIN(INITIAL);
-                }
+{VAR} {
+    yylval.sval = v_strdup(&yytext[1]);
+    return VAR;
+}
 
-<<EOF>>         {
-                    if (ilevel == 0)
-                        yyterminate();
-                    else
-                        pop_include();
-                }
+{REAL} {
+    yylval.dval = atof(yytext);
+    return REAL;
+}
 
-{ID}\.{ID}	{
-		    yylval.sval = v_strdup(yytext);
-		    return ID;
-		}
+{INTEGER} {
+    yylval.ival = atoi(yytext);
+    return INTEGER;
+}
 
-{ID}		{
-		    yylval.sval = v_strdup(yytext);
-		    return ID;
-		}
-
-{VAR}		{
-		    yylval.sval = v_strdup(&yytext[1]);
-		    return VAR;
-		}
-
-{REAL}          {
-                    yylval.dval = atof(yytext);
-		    return REAL;
-		}
-
-{INTEGER}	{
-		    yylval.ival = atoi(yytext);
-		    return INTEGER;
-		}
-
-"=>"            { return ALIAS; }
-
-.		{ return yytext[0]; }
+. { return yytext[0]; }
 
 %%
 
-/* Push include level */
+/* Parse a preprocessor line */
 static void
-push_include(char *file, int libflag)
+parse_prep_line(char *str)
 {
-#ifdef FLEX_SCANNER
-    YY_BUFFER_STATE buffer;
-    vhash *idata;
-    FILE *fp;
+    vlist *tokens;
+    int flag;
 
-    /* Sanity check */
-    if (ilevel == MAX_INCLUDE)
-        fatal("include files nested too deeply (> %d)", MAX_INCLUDE);
+    tokens = vl_split(str, " \t\"");
+    if (vl_length(tokens) < 2)
+        return;
 
-    /* Store current include level */
-    idata = vh_create();
-    vh_sstore(idata, "FILE", ifm_input);
-    vh_istore(idata, "LINE", line_number);
-    vh_pstore(idata, "BUFFER", YY_CURRENT_BUFFER);
+    line_number = vl_iget(tokens, 1) - 1;
+    strcpy(ifm_input, vl_sgetref(tokens, 2));
+    flag = vl_iget(tokens, 3);
+    vl_destroy(tokens);
 
-    /* Push it onto include stack */
-    if (istack == NULL)
-        istack = vl_create();
-    vl_ppush(istack, idata);
-    ilevel++;
-
-    /* Go to new include file */
-    fp = open_file(file, libflag, 1);
-    buffer = yy_create_buffer(fp, YY_BUF_SIZE);
-    yy_switch_to_buffer(buffer);
-    line_number = 1;
-#else
-    warn("this version of IFM doesn't support `include'");
-#endif
-}
-
-/* Pop include level */
-static void
-pop_include(void)
-{
-#ifdef FLEX_SCANNER
-    YY_BUFFER_STATE buffer;
-    vhash *idata;
-
-    ilevel--;
-    idata = vl_ppop(istack);
-    strcpy(ifm_input, vh_sgetref(idata, "FILE"));
-    line_number = vh_iget(idata, "LINE");
-
-    yy_delete_buffer(YY_CURRENT_BUFFER);
-    buffer = vh_pget(idata, "BUFFER");
-    yy_switch_to_buffer(buffer);
-
-    vh_destroy(idata);
-#endif
+    switch (flag) {
+    case 0:
+        debug("switching to file: %s, line %d",
+              ifm_input, line_number);
+        break;
+    case 1:
+        debug("including file: %s, line %d",
+              ifm_input, line_number);
+        break;
+    case 2:
+        debug("returning to file: %s, line %d",
+              ifm_input, line_number);
+        break;
+    }
 }
