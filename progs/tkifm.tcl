@@ -1,30 +1,36 @@
-# Tkifm version 1.0, Copyright (C) 1997 G. Hutchings
+# Tkifm version 1.0, Copyright (C) 1997-98 G. Hutchings
 # TkIfm comes with ABSOLUTELY NO WARRANTY.
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; see the file COPYING for details.
 
 # Global variables (internal).
-set ifm(mapcmd)  {ifm -map   -format tk}
-set ifm(itemcmd) {ifm -items -format tk}
-set ifm(taskcmd) {ifm -tasks -format tk}
+set ifm(version) 1.0
+set ifm(debug)   0
+
+set ifm(mapcmd)   {ifm -map   -format tk}
+set ifm(itemcmd)  {ifm -items -format tk}
+set ifm(taskcmd)  {ifm -tasks -format tk}
+set ifm(printcmd) {ifm -map   -format ps}
 
 # Global variables (customizable).
-set ifm(editwidth) 80
-set ifm(editheight) 24
-set ifm(editfont) {Courier 12 bold}
+set ifm(editwidth)      80
+set ifm(editheight)     24
+set ifm(editfont)       {Courier 12 bold}
 set ifm(editforeground) black
 set ifm(editbackground) wheat
 
-set ifm(textwidth) 50
-set ifm(textheight) 30
-set ifm(textfont) {Times 12 bold}
+set ifm(textwidth)      50
+set ifm(textheight)     30
+set ifm(textfont)       {Times 12 bold}
 set ifm(textforeground) black
 set ifm(textbackground) wheat
 
 set ifm(roomitemratio) 0.5
 
 set ifm(untitled) "untitled.ifm"
-set ifm(filetypes) {{"IFM files" {.ifm}} {"All files" *}}
+set ifm(ifmfiles) {{"IFM files" {.ifm}} {"All files" *}}
+set ifm(psfiles)  {{"PostScript files" {.ps}} {"All files" *}}
+set ifm(tearoff)  1
 
 # Set up the main window.
 proc MainWindow {} {
@@ -37,12 +43,13 @@ proc MainWindow {} {
 
     # File options.
     set c $m.file
-    menu $c
+    menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "File" -menu $c -underline 0
     $c add command -label "New"        -command New    -underline 0
     $c add command -label "Open..."    -command Open   -underline 0
     $c add command -label "Save"       -command Save   -underline 0
     $c add command -label "Save As..." -command SaveAs -underline 5
+    $c add command -label "Print..."   -command Print  -underline 0
     $c add separator
     $c add command -label "Redraw"     -command Redraw -underline 0
     $c add separator
@@ -50,21 +57,35 @@ proc MainWindow {} {
 
     # Map options.
     set c $m.sect
-    menu $c
+    menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "Map" -menu $c -underline 0
     set ifm(mapmenu) $m.sect
 
     # Item options.
     set c $m.items
-    menu $c
+    menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "Items" -menu $c -underline 0
     $c add command -label "Item list" -command ShowItems -underline 0
 
     # Task options.
     set c $m.tasks
-    menu $c
+    menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "Tasks" -menu $c -underline 0
     $c add command -label "Task list" -command ShowTasks -underline 0
+
+    if $ifm(debug) {
+	# Debug options.
+	set c $m.debug
+	menu $c -tearoff $ifm(tearoff)
+	$m add cascade -label "Debug" -menu $c -underline 0
+	$c add command -label "Goto line 1" -command "GotoLine 1"
+    }
+
+    # Help options.
+    set c $m.help
+    menu $c -tearoff $ifm(tearoff)
+    $m add cascade -label "Help" -menu $c -underline 0
+    $c add command -label "About" -command About -underline 0
 
     # Configure menu.
     . configure -menu $m
@@ -78,7 +99,11 @@ proc MainWindow {} {
     text $t -yscrollcommand "$s set" -setgrid true \
 	    -width $ifm(editwidth) -height $ifm(editheight) \
 	    -wrap word -font $ifm(editfont) -fg $ifm(editforeground) \
-	    -bg $ifm(editbackground)
+	    -bg $ifm(editbackground) -insertofftime 0 \
+	    -insertbackground red
+
+    bind $t <3> "$t scan mark %x %y"
+    bind $t <B3-Motion> "$t scan dragto %x %y"
 
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
@@ -88,56 +113,19 @@ proc MainWindow {} {
     focus $ifm(text)
 }
 
-# Build the map.
-proc BuildMap {} {
-    global sectnum roomnum linknum
-    global sects rooms links
-    global ifm
+# Draw a map section.
+proc DrawMap {num} {
+    global ifm rooms links
+    global sectnum
 
-    # Get map data.
-    set result [RunProgram $ifm(mapcmd) $ifm(path)]
-    if [lindex $result 0] {
-	set data [lindex $result 1]
-    } else {
-	Error [lindex $result 2]
+    if {[MaybeSave] == 0} return
+    if {$num > $sectnum} {
+	Message "Map section no longer exists!"
 	return
     }
 
-    # Remove old windows.
-    if [info exists sects] {
-	foreach sect $sects {
-	    catch {destroy .$sect}
-	}
-    }
-
-    catch {destroy .items}
-    catch {destroy .tasks}
-
-    # Set up new maps.
-    set sects {}
-    set rooms {}
-    set links {}
-
-    set sectnum 0
-    set roomnum 0
-    set linknum 0
-
-    eval $data
-
-    # Reconfigure map menu.
-    set c $ifm(mapmenu)
-    $c delete 0 end
-
-    foreach sect $sects {
-	$c add command -label [Get $sect title] -command "DrawMap $sect"
-    }
-}
-
-# Draw a map section.
-proc DrawMap {sect} {
-    global ifm rooms links
-
     # Get attributes.
+    set sect sect$num
     set title [Get $sect title]
     set xlen [Get $sect xlen]
     set ylen [Get $sect ylen]
@@ -174,8 +162,8 @@ proc DrawMap {sect} {
     scrollbar $f.xscroll -command "$c xview" -orient horiz
     scrollbar $f.yscroll -command "$c yview"
 
-    bind $c <2> "$c scan mark %x %y"
-    bind $c <B2-Motion> "$c scan dragto %x %y"
+    bind $c <3> "$c scan mark %x %y"
+    bind $c <B3-Motion> "$c scan dragto %x %y"
 
     grid $c -in $f -row 0 -column 0 \
 	    -rowspan 1 -columnspan 1 -sticky nsew
@@ -284,8 +272,14 @@ proc DrawMap {sect} {
 proc ShowItems {} {
     global ifm
 
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} return
+    } else {
+	Message "You must save the current file first."
+	return
+    }
+
     # Get item data.
-    if {[MaybeSave] == 0} return
     set result [RunProgram $ifm(itemcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
@@ -306,23 +300,33 @@ proc ShowItems {} {
     set t $w.text
     set s $w.scroll
     text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(textwidth) -height $ifm(textheight) -wrap word \
-	    -fg $ifm(textforeground) \
-	    -bg $ifm(textbackground) \
-	    -font $ifm(textfont)
+	    -width $ifm(textwidth) -height $ifm(textheight) \
+	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
+	    -bg $ifm(textbackground)
     scrollbar $s -command "$t yview"
+
     pack $s -side right -fill y
     pack $t -expand yes -fill both
+
     $t insert end $itemlist
     $t configure -state disabled
+
+    bind $t <3> "$t scan mark %x %y"
+    bind $t <B3-Motion> "$t scan dragto %x %y"
 }
 
 # Show task list.
 proc ShowTasks {} {
     global ifm
 
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} return
+    } else {
+	Message "You must save the current file first."
+	return
+    }
+
     # Get task data.
-    if {[MaybeSave] == 0} return
     set result [RunProgram $ifm(taskcmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
@@ -343,15 +347,62 @@ proc ShowTasks {} {
     set t $w.text
     set s $w.scroll
     text $t -yscrollcommand "$s set" -setgrid true \
-	    -width $ifm(textwidth) -height $ifm(textheight) -wrap word \
-	    -fg $ifm(textforeground) \
-	    -bg $ifm(textbackground) \
-	    -font $ifm(textfont)
+	    -width $ifm(textwidth) -height $ifm(textheight) \
+	    -wrap word -font $ifm(textfont) -fg $ifm(textforeground) \
+	    -bg $ifm(textbackground)
     scrollbar $s -command "$t yview"
+
     pack $s -side right -fill y
     pack $t -expand yes -fill both
+
     $t insert end $tasklist
     $t configure -state disabled
+
+    bind $t <3> "$t scan mark %x %y"
+    bind $t <B3-Motion> "$t scan dragto %x %y"
+}
+
+# Build the map.
+proc BuildMap {} {
+    global sectnum roomnum linknum
+    global sects rooms links
+    global ifm
+
+    # Get map data.
+    set result [RunProgram $ifm(mapcmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Error [lindex $result 2]
+	return
+    }
+
+    # Remove old windows.
+    if [info exists sects] {
+	foreach sect $sects {catch {destroy .$sect}}
+    }
+
+    catch {destroy .items}
+    catch {destroy .tasks}
+
+    # Set up new maps.
+    set sects {}
+    set rooms {}
+    set links {}
+
+    set sectnum 0
+    set roomnum 0
+    set linknum 0
+
+    eval $data
+
+    # Reconfigure map menu.
+    set c $ifm(mapmenu)
+    $c delete 0 end
+
+    for {set i 1} {$i <= $sectnum} {incr i} {
+	$c add command -label [Get sect$i title] -command "DrawMap $i"
+    }
 }
 
 # Read IFM source.
@@ -371,19 +422,20 @@ proc ReadFile {file} {
 
 	$ifm(text) delete 0.0 end
 	$ifm(text) insert end $ifm(data)
-	$ifm(text) mark set insert 0.0
 	append ifm(data) "\n"
+	GotoLine 1
 
 	BuildMap
     }
 }
 
-# Set the current file.
-proc SetFile {file} {
+# Set the current input pathname.
+proc SetFile {path} {
     global ifm
 
-    set ifm(file) [file tail $file]
-    set ifm(path) $file
+    set ifm(dir)  [file dirname $path]
+    set ifm(file) [file tail $path]
+    set ifm(path) $path
     set ifm(data) "\n"
     wm iconname . $ifm(file)
     wm title . $ifm(file)
@@ -443,10 +495,10 @@ proc New {} {
     global ifm
 
     if {[MaybeSave] == 0} return
-
-    SetFile "untitled.ifm"
-    $ifm(text) mark set insert 0.0
+    SetFile [file join $ifm(dir) $ifm(untitled)]
     $ifm(text) delete 0.0 end
+    set ifm(data) ""
+    GotoLine 1
 }
 
 # Open a file and parse it.
@@ -454,7 +506,7 @@ proc Open {} {
     global ifm
 
     if {[MaybeSave] == 0} return
-    set file [tk_getOpenFile -filetypes $ifm(filetypes)]
+    set file [tk_getOpenFile -filetypes $ifm(ifmfiles) -initialdir $ifm(dir)]
     if [string length $file] {ReadFile $file}
 }
 
@@ -470,19 +522,57 @@ proc Save {} {
     set ifm(data) [$ifm(text) get 0.0 end]
     puts -nonewline $fd $ifm(data)
     close $fd
+
+    BuildMap
 }
 
 # Save current file under another name.
 proc SaveAs {} {
     global ifm
 
-    set file [tk_getSaveFile -initialfile $ifm(path) \
-	    -filetypes $ifm(filetypes)]
+    set file [tk_getSaveFile -initialfile $ifm(path) -initialdir $ifm(dir) \
+	    -filetypes $ifm(ifmfiles)]
 
     if [string length $file] {
 	set ifm(path) $file
 	Save
     }
+}
+
+# Print current file to PostScript.
+proc Print {} {
+    global ifm
+
+    if [file exists $ifm(path)] {
+	if {[MaybeSave] == 0} return
+    } else {
+	Message "You must save the current file first."
+	return
+    }
+
+    # Get save filename.
+    set root [file rootname $ifm(file)]
+    set file [tk_getSaveFile -initialfile ${root}.ps -initialdir $ifm(dir) \
+	    -filetypes $ifm(psfiles) -title "Save PostScript"]
+    if {$file == ""} return
+
+    # Get PostScript data.
+    set result [RunProgram $ifm(printcmd) $ifm(path)]
+    if [lindex $result 0] {
+	set data [lindex $result 1]
+    } else {
+	Error [lindex $result 2]
+	return
+    }
+
+    # Write file.
+    if [catch {set fd [open $file w]}] {
+	Error "Can't save $file"
+	return
+    }
+
+    puts $fd $data
+    close $fd
 }
 
 # Save current file if required.
@@ -515,6 +605,33 @@ proc Quit {} {
     if [MaybeSave] {destroy .}
 }
 
+# Display info about program.
+proc About {} {
+    global ifm
+
+    set text    "This is Tkifm, version $ifm(version).\n"
+    append text "Copyright (C) Glenn Hutchings 1997-98\n\n"
+
+    append text "This program is free software; you can redistribute it "
+    append text "and/or modify it under the terms of the GNU General "
+    append text "Public License as published by the Free Software "
+    append text "Foundation; either version 2, or (at your option) any "
+    append text "later version.\n\n"
+
+    append text "This program is distributed in the hope that it will be "
+    append text "useful, but WITHOUT ANY WARRANTY; without even the "
+    append text "implied warranty of MERCHANTABILITY or FITNESS FOR A "
+    append text "PARTICULAR PURPOSE.  See the GNU General Public License "
+    append text "for more details.\n\n"
+
+    append text "You should have received a copy of the GNU General "
+    append text "Public License along with this program; if not, write "
+    append text "to the Free Software Foundation, Inc., 675 Mass Ave, "
+    append text "Cambridge, MA 02139, USA."
+
+    Message $text
+}
+
 # Run a program and return its results.
 proc RunProgram {prog args} {
     set result {}
@@ -531,6 +648,13 @@ proc Modified {} {
     set curdata [$ifm(text) get 0.0 end]
     if {$ifm(data) != $curdata} {return 1}
     return 0
+}
+
+# Go to a text line.
+proc GotoLine {num} {
+    global ifm
+    $ifm(text) mark set insert "$num.0"
+    $ifm(text) see insert
 }
 
 # Truncate links to join on to boxes properly.
@@ -564,6 +688,16 @@ proc Truncate {link wid ht} {
     set y [lreplace $y end end $yl]
 
     return [list $x $y]
+}
+
+# Set busy state.
+proc Busy {win} {
+    $win configure -cursor watch
+}
+
+# Set unbusy state.
+proc Unbusy {win} {
+    $win configure -cursor left_ptr
 }
 
 # Ask a yes/no question.
