@@ -50,7 +50,7 @@ enum {
 extern void fig_set_arrow(vhash *object, int forward, int backward);
 extern void fig_set_arrowstyle(vhash *object, int type, int style,
                                float thick, float width, float height);
-extern void fig_set_colour(vhash *object, int r, int g, int b);
+extern void fig_set_colour(vhash *object, float r, float g, float b);
 extern void fig_set_depth(vhash *object, int depth);
 extern void fig_set_fillcolour(vhash *object, int r, int g, int b);
 extern void fig_set_fillstyle(vhash *object, int style);

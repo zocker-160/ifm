@@ -17,9 +17,9 @@ main(void)
     line = fig_create_line(figure, 1.0, 1.0, 15.0, 3.0);
 
     fig_set_font(text, "Helvet", 50.0);
-    fig_set_fillcolour(box, 255, 255, 0);
-    fig_set_colour(box, 0, 255, 0);
-    fig_set_colour(text, 255, 0, 0);
+    fig_set_fillcolour(box, 1.0, 1.0, 0.0);
+    fig_set_colour(box, 0.0, 1.0, 0.0);
+    fig_set_colour(text, 1.0, 0.0, 0.0);
     fig_set_name(box, "My box");
     fig_set_arrow(line, 1, 0);
 

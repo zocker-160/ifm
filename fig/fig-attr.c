@@ -48,12 +48,12 @@ static char *fontlist[] = {
 static char buf[BUFSIZ];
 
 /* Internal functions */
-static int fig_lookup_colour(vhash *object, int r, int g, int b);
+static int fig_lookup_colour(vhash *object, float r, float g, float b);
 static int fig_lookup_font(char *name);
 
 /* Look up a colour given its RGB values */
 static int
-fig_lookup_colour(vhash *object, int r, int g, int b)
+fig_lookup_colour(vhash *object, float r, float g, float b)
 {
     vhash *figure, *colours;
     static int nextid = 32;
@@ -66,7 +66,8 @@ fig_lookup_colour(vhash *object, int r, int g, int b)
         vh_pstore(figure, "COLOURS", colours);
     }
 
-    sprintf(cbuf, "#%02x%02x%02x", r, g, b);
+    sprintf(cbuf, "#%02x%02x%02x",
+            (int) (r * 255), (int) (g * 255), (int) (b * 255));
 
     if (vh_exists(colours, cbuf)) {
         id = vh_iget(colours, cbuf);
@@ -114,7 +115,7 @@ fig_set_arrowstyle(vhash *object, int type, int style,
 
 /* Set the colour of an object */
 void
-fig_set_colour(vhash *object, int r, int g, int b)
+fig_set_colour(vhash *object, float r, float g, float b)
 {
     int id = fig_lookup_colour(object, r, g, b);
     vh_istore(object, "PENCOLOUR", id);
