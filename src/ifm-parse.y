@@ -18,14 +18,16 @@
 #include "ifm-util.h"
 
 #define SET_LIST(object, attr, list) \
-        vlist *l = vh_pget(object, attr); \
-        if (l == NULL) { \
-                vh_pstore(object, attr, list); \
-                list = NULL; \
-        } else { \
-                vl_append(l, list); \
-                vl_destroy(list); \
-                list = NULL; \
+        { \
+                vlist *l = vh_pget(object, attr); \
+                if (l == NULL) { \
+                        vh_pstore(object, attr, list); \
+                        list = NULL; \
+                } else { \
+                        vl_append(l, list); \
+                        vl_destroy(list); \
+                        list = NULL; \
+                } \
         }
 
 #define ATTR(name) \
@@ -55,10 +57,14 @@ static vscalar *itroom = NULL;  /* Room referred to by 'it' */
 static vscalar *ititem = NULL;  /* Item referred to by 'it' */
 static vscalar *ittask = NULL;  /* Task referred to by 'it' */
 
+static int roomid = 0;          /* Current room ID */
+static int itemid = 0;          /* Current item ID */
+
 static vlist *curdirs = NULL;   /* Current direction list */
 
-static int modify;              /* Modification flag */
-static int implicit;            /* Implicit-link flag */
+static int modify = 0;          /* Modification flag */
+static int implicit = 0;        /* Implicit-link flag */
+static int allflag = 0;         /* All-items flag */
 %}
 
 %union {
@@ -71,7 +77,7 @@ static int implicit;            /* Implicit-link flag */
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
-%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT
+%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -102,6 +108,7 @@ room_stmt	: ROOM STRING
 		{
                     curroom = vh_create();
 		    vh_sstore(curroom, "DESC", $2);
+                    vh_istore(curroom, "ID", ++roomid);
                     implicit = 0;
                     modify = 0;
 		}
@@ -321,18 +328,11 @@ room_attr	: TAG ID
 		{
                     SET_LIST(curroom, ATTR(AFTER), curtasks);
 		}
-                | LEAVE item_list
+                | LEAVE item_list_all
                 {
-                    SET_LIST(curroom, ATTR(LEAVE), curitems);
-                }
-                | LEAVE ALL
-                {
-                    vh_istore(curroom, ATTR(LEAVEALL), 1);
-                }
-                | LEAVE ALL EXCEPT item_list
-                {
-                    SET_LIST(curroom, ATTR(LEAVE), curitems);
-                    vh_istore(curroom, ATTR(LEAVEALL), 1);
+                    if (curitems != NULL)
+                        SET_LIST(curroom, ATTR(LEAVE), curitems);
+                    vh_istore(curroom, ATTR(LEAVEALL), allflag);
                 }
 		| LENGTH INTEGER
 		{
@@ -359,6 +359,7 @@ item_stmt	: ITEM STRING
                 {
                     curitem = vh_create();
                     vh_sstore(curitem, "DESC", $2);
+                    vh_istore(curitem, "ID", ++itemid);
                     modify = 0;
                 }
                 item_attrs ';'
@@ -504,18 +505,11 @@ link_attr	: DIR dir_list
 		{
                     SET_LIST(curlink, "AFTER", curtasks);
 		}
-                | LEAVE item_list
+                | LEAVE item_list_all
                 {
-                    SET_LIST(curlink, "LEAVE", curitems);
-                }
-                | LEAVE ALL
-                {
-                    vh_istore(curlink, "LEAVEALL", 1);
-                }
-                | LEAVE ALL EXCEPT item_list
-                {
-                    SET_LIST(curlink, "LEAVE", curitems);
-                    vh_istore(curlink, "LEAVEALL", 1);
+                    if (curitems != NULL)
+                        SET_LIST(curlink, "LEAVE", curitems);
+                    vh_istore(curlink, "LEAVEALL", allflag);
                 }
 		| LENGTH INTEGER
 		{
@@ -595,18 +589,11 @@ join_attr	: GO compass
 		{
                     SET_LIST(curjoin, "AFTER", curtasks);
 		}
-                | LEAVE item_list
+                | LEAVE item_list_all
                 {
-                    SET_LIST(curjoin, "LEAVE", curitems);
-                }
-                | LEAVE ALL
-                {
-                    vh_istore(curjoin, "LEAVEALL", 1);
-                }
-                | LEAVE ALL EXCEPT item_list
-                {
-                    SET_LIST(curjoin, "LEAVE", curitems);
-                    vh_istore(curjoin, "LEAVEALL", 1);
+                    if (curitems != NULL)
+                        SET_LIST(curjoin, "LEAVE", curitems);
+                    vh_istore(curjoin, "LEAVEALL", allflag);
                 }
 		| LENGTH INTEGER
 		{
@@ -686,39 +673,47 @@ task_attr	: TAG ID
 		{
                     SET_LIST(curtask, "GET", curitems);
 		}
-		| DROP item_list
+		| DROP item_list_all
 		{
-                    SET_LIST(curtask, "DROP", curitems);
+                    if (curitems != NULL)
+                        SET_LIST(curtask, "DROP", curitems);
+                    vh_istore(curtask, "DROPALL", allflag);
 		}
-		| DROP item_list IN room
+		| DROP item_list_all UNTIL task_list
 		{
-                    SET_LIST(curtask, "DROP", curitems);
+                    if (curitems != NULL)
+                        SET_LIST(curtask, "DROP", curitems);
+                    vh_istore(curtask, "DROPALL", allflag);
+                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+		}
+		| DROP item_list_all IN room
+		{
+                    if (curitems != NULL)
+                        SET_LIST(curtask, "DROP", curitems);
+                    vh_istore(curtask, "DROPALL", allflag);
                     vh_store(curtask, "DROPROOM", $4);
 		}
-		| DROP ALL
+		| DROP item_list_all IN room UNTIL task_list
 		{
-                    vh_istore(curtask, "DROPALL", 1);
-		}
-		| DROP ALL IN room
-		{
-                    vh_istore(curtask, "DROPALL", 1);
+                    if (curitems != NULL)
+                        SET_LIST(curtask, "DROP", curitems);
+                    vh_istore(curtask, "DROPALL", allflag);
                     vh_store(curtask, "DROPROOM", $4);
-		}
-		| DROP ALL EXCEPT item_list
-		{
-                    SET_LIST(curtask, "DROP", curitems);
-                    vh_istore(curtask, "DROPALL", 1);
-		}
-		| DROP ALL EXCEPT item_list IN room
-		{
-                    SET_LIST(curtask, "DROP", curitems);
-                    vh_store(curtask, "DROPROOM", $6);
-                    vh_istore(curtask, "DROPALL", 1);
+                    SET_LIST(curtask, "DROPUNTIL", curtasks);
 		}
 		| DROP IN room
 		{
                     vh_store(curtask, "DROPROOM", $3);
 		}
+		| DROP IN room UNTIL task_list
+		{
+                    vh_store(curtask, "DROPROOM", $3);
+                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+		}
+                | DROP UNTIL task_list
+                {
+                    SET_LIST(curtask, "DROPUNTIL", curtasks);
+                }
 		| LOSE item_list
 		{
                     SET_LIST(curtask, "LOSE", curitems);
@@ -751,15 +746,19 @@ task_attr	: TAG ID
                 {
                     vh_istore(curtask, "FINISH", 1);
                 }
+                | CMD STRING
+                {
+                    vh_sstore(curtask, "CMD", $2);
+                }
 		| NOTE STRING
 		{
                     add_note(curtask, $2);
 		}
 		;
 
-ctrl_stmt       : TITLE var ';'
+ctrl_stmt       : TITLE STRING ';'
                 {
-                    set_var(NULL, NULL, "title", $2);
+                    set_var(NULL, NULL, "title", vs_screate($2));
                 }
                 | MAP STRING ';'
                 {
@@ -837,6 +836,11 @@ room            : ID
 item_list	: item_elt
 		| item_list item_elt
 		;
+
+item_list_all   : item_list                     { allflag = 0; }
+                | ALL                           { allflag = 1; }
+                | ALL EXCEPT item_list          { allflag = 1; }
+                ;
 
 item_elt	: item
 		{
