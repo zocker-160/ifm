@@ -60,7 +60,7 @@ tk_map_start(void)
     /* Set variables */
     printf("set ifm(mapwidth) %d\n", get_int("map_width", 8));
     printf("set ifm(mapheight) %d\n", get_int("map_height", 6));
-    printf("set ifm(mapcol) %s\n", get_string("map_colour", "Wheat"));
+    printf("set ifm(mapcol) %s\n", get_string("map_colour", "wheat"));
 
     printf("set ifm(roomsize) %g\n", get_real("room_size", 3.0));
     printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
@@ -80,7 +80,7 @@ tk_map_start(void)
                                         "true" : "false"));
 
     printf("set ifm(specialcol) %s\n", get_string("link_special_colour",
-                                                  "grey60"));
+                                                  "blue"));
 
     printf("set ifm(labelfont) {%s}\n", get_string("label_font",
                                                    "Times 8 bold"));
@@ -110,11 +110,30 @@ tk_map_section(vhash *sect)
 void
 tk_map_room(vhash *room)
 {
-    static int room_num = 0;
+    char *itemlist = NULL;
+    vlist *items;
 
-    vh_istore(room, "NUM", ++room_num);
-    printf("AddRoom {%s} %d %d %d\n",
+    items = vh_pget(room, "ITEMS");
+    if (items != NULL && vl_length(items) > 0) {
+        vscalar *elt;
+        vhash *item;
+        vlist *list;
+
+        list = vl_create();
+        vl_foreach(elt, items) {
+            item = vs_pget(elt);
+            if (!vh_iget(item, "HIDDEN"))
+                vl_spush(list, vh_sgetref(item, "DESC"));
+        }
+
+        if (vl_length(list) > 0)
+            itemlist = vl_join(list, ", ");
+        vl_destroy(list);
+    }
+
+    printf("AddRoom {%s} {%s} %d %d %d\n",
            vh_sgetref(room, "JDESC"),
+           (itemlist != NULL ? itemlist : ""),
            vh_iget(room, "X"),
            vh_iget(room, "Y"),
            vh_iget(room, "PUZZLE"));
