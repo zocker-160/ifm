@@ -6,28 +6,49 @@ ifmdocdir = $(docdir)/ifm
 PDF_TITLE  = IFM Version $(VERSION)
 PDF_AUTHOR = Glenn Hutchings
 
+MAN_TITLE = Interactive Fiction Mapper
+
+man_MANS = ifm.1
+
+# Programs.
+
+IFM      = $(top_srcdir)/src/ifm
+IFMCMD   = $(IFM) -I $(top_srcdir)/lib
+HELP2MAN = help2man -N -n "$(MAN_TITLE)"
+
 # Main targets.
 
-doc: fig pdf html
+doc: fig pdf html man
 
 pdf: ifm.pdf
 
-ps: ifm.ps
-
 fig: cover.eps example.eps advent.eps
+
+man:
+	cp ifm.man ifm.tmp
+	echo "[SEE ALSO]" >> ifm.tmp
+	echo ".IP $(ifmdocdir)/html" >> ifm.tmp
+	echo "Online documentation" >> ifm.tmp
+	echo ".IP $(ifmdocdir)/ifm.pdf" >> ifm.tmp
+	echo "Documentation suitable for printing" >> ifm.tmp
+	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
+	rm -f ifm.tmp
+
+mantest: man
+	groff -man -Tps ifm.1 > ifm.ps
+	gv -a4 -scale -1 -spartan ifm.ps
+	rm -f ifm.ps
 
 # General rules.
 
 SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex
-
-IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
 
 .lyx.ps:;	lyx --export ps $< > $@
 .lyx.tex:;	lyx --export latex $< > $@
 .ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
 .lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
-.ifm.fig:;	$(IFM) -m -f fig -o $@ $<
+.ifm.fig:;	$(IFMCMD) -m -f fig -o $@ $<
 .fig.eps:;	fig2dev -L eps $< > $@
 .fig.png:;	fig2dev -L png $< > $@
 .fig.tex:;	fig2dev -L latex $< > $@
@@ -60,9 +81,9 @@ $(ifmdocdir):
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.lyx gfdl.lyx advent.cmd advent.ifm advent1.scr advent2.scr \
-advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	    \
-cover.ifm tkifm.txt macros.tex
+EXTRA_DIST = ifm.1 ifm.man ifm.lyx gfdl.lyx advent.cmd advent.ifm	\
+advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr	\
+advent7.scr example.ifm cover.ifm tkifm.txt macros.tex
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/ifm; then					\

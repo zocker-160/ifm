@@ -137,17 +137,25 @@ ifmdocdir = $(docdir)/ifm
 PDF_TITLE = IFM Version $(VERSION)
 PDF_AUTHOR = Glenn Hutchings
 
+MAN_TITLE = Interactive Fiction Mapper
+
+man_MANS = ifm.1
+
+
+# Programs.
+IFM = $(top_srcdir)/src/ifm
+IFMCMD = $(IFM) -I $(top_srcdir)/lib
+HELP2MAN = help2man -N -n "$(MAN_TITLE)"
+
 
 # General rules.
 SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex
 
-IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
-
 
 # Distribution stuff.
-EXTRA_DIST = ifm.lyx gfdl.lyx advent.cmd advent.ifm advent1.scr advent2.scr \
-advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	    \
-cover.ifm tkifm.txt macros.tex
+EXTRA_DIST = ifm.1 ifm.man ifm.lyx gfdl.lyx advent.cmd advent.ifm	\
+advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr	\
+advent7.scr example.ifm cover.ifm tkifm.txt macros.tex
 
 
 
@@ -161,6 +169,9 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/etc/config.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
+
+NROFF = nroff
+MANS = $(man_MANS)
 DIST_COMMON = $(top_srcdir)/etc/Makefile.common Makefile.am Makefile.in
 all: all-am
 
@@ -181,6 +192,49 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+
+man1dir = $(mandir)/man1
+install-man1: $(man1_MANS) $(man_MANS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(man1dir)
+	@list='$(man1_MANS) $(dist_man1_MANS) $(nodist_man1_MANS)'; \
+	l2='$(man_MANS) $(dist_man_MANS) $(nodist_man_MANS)'; \
+	for i in $$l2; do \
+	  case "$$i" in \
+	    *.1*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
+	  else file=$$i; fi; \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  case "$$ext" in \
+	    1*) ;; \
+	    *) ext='1' ;; \
+	  esac; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$(man1dir)/$$inst"; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(man1dir)/$$inst; \
+	done
+uninstall-man1:
+	@$(NORMAL_UNINSTALL)
+	@list='$(man1_MANS) $(dist_man1_MANS) $(nodist_man1_MANS)'; \
+	l2='$(man_MANS) $(dist_man_MANS) $(nodist_man_MANS)'; \
+	for i in $$l2; do \
+	  case "$$i" in \
+	    *.1*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " rm -f $(DESTDIR)$(man1dir)/$$inst"; \
+	  rm -f $(DESTDIR)$(man1dir)/$$inst; \
+	done
 tags: TAGS
 TAGS:
 
@@ -225,9 +279,10 @@ distdir: $(DISTFILES)
 	  dist-hook
 check-am: all-am
 check: check-am
-all-am: Makefile
+all-am: Makefile $(MANS)
 
 installdirs:
+	$(mkinstalldirs) $(DESTDIR)$(man1dir)
 
 install: install-am
 install-exec: install-exec-am
@@ -270,7 +325,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-man
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 
@@ -278,7 +333,7 @@ install-exec-am:
 
 install-info: install-info-am
 
-install-man:
+install-man: install-man1
 
 installcheck-am:
 
@@ -298,37 +353,52 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-info-am
+uninstall-am: uninstall-info-am uninstall-man
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
+
+uninstall-man: uninstall-man1
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distclean-local \
 	distdir dvi dvi-am info info-am install install-am install-data \
 	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-info-am install-man install-man1 install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-info-am
+	uninstall-info-am uninstall-man uninstall-man1
 
 
 # Main targets.
 
-doc: fig pdf html
+doc: fig pdf html man
 
 pdf: ifm.pdf
 
-ps: ifm.ps
-
 fig: cover.eps example.eps advent.eps
+
+man:
+	cp ifm.man ifm.tmp
+	echo "[SEE ALSO]" >> ifm.tmp
+	echo ".IP $(ifmdocdir)/html" >> ifm.tmp
+	echo "Online documentation" >> ifm.tmp
+	echo ".IP $(ifmdocdir)/ifm.pdf" >> ifm.tmp
+	echo "Documentation suitable for printing" >> ifm.tmp
+	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
+	rm -f ifm.tmp
+
+mantest: man
+	groff -man -Tps ifm.1 > ifm.ps
+	gv -a4 -scale -1 -spartan ifm.ps
+	rm -f ifm.ps
 
 .lyx.ps:;	lyx --export ps $< > $@
 .lyx.tex:;	lyx --export latex $< > $@
 .ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
 .lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
-.ifm.fig:;	$(IFM) -m -f fig -o $@ $<
+.ifm.fig:;	$(IFMCMD) -m -f fig -o $@ $<
 .fig.eps:;	fig2dev -L eps $< > $@
 .fig.png:;	fig2dev -L png $< > $@
 .fig.tex:;	fig2dev -L latex $< > $@
