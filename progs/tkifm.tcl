@@ -5,8 +5,8 @@
 
 # Global variables.
 set ifm(mapcmd)  {ifm -map   -format tk}
-set ifm(itemcmd) {ifm -items -format text}
-set ifm(taskcmd) {ifm -tasks -format text}
+set ifm(itemcmd) {ifm -items -format tk}
+set ifm(taskcmd) {ifm -tasks -format tk}
 
 set ifm(editwidth) 80
 set ifm(editheight) 24
@@ -234,6 +234,8 @@ proc ShowItems {} {
 	return
     }
 
+    eval $data
+
     # Initialise window.
     set w .items
     catch {destroy $w}
@@ -249,7 +251,7 @@ proc ShowItems {} {
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
-    $t insert end $data
+    $t insert end $itemlist
     $t configure -state disabled
 
     focus $w
@@ -268,6 +270,8 @@ proc ShowTasks {} {
 	return
     }
 
+    eval $data
+
     # Initialise window.
     set w .tasks
     catch {destroy $w}
@@ -283,7 +287,7 @@ proc ShowTasks {} {
     scrollbar $s -command "$t yview"
     pack $s -side right -fill y
     pack $t -expand yes -fill both
-    $t insert end $data
+    $t insert end $tasklist
     $t configure -state disabled
 
     focus $w
