@@ -1,7 +1,9 @@
 This directory contains miscellaneous contributed stuff for IFM.
 
 ifm.vim	        Support for IFM syntax colouring in vim (a vi clone),
-		contributed by Dave Chapeskie (dchapes@ddm.on.ca).
+		contributed by Dave Chapeskie (dchapes@ddm.on.ca).  This
+		has been partially updated for version 5.0 of IFM, but
+		isn't yet complete.
 
 ifm-mode.el	GNU Emacs IFM mode.  This is a really bare-bones major
 		mode at the moment, and only exists so that syntax
