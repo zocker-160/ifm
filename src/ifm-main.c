@@ -27,6 +27,7 @@
 #include "ifm-text.h"
 #include "ifm-tk.h"
 #include "ifm-raw.h"
+#include "ifm-rec.h"
 
 static struct driver_st {
     char *name, *desc;
@@ -58,8 +59,15 @@ static struct driver_st {
 
 #ifdef RAW
     {
-        "raw", "Tab-delimited ASCII text fields",
+        "raw", "Raw ASCII text fields",
         &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL
+    },
+#endif
+
+#ifdef REC
+    {
+        "rec", "Recording of game commands",
+        NULL, NULL, &rec_taskfuncs, NULL
     },
 #endif
 };
@@ -348,8 +356,7 @@ print_map(void)
             list = vh_pget(sect, "LINKS");
             vl_foreach(elt, list) {
                 link = vs_pget(elt);
-                if (!vh_iget(link, "HIDDEN"))
-                    (*func->map_link)(link);
+                (*func->map_link)(link);
             }
         }
 
@@ -371,7 +378,8 @@ print_map(void)
     if (func->map_join != NULL) {
         vl_foreach(elt, joins) {
             join = vs_pget(elt);
-            (*func->map_join)(join);
+            if (!vh_iget(join, "HIDDEN"))
+                (*func->map_join)(join);
         }
     }
 }

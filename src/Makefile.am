@@ -1,14 +1,12 @@
 ## Automake template for ifm.
 
-AUTOMAKE_OPTIONS = foreign
+bin_PROGRAMS	= ifm
 
-bin_PROGRAMS = ifm 
-
-ifm_SOURCES = ifm-driver.h ifm-groff.c ifm-groff.h ifm-main.c ifm-main.h    \
-	      ifm-map.c ifm-map.h ifm-parse.y ifm-parse.h ifm-path.c	    \
-	      ifm-path.h ifm-ps.c ifm-ps.h ifm-raw.c ifm-raw.h ifm-scan.l   \
-	      ifm-task.c ifm-task.h ifm-text.c ifm-text.h ifm-tk.c ifm-tk.h \
-	      ifm-util.c ifm-util.h
+ifm_SOURCES	= ifm-driver.h ifm-main.c ifm-main.h ifm-map.c ifm-map.h      \
+		  ifm-parse.y ifm-parse.h ifm-path.c ifm-path.h ifm-ps.c      \
+		  ifm-ps.h ifm-raw.c ifm-raw.h ifm-rec.c ifm-rec.h ifm-scan.l \
+		  ifm-task.c ifm-task.h ifm-text.c ifm-text.h ifm-tk.c	      \
+		  ifm-tk.h ifm-util.c ifm-util.h
 
 ifm_LDADD	= -lvars
 
@@ -24,14 +22,14 @@ EXTRA_DIST 	= $(LIBFILES)
 
 IFMLIB		= ../lib
 
+YFLAGS		= -d -v
+
 INCLUDES	= -I$(IFMLIB) \
 		  -DVERSION=\"$(VERSION)\" \
 		  -DIFMPATH=\".:$(pkgdatadir)\" \
 		  -DPS_PROLOG=\"$(PS_PROLOG)\" \
 		  -DSYSINIT=\"$(pkgdatadir)/$(SYS_INIT)\" \
-		  -DPS -DTEXT -DTK -DRAW -DGROFF
-
-YFLAGS		= -d
+		  -DPS -DTEXT -DTK -DRAW -DREC
 
 LDFLAGS		= -L$(IFMLIB)
 
