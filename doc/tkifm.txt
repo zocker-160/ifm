@@ -22,9 +22,9 @@ set ifm(itemheight) 30
 set ifm(taskwidth) 50
 set ifm(taskheight) 30
 
-# Task list (debugging) window dimensions.
-set ifm(debugwidth) 80
-set ifm(debugheight) 30
+# Task list (verbose) window dimensions.
+set ifm(verbosewidth) 80
+set ifm(verboseheight) 30
 
 # Variable window dimensions.
 set ifm(varswidth) 50

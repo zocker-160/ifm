@@ -22,9 +22,9 @@ set ifm(itemheight) 30
 set ifm(taskwidth) 50
 set ifm(taskheight) 30
 
-# Task list (debugging) window dimensions.
-set ifm(debugwidth) 80
-set ifm(debugheight) 30
+# Task list (verbose) window dimensions.
+set ifm(verbosewidth) 80
+set ifm(verboseheight) 30
 
 # Variable window dimensions.
 set ifm(varswidth) 50
@@ -41,15 +41,15 @@ set ifm(textbackground) wheat
 set ifm(tearoff) 1
 
 # IFM exec variables.
-set ifm(mapcmd)   {ifm -map -format tk}
-set ifm(itemcmd)  {ifm -nowarn -items -format tk}
-set ifm(taskcmd)  {ifm -nowarn -tasks -format tk}
-set ifm(debugcmd) {ifm -nowarn -set solver_messages=1 -format tk}
-set ifm(pscmd)    {ifm -nowarn -map -format ps}
-set ifm(figcmd)   {ifm -nowarn -map -format fig}
-set ifm(varscmd)  {ifm -nowarn -show vars}
-set ifm(pathcmd)  {ifm -nowarn -show path}
-set ifm(aboutcmd) {ifm -nowarn -version}
+set ifm(mapcmd)     {ifm -map -format tk}
+set ifm(itemcmd)    {ifm -nowarn -items -format tk}
+set ifm(taskcmd)    {ifm -nowarn -tasks -format tk}
+set ifm(verbosecmd) {ifm -nowarn -style verbose -format tk}
+set ifm(pscmd)      {ifm -nowarn -map -format ps}
+set ifm(figcmd)     {ifm -nowarn -map -format fig}
+set ifm(varscmd)    {ifm -nowarn -show vars}
+set ifm(pathcmd)    {ifm -nowarn -show path}
+set ifm(aboutcmd)   {ifm -nowarn -version}
 
 # Internal variables.
 set ifm(untitled) "untitled.ifm"
@@ -125,7 +125,7 @@ proc MainWindow {} {
     menu $c -tearoff $ifm(tearoff)
     $m add cascade -label "Tasks" -menu $c -underline 0
     $c add command -label "Task list (brief)" -command ShowTasks -underline 0
-    $c add command -label "Task list (debugging)" -command ShowDebug -underline 0
+    $c add command -label "Task list (verbose)" -command ShowVerbose -underline 0
 
     # Show options.
     set c $m.show
@@ -449,8 +449,8 @@ proc ShowTasks {} {
     Unbusy
 }
 
-# Show debugging output.
-proc ShowDebug {} {
+# Show verbose task output.
+proc ShowVerbose {} {
     global ifm
 
     if [NeedSave] return
@@ -458,7 +458,7 @@ proc ShowDebug {} {
     # Get task data.
     Busy
 
-    set result [RunProgram $ifm(debugcmd) $ifm(path)]
+    set result [RunProgram $ifm(verbosecmd) $ifm(path)]
     if [lindex $result 0] {
 	set data [lindex $result 1]
     } else {
@@ -468,8 +468,8 @@ proc ShowDebug {} {
     }
 
     # Display results.
-    TextWindow "Debugging Output" .debug $data \
-	    $ifm(debugwidth) $ifm(debugheight)
+    TextWindow "Verbose Task Output" .verbose $data \
+	    $ifm(verbosewidth) $ifm(verboseheight)
 
     Unbusy
 }
@@ -577,7 +577,7 @@ proc BuildMap {} {
 
     catch {destroy .items}
     catch {destroy .tasks}
-    catch {destroy .debug}
+    catch {destroy .verbose}
     catch {destroy .vars}
 
     # Set up new maps.
