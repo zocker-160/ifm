@@ -88,8 +88,8 @@ proc MainWindow {} {
 
 # Build the map.
 proc BuildMap {} {
-    global sectnum roomnum linknum joinnum itemnum tasknum
-    global sects rooms links joins tasks
+    global sectnum roomnum linknum
+    global sects rooms links
     global ifm
 
     # Get map data.
@@ -115,15 +115,10 @@ proc BuildMap {} {
     set sects {}
     set rooms {}
     set links {}
-    set joins {}
-    set tasks {}
 
     set sectnum 0
     set roomnum 0
     set linknum 0
-    set joinnum 0
-    set itemnum 0
-    set tasknum 0
 
     eval $data
 
@@ -172,7 +167,7 @@ proc DrawMap {sect} {
 	    -scrollregion "0 0 ${width}c ${height}c" \
 	    -xscrollcommand "$f.xscroll set" \
 	    -yscrollcommand "$f.yscroll set" \
-	    -relief sunken \
+	    -relief sunken -bd 2 \
 	    -bg $ifm(mapcol)
     scrollbar $f.xscroll -command "$c xview" -orient horiz
     scrollbar $f.yscroll -command "$c yview"
@@ -186,6 +181,9 @@ proc DrawMap {sect} {
 	    -rowspan 1 -columnspan 1 -sticky nsew
     grid $f.yscroll -in $f -row 0 -column 1 \
 	    -rowspan 1 -columnspan 1 -sticky nsew
+
+    grid rowconfig    $f 0 -weight 1 -minsize 0
+    grid columnconfig $f 0 -weight 1 -minsize 0
 
     # Draw links.
     foreach link $links {
@@ -264,8 +262,6 @@ proc DrawMap {sect} {
 		    -width ${wid}c -justify center -font $ifm(roomfont)
 	}
     }
-
-    focus $w
 }
 
 # Show item list.
@@ -302,8 +298,6 @@ proc ShowItems {} {
     pack $t -expand yes -fill both
     $t insert end $itemlist
     $t configure -state disabled
-
-    focus $w
 }
 
 # Show task list.
@@ -339,8 +333,6 @@ proc ShowTasks {} {
     pack $t -expand yes -fill both
     $t insert end $tasklist
     $t configure -state disabled
-
-    focus $w
 }
 
 # Read IFM source.
@@ -392,7 +384,7 @@ proc AddSect {title xlen ylen} {
 }
 
 # Add a room.
-proc AddRoom {desc xpos ypos puzzle} {
+proc AddRoom {desc items xpos ypos puzzle} {
     global rooms roomnum sectnum
     incr roomnum
     set var room$roomnum
@@ -400,12 +392,10 @@ proc AddRoom {desc xpos ypos puzzle} {
 
     Set $var num $roomnum
     Set $var desc $desc
+    Set $var items $items
     Set $var xpos $xpos
     Set $var ypos $ypos
     Set $var puzzle $puzzle
-
-    Set $var items {}
-    Set $var tasks {}
 
     Set $var sect sect$sectnum
 }
