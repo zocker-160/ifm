@@ -1,0 +1,15 @@
+task: Cut hole in door
+room: Room 1
+
+task: Open door
+tag: open_door
+room: Room 1
+score: 1
+
+task: Move to Room 2
+room: Room 2
+cmd: E
+
+task: Win
+room: Room 2
+note: Finishes the game
