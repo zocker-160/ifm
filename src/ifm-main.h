@@ -22,28 +22,6 @@
 #define MIN(x, y)               ((x) < (y) ? (x) : (y))
 #define MAX(x, y)               ((x) > (y) ? (x) : (y))
 
-/* Driver structs */
-typedef struct mapfuncs_st {
-    void (*map_start)(void);
-    void (*map_section)(vhash *sect);
-    void (*map_room)(vhash *room);
-    void (*map_link)(vhash *link);
-    void (*map_endsection)(void);
-    void (*map_finish)(void);
-} mapfuncs;
-
-typedef struct itemfuncs_st {
-    void (*item_start)(char *title);
-    void (*item_entry)(vhash *item);
-    void (*item_finish)(void);
-} itemfuncs;
-
-typedef struct taskfuncs_st {
-    void (*task_start)(char *title);
-    void (*task_entry)(vhash *task);
-    void (*task_finish)(void);
-} taskfuncs;
-
 /* External vars */
 extern char *progname;
 extern int line_number, ifm_errors, ifm_debug;
