@@ -12,11 +12,19 @@
 #include <string.h>
 #include "ifm.h"
 
+#define NOLIMIT 1000
+
 /* Task step list */
 static vlist *tasklist = NULL;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
+
+/* Internal functions */
+static void task_pair(vhash *before, vhash *after);
+static int task_possible(vhash *room, vhash *step, int maxdist,
+                         int *dist, int *safe);
+static vhash *task_step(int type, vhash *data);
 
 /* Add a new task */
 void
@@ -205,7 +213,7 @@ build_tasks(void)
 }
 
 /* Flag a task as done */
-void
+static void
 do_task(vhash *task, vhash *from, vhash *to)
 {
     vlist *path, *invent;
@@ -220,7 +228,7 @@ do_task(vhash *task, vhash *from, vhash *to)
     path = vl_create();
     vh_pstore(task, "PATH", path);
     if (from != NULL && to != NULL)
-        find_path(path, from, to);
+        find_path(path, from, to, NOLIMIT);
 
     /* Do the task */
     switch (vh_iget(task, "TYPE")) {
@@ -259,7 +267,7 @@ void
 order_tasks(void)
 {
     vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task, *dstep;
-    int drop, pri, priority, tasksleft;
+    int drop, dist, trysafe, trydist, safeflag, tasksleft;
     vlist *itasks, *dtasks = NULL;
     vscalar *elt;
 
@@ -293,6 +301,8 @@ order_tasks(void)
             itasks = vh_pget(item, "TASKS");
             if (itasks != NULL) {
                 vl_foreach(elt, itasks) {
+                    if (!drop)
+                        continue;
                     task = vs_pget(elt);
                     if (!vh_iget(task, "DONE"))
                         drop = 0;
@@ -319,24 +329,54 @@ order_tasks(void)
 
         /* Search for next task */
         step = NULL;
+        dist = NOLIMIT;
+        safeflag = 0;
         tasksleft = 0;
+
         vl_foreach(elt, tasklist) {
             trystep = vs_pget(elt);
 
+            /* If task is done, skip it */
             if (vh_iget(trystep, "DONE"))
                 continue;
 
+            /* Flag at least one task still to do */
             tasksleft = 1;
-            if ((pri = task_priority(room, trystep)) == 0)
+
+            /*
+             * If we have a safe task in the current room, skip
+             * the rest.
+             */
+            if (safeflag && dist == 0)
+                continue;
+
+            /*
+             * Check task is possible.  If we already have a safe task
+             * to do N rooms away, skip tasks with paths longer than N.
+             */
+            if (!task_possible(room, trystep,
+                               (safeflag ? dist : NOLIMIT),
+                               &trydist, &trysafe))
                 continue;
 
 #ifdef DEBUG
-            debug("Try: %s (priority %d)", vh_sgetref(trystep, "DESC"), pri);
+            debug("Try: `%s' (distance %d)%s",
+                  vh_sgetref(trystep, "DESC"), trydist,
+                  (trysafe ? "" : " (unsafe)"));
 #endif
 
-            if (step == NULL || pri > priority) {
+            if (trysafe && !safeflag) {
+                /* This task is the first safe one -- choose it */
+                safeflag = 1;
                 step = trystep;
-                priority = pri;
+                dist = trydist;
+            } else if (!trysafe && safeflag) {
+                /* We have a safe task but this isn't -- skip it */
+                continue;
+            } else if (step == NULL || trydist < dist) {
+                /* Choose based on distance to travel */
+                step = trystep;
+                dist = trydist;
             }
         }
 
@@ -410,7 +450,7 @@ set_task_tag(char *str)
 }
 
 /* Add an ordered task pair to the task list */
-void
+static void
 task_pair(vhash *before, vhash *after)
 {
     vlist *prev;
@@ -440,18 +480,14 @@ task_pair(vhash *before, vhash *after)
         debug("Task pair: do `%s' before `%s'",
               vh_sgetref(before, "DESC"),
               vh_sgetref(after, "DESC"));
-    else
-        debug("Task: do `%s'",
-              vh_sgetref(before, "DESC"));
 #endif
 }
 
-/* Return priority of a task, or 0 if it's not possible */
-int
-task_priority(vhash *room, vhash *step)
+/* Return whether a task is possible (and other stats) */
+static int
+task_possible(vhash *room, vhash *step, int maxdist, int *dist, int *safe)
 {
     vhash *before, *taskroom, *gotoroom;
-    int priority = 1000, dist = 0;
     vscalar *elt;
     vlist *prev;
 
@@ -475,31 +511,34 @@ task_priority(vhash *room, vhash *step)
          * Task can be done anywhere, or in current room -- if it's a
          * goto-room task, you must be able to get there.
          */
-        if (vh_iget(step, "TYPE") == T_GOTO &&
-            (dist = find_path(NULL, room, gotoroom)) == 0)
-            return 0;
+        if (vh_iget(step, "TYPE") == T_GOTO) {
+            if ((*dist = find_path(NULL, room, gotoroom, maxdist)) < 0)
+                return 0;
+        } else {
+            *dist = 0;
+        }
     } else {
         /*
          * Task must be done elsewhere -- there must be a path from
          * here to the task room.
          */
-        if ((dist = find_path(NULL, room, taskroom)) == 0)
+        if ((*dist = find_path(NULL, room, taskroom, maxdist)) < 0)
             return 0;
     }
 
-    /* If no return path, lower the priority */
+    /* If no return path, mark it as unsafe */
+    *safe = 1;
     if (gotoroom != NULL)
         taskroom = gotoroom;
-    if (taskroom != NULL && !find_path(NULL, taskroom, room))
-        priority -= 200;
+    if (taskroom != NULL && find_path(NULL, taskroom, room, NOLIMIT) < 0)
+        *safe = 0;
 
-    vh_istore(step, "DIST", dist - 1);
-
-    return priority - dist;
+    vh_istore(step, "DIST", *dist);
+    return 1;
 }
 
 /* Create and return a new task step */
-vhash *
+static vhash *
 task_step(int type, vhash *data)
 {
     vhash *step = vh_create();

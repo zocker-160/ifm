@@ -20,14 +20,10 @@
 extern void add_task(void);
 extern void add_task_list(char *tag);
 extern void build_tasks(void);
-extern void do_task(vhash *task, vhash *from, vhash *to);
 extern void order_tasks(void);
 extern void set_task_after(void);
 extern void set_task_attr(char *attr, char *val);
 extern void set_task_items(char *attr);
 extern void set_task_tag(char *str);
-extern void task_pair(vhash *before, vhash *after);
-extern int task_priority(vhash *room, vhash *step);
-extern vhash *task_step(int type, vhash *data);
 
 #endif
