@@ -14,6 +14,11 @@ Additions
 * New task output: graphviz (dot) format, which dumps a task dependency
   graph.
 
+* New -show option: 'maps', which lists all the map sections and their
+  numbers.
+
+* The -map option now accepts an optional list of map sections to print.
+
 * There are now some variables to control the overall behaviour of the game
   solver.
 
