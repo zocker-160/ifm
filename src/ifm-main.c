@@ -26,6 +26,7 @@
 #include "ifm-tk.h"
 #include "ifm-raw.h"
 #include "ifm-rec.h"
+#include "ifm-dot.h"
 
 static struct driver_st {
     char *name, *desc;
@@ -40,14 +41,17 @@ static struct driver_st {
     { "text", "Nicely-formatted ASCII text",
       NULL, &text_itemfuncs, &text_taskfuncs, NULL },
 
-    { "tk", "Tcl/Tk program commands",
-      &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs },
+    { "rec", "Recording of game commands",
+      NULL, NULL, &rec_taskfuncs, NULL },
+
+    { "dot", "Graph of task dependencies",
+      NULL, NULL, &dot_taskfuncs, NULL },
 
     { "raw", "Raw ASCII text fields",
       &raw_mapfuncs, &raw_itemfuncs, &raw_taskfuncs, NULL },
 
-    { "rec", "Recording of game commands",
-      NULL, NULL, &rec_taskfuncs, NULL }
+    { "tk", "Tcl/Tk program commands (tkifm)",
+      &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs }
 };
 
 #define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
@@ -155,13 +159,13 @@ main(int argc, char *argv[])
 
     /* Define options */
     v_option('m', "map", V_OPT_FLAG, NULL,
-             "Print map");
+             "Select map output");
 
     v_option('i', "items", V_OPT_FLAG, NULL,
-             "Print item table");
+             "Select item output");
 
     v_option('t', "tasks", V_OPT_FLAG, NULL,
-             "Print task table");
+             "Select task output");
 
     v_option('f', "format", V_OPT_ARG, "fmt",
              "Select output format");
@@ -429,7 +433,7 @@ print_items(void)
     items = vh_pget(map, "ITEMS");
 
     if (func == NULL)
-        fatal("no item table driver for %s output", drv.name);
+        fatal("no item driver for %s output", drv.name);
 
     if (func->item_start != NULL)
         (*func->item_start)();
@@ -463,7 +467,7 @@ print_tasks(void)
     tasks = vh_pget(map, "TASKS");
 
     if (func == NULL)
-        fatal("no task table driver for %s output", drv.name);
+        fatal("no task driver for %s output", drv.name);
 
     if (func->task_start != NULL)
         (*func->task_start)();
