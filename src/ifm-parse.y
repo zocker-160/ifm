@@ -123,7 +123,7 @@ room_stmt	: ROOM STRING
 		}
                 room_attrs ';'
                 {
-                    vhash *near, *sect, *link;
+                    vhash *near, *link, *sect = NULL;
                     vlist *list, *dirs;
                     char *str;
 
@@ -134,10 +134,10 @@ room_stmt	: ROOM STRING
                         startroom = curroom;
 
                     /* Put it on appropriate section */
-                    near = vh_pget(curroom, "NEAR");
-                    if (near != NULL) {
+                    if ((near = vh_pget(curroom, "NEAR")) != NULL)
                         sect = vh_pget(near, "SECT");
-                    } else {
+
+                    if (sect == NULL) {
                         sect = vh_create();
                         vl_ppush(sects, sect);
                         vh_istore(sect, "NUM", vl_length(sects));
