@@ -15,8 +15,6 @@ IFM		= $(top_srcdir)/src/ifm -I$(top_srcdir)/lib
 
 TKIFM		= wish -f $(top_srcdir)/tkifm/tkifm.tcl
 
-MAKETEST	= perl Maketests $(IFM)
-
 TESTS		= $(SRCS:.ifm=.test)
 
 EXP		= $(SRCS:.ifm=.exp)
@@ -36,6 +34,6 @@ SUFFIXES	= .ifm .test .task .prof .tk .ps .rec
 .ifm.rec:;	$(IFM) -tasks -format rec $< > $@
 
 tests:		$(SRCS)
-		$(MAKETEST) $(SRCS)
+		perl Maketests "$(IFM)" $(SRCS)
 
 clean:; 	rm -f *.out 
