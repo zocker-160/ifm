@@ -86,14 +86,6 @@ static struct driver_st {
 /* Max. errors before aborting */
 #define MAX_ERRORS 10
 
-/* Varargs printing */
-#define VPRINT(buf, fmt)	{ \
-				      va_list ap; \
-				      va_start(ap, fmt); \
-				      vsprintf(buf, fmt, ap); \
-				      va_end(ap); \
-			        }
-
 /* What's my name? */
 char *progname;
 
@@ -482,7 +474,6 @@ itemsort(vscalar **ip1, vscalar **ip2)
     vhash *i1 = vs_pget(*ip1);
     vhash *i2 = vs_pget(*ip2);
     vhash *ir1, *ir2;
-    char *n1, *n2;
     int cmp;
 
     /* First, by item name */
@@ -492,16 +483,8 @@ itemsort(vscalar **ip1, vscalar **ip2)
     /* Next, by room name */
     ir1 = vh_pget(i1, "ROOM");
     ir2 = vh_pget(i2, "ROOM");
-    cmp = strcmp((ir1 == NULL ? "" : vh_sgetref(ir1, "DESC")),
-                 (ir2 == NULL ? "" : vh_sgetref(ir2, "DESC")));
-    if (cmp) return cmp;
-
-    /* Finally, by note */
-    n1 = vh_sgetref(i1, "NOTE");
-    n2 = vh_sgetref(i2, "NOTE");
-
-    return strcmp((n1 == NULL ? "" : n1),
-                  (n2 == NULL ? "" : n2));
+    return strcmp((ir1 == NULL ? "" : vh_sgetref(ir1, "DESC")),
+                  (ir2 == NULL ? "" : vh_sgetref(ir2, "DESC")));
 }
 
 /* Select an output format */
