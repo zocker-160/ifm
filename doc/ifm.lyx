@@ -147,8 +147,8 @@ The IFM mapping commands are designed so that you can easily add to the
  the others.
  A map can consist of several independent sections, allowing you to divide
  up the map however you like.
- See 
-\begin_inset LatexCommand \prettyref{sec:making-maps}
+ See Section 
+\begin_inset LatexCommand \ref{sec:making-maps}
 
 \end_inset 
 
@@ -166,8 +166,8 @@ walkthrough
 \end_inset 
 
  of the game.
- See 
-\begin_inset LatexCommand \prettyref{sec:solving-game}
+ See Section 
+\begin_inset LatexCommand \ref{sec:solving-game}
 
 \end_inset 
 
@@ -175,15 +175,15 @@ walkthrough
 \layout Standard
 
 Several output formats are available, including PostScript, Fig and ASCII
- text --- these are described in 
-\begin_inset LatexCommand \prettyref{sec:using-ifm}
+ text --- these are described in Section
+\begin_inset LatexCommand \ref{sec:using-ifm}
 
 \end_inset 
 
 .
  Some of the output formats have a set of variables which control the appearance
- of the output --- see 
-\begin_inset LatexCommand \prettyref{sec:output-variables}
+ of the output --- see Section 
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
@@ -276,8 +276,8 @@ Making Maps
 \layout Standard
 
 This section gives you a tour of the main commands for making maps.
- It's not complete; see 
-\begin_inset LatexCommand \prettyref{sec:language}
+ It's not complete; see Section 
+\begin_inset LatexCommand \ref{sec:language}
 
 \end_inset 
 
@@ -296,8 +296,8 @@ boxes-and-lines
 \begin_inset Quotes srd
 \end_inset 
 
- method; an example is shown in 
-\begin_inset LatexCommand \prettyref{fig:example-map}
+ method; an example is shown in Figure 
+\begin_inset LatexCommand \ref{fig:example-map}
 
 \end_inset 
 
@@ -823,8 +823,8 @@ Here's the completed map description for the above example, with a few other
 
 \layout Standard
 
-See 
-\begin_inset LatexCommand \prettyref{sec:using-ifm}
+See Section 
+\begin_inset LatexCommand \ref{sec:using-ifm}
 
 \end_inset 
 
@@ -903,8 +903,8 @@ As well as making a map of your game, you can record the steps you took
  to solve it.
  IFM can then calculate a (fairly) optimal solution.
  This section is a guide to how to do it.
- Again, it's not a complete specification --- see 
-\begin_inset LatexCommand \prettyref{sec:language}
+ Again, it's not a complete specification --- see Section 
+\begin_inset LatexCommand \ref{sec:language}
 
 \end_inset 
 
@@ -1214,8 +1214,8 @@ You can explicitly ignore a task using the
 ignore
 \family default 
  attribute.
- This is useful while you're solving the game (see 
-\begin_inset LatexCommand \prettyref{sec:tweaking}
+ This is useful while you're solving the game (see Section 
+\begin_inset LatexCommand \ref{sec:tweaking}
 
 \end_inset 
 
@@ -1367,8 +1367,8 @@ do
 \emph default 
  have a purpose --- you just don't know what it is yet.
  This is relevant when you're creating a recording from a partially-played
- game; see 
-\begin_inset LatexCommand \prettyref{sec:recording}
+ game; see Section 
+\begin_inset LatexCommand \ref{sec:recording}
 
 \end_inset 
 
@@ -1466,8 +1466,8 @@ task "Light bonfire" need match lose it;
 Dropping Items
 \layout Standard
 
-As mentioned in 
-\begin_inset LatexCommand \prettyref{sec:inventory}
+As mentioned in Section 
+\begin_inset LatexCommand \ref{sec:inventory}
 
 \end_inset 
 
@@ -1897,8 +1897,8 @@ traversed
 
  to find a sequence which solves the game while satisfying the task dependencies.
  The start room is the room which was first mentioned in the input (but
- this can be changed --- see 
-\begin_inset LatexCommand \prettyref{sec:language}
+ this can be changed --- see Section 
+\begin_inset LatexCommand \ref{sec:language}
 
 \end_inset 
 
@@ -2240,8 +2240,9 @@ Random events.
  There's no way to address this problem, but then again, hand-written walkthroug
 hs have the same difficulty.
  However, if you're trying to tailor recording output so that it will play
- back properly in an interpreter, there is a workaround --- see 
-\begin_inset LatexCommand \prettyref{sec:recording}
+ back properly in an interpreter, there is a workaround --- see Section
+ 
+\begin_inset LatexCommand \ref{sec:recording}
 
 \end_inset 
 
@@ -2390,8 +2391,8 @@ stdin
 
 Before IFM sees any input, it's passed through a preprocessor, in a similar
  manner to C programs.
- See 
-\begin_inset LatexCommand \prettyref{sec:preprocessor}
+ See Section 
+\begin_inset LatexCommand \ref{sec:preprocessor}
 
 \end_inset 
 
@@ -2532,8 +2533,8 @@ STYLE
 
 \newline 
 Set a global style.
- See 
-\begin_inset LatexCommand \prettyref{sec:customization}
+ See Section 
+\begin_inset LatexCommand \ref{sec:customization}
 
 \end_inset 
 
@@ -2654,8 +2655,8 @@ vars
 \family default 
  Show a complete list of defined variables, in a format suitable for feeding
  back into IFM.
- See 
-\begin_inset LatexCommand \prettyref{sec:output-variables}
+ See Section 
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
@@ -2686,8 +2687,8 @@ IFM has three different types of output (a map, a list of items, and a list
  of tasks) and several different output formats, which are described in
  the following sections.
  Not all types of output are produced by each output format.
- 
-\begin_inset LatexCommand \prettyref{tab:output-formats}
+ Table 
+\begin_inset LatexCommand \ref{tab:output-formats}
 
 \end_inset 
 
@@ -3028,8 +3029,8 @@ This produces a map which can be read (and edited) by Xfig, and any other
 \family typewriter 
 ifm2dev
 \family default 
- which automatically does this --- see 
-\begin_inset LatexCommand \prettyref{sec:ifm2dev}
+ which automatically does this --- see Section 
+\begin_inset LatexCommand \ref{sec:ifm2dev}
 
 \end_inset 
 
@@ -3062,8 +3063,8 @@ This produces map commands for input to
 \family typewriter 
 tkifm
 \family default 
-, a simple graphical interface to IFM (see 
-\begin_inset LatexCommand \prettyref{sec:tkifm}
+, a simple graphical interface to IFM (see Section 
+\begin_inset LatexCommand \ref{sec:tkifm}
 
 \end_inset 
 
@@ -3194,8 +3195,8 @@ You can change the appearance of many output features according to your
  taste.
  You do this by setting the values of the variables that control those features.
  This section tells you how to use variables --- for a complete list of
- the customization variables available, see 
-\begin_inset LatexCommand \prettyref{sec:output-variables}
+ the customization variables available, see Section 
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
@@ -3404,8 +3405,8 @@ Predefined Styles
 
 \layout Standard
 
-IFM comes with a few predefined style files, as shown in 
-\begin_inset LatexCommand \prettyref{tab:styles}
+IFM comes with a few predefined style files, as shown in Table 
+\begin_inset LatexCommand \ref{tab:styles}
 
 \end_inset 
 
@@ -3657,8 +3658,8 @@ puzzle
 special
 \family default 
  attributes have been removed.
- You must use the corresponding styles instead --- see 
-\begin_inset LatexCommand \prettyref{sec:style-defs}
+ You must use the corresponding styles instead --- see Section 
+\begin_inset LatexCommand \ref{sec:style-defs}
 
 \end_inset 
 
@@ -3675,8 +3676,8 @@ include
 \family default 
 .
  This is because IFM now uses a separate preprocessor to manage included
- files; see 
-\begin_inset LatexCommand \prettyref{sec:preprocessor}
+ files; see Section 
+\begin_inset LatexCommand \ref{sec:preprocessor}
 
 \end_inset 
 
@@ -3696,8 +3697,8 @@ aliases
 \family typewriter 
 %define
 \family default 
- --- again, see 
-\begin_inset LatexCommand \prettyref{sec:preprocessor}
+ --- again, see Section 
+\begin_inset LatexCommand \ref{sec:preprocessor}
 
 \end_inset 
 
@@ -3790,8 +3791,8 @@ Note that dollars (
 $
 \family default 
 ) are special inside strings --- they mark the start of a variable substitution.
- See 
-\begin_inset LatexCommand \prettyref{sec:variables}
+ See Section 
+\begin_inset LatexCommand \ref{sec:variables}
 
 \end_inset 
 
@@ -3809,8 +3810,8 @@ $$
 \family typewriter 
 NUMBER
 \family default 
- A number, or an arithmetic expression (see 
-\begin_inset LatexCommand \prettyref{sec:expressions}
+ A number, or an arithmetic expression (see Section 
+\begin_inset LatexCommand \ref{sec:expressions}
 
 \end_inset 
 
@@ -3974,13 +3975,13 @@ In many cases, you are allowed to refer to a tag name anywhere, even earlier
 from\SpecialChar ~
 ID
 \family default 
- clause (see 
-\begin_inset LatexCommand \prettyref{sec:rooms}
+ clause (see Section 
+\begin_inset LatexCommand \ref{sec:rooms}
 
 \end_inset 
 
-) and tags in commands that modify existing objects (see 
-\begin_inset LatexCommand \prettyref{sec:commands}
+) and tags in commands that modify existing objects (see Section 
+\begin_inset LatexCommand \ref{sec:commands}
 
 \end_inset 
 
@@ -4137,8 +4138,8 @@ Specify other rooms that this room links to.
 \family typewriter 
 link
 \family default 
- command for that (see 
-\begin_inset LatexCommand \prettyref{sec:links}
+ command for that (see Section 
+\begin_inset LatexCommand \ref{sec:links}
 
 \end_inset 
 
@@ -4162,8 +4163,8 @@ Specify rooms on other map sections that this room joins to.
 \family typewriter 
 join
 \family default 
- command for that (see 
-\begin_inset LatexCommand \prettyref{sec:joins}
+ command for that (see Section 
+\begin_inset LatexCommand \ref{sec:joins}
 
 \end_inset 
 
@@ -4412,8 +4413,8 @@ NUMBER \SpecialChar ~
 Indicate that the direction link to this room has the specified length (default
  1).
  This only affects the calculation of the nearest task when solving the
- game --- see 
-\begin_inset LatexCommand \prettyref{sec:tasks}
+ game --- see Section 
+\begin_inset LatexCommand \ref{sec:tasks}
 
 \end_inset 
 
@@ -4482,8 +4483,8 @@ ID\SpecialChar ~
 \family default 
 Add a list of display styles to the room (and also the implicit link, if
  any).
- See 
-\begin_inset LatexCommand \prettyref{sec:styles}
+ See Section 
+\begin_inset LatexCommand \ref{sec:styles}
 
 \end_inset 
 
@@ -4643,8 +4644,8 @@ get
 \family typewriter 
 give
 \family default 
- clause instead (see 
-\begin_inset LatexCommand \prettyref{sec:tasks}
+ clause instead (see Section 
+\begin_inset LatexCommand \ref{sec:tasks}
 
 \end_inset 
 
@@ -4673,8 +4674,8 @@ drop
 \family typewriter 
 lose
 \family default 
- clauses instead (see 
-\begin_inset LatexCommand \prettyref{sec:tasks}
+ clauses instead (see Section 
+\begin_inset LatexCommand \ref{sec:tasks}
 
 \end_inset 
 
@@ -4750,8 +4751,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the item.
- See 
-\begin_inset LatexCommand \prettyref{sec:styles}
+ See Section 
+\begin_inset LatexCommand \ref{sec:styles}
 
 \end_inset 
 
@@ -4912,8 +4913,8 @@ NUMBER
 \newline 
 Indicate that this link has the specified length (default 1).
  This only affects the calculation of the nearest task when solving the
- game --- see 
-\begin_inset LatexCommand \prettyref{sec:tasks}
+ game --- see Section 
+\begin_inset LatexCommand \ref{sec:tasks}
 
 \end_inset 
 
@@ -5018,8 +5019,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the link.
- See 
-\begin_inset LatexCommand \prettyref{sec:styles}
+ See Section 
+\begin_inset LatexCommand \ref{sec:styles}
 
 \end_inset 
 
@@ -5165,8 +5166,8 @@ NUMBER
 \newline 
 Indicate that this join has the specified length (default 1).
  This only affects the calculation of the nearest task when solving the
- game --- see 
-\begin_inset LatexCommand \prettyref{sec:tasks}
+ game --- see Section 
+\begin_inset LatexCommand \ref{sec:tasks}
 
 \end_inset 
 
@@ -5271,8 +5272,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the join.
- See 
-\begin_inset LatexCommand \prettyref{sec:styles}
+ See Section 
+\begin_inset LatexCommand \ref{sec:styles}
 
 \end_inset 
 
@@ -5652,8 +5653,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the task.
- See 
-\begin_inset LatexCommand \prettyref{sec:styles}
+ See Section 
+\begin_inset LatexCommand \ref{sec:styles}
 
 \end_inset 
 
@@ -5692,8 +5693,8 @@ undef
 \family default 
  effectively removes it.
  If the style clause is present, this means to only set the variable to
- this value in the specified style (see 
-\begin_inset LatexCommand \prettyref{sec:styles}
+ this value in the specified style (see Section 
+\begin_inset LatexCommand \ref{sec:styles}
 
 \end_inset 
 
@@ -5736,8 +5737,8 @@ Some output formats use variables so that you can customize them.
  They expect certain variables to be defined, and give an error if they
  aren't.
  The default values for these variables are set in the initialization file
- --- see 
-\begin_inset LatexCommand \prettyref{sec:output-variables}
+ --- see Section 
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
@@ -5780,8 +5781,8 @@ pushes the specified style onto the style list.
 in\SpecialChar ~
 style
 \family default 
- clause --- see 
-\begin_inset LatexCommand \prettyref{sec:variables}
+ clause --- see Section 
+\begin_inset LatexCommand \ref{sec:variables}
 
 \end_inset 
 
@@ -7128,7 +7129,7 @@ Paths
 Help\SpecialChar ~
 menu This displays a small info panel about the current IFM version,
  including copying restrictions.
-\layout Subsubsection*
+\layout Subsubsection
 
 Using Your Own Editor
 \layout Standard
@@ -7160,7 +7161,7 @@ ifm(edit)
 tkifm
 \family default 
  and lose all your changes.
-\layout Subsubsection*
+\layout Subsubsection
 
 Customization
 \layout Standard
@@ -7197,7 +7198,7 @@ tkifm.ini
 \end_inset 
 
 
-\layout Subsubsection*
+\layout Subsubsection
 
 Errors and Warnings
 \layout Standard
@@ -7253,7 +7254,7 @@ by hand
 , or you can create a set of transcripts, each exploring different parts
  of the game, and then merge them all into a final map.
  Which you choose is up to you.
-\layout Subsubsection*
+\layout Subsubsection
 
 Options
 \layout Standard
@@ -7329,7 +7330,7 @@ Don't print warnings.
 -h 
 \family default 
 Print a short usage message and exit.
-\layout Subsubsection*
+\layout Subsubsection
 
 Operation
 \layout Standard
@@ -7423,7 +7424,7 @@ Special IFM commands that are (hopefully) ignored completely by the game.
 \layout Standard
 
 Some of these checks can be tailored to a particular transcript.
-\layout Subsubsection*
+\layout Subsubsection
 
 Making Transcripts
 \layout Standard
@@ -7525,7 +7526,7 @@ Another problem with mapping is that some games have these inconvenient
  things called puzzles, which sometimes block you from exploring everywhere
  so you can map it properly.
  Come on, IF authors, let's get our priorities right!
-\layout Subsubsection*
+\layout Subsubsection
 
 IFM Commands
 \layout Standard
@@ -7649,7 +7650,7 @@ scr2ifm
  knows almost nothing about IFM command syntax.
  If there's a syntax error in a command, you'll have to manually edit the
  resulting transcript (or delete the item/task and do it again).
-\layout Subsubsection*
+\layout Subsubsection
 
 Fixing Problems
 \layout Standard
@@ -7899,7 +7900,7 @@ Regexp matching commands that are known to cause a teleport to an arbitrary
  Default: 
 \family typewriter 
 ^(restart|restore)$
-\layout Subsubsection*
+\layout Subsubsection
 
 Writing the Map
 \layout Standard
@@ -7996,7 +7997,7 @@ Finally, the IFM commands from the file indicated by the
 -c
 \family default 
  option are echoed (if any).
-\layout Subsubsection*
+\layout Subsubsection
 
 Example Session
 \layout Standard
@@ -8195,7 +8196,7 @@ scr2ifm
 \end_inset 
 
 
-\layout Subsubsection*
+\layout Subsubsection
 
 Limitations
 \layout Standard
