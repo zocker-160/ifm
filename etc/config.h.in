@@ -2,21 +2,31 @@
 
 /* Configuration stuff */
 
-/* Define if you have the ANSI C header files.  */
-#undef STDC_HEADERS
 
-/* Define if lex declares yytext as a char * by default, not a char[].  */
-#undef YYTEXT_POINTER
+/* Name of this package */
+#undef PACKAGE
+
+/* Package version */
+#undef VERSION
 
 /* Email address */
 #undef EMAIL
 
-/* Define if you have the m library (-lm).  */
+/* Whether debugging malloc is required */
+#undef WITH_DMALLOC
+
+/* Define if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
 /* Name of package */
 #undef PACKAGE
 
+/* Define if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
 /* Version number of package */
 #undef VERSION
 
+/* Define if `lex' declares `yytext' as a `char *' by default, not a `char[]'.
+   */
+#undef YYTEXT_POINTER
