@@ -46,15 +46,15 @@ static char buf[BUFSIZ];
 static vlist *var_decode(char *code);
 static char *var_encode(char *driver, char *type, int mapnum, char *var);
 
-/* Add a note to an object */
+/* Add a list attribute to an object */
 void
-add_note(vhash *obj, char *fmt, ...)
+add_attr(vhash *obj, char *attr, char *fmt, ...)
 {
     vlist *list;
 
-    if ((list = vh_pget(obj, "NOTE")) == NULL) {
+    if ((list = vh_pget(obj, attr)) == NULL) {
         list = vl_create();
-        vh_pstore(obj, "NOTE", list);
+        vh_pstore(obj, attr, list);
     }
 
     VPRINT(buf, fmt);
@@ -150,6 +150,22 @@ indent(int num)
 
     for (i = 0; i < 4 * num; i++)
         putchar(' ');
+}
+
+/* Warn about obsolete syntax */
+void
+obsolete(char *old, char *new)
+{
+    static vhash *warned = NULL;
+
+    if (warned == NULL)
+        warned = vh_create();
+
+    if (vh_exists(warned, old))
+        return;
+
+    vh_sstore(warned, old, new);
+    warn("%s is obsolete -- use %s instead", old, new);
 }
 
 /* Open a library file for reading */

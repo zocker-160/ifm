@@ -39,13 +39,14 @@ enum {
 extern struct d_info dirinfo[];
 
 /* Advertised functions */
-extern void add_note(vhash *obj, char *fmt, ...);
+extern void add_attr(vhash *obj, char *attr, char *fmt, ...);
 extern int get_direction(int xoff, int yoff);
 extern int get_int(char *id, int def);
 extern double get_real(char *id, double def);
 extern char *get_string(char *id, char *def);
 extern vscalar *get_var(char *id);
 extern void indent(int num);
+extern void obsolete(char *old, char *new);
 extern FILE *open_libfile(char *name);
 extern int pack_sections(int xmax, int ymax, int border);
 extern vlist *search_path(void);
