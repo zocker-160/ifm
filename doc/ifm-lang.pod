@@ -265,6 +265,10 @@ one via the 'dir' clause.
 Indicate that the implicit link from this room should not be used by the
 game solver.
 
+=item style STRING
+
+Add a display style to the room.  See L<"Styles">.
+
 =back
 
 =head2 Items
@@ -335,6 +339,10 @@ done.
 =item finish
 
 Indicate that getting this item finishes the game.
+
+=item style STRING
+
+Add a display style to the item.  See L<"Styles">.
 
 =back
 
@@ -426,6 +434,10 @@ using this connection.
 As above, except indicate that I<all> items must be left behind.  The
 'except' clause can be used to omit specific items.
 
+=item style STRING
+
+Add a display style to the link.  See L<"Styles">.
+
 =back
 
 =head2 Joins
@@ -506,6 +518,10 @@ using this connection.
 
 As above, except indicate that I<all> items must be left behind.  The
 'except' clause can be used to omit specific items.
+
+=item style STRING
+
+Add a display style to the join.  See L<"Styles">.
 
 =back
 
@@ -605,6 +621,10 @@ concatenate into a list of commands.
 
 Indicate that no command is required to do this task.
 
+=item style STRING
+
+Add a display style to the task.  See L<"Styles">.
+
 =back
 
 =head2 Variables
@@ -612,12 +632,15 @@ Indicate that no command is required to do this task.
 Various aspects of output are controlled by variables.  These are set using
 the following syntax:
 
-    [FORMAT] IDENT = NUMBER | STRING | undef;
+    [FORMAT] IDENT = NUMBER | STRING | undef [in style STRING];
 
 B<FORMAT>, if specified, is the name of a specific output format -- the
 variable then applies only to that output format.  B<IDENT> is the name of
 the variable, and it can take a numeric or string value.  Note that setting
 a variable to the value 'undef' effectively removes it.
+
+If the style clause is present, this means to only set the variable to this
+value in the specified style (see L<"Styles">).
 
 You can use the value of a defined variable anywhere in the input where a
 number or string is expected, by prefixing it with a dollar ($) symbol.
@@ -625,24 +648,62 @@ number or string is expected, by prefixing it with a dollar ($) symbol.
 All strings that are printed by B<IFM> output formats undergo variable
 substitution -- that is, parts of the string which look like variable
 references get the value of the variable inserted.  If you want a literal $
-inside a string, use $$.
+inside a string, use $$.  If you want substitution to be performed on a
+variable that is cuddled up to other text that looks like part of the
+variable name, you must surround it with twiddly brackets, like ${this}.
 
 Variables can have 'aliases' -- that is, other names.  A variable alias is
 set using the syntax
 
-    alias_name == var_name;
+    alias_name => var_name;
 
 This has the effect that whenever variable 'alias_name' is set or accessed,
 then variable 'var_name' is actually set or accessed instead.  Note that if
 a variable already exists with name 'alias_name', its value is hidden while
 the alias is in force.  Aliases can be removed by saying
 
-    alias_name == undef;
+    alias_name => undef;
 
 Some output formats use variables so that you can customize them.  They
 expect certain variables to be defined, and give an error if they aren't.
 The default values for these variables are set in the initialization file
 -- see L<"Output Variables">.
+
+=head2 Styles
+
+Display styles change how individual things are shown when output.
+Currently, only map output for rooms and links is affected by styles.
+
+B<IFM> keeps track of the currently active list of display styles, and
+there are two commands which change this list.  The command
+
+    style STRING;
+
+pushes the specified style onto the style list.  This style becomes the
+current style.  Any B<IFM> objects declared while a style list is in force
+will by default be output in those styles.  Any variable setting is by
+default in the current style (though you can specify a particular style
+using the 'in style' clause -- see L<"Variables">).
+
+The command
+
+    endstyle [STRING];
+
+pops the current style from the style list.  The previous style on the list
+(if any) becomes the current style.  The string, if specified, should match
+the name in the corresponding 'style' command, or a warning is given.
+
+Each display style has its own set of variable values.  On output, when the
+value of a variable is needed for displaying an object, the style list for
+that object is searched in reverse order of declaration.  The value used is
+from the first style to define this variable.  If no style defines it, then
+the default value is used.
+
+If a style is referenced by an object but not defined anywhere in the
+input, then its definition is assumed to be in a separate file, which is
+searched for using the standard search path.  The name of this file is
+formed by adding an F<.ifm> suffix to the style name.  If the file is not
+found, or it does not define the required style, a warning is given.
 
 =head2 Expressions
 
@@ -663,12 +724,7 @@ combination using the following constructs (in order of precedence):
 Note that in expressions, all variables are treated as numeric.  If a
 variable is set to be a string and is then used in an expression, its
 numeric value will be read from the string.  For most strings, this will be
-zero.  A special case is when the expression consists of a single variable
-reference -- then the variable value is copied exactly.  For example:
-
-    name = "foo";	# Variable "name" has value "foo"
-    name2 = $name;	# Variable "name2" now also has value "foo"
-    name3 = $name + 1;	# Variable "name3" has value 1
+zero.
 
 =head2 Include Files
 
