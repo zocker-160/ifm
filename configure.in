@@ -1,3 +1,5 @@
+dnl Configuration template for IFM, in -*- m4 -*- mode.
+
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(etc)
@@ -5,6 +7,8 @@ AC_CONFIG_AUX_DIR(etc)
 AM_INIT_AUTOMAKE(ifm, 4.2)
 AM_CONFIG_HEADER(etc/config.h)
 AC_CONFIG_SUBDIRS(vars)
+
+AC_DEFINE(EMAIL, "zondo@pillock.freeserve.co.uk")
 
 dnl Checks for programs.
 AC_PROG_CC

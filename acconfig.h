@@ -1,11 +1,4 @@
 
-/*
- *  Ifm, copyright (C) 1997, 1998 G. Hutchings
- *  Ifm comes with ABSOLUTELY NO WARRANTY.
- *  This is free software, and you are welcome to redistribute it
- *  under certain conditions; see the file COPYING for details.
- */
-
 /* Configuration stuff */
 @TOP@
 
@@ -14,6 +7,9 @@
 
 /* Package version */
 #undef VERSION
+
+/* Email address */
+#undef EMAIL
 
 /* Whether debugging malloc is required */
 #undef WITH_DMALLOC
