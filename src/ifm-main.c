@@ -399,7 +399,6 @@ main(int argc, char *argv[])
         return 1;
 
     /* Solve game if required */
-
     if (output == O_NONE || output & O_TASKS) {
         check_cycles();
         if (!ifm_errors)
@@ -848,11 +847,13 @@ show_info(char *type)
 static void
 show_maps(void)
 {
+    int num = 1, xlen, ylen;
     vlist *rooms;
     vscalar *elt;
     char *title;
     vhash *sect;
-    int num = 1;
+
+    set_map_vars();
 
     printf("%s\t%s\t%s\t%s\t%s\n",
            "No.", "Rooms", "Width", "Height", "Name");
@@ -868,11 +869,14 @@ show_maps(void)
         }
 
         rooms = vh_pget(sect, "ROOMS");
+        xlen = vh_iget(sect, "XLEN");
+        ylen = vh_iget(sect, "YLEN");
+
+        if (show_map_title && vh_exists(sect, "TITLE"))
+            ylen++;
+
         printf("%d\t%d\t%d\t%d\t%s\n",
-               num++, vl_length(rooms),
-               vh_iget(sect, "XLEN"),
-               vh_iget(sect, "YLEN"),
-               title);
+               num++, vl_length(rooms), xlen, ylen, title);
     }
 }
 
