@@ -279,12 +279,8 @@ main(int argc, char *argv[])
     }
 
     /* Set output format if not already specified */
-    if (output != O_NONE && ifm_fmt == F_NONE) {
-        char *str = NULL;
-        if (VAR_DEF("format"))
-            str = var_string("format");
-        ifm_fmt = select_format(str, output);
-    }
+    if (output != O_NONE && ifm_fmt == F_NONE)
+        ifm_fmt = select_format(NULL, output);
 
     /* Resolve tags */
     resolve_tags();

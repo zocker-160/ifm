@@ -1,10 +1,13 @@
 ##################################################################
-# IFM init file.  This file contains the default definitions for
-# all variables used by the output formats.
+# System IFM init file
 ##################################################################
 
+# This file contains the default definitions for all variables
+# used by the output formats.  Changing these values will affect
+# all users.
+
 ##################################################################
-# General notes about variables
+# General notes
 ##################################################################
 
 # At the moment, only map output is controlled by variables.  The
@@ -17,13 +20,11 @@
 # via the *_font and *_fontsize variables.  In Tk, they are both
 # specified together, via the *_fontdef variables.
 
-##################################################################
-# Control variables
-##################################################################
+# In PostScript output, a font size represents the maximum
+# desired size -- the actual size may be scaled down in order to
+# fit the text into an enclosing space (e.g. a room box).
 
-# Default output format.  If undefined, defaults are chosen in the
-# order specified by the format list in `ifm -h' output.
-format = undef;
+# In Tk output, all line width values are interpreted as integers.
 
 ##################################################################
 # PostScript setup variables
@@ -54,7 +55,7 @@ page_height = undef;
 # fit.
 page_rotate = undef;
 
-# The margin space to be left on each page, in cm.
+# Margin space to be left on each page, in cm.
 page_margin = 2;
 
 # Whether to show a border around each PostScript page.
@@ -98,38 +99,38 @@ canvas_background_colour = "wheat";
 # Room variables
 ##################################################################
 
-# The space allocated for each room, in cm.  In PostScript, this
-# is the maximum size -- the actual size may be reduced in order
-# to fit things on the page.
+# Space allocated for each room, in cm.  In PostScript, this is
+# the maximum size -- the actual size may be reduced in order to
+# fit things on the page.
 room_size = 3;
 
-# The proportion of the room space that's taken up by the room
+# Proportion of the room space that's taken up by the room
 # dimensions.  These values should be less than 1 or you'll have
 # no space left for link lines.
 room_width = 0.8;
 room_height = 0.65;
 
-# The default background colour of rooms.
+# Default background colour of rooms.
 room_colour = "white";
 
-# The background colour of rooms that are marked with the 'puzzle'
+# Background colour of rooms that are marked with the 'puzzle'
 # attribute.
 room_puzzle_colour = "grey";
 
-# The offset and colour of room 'shadows'.  This is a pseudo-3D
+# Offset and colour of room 'shadows'.  This is a pseudo-3D
 # effect which makes rooms look raised off the page.  The offsets
-# are a proportion of the allocated room space.
+# are a proportion of the allocated room space.  Note that you
+# can change the direction of the room shadow by negating one or
+# both of the offsets.
 room_shadow_xoff = 0.05;
 room_shadow_yoff = 0.05;
 room_shadow_colour = "grey30";
 
-# The width and colour of the room box lines.  Note that Tk only
-# uses integer width values.
+# Width and colour of the room box lines.
 room_border_width = 1;
 room_border_colour = "black";
 
-# The width and colour of the room exit lines.  Note that Tk only
-# uses integer width values.
+# Width and colour of the room exit lines.
 room_exit_width = 1;
 room_exit_colour = "black";
 
@@ -139,8 +140,8 @@ ps room_text_font = "Times-Bold";
 ps room_text_fontsize = 10;
 tk room_text_fontdef = "Times 10 bold";
 
-# Whether to append room tag names to room descriptions.  This can
-# be useful when adding new rooms.
+# Whether to append room tag names to room descriptions.  If so,
+# they are appended in square brackets, like [this].
 show_tags = 0;
 
 # Whether to show non-hidden item descriptions in rooms.
@@ -156,8 +157,7 @@ tk item_text_fontdef = "Times 8 italic";
 # Link variables
 ##################################################################
 
-# Width and colour of link lines.  Note that Tk only uses integer
-# width values.
+# Width and colour of link lines.
 link_line_width = 1;
 link_colour = "black";
 
@@ -176,7 +176,7 @@ ps link_special_colour = "black";
 tk link_special_colour = "blue";
 
 # Appearance of text that's associated with link lines.  The Tk
-# default is to colour them different for readability.
+# default is to colour them differently for readability.
 ps link_text_font = "Times-Roman";
 ps link_text_fontsize = 6;
 ps link_text_colour = "black";
