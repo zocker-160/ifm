@@ -42,8 +42,10 @@ static vhash *path_room = NULL;
 /* Path task */
 static vhash *path_task = NULL;
 
+#ifdef SHOW_VISIT
 /* Find-path start room */
 static vhash *start_room = NULL;
+#endif
 
 /* Internal functions */
 static void link_rooms(vhash *from, vhash *to, vhash *reach);
@@ -289,7 +291,9 @@ find_path(vhash *step, vhash *from, vhash *to)
     if (from == to)
         return 0;
 
+#ifdef SHOW_VISIT
     start_room = from;
+#endif
 
     if (ifm_debug) {
         indent(3);
@@ -791,7 +795,7 @@ use_node(char *node, vscalar *s, double dist)
         }
     }
 
-#if 0
+#ifdef SHOW_VISIT
     if (ifm_debug && room != start_room) {
         indent(4 - vg_caching());
         printf("visit: %s (dist %g)\n",
