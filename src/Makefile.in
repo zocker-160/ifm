@@ -71,7 +71,7 @@ tkifm = @tkifm@
 
 bin_PROGRAMS = ifm
 
-SRCS = ifm-dot.c ifm-main.c ifm-map.c ifm-parse.c ifm-path.c ifm-ps.c	 ifm-raw.c ifm-rec.c ifm-scan.c ifm-task.c ifm-text.c ifm-tk.c ifm-util.c ifm-vars.c
+SRCS = ifm-dot.c ifm-main.c ifm-map.c ifm-parse.y ifm-path.c ifm-ps.c	 ifm-raw.c ifm-rec.c ifm-scan.l ifm-task.c ifm-text.c ifm-tk.c ifm-util.c ifm-vars.c
 
 
 HDRS = ifm-dot.h ifm-driver.h ifm-main.h ifm-map.h ifm-parse.h ifm-path.h ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h ifm-tk.h ifm-util.h	  ifm-vars.h
@@ -79,7 +79,7 @@ HDRS = ifm-dot.h ifm-driver.h ifm-main.h ifm-map.h ifm-parse.h ifm-path.h ifm-ps
 
 ifm_SOURCES = $(SRCS) $(HDRS)
 
-EXTRA_DIST = ifm-parse.y ifm-scan.l
+EXTRA_DIST = ifm-parse.c ifm-scan.c
 
 VARS = ../vars/src
 
@@ -104,11 +104,13 @@ ifm_OBJECTS =  ifm-dot.o ifm-main.o ifm-map.o ifm-parse.o ifm-path.o \
 ifm-ps.o ifm-raw.o ifm-rec.o ifm-scan.o ifm-task.o ifm-text.o ifm-tk.o \
 ifm-util.o ifm-vars.o
 ifm_DEPENDENCIES = 
+LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
+LEXLIB = @LEXLIB@
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  Makefile.am Makefile.in
+DIST_COMMON =  Makefile.am Makefile.in ifm-parse.c ifm-scan.c
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -124,7 +126,7 @@ OBJECTS = $(ifm_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .o .s
+.SUFFIXES: .S .c .l .o .s .y
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
 
@@ -177,6 +179,15 @@ maintainer-clean-compile:
 ifm: $(ifm_OBJECTS) $(ifm_DEPENDENCIES)
 	@rm -f ifm
 	$(LINK) $(ifm_LDFLAGS) $(ifm_OBJECTS) $(ifm_LDADD) $(LIBS)
+.l.c:
+	$(LEX) $(AM_LFLAGS) $(LFLAGS) $< && mv $(LEX_OUTPUT_ROOT).c $@
+.y.c:
+	$(YACC) $(AM_YFLAGS) $(YFLAGS) $< && mv y.tab.c $*.c
+	if test -f y.tab.h; then \
+	if cmp -s y.tab.h $*.h; then rm -f y.tab.h; else mv y.tab.h $*.h; fi; \
+	else :; fi
+ifm-parse.h: ifm-parse.c
+
 
 tags: TAGS
 
@@ -295,6 +306,7 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
+	-test -z "ifm-scanlifm-parsehifm-parsec" || rm -f ifm-scanl ifm-parseh ifm-parsec
 mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
 		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
