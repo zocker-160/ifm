@@ -6,6 +6,21 @@ tkifm -- simple graphical front end to ifm(1)
 
 tkifm [file]
 
+=begin inf
+
+tkifm -- graphical interface to IFM
+***********************************
+
+This Info file describes tkifm, a simple front end to the Interactive
+Fiction Mapper (*note IFM:(ifm).)
+
+=end inf
+
+=for inf node DESCRIPTION, Introduction, What is tkifm?
+=for inf node USING YOUR OWN EDITOR, Editors, Using your own editor
+=for inf node CUSTOMIZATION, Customization, Customizing tkifm operation
+=for inf node ERRORS AND WARNINGS, Diagnostics, Errors and Warnings
+
 =head1 DESCRIPTION
 
 B<tkifm> is a graphical front end to ifm(1), the Interactive Fiction
@@ -63,7 +78,7 @@ If you'd like to use your own editor to edit B<ifm> files, but still view
 results with B<tkifm>, you can.  B<tkifm> recognizes when the file it is
 visiting gets modified, and rereads it if so.  If you like, you can also
 disable all B<tkifm> file modification commands by setting the C<ifm(edit)>
-variable to zero (see the next section).
+variable to zero (see L<"CUSTOMIZATION">).
 
 =head1 CUSTOMIZATION
 
@@ -118,9 +133,13 @@ Any errors or warnings that occur when invoking B<ifm> will be displayed in
 a dialog.  The current line of the text window will be changed to point at
 the error or warning line (if appropriate).
 
+=for inf skipnode
+
 =head1 SEE ALSO
 
 ifm(1)
+
+=for inf skipnode
 
 =head1 AUTHOR
 
