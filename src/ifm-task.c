@@ -31,8 +31,8 @@ static vhash *location = NULL;
 static char buf[BUFSIZ];
 
 /* Internal functions */
-static int do_task(vhash *task);
-static void leave_item(vhash *item, vhash *room);
+static int do_task(vhash *task, int print);
+static void leave_item(vhash *item, vhash *room, int print);
 static void moveto_room(vhash *task);
 static void task_pair(vhash *before, vhash *after);
 static int task_possible(vhash *room, vhash *step);
@@ -40,10 +40,10 @@ static vhash *task_step(int type, vhash *data);
 
 /* Perform a task */
 static int
-do_task(vhash *task)
+do_task(vhash *task, int print)
 {
-    int print = 1, score = 1;
     vhash *item, *room;
+    int score = 1;
     vscalar *elt;
     vlist *list;
 
@@ -51,12 +51,10 @@ do_task(vhash *task)
     switch (vh_iget(task, "TYPE")) {
     case T_GET:
         item = vh_pget(task, "DATA");
-
         if (vh_exists(item, "TAKEN"))
             score = 0;
 
         vh_istore(item, "TAKEN", 1);
-
         if (vh_iget(item, "GIVEN"))
             print = 0;
 
@@ -68,10 +66,7 @@ do_task(vhash *task)
         break;
     case T_DROP:
         item = vh_pget(task, "DATA");
-
         vh_istore(item, "TAKEN", 0);
-        vh_istore(item, "DROPPED", 1);
-
         if (vh_iget(item, "LOST"))
             print = 0;
 
@@ -102,12 +97,15 @@ do_task(vhash *task)
         }
     }
 
+    /* Flag it as done */
+    vh_istore(task, "DONE", 1);
+
     /* Lose any items involved */
     if ((list = vh_pget(task, "LOSE")) != NULL) {
         vl_foreach(elt, list) {
             item = vs_pget(elt);
             vh_istore(item, "TAKEN", 0);
-            vh_istore(item, "DROPPED", 1);
+
             if (ifm_verbose) {
                 indent(2);
                 printf("lose: %s\n", vh_sgetref(item, "DESC"));
@@ -119,12 +117,20 @@ do_task(vhash *task)
     if ((room = vh_pget(task, "GOTO")) != NULL)
         location = room;
 
+    /* Drop items if required */
+    if ((list = vh_pget(task, "DROP")) != NULL) {
+        if ((room = vh_pget(task, "DROPROOM")) == NULL)
+            room = location;
+
+        vl_foreach(elt, list) {
+            item = vs_pget(elt);
+            leave_item(item, room, 0);
+        }
+    }
+
     /* Flag path modification if required */
     if (vh_iget(task, "MODPATH"))
         modify_path();
-
-    /* Flag it as done */
-    vh_istore(task, "DONE", 1);
 
     /* Return whether to try more tasks */
     if (vh_iget(task, "FINISH"))
@@ -136,14 +142,13 @@ do_task(vhash *task)
     return 1;
 }
 
-/* Leave an item in a room and get it later */
+/* Leave an item in a room and maybe get it later */
 static void
-leave_item(vhash *item, vhash *room)
+leave_item(vhash *item, vhash *room, int print)
 {
     vhash *tstep, *step;
     vscalar *elt;
     vlist *list;
-    int opt = 1;
 
     /* Do nothing if not carrying it */
     if (!vh_iget(item, "TAKEN"))
@@ -152,24 +157,25 @@ leave_item(vhash *item, vhash *room)
     /* Drop the item */
     vh_pstore(item, "ROOM", room);
     step = task_step(T_DROP, item);
-    do_task(step);
+    do_task(step, print);
 
     /* Create new task step to get it back */
     step = task_step(T_GET, item);
-    task_pair(step, step);
 
-    /* Add new task dependencies */
+    /* Add new task dependencies (if any) */
     if ((list = vh_pget(item, "TASKS")) != NULL) {
         vl_foreach(elt, list) {
             tstep = vs_pget(elt);
-            task_pair(step, tstep);
-            opt = 0;
+            if (!vh_iget(tstep, "DONE"))
+                task_pair(step, tstep);
         }
     }
 
-    /* Flag retrieval as optional if no other tasks need it */
-    if (opt)
+    /* If item kept or needed for paths, mention it but flag it optional */
+    if (vh_iget(item, "NEEDED") || vh_iget(item, "KEEP")) {
+        task_pair(step, step);
         vh_istore(step, "OPTIONAL", 1);
+    }
 }
 
 /* Move to a room to do something */
@@ -203,14 +209,14 @@ moveto_room(vhash *task)
         if ((list = vh_pget(reach, "LEAVE")) != NULL) {
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
-                leave_item(item, last);
+                leave_item(item, last, 1);
             }
         }
 
         if ((list = vh_pget(room, "LEAVE")) != NULL) {
             vl_foreach(elt, list) {
                 item = vs_pget(elt);
-                leave_item(item, last);
+                leave_item(item, last, 1);
             }
         }
 
@@ -246,8 +252,9 @@ void
 setup_tasks(void)
 {
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
-    vlist *list, *itasks, *rlist;
+    vlist *list, *itasks, *rlist, *newlist;
     vhash *step, *istep, *oitem;
+    int num = 0, leaveall;
     vscalar *elt;
 
     if (ifm_verbose)
@@ -287,13 +294,12 @@ setup_tasks(void)
         /* Deal with 'follow' tasks */
         if ((otask = vh_pget(task, "FOLLOW")) != NULL) {
             step = vh_pget(otask, "STEP");
-            if (vh_exists(step, "NEXT")
-                && vh_pget(step, "NEXT") != tstep)
+            if (vh_exists(step, "NEXT") && vh_pget(step, "NEXT") != tstep)
                 err("more than one task needs to follow `%s' immediately",
                     vh_sgetref(otask, "DESC"));
+            task_pair(step, tstep);
             vh_pstore(step, "NEXT", tstep);
             vh_pstore(tstep, "PREV", step);
-            task_pair(step, tstep);
         }
     }
 
@@ -310,6 +316,31 @@ setup_tasks(void)
                 vh_istore(step, "MODPATH", 1);
                 vh_istore(step, "UNSAFE", 1);
             }
+        }
+
+        /* Invert room 'leave' list if leaving all */
+        list = vh_pget(room, "LEAVE");
+        if (vh_iget(room, "LEAVEALL")) {
+            num++;
+            newlist = NULL;
+
+            if (list != NULL) {
+                vl_foreach(elt, list) {
+                    item = vs_pget(elt);
+                    vh_istore(item, "NOLEAVE", num);
+                }
+            }
+
+            vl_foreach(elt, items) {
+                item = vs_pget(elt);
+                if (vh_iget(item, "NOLEAVE") == num)
+                    continue;
+                if (newlist == NULL)
+                    newlist = vl_create();
+                vl_ppush(newlist, item);
+            }
+
+            vh_pstore(room, "LEAVE", newlist);
         }
 
         /* Flag items which might have to be left before entering room */
@@ -340,6 +371,31 @@ setup_tasks(void)
 
         vl_foreach(elt, rlist) {
             reach = vs_pget(elt);
+
+            /* Invert reach 'leave' list if leaving all */
+            list = vh_pget(reach, "LEAVE");
+            if (vh_iget(reach, "LEAVEALL")) {
+                num++;
+                newlist = NULL;
+
+                if (list != NULL) {
+                    vl_foreach(elt, list) {
+                        item = vs_pget(elt);
+                        vh_istore(item, "NOLEAVE", num);
+                    }
+                }
+
+                vl_foreach(elt, items) {
+                    item = vs_pget(elt);
+                    if (vh_iget(item, "NOLEAVE") == num)
+                        continue;
+                    if (newlist == NULL)
+                        newlist = vl_create();
+                    vl_ppush(newlist, item);
+                }
+
+                vh_pstore(reach, "LEAVE", newlist);
+            }
 
             /* Flag items which might have to be left before using link */
             if ((list = vh_pget(reach, "LEAVE")) != NULL) {
@@ -435,6 +491,31 @@ setup_tasks(void)
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
+
+        /* Invert task 'drop' list if dropping all */
+        list = vh_pget(task, "DROP");
+        if (vh_iget(task, "DROPALL")) {
+            num++;
+            newlist = NULL;
+
+            if (list != NULL) {
+                vl_foreach(elt, list) {
+                    item = vs_pget(elt);
+                    vh_istore(item, "NODROP", num);
+                }
+            }
+
+            vl_foreach(elt, items) {
+                item = vs_pget(elt);
+                if (vh_iget(item, "NODROP") == num)
+                    continue;
+                if (newlist == NULL)
+                    newlist = vl_create();
+                vl_ppush(newlist, item);
+            }
+
+            vh_pstore(task, "DROP", newlist);
+        }
 
         /* Must get required items before doing this task */
         if ((list = vh_pget(task, "NEED")) != NULL) {
@@ -548,8 +629,6 @@ solve_game(void)
 
                 if (!vh_iget(item, "TAKEN"))
                     continue;
-                if (vh_iget(item, "DROPPED"))
-                    continue;
                 if (vh_iget(item, "NEEDED"))
                     continue;
                 if (vh_iget(item, "KEEP"))
@@ -571,7 +650,7 @@ solve_game(void)
 
                 if (drop) {
                     step = task_step(T_DROP, item);
-                    do_task(step);
+                    do_task(step, 1);
                 }
             }
         }
@@ -615,7 +694,7 @@ solve_game(void)
         if (step != NULL) {
             /* Do the task */
             moveto_room(step);
-            tasksleft = do_task(step);
+            tasksleft = do_task(step, 1);
             next = vh_pget(step, "NEXT");
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
@@ -650,40 +729,40 @@ task_pair(vhash *before, vhash *after)
     if (tasklist == NULL)
         tasklist = vl_create();
 
-    do {
-        if (!vh_iget(before, "SEEN")) {
-            vh_istore(before, "SEEN", 1);
+    while (1) {
+        if (!vh_exists(before, "DEPEND")) {
             vl_ppush(tasklist, before);
             vh_pstore(before, "DEPEND", vl_create());
         }
 
-        if (!vh_iget(after, "SEEN")) {
-            vh_istore(after, "SEEN", 1);
+        if (!vh_exists(after, "DEPEND")) {
             vl_ppush(tasklist, after);
             vh_pstore(after, "DEPEND", vl_create());
         }
 
-        if (before != after) {
-            depend = vh_pget(after, "DEPEND");
-            vl_ppush(depend, before);
-        }
+        if (before == after)
+            break;
 
-        if (ifm_verbose && before != after) {
+        depend = vh_pget(after, "DEPEND");
+        vl_ppush(depend, before);
+
+        if (ifm_verbose) {
             indent(1);
             printf("do `%s' before `%s'\n",
                    vh_sgetref(before, "DESC"),
                    vh_sgetref(after, "DESC"));
         }
 
-        after = vh_pget(after, "PREV");
-    } while (after != NULL && after != start);
+        if ((after = vh_pget(after, "PREV")) == NULL || after == start)
+            break;
+    }
 }
 
 /* Return whether a task is possible */
 static int
 task_possible(vhash *room, vhash *step)
 {
-    vhash *before, *taskroom, *gotoroom;
+    vhash *before, *taskroom, *gotoroom, *droproom;
     int len = 0, safe;
     vlist *depend;
     vscalar *elt;
@@ -740,6 +819,11 @@ task_possible(vhash *room, vhash *step)
             taskroom = gotoroom;
         if (taskroom != NULL && find_path(NULL, taskroom, room) == NOPATH)
             safe = 0;
+
+        /* If task drops items in another room, check you can get them */
+        if ((droproom = vh_pget(step, "DROPROOM")) != NULL
+            && find_path(NULL, taskroom, droproom) == NOPATH)
+            safe = 0;
     }
 
     /* Record safe flag */
@@ -792,10 +876,13 @@ task_step(int type, vhash *data)
     case T_USER:
         room = vh_pget(data, "ROOM");
         strcpy(buf, desc);
+        vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
         vh_pstore(step, "NEED", vh_pget(data, "NEED"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
         vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
-        vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
+        vh_pstore(step, "DROP", vh_pget(data, "DROP"));
+        vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
+        vh_pstore(step, "DROPROOM", vh_pget(data, "DROPROOM"));
         break;
     default:
         fatal("internal: unknown task type");
