@@ -74,7 +74,8 @@ main(int argc, char *argv[])
 
 #ifdef DEBUG
     extern int yydebug;
-    int dflag;
+
+    v_debug(V_DBG_PTRS);
 #endif
 
     /* Set program name */
@@ -111,11 +112,15 @@ main(int argc, char *argv[])
             break;
 	case 'D':
 #ifdef DEBUG
-            dflag = atoi(optarg);
-            if (dflag == 1)
+            switch (atoi(optarg)) {
+            case 1:
                 ifm_debug = 1;
-            else
+                break;
+            case 2:
                 yydebug = 1;
+                break;
+            }
+
 	    break;
 #else
             fatal("no compiled-in debugging support");
@@ -199,7 +204,7 @@ main(int argc, char *argv[])
             ifm_output = "task";
 
         if ((fmt = get_var("output")) != NULL)
-            format = select_format(vs_sval(fmt));
+            format = select_format(vs_sget(fmt));
         else
             format = default_format(output);
     }
@@ -246,24 +251,24 @@ draw_map(int fmt)
     if (func->map_start != NULL)
         (*func->map_start)();
 
-    FOREACH(elt, sects) {
-        sect = vs_pval(elt);
+    vl_foreach(elt, sects) {
+        sect = vs_pget(elt);
 
         if (func->map_section != NULL)
             (*func->map_section)(sect);
 
         if (func->map_link != NULL) {
             linklist = vh_pget(sect, "LINKS");
-            FOREACH(elt, linklist) {
-                link = vs_pval(elt);
+            vl_foreach(elt, linklist) {
+                link = vs_pget(elt);
                 (*func->map_link)(link);
             }
         }
 
         if (func->map_room != NULL) {
             roomlist = vh_pget(sect, "ROOMS");
-            FOREACH(elt, roomlist) {
-                room = vs_pval(elt);
+            vl_foreach(elt, roomlist) {
+                room = vs_pget(elt);
                 (*func->map_room)(room);
             }
         }
@@ -294,10 +299,10 @@ draw_items(int fmt)
     sorted = vl_sort(items, itemsort);
 
     if (func->item_start != NULL)
-        (*func->item_start)(vh_sget(map, "TITLE"));
+        (*func->item_start)(vh_sgetref(map, "TITLE"));
 
-    FOREACH(elt, sorted) {
-        item = vs_pval(elt);
+    vl_foreach(elt, sorted) {
+        item = vs_pget(elt);
         if (func->item_entry != NULL)
             (*func->item_entry)(item);
     }
@@ -324,10 +329,10 @@ draw_tasks(int fmt)
         fatal("no task table driver for %s", drv.name);
 
     if (func->task_start != NULL)
-        (*func->task_start)(vh_sget(map, "TITLE"));
+        (*func->task_start)(vh_sgetref(map, "TITLE"));
 
-    FOREACH(elt, tasks) {
-        task = vs_pval(elt);
+    vl_foreach(elt, tasks) {
+        task = vs_pget(elt);
         if (func->task_entry != NULL)
             (*func->task_entry)(task);
     }
@@ -340,24 +345,24 @@ draw_tasks(int fmt)
 static int
 itemsort(vscalar **ip1, vscalar **ip2)
 {
-    vhash *i1 = vs_pval(*ip1);
-    vhash *i2 = vs_pval(*ip2);
+    vhash *i1 = vs_pget(*ip1);
+    vhash *i2 = vs_pget(*ip2);
     vhash *ir1, *ir2;
     int cmp;
 
     /* First, by item name */
-    cmp = strcmp(vh_sget(i1, "DESC"), vh_sget(i2, "DESC"));
+    cmp = strcmp(vh_sgetref(i1, "DESC"), vh_sgetref(i2, "DESC"));
     if (cmp) return cmp;
 
     /* Next, by room name */
     ir1 = vh_pget(i1, "ROOM");
     ir2 = vh_pget(i2, "ROOM");
-    cmp = strcmp((ir1 == NULL ? "" : vh_sget(ir1, "DESC")),
-                 (ir2 == NULL ? "" : vh_sget(ir2, "DESC")));
+    cmp = strcmp((ir1 == NULL ? "" : vh_sgetref(ir1, "DESC")),
+                 (ir2 == NULL ? "" : vh_sgetref(ir2, "DESC")));
     if (cmp) return cmp;
 
     /* Finally, by note */
-    return strcmp(vh_sget(i1, "NOTE"), vh_sget(i2, "NOTE"));
+    return strcmp(vh_sgetref(i1, "NOTE"), vh_sgetref(i2, "NOTE"));
 }
 
 /* Select an output format */

@@ -395,9 +395,9 @@ go_flag		: IN            { $$ = IN;   }
 		| DOWN          { $$ = DOWN; }
 		;
 
-var             : INTEGER       { $$ = vs_iset(NULL, $1); }
-                | REAL          { $$ = vs_dset(NULL, $1); }
-                | STRING        { $$ = vs_sset(NULL, $1); }
+var             : INTEGER       { $$ = vs_istore(NULL, $1); }
+                | REAL          { $$ = vs_dstore(NULL, $1); }
+                | STRING        { $$ = vs_sstore(NULL, $1); }
                 ;
 
 %%

@@ -26,7 +26,7 @@ get_int(char *id, int def)
     vscalar *var = get_var(id);
 
     if (var != NULL)
-        return vs_ival(var);
+        return vs_iget(var);
     return def;
 }
 
@@ -37,7 +37,7 @@ get_real(char *id, double def)
     vscalar *var = get_var(id);
 
     if (var != NULL)
-        return vs_dval(var);
+        return vs_dget(var);
     return def;
 }
 
@@ -48,7 +48,7 @@ get_string(char *id, char *def)
     vscalar *var = get_var(id);
 
     if (var != NULL)
-        return vs_svalcopy(var);
+        return vs_sgetcopy(var);
     return def;
 }
 
@@ -56,9 +56,9 @@ get_string(char *id, char *def)
 vscalar *
 get_var(char *id)
 {
+    vscalar *var = NULL;
     char *fmt, *type;
     vhash *h1, *h2;
-    vscalar *var;
 
     /* Try driver-based symbol table first */
     if (ifm_format != NULL) {
@@ -114,20 +114,20 @@ print_vars()
     vhash *symtab1, *symtab2;
     vscalar *elt;
 
-    FOREACH(elt, tables) {
-        table1 = vs_sval(elt);
+    vl_foreach(elt, tables) {
+        table1 = vs_sgetref(elt);
         symtab1 = vh_pget(vars, table1);
         entries1 = vh_sortkeys(symtab1, NULL);
 
-        FOREACH(elt, entries1) {
-            table2 = vs_sval(elt);
+        vl_foreach(elt, entries1) {
+            table2 = vs_sgetref(elt);
             symtab2 = vh_pget(symtab1, table2);
             entries2 = vh_sortkeys(symtab2, NULL);
 
-            FOREACH(elt, entries2) {
-                var = vs_sval(elt);
+            vl_foreach(elt, entries2) {
+                var = vs_sgetref(elt);
                 sprintf(buf, "%s %s %s", table1, table2, var);
-                fprintf(stderr, "%s = %s", buf, vh_sget(symtab2, var));
+                fprintf(stderr, "%s = %s", buf, vh_sgetref(symtab2, var));
                 if (used_vars != NULL && vh_iget(used_vars, buf))
                     fprintf(stderr, " (used)");
                 fprintf(stderr, "\n");
@@ -153,7 +153,7 @@ set_var(char *table1, char *table2, char *var, vscalar *val)
     if (STREQ(var, "section")) {
         if (sectnames == NULL)
             sectnames = vl_create();
-        vl_spush(sectnames, vs_sval(val));
+        vl_spush(sectnames, vs_sgetref(val));
     } else if (h1 != NULL) {
         h2 = vh_pget(h1, table2);
         if (h2 != NULL)

@@ -22,14 +22,14 @@ connect_rooms()
     int oneway;
 
     /* Create lists of reachable rooms from each room */
-    FOREACH(elt, rooms) {
-        room = vs_pval(elt);
+    vl_foreach(elt, rooms) {
+        room = vs_pget(elt);
         vh_pstore(room, "REACH", vl_create());
     }
 
     /* Build link connections */
-    FOREACH(elt, links) {
-        link = vs_pval(elt);
+    vl_foreach(elt, links) {
+        link = vs_pget(elt);
         from = vh_pget(link, "FROM");
         to = vh_pget(link, "TO");
         oneway = vh_iget(link, "ONEWAY");
@@ -52,8 +52,8 @@ connect_rooms()
     }
 
     /* Build join connections */
-    FOREACH(elt, joins) {
-        join = vs_pval(elt);
+    vl_foreach(elt, joins) {
+        join = vs_pget(elt);
         from = vh_pget(join, "FROM");
         to = vh_pget(join, "TO");
         oneway = vh_iget(join, "ONEWAY");
@@ -109,8 +109,8 @@ find_path(vlist *path, vhash *from, vhash *to)
 
         /* Add reachable nodes to the visit list */
         rlist = vh_pget(node, "REACH");
-        FOREACH(elt, rlist) {
-            reach = vs_pval(elt);
+        vl_foreach(elt, rlist) {
+            reach = vs_pget(elt);
             node = vh_pget(reach, "ROOM");
             if (vh_iget(node, "FP_VISIT") == visit_id)
                 continue;
@@ -119,8 +119,8 @@ find_path(vlist *path, vhash *from, vhash *to)
             /* Check items needed */
             need = vh_pget(reach, "NEED");
             if (need != NULL) {
-                FOREACH(elt, need) {
-                    item = vs_pval(elt);
+                vl_foreach(elt, need) {
+                    item = vs_pget(elt);
                     step = vh_pget(item, "STEP");
                     if (!vh_iget(step, "DONE"))
                         addnode = 0;
@@ -130,8 +130,8 @@ find_path(vlist *path, vhash *from, vhash *to)
             /* Check tasks needing to be done first */
             after = vh_pget(reach, "AFTER");
             if (after != NULL) {
-                FOREACH(elt, after) {
-                    task = vs_pval(elt);
+                vl_foreach(elt, after) {
+                    task = vs_pget(elt);
                     step = vh_pget(task, "STEP");
                     if (!vh_iget(step, "DONE"))
                         addnode = 0;
