@@ -48,26 +48,105 @@ taskfuncs raw_taskfuncs = {
 void
 raw_map_start(void)
 {
+    char *title;
+
+    if ((title = get_string("title", NULL)) != NULL)
+        printf("title: %s\n", title);
 }
 
 void
 raw_map_section(vhash *sect)
 {
+    if (vh_exists(sect, "TITLE")) {
+        printf("\nsection: %s\n", vh_sgetref(sect, "TITLE"));
+        printf("width: %d\n", vh_iget(sect, "XLEN"));
+        printf("height: %d\n", vh_iget(sect, "YLEN"));
+    }
 }
 
 void
 raw_map_room(vhash *room)
 {
+    vlist *list, *ex, *ey;
+    vscalar *elt;
+    vhash *item;
+
+    printf("\nroom: %s\n", vh_sgetref(room, "DESC"));
+    printf("id: %d\n", vh_iget(room, "ID"));
+    printf("pos: %d %d\n", vh_iget(room, "X"), vh_iget(room, "Y"));
+
+    if (vh_iget(room, "PUZZLE"))
+        printf("puzzle: 1\n");
+
+    if ((list = vh_pget(room, "ITEMS")) != NULL) {
+        vl_foreach(elt, list) {
+            item = vs_pget(elt);
+            if (!vh_iget(item, "HIDDEN"))
+                printf("item: %d\n", vh_iget(item, "ID"));
+        }
+    }
+
+    ex = vh_pget(room, "EX");
+    ey = vh_pget(room, "EY");
+    if (ex != NULL) {
+        while (vl_length(ex) > 0) {
+            printf("exit: %d %d\n", vl_ishift(ex), vl_ishift(ey));
+        }
+    }
 }
 
 void
 raw_map_link(vhash *link)
 {
+    vhash *from, *to;
+    vlist *x, *y;
+    int go;
+
+    from = vh_pget(link, "FROM");
+    to = vh_pget(link, "TO");
+    printf("\nlink: %d %d\n", vh_iget(from, "ID"), vh_iget(to, "ID"));
+
+    x = vh_pget(link, "X");
+    y = vh_pget(link, "Y");
+    while (vl_length(x) > 0)
+        printf("pos: %d %d\n", vl_ishift(x), vl_ishift(y));
+
+    if (vh_iget(link, "SPECIAL"))
+        printf("special: 1\n");
+
+    if (vh_iget(link, "ONEWAY"))
+        printf("oneway: 1\n");
+
+    go = vh_iget(link, "GO");
+    if (go != D_NONE)
+        printf("go: %s\n", dirinfo[go].sname);
+
+    if (vh_exists(link, "CMD"))
+        printf("cmd: %s\n", vh_sgetref(link, "CMD"));
 }
 
 void
 raw_map_join(vhash *join)
 {
+    vhash *from, *to;
+    int go;
+
+    from = vh_pget(join, "FROM");
+    to = vh_pget(join, "TO");
+    printf("\njoin: %d %d\n", vh_iget(from, "ID"), vh_iget(to, "ID"));
+
+    if (vh_iget(join, "SPECIAL"))
+        printf("special: 1\n");
+
+    if (vh_iget(join, "ONEWAY"))
+        printf("oneway: 1\n");
+
+    go = vh_iget(join, "GO");
+    if (go != D_NONE)
+        printf("go: %s\n", dirinfo[go].sname);
+
+    if (vh_exists(join, "CMD"))
+        printf("cmd: %s\n", vh_sgetref(join, "CMD"));
 }
 
 /* Item functions */
