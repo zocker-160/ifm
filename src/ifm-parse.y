@@ -969,12 +969,24 @@ dir_elt		: compass
                         curdirs = vl_create();
                     vl_ipush(curdirs, $1);
 		}
+                | compass INTEGER
+                {
+                    if (curdirs == NULL)
+                        curdirs = vl_create();
+                    if ($2 <= 0)
+                        err("invalid repeat count");
+                    while ($2-- > 0)
+                        vl_ipush(curdirs, $1);
+                }
                 | compass TIMES INTEGER
                 {
                     if (curdirs == NULL)
                         curdirs = vl_create();
+                    if ($3 <= 0)
+                        err("invalid repeat count");
                     while ($3-- > 0)
                         vl_ipush(curdirs, $1);
+                    obsolete("`times' keyword", "just the repeat count");
                 }
 		;
 
@@ -983,10 +995,20 @@ string_repeat   : STRING
                     $$ = $1;
                     repeat = 1;
                 }
+                | STRING INTEGER
+                {
+                    $$ = $1;
+                    repeat = $2;
+                    if ($2 <= 0)
+                        err("invalid repeat count");
+                }
                 | STRING TIMES INTEGER
                 {
                     $$ = $1;
                     repeat = $3;
+                    if ($3 <= 0)
+                        err("invalid repeat count");
+                    obsolete("`times' keyword", "just the repeat count");
                 }
                 ;
 
