@@ -1,0 +1,17 @@
+# Alternate spellings for colour variables, for U.S. IFM fans.
+
+%define canvas_background_color map_background_colour
+%define color_file		colour_file
+%define item_text_color		item_text_colour
+%define link_color		link_colour
+%define link_text_color		link_text_colour
+%define map_text_color		map_text_colour
+%define map_title_color		map_title_colour
+%define page_background_color	page_background_colour
+%define page_border_color	page_border_colour
+%define room_border_color	room_border_colour
+%define room_color		room_colour
+%define room_exit_color		room_exit_colour
+%define room_shadow_color	room_shadow_colour
+%define room_text_color		room_text_colour
+%define title_color		map_title_colour
