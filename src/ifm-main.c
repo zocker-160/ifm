@@ -61,15 +61,6 @@ static struct driver_st {
 
 #define NUM_DRIVERS (int) (sizeof(drivers) / sizeof(drivers[0]))
 
-/* Init file */
-#ifndef INITFILE
-# ifdef _WIN32
-#  define INITFILE "ifm.ini"
-# else
-#  define INITFILE ".ifmrc"
-# endif
-#endif
-
 #define PRINT_MSG(type, msg) \
         fprintf(stderr, "%s: %s", progname, #type);                     \
         if (strlen(ifm_input) > 0) {                                    \
@@ -267,10 +258,10 @@ main(int argc, char *argv[])
     /* Set up preprocessor stuff */
     gpp_init();
 
-    ifm_search = vl_split(IFMPATH, ":");
+    ifm_search = vl_split(IFMPATH, PATHSEP);
 
     if ((env = getenv("IFMPATH")) != NULL) {
-        list = vl_split(env, ":");
+        list = vl_split(env, PATHSEP);
         while (vl_length(list) > 0)
             vl_sunshift(ifm_search, vl_spop(list));
     }

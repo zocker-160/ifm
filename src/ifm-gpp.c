@@ -6,6 +6,7 @@
 #include <vars.h>
 
 #include "ifm-gpp.h"
+#include "ifm-util.h"
 
 /* Standard GPP arguments */
 #define U1 ""
@@ -86,11 +87,11 @@ gpp_include(char *paths)
     char *path;
 
     strcpy(buf, paths);
-    path = strtok(buf, ":");
+    path = strtok(buf, PATHSEP);
 
     while (path != NULL) {
 	gpp_option("-I", path);
-	path = strtok(NULL, ":");
+	path = strtok(NULL, PATHSEP);
     }
 }
 
