@@ -1,0 +1,288 @@
+From dchapes@ddm.on.ca Tue Jun 16 07:40:26 1998
+Received: from punt-11.mail.demon.net by hunting2.demon.co.uk with SMTP 
+	id AA898008026 ; Tue, 16 Jun 98 07:40:26 PDT
+Received: from punt-1.mail.demon.net by mailstore for zondo@hunting2.demon.co.uk
+          id 897967762:10:01557:3; Tue, 16 Jun 98 03:29:22 GMT
+Received: from p30a.neon.sentex.ca ([207.245.212.223]) by punt-1.mail.demon.net
+           id aa1001331; 16 Jun 98 3:28 GMT
+Received: from squigy.ddm.on.ca (squigy.ddm.on.ca [209.47.139.138])
+	by ymris.ddm.on.ca (8.8.8/8.8.8) with ESMTP id XAA18588
+	for <zondo@hunting2.demon.co.uk>; Mon, 15 Jun 1998 23:27:56 -0400 (EDT)
+	(envelope-from dchapes@ymris.ddm.on.ca)
+From: Dave Chapeskie <dchapes@ddm.on.ca>
+Received: (from dchapes@localhost)
+	by squigy.ddm.on.ca (8.8.8/8.8.7) id XAA27325;
+	Mon, 15 Jun 1998 23:27:55 -0400 (EDT)
+Message-ID: <19980615232755.35850@ddm.on.ca>
+Date: Mon, 15 Jun 1998 23:27:55 -0400
+To: Glenn Hutchings <zondo@hunting2.demon.co.uk>
+Subject: ifm v1.0 patches for FreeBSD
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=LQksG6bCIzRHxTLp
+X-Mailer: Mutt 0.89i
+Return-Receipt-To: dchapes@ddm.on.ca
+Status: R
+
+
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+
+I started to play with your ifm program on FreeBSD (2.2.6-STABLE if it
+matters).  Overall it's quite nice but I do have some comments.  [Oh,
+and I do understand that this is only v1.0 so I hope I don't come off
+sounding too critical... I _do_ like the program!]
+
+Building
+------------------------------------------------------------------------
+First, I didn't like the way it was packaged.  Something like GNU
+autoconf would help a lot I imagine.  Especially since FreeBSD comes
+with most of the GNU stuff that's in your libvars, autoconf would
+hopefully be able to detect this and not compile in the redundant code.
+
+Without autoconf and with what I image are IRIXisms in the makefile
+I initially had a lot of trouble compiling.  When I figured out that
+it needs gmake that helped a lot, my past experience was that bsd's
+make craps out early on gmake makefiles but it almost worked with your
+makefile.  Still I ended up getting frustrated and punted the whole
+thing and it was only on a whim when I tried again was I able to get it
+to work (although I'm glad I did).
+
+I've attached the changes I made to get it to compile for me.  Hopefully
+you can somehow merge this in to your makefiles or something (ie ifdef
+BSD).  In particular note the use of "-fwritable-strings", without it
+the program core dumps on "ifm -v" (when splitting the search path).
+Modifying string constants is, IMO, evil.  I left in the debug options
+that I used to track this down.
+
+Also, FreeBSD's linker doesn't mention any "-rpath" options so I assumed
+this is an IRIX thing.  At any rate, it appears to work fine without it.
+I did have to change the library build rules to use lorder(1).  Without
+it the linker could not resolve all the function references.  I also
+made the top makefile look for your vars library in a subdirectory so
+that I don't have to install it.  Like I said above, FreeBSD has most
+of the useful GNU stuff that's in libvars (except for gmalloc, but
+FreeBSD's malloc is just as good or better) so I didn't want to pollute
+my system with a mostly redundant library.
+
+
+Actual Program
+------------------------------------------------------------------------
+How about adding metrics (optionally of course) to links and joins?
+In some games, traversing between two adjacent rooms on the map takes
+several turns (or is otherwise annoying to accomplish) and it would
+be nice if the "walk-through" code could be intelligent about this.
+For example I had a map with an elevator that has a call button.
+Although the time you have to wait for the elevator isn't constant (it
+depends where the elevator is) a metric would help a lot in avoiding
+generating extra long walk-throughs constantly wasting time waiting for
+an elevator.
+
+ie:
+room "lower elevator" tag Lower ...;
+room "upper elevator" tag Upper ...;
+join Lower to Upper metric 4;
+
+
+
+When playing with the tkifm I made a map for Stationfall.  If you're
+familiar with that game you know there are a few things that need to be
+done not only in order but right after each other.  For example you need
+to put some putty-like explosive in a thermos and then carry it to where
+you need it.  If you don't use the thermos or if you make a side trip
+the explosive melts and becomes useless (there are two other examples in
+Stationfall, leading the Ostrich around and leading the Balloon creature
+around).  I tried something like:
+
+room "In Space" ...;
+    item "explosive" tag Explosive lost;
+    task "put explosive in thermos" tag CoolExp need Explosive Thermos;
+
+room "Captain's Quarters" ...;
+    task "use explosive" tag Boom need Explosive Thermos after CoolExp;
+
+However the walk-through tried to lug the explosives around half the map.
+
+A solution would be to add a clause like "next_task Boom" to the CoolExp
+task.  This would tell the program that when it does this task it must
+immediately do the Boom task next without any delay.  Of course this
+might be annoying to program since you have to know not to attempt the
+CoolExp task unless you know that when you finish it you'll be able to
+do the Boom task.
+
+
+Another potential improvement would be to allow one to specify items
+that cannot be held, ie the opposite of the "need" clause.  Perhaps this
+could be specified similar to the way inform does attributes (ie "need
+~ItemTag" or "need !ItemTag") instead of adding a new keyword.  (This
+might also be useful for saying "after ~TaskTag", on second thought if
+you wanted that it would be better written "before TaskTag").
+
+
+I haven't needed this yet but a task clause that says that not only is
+an item needed but that it removes the item from play would be nice.
+(ie "task ... destroys ItemTag") This way if there are many tasks that
+all require the item but one (or even some) of them remove the item the
+walk-through generator will know to attempt those tasks last.  I know
+that you can do some of this with the "after" clause but you can't avoid
+the walk-through generator from doing mutually exclusive tasks with just
+"after".
+
+
+I'd love to see some more intelligence in the walk-through generator.
+Even just recursively trying more possibilities (perhaps to a user
+configurable depth) would be better than just going to the closest
+available task.  For example if I have items in every room of a long
+hallway I believe the current code will walk the entire length of the
+hallway and ignore the item a few rooms south of the middle of the
+hallway even though that may be the closest I ever come to it (ie the
+generated walk-through will eventually backtrack halfway down the long
+hall for that one item).
+
+Oh, one last thing.  Although I haven't finished it and I've never
+done one before, I'm writing up the appropriate file to do ifm syntax
+colouring in vim (a vi clone with some nice extras).  If your interested
+in this either for yourself or to include in future ifm distributions
+just let me know and I'll send it to you when I'm done.
+
+This actually reminds me of another feature request (as if you're
+not tired of my comments already :-)). I'd really it if tkifm had a
+"File.Reload" menu option.  Or if you want to be really fancy, a way
+of telling it that I'm using an external editor.  Ie perhaps a way to
+disable it's editor and have it stat(2) the file and reload if necessary
+whenever a task, item, or map drawing button is pressed.
+
+Oh, and while I'm talking about tkifm, my preference is for sub-windows
+to have explicit "dismiss" buttons since I don't put "delete window"
+gadgets on the title bar of my windows (since normally window deletes
+are evil, IMHO).  But this is a minor nit, more or person preference
+thing.
+
+Anyway, thanks for a great program!  I hope some of my comments prove
+useful.
+-- 
+Dave Chapeskie <dchapes@ddm.on.ca>, DDM Consulting
+
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Description: FreeBSD diff for ifm v1.0
+Content-Disposition: attachment; filename="ifm.diff"
+
+diff -ur ifm-1.0.orig/Makefile ifm-1.0.freebsd/Makefile
+--- ifm-1.0.orig/Makefile	Thu Jun 11 02:41:18 1998
++++ ifm-1.0.freebsd/Makefile	Mon Jun 15 02:17:31 1998
+@@ -6,20 +6,20 @@
+ BINDIR		= /usr/local/bin
+ 
+ # Directory of the Vars library.
+-LIBDIR		= /usr/local/lib
++LIBDIR		= vars
+ 
+ # Directory of the Vars include files.
+-INCDIR		= /usr/local/include
++INCDIR		= vars
+ 
+ # Where you want to put the Info file.
+ INFODIR		= /usr/local/info
+ 
+ # Where you want to put the man page.
+-MANDIR		= /usr/local/catman/local/cat1
++MANDIR		= /usr/local/man/man1
+ 
+ # Uncomment this if you can use unformatted man pages.
+-MAN		= cat
+-#MAN		= man
++#MAN		= cat
++MAN		= man
+ 
+ # Where you want to put the IFM support files.
+ IFMDIR		= /usr/local/share/ifm
+@@ -31,12 +31,12 @@
+ CC		= gcc -W
+ 
+ # Uncomment this if you don't want to hack things.
+-OPT		= -g
++OPT		= -fwritable-strings -g -pipe
+ #OPT		= -O3
+ 
+ # Uncomment this if you DO want to hack things. 8-)
+-DEBUG		= 
+-#DEBUG		= -DDEBUG
++#DEBUG		= 
++DEBUG		= -DDEBUG
+ 
+ # ---------------------- End of customization bit ----------------------
+ 
+@@ -84,8 +84,9 @@
+ 		  -DINITFILE=\"$(INITFILE)\" \
+ 		  $(SYSINIT)
+ 
+-CFLAGS		= $(OPT) $(DDEFS) $(DEFS) $(DEBUG) -I$(INCDIR)
+-LDFLAGS		= -Wl,-rpath $(LIBDIR) -L$(LIBDIR)
++CFLAGS		= $(OPT) $(DDEFS) $(DEFS) $(DEBUG) -I. -I$(INCDIR)
++#LDFLAGS	= -Wl,-rpath $(LIBDIR) -L$(LIBDIR)
++LDFLAGS		= -L$(LIBDIR)
+ LOADLIBES	= -lvars -lm
+ 
+ LEX		= flex
+diff -ur ifm-1.0.orig/vars/Makefile ifm-1.0.freebsd/vars/Makefile
+--- ifm-1.0.orig/vars/Makefile	Mon May 18 10:06:24 1998
++++ ifm-1.0.freebsd/vars/Makefile	Mon Jun 15 02:17:30 1998
+@@ -18,7 +18,7 @@
+ # Only change these if your system type is unknown.
+ 
+ # Comment this out if you don't have alloca.h.
+-ALLOCA		= -DHAVE_ALLOCA_H
++#ALLOCA		= -DHAVE_ALLOCA_H
+ 
+ # Comment this out if you don't have getpagesize.h.
+ PAGESIZE	= -DHAVE_GETPAGESIZE_H
+@@ -43,20 +43,20 @@
+ INFODIR		= /usr/local/info
+ 
+ # Where you want the man page installed.
+-MANDIR		= /usr/local/catman/local/cat3
++MANDIR		= /usr/local/man/man3
+ 
+ # Change this to 'man' if you have unformatted man pages.
+-MANFMT		= cat
++MANFMT		= man
+ 
+ # Select a static or shared object library.
+-TARGET		= libvars.so
+-# TARGET	= libvars.a
++#TARGET		= libvars.so
++TARGET	= libvars.a
+ 
+ # Set your debugging/optimization flag here.
+-OPTIMIZE	= -g
++OPTIMIZE	= -g -pipe
+ 
+ # Comment this out if you don't want to use GNU malloc.
+-GNU_MALLOC	= malloc/gmalloc.c
++#GNU_MALLOC	= malloc/gmalloc.c
+ 
+ # Select yacc or bison.
+ YACC		= bison -y
+@@ -73,7 +73,7 @@
+ DEFS		= -DVARS_MAJOR=$(VARS_MAJOR) -DVARS_MINOR=$(VARS_MINOR) \
+ 		  $(${SYSTEM}) -I. -Igetopt -Iglob -Iregex
+ 
+-CFLAGS		= $(OPTIMIZE) $(DEFS)
++CFLAGS		= -fwritable-strings $(OPTIMIZE) $(DEFS)
+ 
+ VSRCS		= vars-buffer.c vars-debug.c vars-destroy.c vars-genetic.c \
+ 		  vars-getopt.c vars-graph.c vars-hash.c vars-list.c \
+@@ -123,7 +123,9 @@
+ 
+ $(ARLIB):	$(OBJS)
+ 		rm -f $@
+-		ar qc $@ $(OBJS)
++#		ar qc $@ $(OBJS)
++		ar qc $@ `lorder $(OBJS) | tsort -q`
++		ranlib $@
+ 
+ $(SOLIB):	$(OBJS)
+ 		ld -shared -all -o $@ $(OBJS)
+
+--LQksG6bCIzRHxTLp--
+

@@ -1,0 +1,158 @@
+From dchapes@ddm.on.ca Tue Jun 30 06:49:29 1998
+Received: from punt-11.mail.demon.net by hunting2.demon.co.uk with SMTP 
+	id AA899214569 ; Tue, 30 Jun 98 06:49:29 PDT
+Received: from punt-1.mail.demon.net by mailstore for zondo@hunting2.demon.co.uk
+          id 899173556:10:10562:1; Tue, 30 Jun 98 02:25:56 GMT
+Received: from p2.argon.sentex.ca ([209.112.4.195]) by punt-1.mail.demon.net
+           id aa1010516; 30 Jun 98 2:25 GMT
+Received: from squigy.ddm.on.ca (squigy.ddm.on.ca [209.47.139.138])
+	by ymris.ddm.on.ca (8.8.8/8.8.8) with ESMTP id WAA18356
+	for <zondo@hunting2.demon.co.uk>; Mon, 29 Jun 1998 22:25:37 -0400 (EDT)
+	(envelope-from dchapes@ymris.ddm.on.ca)
+From: Dave Chapeskie <dchapes@ddm.on.ca>
+Received: (from dchapes@localhost)
+	by squigy.ddm.on.ca (8.8.8/8.8.7) id WAA10562;
+	Mon, 29 Jun 1998 22:25:34 -0400 (EDT)
+Message-ID: <19980629222533.49503@ddm.on.ca>
+Date: Mon, 29 Jun 1998 22:25:33 -0400
+To: Glenn Hutchings <zondo@hunting2.demon.co.uk>
+Subject: IFM suggestion: half lengths
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.89i
+Return-Receipt-To: dchapes@ddm.on.ca
+Status: R
+
+(Excuse the ugliness of my ASCII art but it was easier to do this than
+attach images).
+
+Hello again.  I have two more suggestions.  The first is easy.  I'd like
+the "U/D" and "I/O" text to sometimes be "D/U" or "O/I".  For example:
+
+room "A";
+room "B" dir e go out;
+
+should give:
+
+    +---+         +---+
+    |   |         |   |
+    | A |-- O/I --| B |
+    |   |         |   |
+    +---+         +---+
+
+(instead of I/O) to help indicate which way is out and which way is in.
+Either that or go the more complicated route and do it more like the way
+the old Infocom maps did it:
+
+    +---+         +---+
+    |   |       I |   |
+    | A |---------| B |
+    |   | O       |   |
+    +---+         +---+
+
+
+This next suggestion may be a big pain in the butt to implement put it
+would still be nice. :-)
+
+The idea is to allow links to specify "half length" directions.  What
+syntax would make sense for this I don't know, for the purpose of the
+following examples I'll just use "se/2" to mean half the length of "se".
+
+I've come across several situation where this would help.  In these
+examples I'll first show how I'm currently doing things followed by what
+the "half distance" method would give.
+
+# From Zork 1.  The relative location of these
+# two rooms is fixed by other rooms/links.
+room "N/S Passage";
+room "Deep Canyon" dir ne s ne;
+
+              +---+
+              |   |
+        /|    | D |
+       / |    |   |
+      /  |    /---+
+     /   |   /
++---/    |  /
+|   |    | /
+| N |    |/
+|   |
++---+
+
+(By the way, this looks okay with splines in tkifm but quite weird
+ in the Postscript output, try it and see).
+
+With "half length" directions this could be written:
+room "N/S Passage";
+room "Deep Canyon" dir ne/2 e ne/2;
+(again, use of the '/2' is just for the purpose of these examples)
+
+              +---+
+              |   |
+              | D |
+              |   |
+              /---+
+     /-------/
++---/
+|   |
+| N |
+|   |
++---+ (.5n+.5e + 1e + .5n + .5e = 1n + 2e)
+
+This looks much nicer.
+
+Also, it would be nice to be able to place rooms offset from the normal
+grid:
+
+# From Planetfall
+room "Mech. Corridor North" tag MechN;
+room "Physical Plant" dir w sw;
+room "Mech. Corridor" dir se e link MechN;
+
+              +---+
+              |   |
+        /-----| N |
+       /      |   |
+      /       +---+
+     /
++---+
+|   |
+| P |
+|   |
++---+
+     \
+      \       +---+
+       \      |   |
+        \-----| M |
+              |   |
+              +---+
+
+This is a bit annoying in that the structure occupies what a 3x3 grid of
+rooms would.  With "half distances" this becomes:
+
+room "Mech. Corridor North" tag MechN;
+room "Physical Plant" dir w/2 sw/2;
+room "Mech. Corridor" dir se/2 e/2 link MechN;
+
+       +---+
+       |   |
+     /-| A |
++---+  |   |
+|   |  +---+ (.5w + .5s+.5w = 1w+.5s)
+| C |
+|   |  +---+
++---+  |   |
+     \-| B |
+       |   |
+       +---+
+
+It would then look a little nicer but more importantly it would only
+occupy what a 2x2 grid of rooms would.
+
+So what do you think?  Is this desirable?  Is it doable?
+
+I should really take a look at the code and see if I can help you out
+and implement some of my suggestions.
+-- 
+Dave Chapeskie <dchapes@ddm.on.ca>, DDM Consulting
+

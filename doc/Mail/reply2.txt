@@ -1,0 +1,159 @@
+In your last email, you wrote:
+
+> Actually, I think the "given" option doesn't belong in the "item"
+> statement at all.  I think there should be two different options to the
+> "task" statement.  One should act like the current "get" option in that
+> it simply makes an item available to be picked up.  The other option
+> (maybe called "gives") should cause the mentioned items to just suddenly
+> appear in the players inventory no matter where the item line is in the
+> file.
+
+I think that's right -- a task 'gives' attribute is the best place to store
+this information.  Although, even with no item 'given' attribute, you could
+still get the situation where an item's 'score' isn't counted -- because
+the item is never explicitly picked up.  Unless the item scores were
+transferred to the task instead.
+
+> I can think of three levels for this option.  The default could be as it
+> currently is, the next level could add things like:
+> 
+> 	Somewhere:
+> 	    do something
+> 	    go n.e.s.u.w    <<=== added by option new option to IFM
+> 
+> 	Somewhere else:
+> 	    do next thing
+> 
+> whereas the highest level would actually print out the name of each
+> of the rooms.
+
+In the current state of things, only your highest level is implemented --
+the reason for which, see below...
+
+> By the way one nice use of repeatable/optional tasks is to replace a
+> join so that you get an entry in the task list.  For example in Zork I:
+> 
+> room "Mirror Room" tag MirrorNorth;
+> 	task "touch mirror" goto MirrorSouth optional repeatable;
+> room "Mirror Room" tag MirrorSouth;
+> 	task "touch mirror" goto MirrorNorth optional repeatable;
+> 
+> Actually, it might be nice to be able to specify an optional string to
+> "join" statements to achieve a similar effect:
+> 
+>     join "touch mirror" MirrorNorth to MirrorSouth;
+> 
+> (or just use the existing "note" option).
+
+Looks like we're both thinking along very similar lines!  I've only just
+finished implementing something almost like your 'join' idea above.
+Firstly, the problem with the repeatable-goto task method is that it
+doesn't involve any proper map connections, so the game solver can't easily
+find a path to places on the other side of the 'goto'.  Secondly, I decided
+that repeatable tasks which purely involve movement are really just special
+cases of normal compass movement.  With this in mind, I've added a new
+attribute of links and joins: 'cmd <string>'.  This is the command you type
+to go that way.  And if you have a second 'cmd' clause, that's the command
+to come back again (defaults to 1st command -- not sure about that syntax
+though, it might change).  Using this, the mirror room example becomes:
+
+    room "Mirror Room" ...;
+    room "Mirror Room" dir s cmd "Touch mirror";
+
+The new task lister prints out the names of all rooms passed through, plus
+the command typed to get there; this is usually a direction (N, NE, etc).
+The 'cmd' clause causes that command to be printed instead.  Here's an
+example:
+
+    room "Attic";
+    task "Win the game" need shiny_thing;
+
+    room "Dumb-Waiter (in Attic)" dir e go in tag D1;
+
+    room "Dumb-Waiter (in Basement)" tag D2;
+    join D1 to D2 cmd "Pull rope";
+
+    room "Basement" dir e go out;
+    item "shiny thing" tag shiny_thing;
+
+This produces:
+
+    Move to Dumb-Waiter (in Attic) (IN)
+    Move to Dumb-Waiter (in Basement) (Pull rope)
+    Move to Basement (OUT)
+
+    Basement:
+       Get shiny thing
+
+    Move to Dumb-Waiter (in Basement) (IN)
+    Move to Dumb-Waiter (in Attic) (Pull rope)
+    Move to Attic (OUT)
+
+    Attic:
+       Win the game
+       Drop shiny thing
+
+    Total distance travelled: 6
+
+Regarding optional/repeatable tasks: I can still see how optional tasks
+could be useful (there may be two or more ways to do the same thing), but I
+now don't see a use for repeatable tasks that can't be done any other way.
+If a repeatable task transports you, that can be done by a special movement
+command and suitable restrictions on when the movement can be done.  If you
+can think of any other uses, I'd like to hear them.
+
+> See http://www.sentex.net/~dchapes/ifm/
+> 
+> So far it isn't listed anywhere but on my own web page.  Note that I
+> hate web pages that are all glitz and no content and take forever to
+> load.  If you like such pages you won't be impressed by the above since,
+> like all my web pages, it's all content and no glitz.
+
+I agree entirely.  Especially about taking forever to load.  I recently had
+a look at your page, and it's spot on -- I'll certainly mention it in the
+next Ifm release.
+
+While there, I downloaded the source for Zork I and saw the PostScript
+glitch you told me about before, which was interesting because I hadn't
+been able to reproduce it.  Even more interesting, if you snip out the
+offending piece of map and try it on its own, like this:
+
+    room "N/S Passage" tag NS_Passage; # dir n from Round_Room;
+    room "Chasm" tag Chasm dir n;
+    #	link EW_Passage to Chasm dir n;# go down;
+    room "Resevoir South" tag Res_S dir ne;
+    room "Deep Canyon" tag Deep_Canyon dir ne s ne from NS_Passage link Res_S;
+
+it works fine!  This is one that's still on my bugs-to-fix list.
+
+While perusing your source, I noticed that you were assuming something
+about list-type attributes that wasn't the case -- that multiple
+invocations of the same attribute concatenate their lists.  For example:
+
+    task "put painting in case" tag P_painting need painting score 6
+	    need rope; #not really
+
+The 'need rope' clause completely overrides the 'need painting' one, so
+that the task doesn't need the painting any more.  But you're correct:
+that's the way it 'should' work (and now does).
+
+Another "wouldn't it be nice if..." that I thought of, after noticing all
+the 'not really' comments, was to be able to put all the bits where you
+coerce the game solver into doing the right thing in one place (say, the
+end of the file), allowing the 'pure' game dependencies to stand on their
+own.  With that in mind, I've added a syntax whereby you can modify
+attributes of things already declared, like this:
+
+    task "put painting in case" tag P_painting need painting score 6;
+    ...
+    task P_painting need rope;
+
+In order to implement this properly, I've allowed links and joins to have
+tags too, so you can refer to them elsewhere.
+
+Finally... I was thinking, after getting the documentation up to date, of
+sending you an alpha version of the next release to play around with (and
+hopefully find bugs in).  What's your preferred way of receiving it?  Ftp?
+UUencoded email?
+
+Glenn
