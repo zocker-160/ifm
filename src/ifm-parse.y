@@ -11,7 +11,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ifm.h"
+#include <vars.h>
+
+#include "ifm-map.h"
+#include "ifm-task.h"
+#include "ifm-util.h"
+
 %}
 
 %union {

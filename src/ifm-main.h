@@ -16,12 +16,6 @@
 #define O_ITEMS 0x2             /* Item list */
 #define O_TASKS 0x4             /* Task list */
 
-/* Various useful macros */
-#define STREQ(s1, s2)           !strcmp(s1, s2)
-#define ABS(x)                  ((x) > 0 ? (x) : -(x))
-#define MIN(x, y)               ((x) < (y) ? (x) : (y))
-#define MAX(x, y)               ((x) > (y) ? (x) : (y))
-
 /* External vars */
 extern char *progname;
 extern int line_number, ifm_errors, ifm_debug;

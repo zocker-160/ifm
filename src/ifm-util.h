@@ -10,6 +10,12 @@
 #ifndef IFM_UTIL_H
 #define IFM_UTIL_H
 
+/* Various useful macros */
+#define STREQ(s1, s2)           !strcmp(s1, s2)
+#define ABS(x)                  ((x) > 0 ? (x) : -(x))
+#define MIN(x, y)               ((x) < (y) ? (x) : (y))
+#define MAX(x, y)               ((x) > (y) ? (x) : (y))
+
 /* Direction stuff */
 struct d_info {
     char *sname, *lname;

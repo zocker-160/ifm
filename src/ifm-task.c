@@ -10,7 +10,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ifm.h"
+#include <vars.h>
+
+#include "ifm-main.h"
+#include "ifm-map.h"
+#include "ifm-path.h"
+#include "ifm-task.h"
+#include "ifm-util.h"
 
 /* Verbose flag */
 extern int ifm_verbose;

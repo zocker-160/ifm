@@ -13,8 +13,12 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
-#include "ifm.h"
-#include "ifm-parse.h"
+#include <vars.h>
+
+#include "ifm-driver.h"
+#include "ifm-map.h"
+#include "ifm-task.h"
+#include "ifm-util.h"
 #include "ifm-tk.h"
 #include "ifm-text.h"
 
@@ -158,8 +162,8 @@ tk_map_link(vhash *link)
     vlist *x = vh_pget(link, "X");
     vlist *y = vh_pget(link, "Y");
     int go = vh_iget(link, "GO");
-    int updown = (go == UP || go == DOWN);
-    int inout = (go == IN || go == OUT);
+    int updown = (go == D_UP || go == D_DOWN);
+    int inout = (go == D_IN || go == D_OUT);
 
     printf("AddLink");
     printf(" {%s}", vl_join(x, " "));

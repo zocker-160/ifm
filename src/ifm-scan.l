@@ -12,7 +12,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "ifm.h"
+#include <vars.h>
+
+#include "ifm-main.h"
+#include "ifm-util.h"
 #include "ifm-parse.h"
 
 /* Internal string buffer */

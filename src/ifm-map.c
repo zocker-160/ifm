@@ -10,7 +10,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ifm.h"
+#include <vars.h>
+
+#include "ifm-driver.h"
+#include "ifm-main.h"
+#include "ifm-map.h"
+#include "ifm-util.h"
 
 vhash *map = NULL;              /* The map */
 

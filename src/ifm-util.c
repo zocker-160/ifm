@@ -11,7 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "ifm.h"
+#include <vars.h>
+
+#include "ifm-main.h"
+#include "ifm-map.h"
+#include "ifm-util.h"
 
 /* Direction info (same order as direction enum list) */
 struct d_info dirinfo[] = {

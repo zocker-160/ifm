@@ -13,8 +13,13 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
-#include "ifm.h"
-#include "ifm-parse.h"
+#include <vars.h>
+
+#include "ifm-driver.h"
+#include "ifm-map.h"
+#include "ifm-task.h"
+#include "ifm-util.h"
+
 #include "ifm-text.h"
 
 /* Item function list */

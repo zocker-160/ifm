@@ -13,8 +13,10 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
-#include "ifm.h"
-#include "ifm-parse.h"
+#include <vars.h>
+#include "ifm-driver.h"
+#include "ifm-map.h"
+#include "ifm-util.h"
 #include "ifm-ps.h"
 
 /* Map function list */
@@ -288,8 +290,8 @@ ps_map_link(vhash *link)
     int special = vh_iget(link, "SPECIAL");
     int oneway = vh_iget(link, "ONEWAY");
     int go = vh_iget(link, "GO");
-    int updown = (go == UP || go == DOWN);
-    int inout = (go == IN || go == OUT);
+    int updown = (go == D_UP || go == D_DOWN);
+    int inout = (go == D_IN || go == D_OUT);
     vlist *x, *y;
     int i, np;
 
