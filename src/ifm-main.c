@@ -112,18 +112,29 @@ static void print_items(void);
 static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
 static int parse_input(char *file, int libflag, int required);
-static void print_path(void);
 static void print_version(void);
 static int select_format(char *str, int output);
+static void show_info(char *type);
+static void show_path(void);
 static void usage(void);
+
+/* Show options */
+static struct show_st {
+    char *name, *desc;
+    void (*func)(void);
+} showopts[] = {
+    { "path", "Show file search path",  show_path },
+    { "vars", "Show defined variables", var_list },
+    { NULL,   NULL,                NULL }
+};
 
 /* Main routine */
 int
 main(int argc, char *argv[])
 {
     int output = O_NONE, initfile = 1;
+    char *env, *file, *info = NULL;
     vlist *args, *list;
-    char *env, *file;
     vscalar *elt;
     vhash *opts;
 
@@ -163,14 +174,14 @@ main(int argc, char *argv[])
     v_option('d', "debug", V_OPT_FLAG, NULL,
              "Print debugging information");
 
+    v_option('s', "show", V_OPT_ARG, "type",
+             "Show program information");
+
     v_option('I', "include", V_OPT_LIST, "dir",
              "Prepend directory to search path");
 
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
-
-    v_option('\0', "showpath", V_OPT_FLAG, NULL,
-             "Print file search path");
 
     v_option('\0', "version", V_OPT_FLAG, NULL,
              "Print program version");
@@ -198,9 +209,6 @@ main(int argc, char *argv[])
         while (vl_length(list) > 0)
             vl_sunshift(ifm_search, vl_spop(list));
 
-    if (vh_exists(opts, "showpath"))
-        print_path();
-
     if (vh_exists(opts, "map"))
         output |= O_MAP;
 
@@ -221,6 +229,9 @@ main(int argc, char *argv[])
 
     if (vh_exists(opts, "debug"))
         ifm_debug = 1;
+
+    if (vh_exists(opts, "show"))
+        info = vh_sgetref(opts, "show");
 
     if ((file = vh_sgetref(opts, "output")) != NULL)
         if (freopen(file, "w", stdout) == NULL)
@@ -263,7 +274,7 @@ main(int argc, char *argv[])
             file = vs_sgetref(elt);
             parse_input(file, 0, 1);
         }
-    } else if (!parse_input(NULL, 0, 1)) {
+    } else if (info == NULL && !parse_input(NULL, 0, 1)) {
         return 1;
     }
 
@@ -314,6 +325,10 @@ main(int argc, char *argv[])
     /* Do what's required */
     if (ifm_fmt != F_NONE)
         ifm_format = drivers[ifm_fmt].name;
+
+    /* Just show info if required */
+    if (info != NULL)
+        show_info(info);
 
     if (output == O_NONE)
         printf("Syntax appears OK\n");
@@ -522,9 +537,9 @@ select_format(char *str, int output)
                 if (drivers[i].tfunc != NULL)
                     return i;
         } else {
-            if (!strcmp(drivers[i].name, str))
+            if (strcmp(drivers[i].name, str) == 0)
                 return i;
-            if (!strncmp(drivers[i].name, str, len)) {
+            if (strncmp(drivers[i].name, str, len) == 0) {
                 nmatch++;
                 match = i;
             }
@@ -625,14 +640,6 @@ fatal(char *fmt, ...)
     exit(1);
 }
 
-/* Print file search path and exit */
-static void
-print_path(void)
-{
-    printf("%s\n", vl_join(ifm_search, "\n"));
-    exit(0);
-}
-
 /* Print program version and exit */
 static void
 print_version(void)
@@ -656,6 +663,36 @@ print_version(void)
     exit(0);
 }
 
+/* Show some information */
+static void
+show_info(char *type)
+{
+    int i, match, nmatch = 0, len = strlen(type);
+
+    /* Find info type */
+    for (i = 0; showopts[i].name != NULL; i++) {
+        if (strncmp(showopts[i].name, type, len) == 0) {
+            nmatch++;
+            match = i;
+        }
+    }
+
+    if (nmatch == 0)
+        fatal("unknown info type: %s", type);
+    else if (nmatch > 1)
+        fatal("ambiguous info type: %s", type);
+
+    (*showopts[match].func)();
+    exit(0);
+}
+
+/* Print file search path */
+static void
+show_path(void)
+{
+    printf("%s\n", vl_join(ifm_search, "\n"));
+}
+
 /* Print a usage message and exit */
 static void
 usage()
@@ -663,9 +700,14 @@ usage()
     int i;
 
     v_usage("Usage: %s [options] [file...]", progname);
+
     printf("\nOutput formats (may be abbreviated):\n");
     for (i = 0; i < NUM_DRIVERS; i++)
         printf("    %-15s    %s\n", drivers[i].name, drivers[i].desc);
+
+    printf("\nShow options (may be abbreviated):\n");
+    for (i = 0; showopts[i].name != NULL; i++)
+        printf("    %-15s    %s\n", showopts[i].name, showopts[i].desc);
 
     exit(0);
 }
