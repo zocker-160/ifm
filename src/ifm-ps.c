@@ -129,7 +129,7 @@ ps_map_start(void)
     ps_room_height = var_real("room_height");
 
     /* Pack sections */
-    num_pages = pack_sections(width, height, 1);
+    num_pages = pack_sections(width, height, map_border_size);
 
     /* Print header */
     if (vh_exists(map, "TITLE"))

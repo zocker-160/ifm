@@ -90,13 +90,15 @@ fig_map_start(void)
     while (1) {
         fig_debug("trying map size: %d x %d", width, height);
 
-        if (orient != FIG_LANDSCAPE && pack_sections(width, height, 1) == 1) {
+        if (orient != FIG_LANDSCAPE &&
+            pack_sections(width, height, map_border_size) == 1) {
             orient = FIG_PORTRAIT;
             fig_debug("using portrait");
             break;
         }
 
-        if (orient != FIG_PORTRAIT && pack_sections(height, width, 1) == 1) {
+        if (orient != FIG_PORTRAIT &&
+            pack_sections(height, width, map_border_size) == 1) {
             orient = FIG_LANDSCAPE;
             tmp = page_width;
             page_width = page_height;
@@ -161,7 +163,6 @@ fig_map_start(void)
     fig_set_orientation(fig, orient);
     fig_set_papersize(fig, page_size);
 
-#if 0
     /* Draw border if required */
     if (show_border) {
         box = fig_create_box(fig,
@@ -171,20 +172,13 @@ fig_map_start(void)
         set_fillcolour(box, page_background_colour);
         fig_set_depth(box, 900);
     }
-
-    /* Add title if required */
-    if (show_title && vh_exists(map, "TITLE")) {
-        /* FINISH ME */
-    }
-#endif
 }
 
 void
 fig_map_section(vhash *sect)
 {
-    int xlen, ylen;
+    float x, y, width, height;
     vhash *text;
-    float x, y;
 
     /* Create section object */
     fig_section = fig_create_compound(fig);
@@ -196,12 +190,16 @@ fig_map_section(vhash *sect)
 
     /* Print title if required */
     if (vh_exists(sect, "TITLE")) {
-        x = vh_dget(sect, "XLEN") / 2;
-        y = vh_dget(sect, "YLEN");
-        text = fig_create_text(fig_section,
-                               MAPX(x), MAPY(y - 1.5),
-                               vh_sgetref(sect, "TITLE"));
-        fig_set_font(text, map_text_font, map_text_fontsize);
+        x = 0.0;
+        y = vh_dget(sect, "YLEN") - 1;
+        width = vh_dget(sect, "XLEN") * room_size;
+        height = room_size;
+        text = fig_create_textbox(fig_section, map_text_font,
+                                  map_text_fontsize,
+                                  FIG_JUSTIFY_CENTRE,
+                                  MAPX(x), MAPY(y),
+                                  width, height,
+                                  "%s", vh_sgetref(sect, "TITLE"));
         fig_set_depth(text, 250);
         set_colour(text, map_text_colour);
     }

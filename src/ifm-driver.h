@@ -47,7 +47,7 @@ extern float map_text_fontsize, title_fontsize, font_scale, page_margin;
 extern float room_width, room_height, room_size, page_width, page_height;
 
 extern int room_border_dashed, show_items, link_dashed, show_border;
-extern int show_title, show_tags, link_spline;
+extern int show_title, show_tags, link_spline, map_border_size;
 
 /* Advertised functions */
 extern void set_map_vars(void);

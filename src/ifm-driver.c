@@ -40,7 +40,7 @@ float map_text_fontsize, title_fontsize, font_scale, page_margin;
 float room_width, room_height, room_size, page_width, page_height;
 
 int room_border_dashed, show_items, link_dashed, show_border;
-int show_title, show_tags, link_spline;
+int show_title, show_tags, link_spline, map_border_size;
 
 /* Set map style variables */
 void
@@ -55,14 +55,16 @@ set_map_vars(void)
     SET_COLOUR(page_border_colour);
     SET_COLOUR(title_colour);
 
+    SET_INT(map_border_size);
+
     SET_FONT(map_text_font);
     SET_FONT(title_font);
 
-    SET_FONTSIZE(map_text_fontsize);
-    SET_FONTSIZE(title_fontsize);
-
     SET_REAL(font_scale);
     SET_REAL(page_margin);
+
+    SET_FONTSIZE(map_text_fontsize);
+    SET_FONTSIZE(title_fontsize);
 
     SET_STRING(page_size);
     if (!get_papersize(page_size, &page_width, &page_height))
