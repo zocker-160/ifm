@@ -82,7 +82,7 @@ main(int argc, char *argv[])
 
     /* Parse command-line arguments */
     opterr = 0;
-    while ((c = getopt(argc, argv, "f:himo:ptvD:")) != EOF) {
+    while ((c = getopt(argc, argv, "af:himo:ptvD:")) != EOF) {
 	switch (c) {
         case 'm':
             output = O_MAP;
@@ -92,6 +92,9 @@ main(int argc, char *argv[])
             break;
         case 't':
             output = O_TASKS;
+            break;
+        case 'a':
+            output = O_ALL;
             break;
         case 'f':
             format = select_format(optarg);
@@ -178,7 +181,7 @@ main(int argc, char *argv[])
     setup_sections();
 
     /* Do task setup if required */
-    if (output == O_NONE || output == O_TASKS) {
+    if (output == O_NONE || output == O_TASKS || output == O_ALL) {
         /* Connect rooms */
         status("Connecting rooms...");
         connect_rooms();
@@ -224,6 +227,11 @@ main(int argc, char *argv[])
         draw_items(format);
         break;
     case O_TASKS:
+        draw_tasks(format);
+        break;
+    case O_ALL:
+        draw_map(format);
+        draw_items(format);
         draw_tasks(format);
         break;
     }
@@ -416,6 +424,9 @@ default_format(int output)
             if (drivers[i].tfunc != NULL)
                 return i;
             break;
+        case O_ALL:
+            return i;
+            break;
         }
     }
 
@@ -515,9 +526,10 @@ usage()
 
     fprintf(stderr, "\nOptions:\n");
 
-    fprintf(stderr, fmt, "-m",         "draw map");
+    fprintf(stderr, fmt, "-m",         "print map");
     fprintf(stderr, fmt, "-i",         "print item table");
     fprintf(stderr, fmt, "-t",         "print task table");
+    fprintf(stderr, fmt, "-a",         "print all output");
     fprintf(stderr, fmt, "-f format",  "select output format");
     fprintf(stderr, fmt, "-o file",    "write output to file");
     fprintf(stderr, fmt, "-p",         "print parameters"); 

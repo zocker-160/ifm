@@ -13,8 +13,13 @@
 #ifndef CPROTO
 
 /* List of drivers to include */
+#define TK
 #define GROFF
 #define TEXT
+
+#ifdef TK
+#include "tk.drv"
+#endif
 
 #ifdef GROFF
 #include "groff.drv"
@@ -32,6 +37,13 @@ struct driver_st {
     itemfuncs *ifunc;
     taskfuncs *tfunc;
 } drivers[] = {
+#ifdef TK
+    {
+        "tk", "Interface to tkifm graphical display",
+        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs
+    },
+#endif
+
 #ifdef GROFF
     {
         "groff", "Groff with pic, tbl and -me macros",
