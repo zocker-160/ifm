@@ -37,6 +37,7 @@ static char buf[BUFSIZ];
 
 /* Internal functions */
 static void add_task(vhash *task);
+static void check_cycles(void);
 static int do_task(vhash *task, int print);
 static void drop_item(vhash *item, vhash *room, vlist *until, int print);
 static void filter_tasks(void);
@@ -45,6 +46,7 @@ static void invert_items(vhash *obj, char *attr);
 static vhash *new_task(int type, vhash *data);
 static void order_tasks(vhash *before, vhash *after);
 static int task_status(vhash *room, vhash *step);
+static void warn_failure(void);
 
 /* Add a task to the task list */
 static void
@@ -58,6 +60,75 @@ add_task(vhash *task)
 
     vl_ppush(tasklist, task);
     vh_pstore(task, "DEPEND", vl_create());
+}
+
+/* Check task list for cyclic dependencies */
+static void
+check_cycles(void)
+{
+    char *before, *after, *line, *id;
+    vlist *list, *tsort, *cycles;
+    int count = 0;
+    vscalar *elt;
+    vhash *step;
+    vbuffer *b;
+    vgraph *g;
+
+    /* Build directed graph */
+    g = vg_create();
+
+    vl_foreach(elt, tasklist) {
+        step = vs_pget(elt);
+        sprintf(buf, "T%d", ++count);
+        vh_sstore(step, "ID", buf);
+        vg_node_pstore(g, buf, step);
+    }
+
+    vl_foreach(elt, tasklist) {
+        step = vs_pget(elt);
+        if ((list = vh_pget(step, "DEPEND")) == NULL)
+            continue;
+
+        after = vh_sgetref(step, "ID");
+        vl_foreach(elt, list) {
+            step = vs_pget(elt);
+            before = vh_sgetref(step, "ID");
+            vg_link_oneway(g, before, after);
+        }
+    }
+
+    /* Do topological sort */
+    if ((tsort = vg_tsort(g)) != NULL) {
+        vl_destroy(tsort);
+        vg_destroy(g);
+        return;
+    }
+
+    /* Cycles found -- give error and die */
+    b = vb_create();
+    cycles = vg_tsort_cycles();
+    vl_foreach(elt, cycles) {
+        list = vs_pget(elt);
+        vl_foreach(elt, list) {
+            id = vs_sgetref(elt);
+            step = vg_node_pget(g, id);
+            vs_sstore(elt, vh_sgetref(step, "DESC"));
+        }
+
+        line = vl_join(list, " -> ");
+        list = vl_filltext(line, 65);
+
+        vb_puts(b, "   cycle:\n");
+        vl_foreach(elt, list) {
+            vb_puts(b, "      ");
+            vb_puts(b, vs_sgetref(elt));
+            vb_puts(b, "\n");
+        }
+    }
+
+    count = vl_length(cycles);
+    fatal("can't solve game (%d cyclic task dependenc%s)\n%s",
+          count, (count == 1 ? "y" : "ies"), vb_get(b));
 }
 
 /* Perform a task */
@@ -514,6 +585,27 @@ order_tasks(vhash *before, vhash *after)
     } while (after != NULL && after != start);
 }
 
+/* Return a task required by a given task, if any */
+vhash *
+require_task(vhash *step)
+{
+    vhash *before;
+    vlist *depend;
+    vscalar *elt;
+
+    if ((depend = vh_pget(step, "DEPEND")) != NULL) {
+        vl_foreach(elt, depend) {
+            before = vs_pget(elt);
+            if (!vh_iget(before, "DONE")) {
+                vl_break(depend);
+                return before;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 /* Build the initial task list */
 void
 setup_tasks(void)
@@ -839,13 +931,16 @@ void
 solve_game(void)
 {
     vhash *step, *trystep, *item, *task, *next;
-    int drop, safeflag, tasksleft, status;
+    int drop, tasksleft, status;
     vlist *itasks;
     vscalar *elt;
 
     /* Don't bother if no tasks */
     if (tasklist == NULL || vl_length(tasklist) == 0)
         return;
+
+    /* Check for cyclic task dependencies */
+    check_cycles();
 
     /* Build initial inventory */
     vl_foreach(elt, items) {
@@ -901,7 +996,6 @@ solve_game(void)
 
         /* Search for next task */
         step = NULL;
-        safeflag = 0;
         tasksleft = 0;
 
         vl_foreach(elt, tasklist) {
@@ -919,18 +1013,17 @@ solve_game(void)
             if (next != NULL && trystep != next)
                 continue;
 
-            /* If we have a safe task, skip the rest */
-            if (safeflag)
-                continue;
-
             /* Check task is possible */
             if ((status = task_status(location, trystep)) == TS_INVALID)
                 continue;
 
-            if (!safeflag && status == TS_SAFE) {
-                safeflag = 1;
+            if (status == TS_SAFE) {
+                /* A safe task -- choose it */
                 step = trystep;
+                vl_break(tasklist);
+                break;
             } else if (step == NULL) {
+                /* The closest unsafe task */
                 step = trystep;
             }
         }
@@ -942,45 +1035,12 @@ solve_game(void)
             next = vh_pget(step, "NEXT");
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
-            vlist *tmp = vl_create();
-            char *sep = "\n    ";
-
-            vl_foreach(elt, tasklist) {
-                step = vs_pget(elt);
-                if (!vh_iget(step, "DONE"))
-                    vl_spush(tmp, vh_sgetref(step, "DESC"));
-            }
-
-            warn("can't solve game (%d tasks not done)%s%s",
-                 vl_length(tmp), sep, vl_join(tmp, sep));
-
-            vl_destroy(tmp);
+            warn_failure();
             break;
         } else {
             DEBUG0(2, "no more tasks\n");
         }
     } while (tasksleft);
-}
-
-/* Return a task required by a given task, if any */
-vhash *
-require_task(vhash *step)
-{
-    vhash *before;
-    vlist *depend;
-    vscalar *elt;
-
-    if ((depend = vh_pget(step, "DEPEND")) != NULL) {
-        vl_foreach(elt, depend) {
-            before = vs_pget(elt);
-            if (!vh_iget(before, "DONE")) {
-                vl_break(depend);
-                return before;
-            }
-        }
-    }
-
-    return NULL;
 }
 
 /* Return current status of a task */
@@ -1044,4 +1104,78 @@ task_status(vhash *room, vhash *step)
     }
 
     return (safemsg == NULL ? TS_SAFE : TS_UNSAFE);
+}
+
+/* Warn about failure to solve the game */
+static void
+warn_failure(void)
+{
+    char *tdesc, *rdesc, *reason, *entries;
+    vhash *step, *need, *room, *reasons;
+    vlist *list, *keys;
+    int count = 0;
+    vscalar *elt;
+    vbuffer *b;
+
+    /* Record which tasks can't be done */
+    reasons = vh_create();
+    vl_foreach(elt, tasklist) {
+        step = vs_pget(elt);
+        if (vh_iget(step, "DONE"))
+            continue;
+
+        count++;
+        tdesc = vh_sgetref(step, "DESC");
+
+        /* Build failure reason */
+        if ((need = require_task(step)) != NULL) {
+            strcpy(buf, "requires previous task to be done first");
+            rdesc = NULL;
+        } else {
+            room = vh_pget(step, "ROOM");
+            rdesc = vh_sgetref(room, "DESC");
+            strcpy(buf, "no path to task room");
+        }
+
+        /* Add it to list */
+        if ((list = vh_pget(reasons, buf)) == NULL) {
+            list = vl_create();
+            vh_pstore(reasons, buf, list);
+        }
+
+        if (rdesc == NULL)
+            strcpy(buf, tdesc);
+        else
+            sprintf(buf, "%s (%s)", tdesc, rdesc);
+
+        vl_spush(list, buf);
+    }
+
+    /* Build warning message */
+    b = vb_create();
+    vb_puts(b, "   final location:\n      ");
+    vb_puts(b, vh_sgetref(location, "DESC"));
+    vb_puts(b, "\n"); 
+
+    keys = vh_sortkeys(reasons, NULL);
+    vl_foreach(elt, keys) {
+        reason = vs_sgetref(elt);
+        list = vh_pget(reasons, reason);
+        entries = vl_join(list, ", ");
+        list = vl_filltext(entries, 65);
+
+        vb_puts(b, "   ");
+        vb_puts(b, reason);
+        vb_puts(b, ":\n");
+
+        vl_foreach(elt, list) {
+            vb_puts(b, "      ");
+            vb_puts(b, vs_sgetref(elt));
+            vb_puts(b, "\n");
+        }
+    }
+
+    /* Print it */
+    warn("can't solve game (%d task%s not done)\n%s",
+         count, (count == 1 ? "" : "s"), vb_get(b));
 }
