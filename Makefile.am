@@ -6,6 +6,8 @@ DIST_SUBDIRS		= vars src lib doc tests scr2ifm tkifm
 EXTRA_DIST		= README.unix README.win32 README.maps
 
 dist-hook:;		cp -rp $(srcdir)/config $(srcdir)/contrib $(distdir)
+			rm -f $(distdir)/config/config.h
+			rm -f $(distdir)/config/stamp-h
 
 ## Stuff for Win32 distribution.
 
