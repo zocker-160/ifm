@@ -611,10 +611,9 @@ void
 setup_tasks(void)
 {
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
-    vlist *list, *itasks, *rlist, *newlist;
+    vlist *list, *itasks, *rlist;
     vhash *step, *istep, *oitem;
     vscalar *elt;
-    int num = 0;
     char *msg;
 
     DEBUG0(0, "\nSetting up tasks...");
@@ -1111,7 +1110,7 @@ static void
 warn_failure(void)
 {
     char *tdesc, *rdesc, *reason, *entries;
-    vhash *step, *need, *room, *reasons;
+    vhash *step, *room, *reasons;
     vlist *list, *keys;
     int count = 0;
     vscalar *elt;
@@ -1128,7 +1127,7 @@ warn_failure(void)
         tdesc = vh_sgetref(step, "DESC");
 
         /* Build failure reason */
-        if ((need = require_task(step)) != NULL) {
+        if (require_task(step) != NULL) {
             strcpy(buf, "requires previous task to be done first");
             rdesc = NULL;
         } else {
