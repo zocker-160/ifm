@@ -73,7 +73,9 @@ docdir = $(prefix)/doc/ifm
 
 # General rules.
 
-SUFFIXES = .lyx .ps .tex .aux .pdf .eps .dia
+SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex
+
+IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
 
 HTML_TITLE = IFM Version $(VERSION)
 HTML_ADDR = zondo@pillock.freeserve.co.uk
@@ -90,7 +92,7 @@ LATEX2HTML = latex2html $(HTML_DISP) $(HTML_IMAGE) $(HTML_NAV) $(HTML_FILE) $(HT
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr	advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	tkifm.txt
+EXTRA_DIST = ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr	advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	tkifm.txt
 
 
 # Cleaning stuff.
@@ -113,7 +115,7 @@ TAR = gtar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .aux .dia .eps .lyx .pdf .ps .tex
+.SUFFIXES: .aux .eps .fig .ifm .lyx .pdf .png .ps .tex
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/Makefile
 
@@ -217,14 +219,17 @@ pdf: ifm.pdf
 
 ps: ifm.ps
 
-fig: map.eps
+fig: example.eps advent.eps
 
 .lyx.ps:;	lyx --export ps $< > $@
 .lyx.tex:;	lyx --export latex $< > $@
 .ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
 .lyx.pdf:;	tex2pdf $<
-.dia.eps:;	dia -e $@ $<
+.ifm.fig:;	$(IFM) -m -f fig -o $@ $<
+.fig.eps:;	fig2dev -L eps $< > $@
+.fig.png:;	fig2dev -L png $< > $@
+.fig.tex:;	fig2dev -L latex $< > $@
 
 # Stuff for generating HTML.
 

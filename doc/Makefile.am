@@ -10,18 +10,23 @@ pdf: ifm.pdf
 
 ps: ifm.ps
 
-fig: map.eps
+fig: example.eps advent.eps
 
 # General rules.
 
-SUFFIXES = .lyx .ps .tex .aux .pdf .eps .dia
+SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex
+
+IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
 
 .lyx.ps:;	lyx --export ps $< > $@
 .lyx.tex:;	lyx --export latex $< > $@
 .ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
 .lyx.pdf:;	tex2pdf $<
-.dia.eps:;	dia -e $@ $<
+.ifm.fig:;	$(IFM) -m -f fig -o $@ $<
+.fig.eps:;	fig2dev -L eps $< > $@
+.fig.png:;	fig2dev -L png $< > $@
+.fig.tex:;	fig2dev -L latex $< > $@
 
 # Stuff for generating HTML.
 
@@ -65,7 +70,7 @@ install-pdf:
 # Distribution stuff.
 
 EXTRA_DIST = ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr	\
-advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	\
+advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	\
 tkifm.txt
 
 dist-doc: $(EXTRA_DIST)
