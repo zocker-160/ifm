@@ -59,10 +59,6 @@ esac],[install_vars=no])
 AC_CACHE_CHECK(whether to install support library, ac_cv_install_vars,
 [ac_cv_install_vars=$install_vars])
 
-dnl Add common Makefile rules.
-common_rules=$srcdir/etc/Makefile.add
-AC_SUBST_FILE(common_rules)
-
 dnl Write Makefiles.
 AC_OUTPUT(
 Makefile

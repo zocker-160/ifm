@@ -17,5 +17,3 @@ scr2ifm: scr2ifm.pl
 	chmod +x $@
 
 CLEANFILES = tkifm scr2ifm
-
-@common_rules@
