@@ -19,7 +19,6 @@ extern void tk_map_start(void);
 extern void tk_map_section(vhash *sect);
 extern void tk_map_room(vhash *room);
 extern void tk_map_link(vhash *link);
-extern void tk_map_finish(void);
 extern void tk_item_start(void);
 extern void tk_item_entry(vhash *item);
 extern void tk_item_finish(void);
