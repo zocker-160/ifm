@@ -35,8 +35,6 @@ Version 4.2
 \layout Author
 
 by Glenn Hutchings 
-\family typewriter 
-<zondo@pillock.freeserve.co.uk>
 \layout Standard
 \pagebreak_top \pagebreak_bottom 
 
@@ -110,7 +108,7 @@ Several output formats are available, including PostScript and ASCII text
  Some of the output formats have a set of variables which control the appearance
  of the output -- see Section\SpecialChar ~
 
-\begin_inset LatexCommand \ref{sec:variables}
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
@@ -2310,7 +2308,7 @@ You can change the appearance of many map features according to your taste.
  This section tells you how to use variables -- for a complete list of the
  customization variables available, see Section\SpecialChar ~
 
-\begin_inset LatexCommand \ref{sec:variables}
+\begin_inset LatexCommand \ref{sec:output-variables}
 
 \end_inset 
 
@@ -2433,7 +2431,7 @@ Water.ifm
 \layout Subsection
 
 Output Variables
-\begin_inset LatexCommand \label{sec:variables}
+\begin_inset LatexCommand \label{sec:output-variables}
 
 \end_inset 
 
@@ -2507,65 +2505,2790 @@ Language
 \end_inset 
 
 
-\layout Standard
-
-This section gives a formal description of the IFM input language.
 \layout Subsection
 
 Symbols
+\begin_inset LatexCommand \label{sec:symbols}
+
+\end_inset 
+
+
+\layout Standard
+
+In the following sections, these symbols are used:
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+ID
+\family default 
+ A name starting with a letter, followed by any combination of upper- and
+ lowercase letters or numbers or an underscore.
+ For example, 
+\family typewriter 
+Dense_Forest
+\family default 
+.
+ IDs are not allowed to clash with reserved words (e.g.\SpecialChar ~
+
+\family typewriter 
+room
+\family default 
+, or 
+\family typewriter 
+tag
+\family default 
+).
+ One way to avoid this is to capitalize all tags (reserved words are all
+ in lowercase).
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+STRING
+\family default 
+ Any sequence of characters, in double-quotes.
+ For example, 
+\family typewriter 
+"Black\SpecialChar ~
+Rod"
+\family default 
+.
+ To get a double-quote inside a string, quote it using a backslash, like
+ this:
+\begin_deeper 
+\layout LyX-Code
+\align block 
+"Ground Floor, 
+\backslash 
+"A
+\backslash 
+" Block"
+\layout Standard
+
+You can continue strings on several lines -- a newline-and-whitespace sequence
+ is translated into a single space, just like in TADS and Inform.
+\layout Standard
+
+Note that dollars (
+\family typewriter 
+$
+\family default 
+) are special inside strings -- they mark the start of a variable substitution.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+ for details.
+ If you want a literal dollar symbol in a string, use 
+\family typewriter 
+$$
+\family default 
+.
+\end_deeper 
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+NUMBER
+\family default 
+ A number, or an arithmetic expression (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:expressions}
+
+\end_inset 
+
+).
+ If the context requires an integer, the number is silently rounded to the
+ larges integer not greater than this value.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+COMPASS
+\family default 
+ A compass direction, which can be abbreviated or in full (e.g.\SpecialChar ~
+
+\family typewriter 
+n
+\family default 
+, 
+\family typewriter 
+se
+\family default 
+, 
+\family typewriter 
+northwest
+\family default 
+, etc).
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+OTHERDIR
+\family default 
+ One of 
+\family typewriter 
+up
+\family default 
+, 
+\family typewriter 
+down
+\family default 
+, 
+\family typewriter 
+in
+\family default 
+ or 
+\family typewriter 
+out
+\family default 
+.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+[\SpecialChar \ldots{}
+]
+\family default 
+ An optional part.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+A\SpecialChar ~
+|\SpecialChar ~
+B
+\family default 
+ Either 
+\family typewriter 
+A
+\family default 
+ or 
+\family typewriter 
+B
+\family default 
+.
 \layout Subsection
 
 Format
+\layout Standard
+
+IFM generally has a free-format layout -- i.e.\SpecialChar ~
+whitespace may be placed anywhere
+ to increase readability.
+ The only exception is inside quoted strings, where spaces are significant.
+ Comments may be added, starting with a hash (
+\family typewriter 
+#
+\family default 
+) and continuing to the end of the line.
+ All commands are terminated with a semicolon.
 \layout Subsection
 
 Control
+\layout Standard
+
+The overall title of the map may be set using the command
+\layout LyX-Code
+
+title STRING;
+\layout Standard
+
+If a map has several sections, you can set the title of each section using
+ the command
+\layout LyX-Code
+
+map STRING;
+\layout Standard
+
+This sets the title of the next map section.
+ Also, any variables set after this command are local to the next map section
+ (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+).
+ If you use this command at all, then the number of uses should be the same
+ as the actual number of map sections.
+ But note that the 
+\family typewriter 
+map
+\family default 
+ command doesn't have to be near the room that starts a new map section,
+ so you could (for example) put all the 
+\family typewriter 
+map
+\family default 
+ commands and their local variables at the start of the input.
 \layout Subsection
 
 Tags
+\layout Standard
+
+All IFM objects may be given tag names, so that you can refer to them in
+ other commands.
+ Tags for different types of object are independent -- for example, you
+ could have a room and an item with the same tag.
+ However, tags for similar objects must be unique.
+\layout Standard
+
+In many cases, you are allowed to refer to a tag name anywhere, even earlier
+ in the file that you defined it (as long as the tag is defined somewhere!).
+ Exceptions are the room 
+\family typewriter 
+from\SpecialChar ~
+ID
+\family default 
+ clause (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:rooms}
+
+\end_inset 
+
+) and tags in commands that modify existing objects (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:commands}
+
+\end_inset 
+
+) -- these tags must be defined before being used.
+\layout Standard
+
+The special tag 
+\family typewriter 
+last
+\family default 
+ may be used to refer to the last object that was defined (depending on
+ the context).
+ Also, within an individual command, the special tag 
+\family typewriter 
+it
+\family default 
+ may be used to refer to the most recent object tag.
 \layout Subsection
 
 Commands
+\begin_inset LatexCommand \label{sec:commands}
+
+\end_inset 
+
+
+\layout Standard
+
+There are five different types of object in IFM: rooms, items, links, joins
+ and tasks.
+ Each is created using its own command, the general format of which is:
+\layout LyX-Code
+
+<type> <body> [attribute-list];
+\layout Standard
+
+For rooms, items and tasks, 
+\family typewriter 
+<body>
+\family default 
+ is just a string description.
+ For links and joins, it specifies two room tags to link or join together.
+\layout Standard
+
+Many of the attributes or objects accept a list of tags as arguments.
+ All of these, if specified more than once in the same object, concatenate
+ the lists together.
+\layout Standard
+
+Once an object as been declared with a tag name, its attributes can be modified
+ by later commands referring to that tag, like this:
+\layout LyX-Code
+
+<type> ID [attribute-list];
+\layout Standard
+
+where 
+\family typewriter 
+ID
+\family default 
+ is the tag name of the object.
+ Note that the tag must be defined earlier in the file than it is used.
 \layout Subsection
 
 Rooms
+\begin_inset LatexCommand \label{sec:rooms}
+
+\end_inset 
+
+
+\layout Standard
+
+A new room is added using the command
+\layout LyX-Code
+
+room STRING [attribute-list];
+\layout Standard
+
+where 
+\family typewriter 
+STRING
+\family default 
+ is a description of the room.
+ Room attributes can be:
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+tag\SpecialChar ~
+ID
+\family default 
+ Give the room a tag name, so that you can refer to it elsewhere.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+dir\SpecialChar ~
+COMPASS\SpecialChar ~
+[NUMBER]\SpecialChar ~
+[COMPASS\SpecialChar ~
+[NUMBER]\SpecialChar \ldots{}
+]\SpecialChar ~
+[from ID] \SpecialChar ~
+
+\newline 
+
+\family default 
+Specify the position of the room relative to the room with the given tag
+ ID (which must be defined before it is used).
+ If no 
+\family typewriter 
+from
+\family default 
+ clause is specified, the last defined room is used instead.
+ There can be more than one direction given -- the new room is placed relative
+ to the previous one using them.
+ Following a direction with a number means to repeat it that many times.
+\begin_deeper 
+\layout Standard
+
+The 
+\family typewriter 
+dir
+\family default 
+ clause creates an implicit link between this room and the previous one.
+ Some of the room attributes below behave differently depending on whether
+ they appear before or after the 
+\family typewriter 
+dir
+\family default 
+ clause in the attribute list.
+\layout Standard
+
+If the room is given a tag name, then the implicit link will be given the
+ same tag.
+\end_deeper 
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+link\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+Specify other rooms that this room links to.
+ Note that this creates a link with no special attributes -- use the standalone
+ 
+\family typewriter 
+link
+\family default 
+ command for that (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:links}
+
+\end_inset 
+
+).
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+join\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+Specify rooms on other map sections that this room joins to.
+ Note that this creates a join with no special attributes -- use the standalone
+ 
+\family typewriter 
+join
+\family default 
+ command for that (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:joins}
+
+\end_inset 
+
+).
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+exit\SpecialChar ~
+COMPASS\SpecialChar ~
+[COMPASS\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+Indicate which other directions the room has exits in.
+ Room exits in a particular direction are marked on the map only if there
+ is no link going to or from the room in that direction.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+note\SpecialChar ~
+STRING \SpecialChar ~
+
+\newline 
+
+\family default 
+Append a note to the room's note list.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+score\SpecialChar ~
+NUMBER \SpecialChar ~
+
+\newline 
+
+\family default 
+Indicate that you score the specified number of points when visiting this
+ room for the first time.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+need\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+If this appears before a 
+\family typewriter 
+dir
+\family default 
+ clause, indicate that you can only enter this room after getting the specified
+ items.
+ If it appears afterwards, it applies to the implicit link instead.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+after\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+If this appears before a 
+\family typewriter 
+dir
+\family default 
+ clause, indicate that you can only enter this room after doing the specified
+ tasks.
+ If it appears afterwards, it applies to the implicit link instead.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+before\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+If this appears before a 
+\family typewriter 
+dir
+\family default 
+ clause, indicate that you can only enter this room before doing the specified
+ tasks.
+ If it appears afterwards, it applies to the implicit link instead.
+ Those tasks are marked unsafe.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+leave\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+If this appears before a 
+\family typewriter 
+dir
+\family default 
+ clause, indicate that the specified items, if carried, must be left behind
+ when entering the room.
+ If it appears afterwards, it applies to the implicit link instead.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+leave\SpecialChar ~
+all\SpecialChar ~
+[except\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]] \SpecialChar ~
+
+\newline 
+
+\family default 
+As above, except indicate that 
+\emph on 
+all
+\emph default 
+ items must be left behind.
+ The 
+\family typewriter 
+except
+\family default 
+ clause can be used to omit specific items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+go\SpecialChar ~
+OTHERDIR \SpecialChar ~
+
+\newline 
+
+\family default 
+Indicate that the link to this room is in the specified direction.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+STRING \SpecialChar ~
+
+\newline 
+
+\family default 
+Specify the command you type to move to this room from the previous one.
+ If no 
+\family typewriter 
+cmd
+\family default 
+ clause is given, the command is deduced from the 
+\family typewriter 
+go
+\family default 
+ clause.
+ If that isn't specified, the command will be deduced from the 
+\family typewriter 
+dir
+\family default 
+ clause.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+from\SpecialChar ~
+STRING \SpecialChar ~
+
+\newline 
+
+\family default 
+As above, but this specifies the command to go in the other direction.
+ This defaults to the 
+\family typewriter 
+cmd\SpecialChar ~
+to
+\family default 
+ command, if specified.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+to\SpecialChar ~
+STRING \SpecialChar ~
+
+\newline 
+
+\family default 
+This is identical to 
+\family typewriter 
+cmd
+\family default 
+ on its own, and only exists for symmetry.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+oneway
+\family default 
+ Indicate that the return journey from this room to the previous one is
+ not possible.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+length\SpecialChar ~
+NUMBER \SpecialChar ~
+
+\newline 
+
+\family default 
+Indicate that the direction link to this room has the specified length (default
+ 1).
+ This only affects the calculation of the nearest task when solving the
+ game -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:tasks}
+
+\end_inset 
+
+.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+start
+\family default 
+ Indicate that this is the room the player starts in.
+ Default is for the first room mentioned to be the start room.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+finish
+\family default 
+ Indicate that entering this room finishes the game.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+nolink
+\family default 
+ Indicate that this room does not have an implicit link with the previous
+ one via the 
+\family typewriter 
+dir
+\family default 
+ clause.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+nopath
+\family default 
+ Indicate that the implicit link from this room should not be used by the
+ game solver.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+style\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+] \SpecialChar ~
+
+\newline 
+
+\family default 
+Add a list of display styles to the room (and also the implicit link, if
+ any).
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:styles}
+
+\end_inset 
+
+.
 \layout Subsection
 
 Items
+\begin_inset LatexCommand \label{sec:items}
+
+\end_inset 
+
+
+\layout Standard
+
+An item is introduced using the command
+\layout LyX-Code
+
+item STRING [attribute-list];
+\layout Standard
+
+where 
+\family typewriter 
+STRING
+\family default 
+ is the item description.
+ Item attributes can be:
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+tag\SpecialChar ~
+ID 
+\family default 
+Give the item a tag name, so you can refer to it elsewhere.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+in\SpecialChar ~
+ID 
+\family default 
+Set the initial location of this item.
+ Default is the last defined room.
+ If there is no last room (i.e.\SpecialChar ~
+an item was declared before any room was declared),
+ then this item is initially carried by the player.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+note\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+Append a note to the item's note list.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+score\SpecialChar ~
+NUMBER 
+\family default 
+\SpecialChar ~
+
+\newline 
+Indicate that you get points the first time you pick this item up.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+hidden
+\family default 
+ Indicate that this item is not immediately obvious when entering the room.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+keep
+\family default 
+ Indicate that this item shouldn't be dropped (no "drop" task should be
+ generated).
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+given
+\family default 
+ Indicate that this item didn't have to be picked up when it entered the
+ inventory (no "get" task should be generated).
+ This attribute is obsolete -- you should use the task 
+\family typewriter 
+give
+\family default 
+ clause instead (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:tasks}
+
+\end_inset 
+
+).
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+lost
+\family default 
+ Indicate that this item wasn't dropped when it left the inventory (no "drop"
+ task should be generated).
+ Normally you should use the task 
+\family typewriter 
+drop
+\family default 
+ or 
+\family typewriter 
+lose
+\family default 
+ clauses instead (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:tasks}
+
+\end_inset 
+
+).
+ The only use for this attribute is for items that are left behind due to
+ a 
+\family typewriter 
+leave
+\family default 
+ clause.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+need\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only pick this item up after getting the specified
+ items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+after\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate you can only pick this item up after the specified tasks are done.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+before\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate you can only pick this item up before the specified tasks are done.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+finish
+\family default 
+ Indicate that getting this item finishes the game.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+style\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Add a list of display styles to the item.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:styles}
+
+\end_inset 
+
+.
 \layout Subsection
 
 Links
+\begin_inset LatexCommand \label{sec:links}
+
+\end_inset 
+
+
+\layout Standard
+
+You can create extra room links using the command
+\layout LyX-Code
+
+link ID to ID [attribute-list];
+\layout Standard
+
+and the following attributes may be specified:
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+tag\SpecialChar ~
+ID
+\family default 
+ Give the link a tag name, so you can refer to it elsewhere.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+dir\SpecialChar ~
+COMPASS\SpecialChar ~
+[COMPASS\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Set the intermediate directions that this link travels in, in the same manner
+ as for rooms.
+ Note that if you omit the final direction to the linked room, it is added
+ automatically.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+go\SpecialChar ~
+OTHERDIR
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the link is in the specified direction.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+Specify the command you type to go in this direction.
+ If no 
+\family typewriter 
+cmd
+\family default 
+ clause is given, the command is deduced from the 
+\family typewriter 
+go
+\family default 
+ clause.
+ If that isn't specified, the command will be deduced from the 
+\family typewriter 
+dir
+\family default 
+ clause.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+from\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+As above, but this specifies the command to go in the other direction.
+ This defaults to the 
+\family typewriter 
+cmd\SpecialChar ~
+to
+\family default 
+ command, if specified.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+to\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+This is identical to 
+\family typewriter 
+cmd
+\family default 
+ on its own, and only exists for symmetry.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+oneway
+\family default 
+ Indicate that this is a one-way link, in a similar manner to the room attribute
+ of the same name.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+hidden
+\family default 
+ Indicate that this link should not be drawn on the map.
+ Hidden links are still used when solving the game.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+nopath
+\family default 
+ Indicate that this link should not be used by the game solver.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+length\SpecialChar ~
+NUMBER
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that this link has the specified length (default 1).
+ This only affects the calculation of the nearest task when solving the
+ game -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:tasks}
+
+\end_inset 
+
+.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+need\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only go in this direction after getting the specified
+ items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+after\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only go in this direction after doing the specified
+ tasks.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+before\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only go in this direction before doing the specified
+ tasks.
+ These tasks are marked unsafe.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+leave\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the specified items, if carried, must be left behind when
+ using this connection.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+leave\SpecialChar ~
+all\SpecialChar ~
+[except\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]]
+\family default 
+ \SpecialChar ~
+
+\newline 
+As above, except indicate that 
+\emph on 
+all
+\emph default 
+ items must be left behind.
+ The 
+\family typewriter 
+except
+\family default 
+ clause can be used to omit specific items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+style\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Add a list of display styles to the link.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:styles}
+
+\end_inset 
+
+.
 \layout Subsection
 
 Joins
+\begin_inset LatexCommand \label{sec:joins}
+
+\end_inset 
+
+
+\layout Standard
+
+There is a standalone 
+\family typewriter 
+join
+\family default 
+ command which joins two rooms on different map sections:
+\layout LyX-Code
+
+join ID to ID [attribute-list];
+\layout Standard
+
+The following attributes may be specified:
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+tag\SpecialChar ~
+ID
+\family default 
+ Give the join a tag name, so you can refer to it elsewhere.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+go\SpecialChar ~
+COMPASS\SpecialChar ~
+|\SpecialChar ~
+OTHERDIR
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the join to this room is in the specified direction.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+Specify the command you type to go in this direction.
+ If no 
+\family typewriter 
+cmd
+\family default 
+ clause is given, the command is deduced from the 
+\family typewriter 
+go
+\family default 
+ clause.
+ If that isn't specified, the command will be undefined.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+from\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+As above, but this specifies the command to go in the other direction.
+ This defaults to the 
+\family typewriter 
+cmd\SpecialChar ~
+to
+\family default 
+ command, if specified.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+to\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+This is identical to 
+\family typewriter 
+cmd
+\family default 
+ on its own, and only exists for symmetry.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+oneway
+\family default 
+ Indicate that this is a one-way join, in a similar manner to the room attribute
+ of the same name.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+hidden
+\family default 
+ Indicate that this join should not be drawn on the map.
+ Hidden joins are still used when solving the game.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+nopath
+\family default 
+ Indicate that this join should not be used by the game solver.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+length\SpecialChar ~
+NUMBER
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that this join has the specified length (default 1).
+ This only affects the calculation of the nearest task when solving the
+ game -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:tasks}
+
+\end_inset 
+
+.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+need\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only go in this direction after getting the specified
+ items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+after\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only go in this direction after doing the specified
+ tasks.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+before\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you can only go in this direction before doing the specified
+ tasks.
+ These tasks are marked unsafe.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+leave\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the specified items, if carried, must be left behind when
+ using this connection.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+leave\SpecialChar ~
+all\SpecialChar ~
+[except\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]]
+\family default 
+ \SpecialChar ~
+
+\newline 
+As above, except indicate that 
+\emph on 
+all
+\emph default 
+ items must be left behind.
+ The 
+\family typewriter 
+except
+\family default 
+ clause can be used to omit specific items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+style\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Add a list of display styles to the join.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:styles}
+
+\end_inset 
+
+.
 \layout Subsection
 
 Tasks
+\begin_inset LatexCommand \label{sec:tasks}
+
+\end_inset 
+
+
+\layout Standard
+
+You can indicate tasks which need to be done in order to solve the game
+ using the 'task' command
+\layout LyX-Code
+
+task STRING [attribute-list];
+\layout Standard
+
+and these are the available attributes:
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+tag\SpecialChar ~
+ID
+\family default 
+ Give the task a tag name, so you can refer to it elsewhere.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+in\SpecialChar ~
+ID
+\family default 
+ Specify the room the task must be done in.
+ If this clause is omitted, it defaults to the last defined room.
+ You can use the special word 
+\family typewriter 
+any
+\family default 
+ to indicate that the task may be performed anywhere.
+ A task declared before any room is equivalent to saying 
+\family typewriter 
+in\SpecialChar ~
+any
+\family default 
+.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+need\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that the specified items are required before you can do this task.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+after\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that this task can only be done after all the specified tasks have
+ been done.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+follow\SpecialChar ~
+ID
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that this task must be done immediately after the specified one.
+ Not even a "drop item" task is allowed in between.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+get\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that doing this task enables you to get the specified items, and
+ must be done before you can get them.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+give\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that doing this task puts the specified items straight into your
+ inventory, wherever they happen to be.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+lose\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that doing this task causes the specified items to be lost.
+ This implies that all tasks which need these items must be done before
+ this one.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+drop\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]\SpecialChar ~
+[in\SpecialChar ~
+ID]\SpecialChar ~
+[until\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that doing this task drops the specified items in the current room
+ (or the room indicated by the 
+\family typewriter 
+in
+\family default 
+ clause) if you're carrying them.
+ No "drop" message is generated.
+ If there's an 
+\family typewriter 
+until
+\family default 
+ clause, you can't retrieve the items until the specified tasks have been
+ done.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+drop\SpecialChar ~
+all\SpecialChar ~
+[except\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]]\SpecialChar ~
+[in\SpecialChar ~
+ID]\SpecialChar ~
+[until\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]]
+\family default 
+ \SpecialChar ~
+
+\newline 
+As above, but drop everything you're carrying.
+ The 
+\family typewriter 
+except
+\family default 
+ clause can be used to omit specific items.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+goto\SpecialChar ~
+ID
+\family default 
+ Indicate that you get "teleported" to the specified room when this task
+ is done.
+ This happens after "give" and "drop" actions.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+safe
+\family default 
+ Mark this task as safe -- i.e.\SpecialChar ~
+one that can't cause the game solver to get
+ stuck.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+finish
+\family default 
+ Indicate that doing this task finishes the game.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+score\SpecialChar ~
+NUMBER
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that you get the specified score for doing this task.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+note\SpecialChar ~
+STRING
+\family default 
+ \SpecialChar ~
+
+\newline 
+Append a note to the task's note list.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+STRING\SpecialChar ~
+[NUMBER]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Specify the exact command you type to do the task.
+ If a number follows the command, do the command that many times.
+ Multiple 
+\family typewriter 
+cmd
+\family default 
+ clauses concatenate into a list of commands.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+cmd\SpecialChar ~
+none
+\family default 
+ \SpecialChar ~
+
+\newline 
+Indicate that no command is required to do this task.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+style\SpecialChar ~
+ID\SpecialChar ~
+[ID\SpecialChar \ldots{}
+]
+\family default 
+ \SpecialChar ~
+
+\newline 
+Add a list of display styles to the task.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:styles}
+
+\end_inset 
+
+.
 \layout Subsection
 
 Variables
+\begin_inset LatexCommand \label{sec:variables}
+
+\end_inset 
+
+
+\layout Standard
+
+Various aspects of output are controlled by variables.
+ These are set using the following syntax:
+\layout LyX-Code
+
+[FORMAT] IDENT = NUMBER | STRING | undef [in style ID];
+\layout Standard
+
+
+\family typewriter 
+FORMAT
+\family default 
+, if specified, is the name of a specific output format -- the variable
+ then applies only to that output format.
+ 
+\family typewriter 
+IDENT
+\family default 
+ is the name of the variable, and it can take a numeric or string value.
+ Note that setting a variable to the value 
+\family typewriter 
+undef
+\family default 
+ effectively removes it.
+\layout Standard
+
+If the style clause is present, this means to only set the variable to this
+ value in the specified style (see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:styles}
+
+\end_inset 
+
+).
+\layout Standard
+
+You can use the value of a defined variable anywhere in the input where
+ a number or string is expected, by prefixing it with a dollar (
+\family typewriter 
+$
+\family default 
+) symbol.
+\layout Standard
+
+All strings that are printed by IFM output formats undergo variable substitution
+ -- that is, parts of the string which look like variable references get
+ the value of the variable inserted.
+ If you want a literal 
+\family typewriter 
+$
+\family default 
+ inside a string, use 
+\family typewriter 
+$$
+\family default 
+.
+ If you want substitution to be performed on a variable that is cuddled
+ up to other text that looks like part of the variable name, you must surround
+ it with twiddly brackets, like 
+\family typewriter 
+${this}
+\family default 
+.
+ Note that variable substitution only happens when the string is output
+ -- this happens after all other processing, so it is the final value of
+ the variable that will be substituted.
+\layout Standard
+
+Variables can have "aliases" -- that is, other names.
+ A variable alias is set using the syntax
+\layout LyX-Code
+
+alias_name => var_name;
+\layout Standard
+
+This has the effect that whenever variable 
+\family typewriter 
+alias_name
+\family default 
+ is set or accessed, then variable 
+\family typewriter 
+var_name
+\family default 
+ is actually set or accessed instead.
+ Note that if a variable already exists with name 
+\family typewriter 
+alias_name
+\family default 
+, its value is hidden while the alias is in force.
+ Aliases can be removed by saying
+\layout LyX-Code
+
+alias_name => undef;
+\layout Standard
+
+Some output formats use variables so that you can customize them.
+ They expect certain variables to be defined, and give an error if they
+ aren't.
+ The default values for these variables are set in the initialization file
+ -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:output-variables}
+
+\end_inset 
+
+.
 \layout Subsection
 
 Styles
+\begin_inset LatexCommand \label{sec:styles}
+
+\end_inset 
+
+
+\layout Standard
+
+Display styles change how individual things are shown when output.
+ Currently, only map output for rooms and links is affected by styles.
+\layout Standard
+
+IFM keeps track of the currently active list of display styles, and there
+ are two commands which change this list.
+ The command
+\layout LyX-Code
+
+style ID;
+\layout Standard
+
+pushes the specified style onto the style list.
+ This style becomes the current style.
+ Any IFM objects declared while a style list is in force will by default
+ be output in those styles.
+ Any variable setting is by default in the current style (though you can
+ specify a particular style using the 
+\family typewriter 
+in\SpecialChar ~
+style
+\family default 
+ clause -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+).
+\layout Standard
+
+The command
+\layout LyX-Code
+
+endstyle [ID];
+\layout Standard
+
+pops the current style from the style list.
+ The previous style on the list (if any) becomes the current style.
+ The ID, if specified, should match the ID in the corresponding 
+\family typewriter 
+style
+\family default 
+ command, or a warning is given.
+\layout Standard
+
+Each display style has its own set of values for customization variables.
+ On output, when the value of a variable is needed for displaying an object,
+ the style list for that object is searched in reverse order of declaration.
+ The value used is from the first style to define this variable.
+ If no style defines it, then the default value is used.
+\layout Standard
+
+If a style is referenced by an object but not defined anywhere in the input,
+ then its definition is assumed to be in a separate file, which is searched
+ for using the standard search path.
+ The name of this file is formed by adding a 
+\family typewriter 
+.ifm
+\family default 
+ suffix to the style name.
+ If the file is not found, or it does not define the required style, a warning
+ is given.
 \layout Subsection
 
 Expressions
+\begin_inset LatexCommand \label{sec:expressions}
+
+\end_inset 
+
+
+\layout Standard
+
+Whenever a number is expected in IFM input, you can supply an arithmetic
+ expression.
+ An expression can be a number or a variable value, or a combination using
+ the following constructs (in order of precedence):
+\layout Standard
+\added_space_top medskip \added_space_bottom medskip \align center 
+
+\begin_inset  Tabular
+<lyxtabular version="2" rows="9" columns="2">
+<features rotate="false" islongtable="false" endhead="0" endfirsthead="0" endfoot="0" endlastfoot="0">
+<column alignment="center" valignment="top" leftline="false" rightline="false" width="" special="">
+<column alignment="left" valignment="top" leftline="false" rightline="false" width="" special="">
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+( expr )
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+parentheses
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+expr ^ expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+exponentiation
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
++ expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+unary plus
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+- expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+unary minus
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+expr * expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+multiply
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+expr / expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+divide
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+expr % expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+remainder
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+expr + expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+addition
+\end_inset 
+</cell>
+</row>
+<row topline="false" bottomline="false" newpage="false">
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="false" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+expr - expr
+\end_inset 
+</cell>
+<cell multicolumn="0" alignment="center" valignment="top" topline="true" bottomline="false" leftline="true" rightline="true" rotate="false" usebox="none" width="" special="">
+\begin_inset Text
+
+\layout Standard
+
+subtraction
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+Note that in expressions, all variables are treated as numeric.
+ If a variable is set to be a string and is then used in an expression,
+ its numeric value will be read from the string.
+ For most strings, this will be zero.
+ This means that if you want to set a string variable to be exactly equal
+ to another variable, you can't say something like
+\layout LyX-Code
+
+string_var = $other_string_var;
+\layout Standard
+
+because the right hand side is an expression, which is treated as numeric.
+ The way to do it is to use variable substitution in strings:
+\layout LyX-Code
+
+string_var = "$other_string_var";
 \layout Subsection
 
 Include Files
+\begin_inset LatexCommand \label{sec:includes}
+
+\end_inset 
+
+
+\layout Standard
+
+Your IFM input can include other input files too, via the 
+\family typewriter 
+include
+\family default 
+ directive.
+ There are two forms:
+\layout LyX-Code
+
+include "file"
+\layout Standard
+
+and
+\layout LyX-Code
+
+include <file>
+\layout Standard
+
+The first form looks for the exact file name -- either absolute or relative
+ to the current directory.
+ The second form does a directory search to find the file, using the IFM
+ search path (which can be set via the 
+\family typewriter 
+-I
+\family default 
+ command line option or the 
+\family typewriter 
+IFMPATH
+\family default 
+ environment variable).
+\layout Standard
+
+Note that to be recognized as such, the 
+\family typewriter 
+include
+\family default 
+ directive must be the first thing on a line.
+ Note also that no semicolon is required after it.
 \layout Section
 
 Diagnostics
-\begin_inset LatexCommand \label{sec:diagnostics}
+\layout Standard
 
-\end_inset 
+This section describes the possible error and warning messages which might
+ be produced by IFM, and what they mean.
+ Note that individual output formats may print their own errors and/or warnings.
+ These lists only cover the standard ones.
+\layout Subsection
+
+Error Messages
+\layout Standard
+
+Here's the list of error messages.
+ If any errors occur, no output is produced.
+\layout List
+\labelwidthstring 00.00.0000
 
 
-\layout Section
+\family typewriter 
+error:\SpecialChar ~
+invalid\SpecialChar ~
+repeat\SpecialChar ~
+count
+\family default 
+ \SpecialChar ~
 
-Environment
-\begin_inset LatexCommand \label{sec:environment}
+\newline 
+You've given a repeat count of zero or less for a string or direction, which
+ doesn't make much sense.
+\layout List
+\labelwidthstring 00.00.0000
 
-\end_inset 
+
+\family typewriter 
+error:\SpecialChar ~
+no\SpecialChar ~
+last\SpecialChar ~
+room
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've given the very first room a 
+\family typewriter 
+dir
+\family default 
+ clause.
+\layout List
+\labelwidthstring 00.00.0000
 
 
+\family typewriter 
+error:\SpecialChar ~
+no\SpecialChar ~
+[type]\SpecialChar ~
+referred\SpecialChar ~
+to\SpecialChar ~
+by\SpecialChar ~
+'last'
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've said 
+\family typewriter 
+last
+\family default 
+ to refer to the last room, item or task that was defined, but none of that
+ type of object have been defined yet.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+no\SpecialChar ~
+[type]\SpecialChar ~
+referred\SpecialChar ~
+to\SpecialChar ~
+by\SpecialChar ~
+'it'
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've said 
+\family typewriter 
+it
+\family default 
+ to refer to the last room, item or task tag that was mentioned in the current
+ command, but no tags of that type of object have been mentioned.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+[type]\SpecialChar ~
+tag\SpecialChar ~
+[name]\SpecialChar ~
+already\SpecialChar ~
+defined
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've given two similar objects the same tag name.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+[type]\SpecialChar ~
+tag\SpecialChar ~
+[name]\SpecialChar ~
+not\SpecialChar ~
+defined
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've referred to a tag name that hasn't been defined anywhere in the input.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+[type]\SpecialChar ~
+tag\SpecialChar ~
+[name]\SpecialChar ~
+not\SpecialChar ~
+yet\SpecialChar ~
+defined
+\family default 
+ \SpecialChar ~
+
+\newline 
+You're referring to a tag at a point where it hasn't yet been defined, in
+ a situation where it must be (e.g.\SpecialChar ~
+the room 
+\family typewriter 
+from
+\family default 
+ clause, or a command that modifies attributes of a previously-defined object).
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+can't\SpecialChar ~
+modify\SpecialChar ~
+[name]\SpecialChar ~
+attribute
+\family default 
+ \SpecialChar ~
+
+\newline 
+You're attempting to modify an attribute of an object which can't be changed
+ once it's set (e.g.\SpecialChar ~
+a tag name).
+ This is because it would create inconsistencies between objects.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+can't\SpecialChar ~
+link\SpecialChar ~
+[name1]\SpecialChar ~
+and\SpecialChar ~
+[name2]\SpecialChar ~
+--\SpecialChar ~
+different\SpecialChar ~
+map\SpecialChar ~
+sections
+\family default 
+ \SpecialChar ~
+
+\newline 
+The rooms you're trying to link are on different sections of the map, and
+ have no spatial relation to one another.
+ You might have forgotten to link a previous room in the list.
+ Or you meant to use a 
+\family typewriter 
+join
+\family default 
+.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+can't\SpecialChar ~
+link\SpecialChar ~
+[name]\SpecialChar ~
+to\SpecialChar ~
+itself\SpecialChar ~
+without\SpecialChar ~
+at\SpecialChar ~
+least\SpecialChar ~
+one\SpecialChar ~
+direction
+\family default 
+ \SpecialChar ~
+
+\newline 
+To link a room to itself, you need to specify at least one direction.
+ Otherwise, the link goes nowhere.
+ 
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+links\SpecialChar ~
+between\SpecialChar ~
+[name1]\SpecialChar ~
+and\SpecialChar ~
+[name2]\SpecialChar ~
+have\SpecialChar ~
+differing\SpecialChar ~
+lengths
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've defined more than one link or join between the given rooms, but given
+ them different values for the 
+\family typewriter 
+length
+\family default 
+ attribute.
+ This isn't allowed.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+more\SpecialChar ~
+than\SpecialChar ~
+one\SpecialChar ~
+task\SpecialChar ~
+needs\SpecialChar ~
+to\SpecialChar ~
+follow\SpecialChar ~
+[task]\SpecialChar ~
+immediately
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've given two or more tasks an identical 
+\family typewriter 
+follow
+\family default 
+ tag.
+ Only one task can "follow" a given task.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+[num]\SpecialChar ~
+cyclic\SpecialChar ~
+task\SpecialChar ~
+dependencies
+\family default 
+ \SpecialChar ~
+
+\newline 
+The game isn't solvable because there's one or more chains of tasks where
+ each must be done before the next, but the last must be done before the
+ first.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+error:\SpecialChar ~
+variable\SpecialChar ~
+[name]\SpecialChar ~
+is\SpecialChar ~
+not\SpecialChar ~
+defined
+\family default 
+ \SpecialChar ~
+
+\newline 
+A customization variable needed by an output format is not defined.
+ You should only see these errors if you have modified or overridden the
+ system initialization file.
+ The remedy is to define the variable somewhere.
+\layout Subsection
+
+Warning Messages
+\layout Standard
+
+Here's the list of warning messages.
+ If only warnings occur, then output is still produced.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+attribute\SpecialChar ~
+[attr]\SpecialChar ~
+ignored\SpecialChar ~
+--\SpecialChar ~
+no\SpecialChar ~
+implicit\SpecialChar ~
+link
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've given a room with no 
+\family typewriter 
+dir
+\family default 
+ clause an attribute that is associated with that link (e.g.
+\family typewriter 
+\SpecialChar ~
+oneway
+\family default 
+).
+ Most likely you're putting the attribute in the wrong place -- if you want,
+ say, a join to have one of these attributes, you must define it using the
+ standalone 
+\family typewriter 
+join
+\family default 
+ command instead.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+link\SpecialChar ~
+from\SpecialChar ~
+[name1]\SpecialChar ~
+to\SpecialChar ~
+[name2]\SpecialChar ~
+outside\SpecialChar ~
+grid
+\family default 
+ \SpecialChar ~
+
+\newline 
+The destination room for a link is not in a compass direction from the last
+ specified position.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+rooms\SpecialChar ~
+[name1]\SpecialChar ~
+and\SpecialChar ~
+[name2]\SpecialChar ~
+overlap
+\family default 
+ \SpecialChar ~
+
+\newline 
+The coordinates of the specified rooms are the same.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+room\SpecialChar ~
+[name]\SpecialChar ~
+crossed\SpecialChar ~
+by\SpecialChar ~
+link\SpecialChar ~
+line\SpecialChar ~
+between\SpecialChar ~
+[name]\SpecialChar ~
+and\SpecialChar ~
+[name]
+\family default 
+ \SpecialChar ~
+
+\newline 
+A link line passes through the coordinates of a room.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+room\SpecialChar ~
+[name]\SpecialChar ~
+has\SpecialChar ~
+multiple\SpecialChar ~
+[dir]\SpecialChar ~
+links
+\family default 
+ \SpecialChar ~
+
+\newline 
+More than one link connects to the specified room in a particular direction.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+can't\SpecialChar ~
+solve\SpecialChar ~
+game\SpecialChar ~
+([num]\SpecialChar ~
+tasks\SpecialChar ~
+not\SpecialChar ~
+done)
+\family default 
+ \SpecialChar ~
+
+\newline 
+The game is unsolvable according to the current set of tasks.
+ This can be due to part of the map being inaccessible, or IFM stupidly
+ choosing the wrong order of doing things.
+ Hopefully the latter shouldn't happen very often.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+no\SpecialChar ~
+matching\SpecialChar ~
+style\SpecialChar ~
+command
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've used 
+\family typewriter 
+endstyle
+\family default 
+ without a matching 
+\family typewriter 
+style
+\family default 
+.
+ You probably have too many 
+\family typewriter 
+endstyle
+\family default 
+ commands.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+unexpected\SpecialChar ~
+style:\SpecialChar ~
+[name]\SpecialChar ~
+(expected\SpecialChar ~
+[name])
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've used 
+\family typewriter 
+endstyle
+\family default 
+ with an argument that doesn't match the argument of the corresponding 
+\family typewriter 
+style
+\family default 
+.
+ You might have missed out another 
+\family typewriter 
+endstyle
+\family default 
+ somewhere, or have too many.
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+style\SpecialChar ~
+[name]\SpecialChar ~
+referenced\SpecialChar ~
+but\SpecialChar ~
+not\SpecialChar ~
+defined
+\family default 
+ \SpecialChar ~
+
+\newline 
+An object in your input uses the specified style, but it isn't defined anywhere
+ and the style definition file 
+\family typewriter 
+name.ifm
+\family default 
+ doesn't exist in the search path (or if it does, it doesn't define the
+ required style).
+\layout List
+\labelwidthstring 00.00.0000
+
+
+\family typewriter 
+warning:\SpecialChar ~
+[keyword]\SpecialChar ~
+is\SpecialChar ~
+obsolete\SpecialChar ~
+--\SpecialChar ~
+use\SpecialChar ~
+[phrase]\SpecialChar ~
+instead
+\family default 
+ \SpecialChar ~
+
+\newline 
+You've used an obsolete keyword.
+ Consult the documentation and then try the suggested alternative instead.
+ Note that multiple uses of an obsolete keyword only result in a single
+ warning.
 \the_end
