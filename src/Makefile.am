@@ -2,10 +2,17 @@
 
 bin_PROGRAMS = ifm
 
-ifm_SOURCES = ifm-driver.h ifm-main.c ifm-main.h ifm-map.c ifm-map.h	  \
-ifm-parse.y ifm-parse.h ifm-path.c ifm-path.h ifm-ps.c ifm-ps.h ifm-raw.c \
-ifm-raw.h ifm-rec.c ifm-rec.h ifm-scan.l ifm-task.c ifm-task.h ifm-text.c \
-ifm-text.h ifm-tk.c ifm-tk.h ifm-util.c ifm-util.h ifm-vars.c ifm-vars.h
+SRCS = ifm-dot.c ifm-main.c ifm-map.c ifm-parse.c ifm-path.c ifm-ps.c	 \
+ifm-raw.c ifm-rec.c ifm-scan.c ifm-task.c ifm-text.c ifm-tk.c ifm-util.c \
+ifm-vars.c
+
+HDRS = ifm-dot.h ifm-driver.h ifm-main.h ifm-map.h ifm-parse.h ifm-path.h \
+ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h ifm-tk.h ifm-util.h	  \
+ifm-vars.h
+
+ifm_SOURCES = $(SRCS) $(HDRS)
+
+EXTRA_DIST = ifm-parse.y ifm-scan.l
 
 VARS = ../vars/src
 
