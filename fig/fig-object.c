@@ -163,6 +163,7 @@ fig_create_point(vhash *parent, float x, float y)
     vhash *figure = fig_get_figure(parent);
     float scale = vh_dget(figure, "SCALE");
     vlist *list;
+    int num;
 
     if ((list = vh_pget(parent, "XP")) == NULL) {
         list = vl_create();
@@ -183,9 +184,10 @@ fig_create_point(vhash *parent, float x, float y)
         vh_pstore(parent, "SHAPE", list);
     }
 
-    vl_fpush(list, 1.0);
+    num = vl_length(list);
+    vl_fpush(list, num == 0 ? 0.0 : 1.0);
 
-    return vl_length(list) - 1;
+    return num;
 }
 
 /* Create a polygon object */
