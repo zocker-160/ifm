@@ -1,0 +1,7 @@
+# Example map.
+
+room "Kitchen" tag Kitchen;
+room "Garage" dir s;
+room "Lounge" dir e from Kitchen;
+room "Dining Room" dir s link Kitchen;
+room "Study" dir e n;
