@@ -27,6 +27,10 @@ vlist *tasklist = NULL;
 /* Current location */
 static vhash *location = NULL;
 
+/* Control variables */
+static int all_tasks_safe = 0;
+static int keep_unused_items = 0;
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
@@ -934,6 +938,10 @@ solve_game(void)
     if (tasklist == NULL || vl_length(tasklist) == 0)
         return;
 
+    /* Set control variables */
+    all_tasks_safe = var_int("all_tasks_safe");
+    keep_unused_items = var_int("keep_unused_items");
+
     /* Build initial inventory */
     vl_foreach(elt, items) {
         item = vs_pget(elt);
@@ -965,11 +973,9 @@ solve_game(void)
                     if (!vh_iget(item, "TAKEN"))
                         continue;
 
-#if 0
                     /* Skip if not used yet */
-                    if (!vh_iget(item, "USED"))
+                    if (keep_unused_items && !vh_iget(item, "USED"))
                         continue;
-#endif
 
                     /* Skip if wanted */
                     if (want_item(item))
@@ -1028,7 +1034,7 @@ solve_game(void)
                 continue;
             }
 
-            if (status == TS_SAFE) {
+            if (status == TS_SAFE || all_tasks_safe) {
                 /* A safe task -- choose it */
                 step = trystep;
                 vl_break(tasklist);

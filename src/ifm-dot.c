@@ -26,6 +26,10 @@ taskfuncs dot_taskfuncs = {
     dot_task_finish,
 };
 
+/* Control variables */
+static int show_rooms = 0;
+static int show_orphans = 0;
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
@@ -37,6 +41,10 @@ void
 dot_task_start(void)
 {
     char *title;
+
+    /* Get control variables */
+    show_rooms = var_int("task_graph_rooms");
+    show_orphans = var_int("task_graph_orphans");
 
     /* Get title */
     if (vh_exists(map, "TITLE"))
@@ -71,7 +79,7 @@ dot_task_finish(void)
 
     vl_foreach(elt, nodes) {
         node = vs_sgetref(elt);
-        if (vg_node_links(g, node, NULL, NULL) == 0)
+        if (!show_orphans && vg_node_links(g, node, NULL, NULL) == 0)
             continue;
 
         step = vg_node_pget(g, node);
@@ -97,24 +105,38 @@ dot_task_finish(void)
     vh_foreach(name, elt, rooms) {
         list = vs_pget(elt);
 
-        if (strlen(name) > 0) {
-            printf("    subgraph cluster_%d {\n", ++cluster);
-            printf("        ");
-            print_label(name);
-            printf(";\n");
-        } else {
-            printf("    subgraph anywhere {\n");
+        if (show_rooms) {
+            if (strlen(name) > 0) {
+                printf("    subgraph cluster_%d {\n", ++cluster);
+                printf("        ");
+                print_label(name);
+                printf(";\n");
+            } else {
+                printf("    subgraph anywhere {\n");
+            }
         }
 
         vl_foreach(elt, list) {
             node = vs_sgetref(elt);            
             step = vg_node_pget(g, node);
-            printf("        %s [", node);
-            print_label(vh_sgetref(step, "DESC"));
+            printf("    ");
+
+            if (show_rooms)
+                printf("    ");
+
+            printf("%s [", node);
+
+            if (show_rooms || strlen(name) == 0)
+                strcpy(buf, vh_sgetref(step, "DESC"));
+            else
+                sprintf(buf, "%s\\n[%s]", vh_sgetref(step, "DESC"), name);
+
+            print_label(buf);
             printf("];\n");
         }
 
-        printf("    }\n");
+        if (show_rooms)
+            printf("    }\n");
     }
 
     /* Write links */
