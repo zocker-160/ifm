@@ -81,6 +81,8 @@ connect_rooms(void)
         link = vs_pget(elt);
         if (vh_iget(link, "NOLINK"))
             continue;
+        if (vh_iget(link, "NOPATH"))
+            continue;
 
         oneway = vh_iget(link, "ONEWAY");
         len = vh_iget(link, "LEN");
@@ -176,6 +178,8 @@ connect_rooms(void)
     /* Build join connections */
     vl_foreach(elt, joins) {
         join = vs_pget(elt);
+        if (vh_iget(join, "NOPATH"))
+            continue;
 
         oneway = vh_iget(join, "ONEWAY");
         len = vh_iget(join, "LEN");
