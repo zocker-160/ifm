@@ -116,10 +116,11 @@ room_colour = "white";
 # attribute.
 room_puzzle_colour = "grey";
 
-# The size and colour of room 'shadows'.  This is a pseudo-3D
-# effect which makes rooms look raised off the page.  The size
-# is a proportion of the allocated room space.
-room_shadow_size = 0.05;
+# The offset and colour of room 'shadows'.  This is a pseudo-3D
+# effect which makes rooms look raised off the page.  The offsets
+# are a proportion of the allocated room space.
+room_shadow_xoff = 0.05;
+room_shadow_yoff = 0.05;
 room_shadow_colour = "grey30";
 
 # The width and colour of the room box lines.  Note that Tk only
@@ -185,5 +186,27 @@ tk link_text_colour = "red";
 # Text strings indicating up/down/in/out on links.
 link_updown_string = "U/D";
 link_inout_string = "I/O";
+
+##################################################################
+# Aliases
+##################################################################
+
+# Alternate spellings for colour variables.
+canvas_background_color == canvas_background_colour;
+color_file == colour_file;
+item_text_color == item_text_colour;
+link_color == link_colour;
+link_special_color == link_special_colour;
+link_text_color == link_text_colour;
+map_text_color == map_text_colour;
+page_background_color == page_background_colour;
+page_border_color == page_border_colour;
+room_border_color == room_border_colour;
+room_color == room_colour;
+room_exit_color == room_exit_colour;
+room_puzzle_color == room_puzzle_colour;
+room_shadow_color == room_shadow_colour;
+room_text_color == room_text_colour;
+title_color == title_colour;
 
 ##################################################################
