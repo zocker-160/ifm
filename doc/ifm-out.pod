@@ -152,14 +152,26 @@ rooms like this:
     room "Inside Building" style "water" dir e go in;
 
 then the room "Inside Building" will be drawn with a light blue background.
-You can customize individual links in a similar manner.
+You can customize individual links in a similar manner.  Note that here you
+must put the 'style' clause before the 'dir' clause, so that the style
+applies to the room.  If it appeared afterwards, it would apply to the
+implicit link to the previous room instead.
+
+An alternative way to define a variable in a particular style is to use the
+'in style' clause, like this:
+
+    room_colour = "light blue" in style "water";
+
+If a style only changes a single variable, this may be more convenient.
 
 If you assign a style (say, called B<newstyle>) to a room or link, but
 don't define it anywhere in your input, then B<IFM> will look for a file
 called F<newstyle.ifm> using the standard search path.  If the file exists,
 it is expected to define style B<newstyle>.  For example, you could put the
 "water" style definition above into a file called F<water.ifm> somewhere on
-the B<IFM> search path, and it would be read automatically.
+the B<IFM> search path, and it would be read automatically.  This is
+useful if, for example, you want to use the same style in several different
+maps.
 
 =head2 Output Variables
 
