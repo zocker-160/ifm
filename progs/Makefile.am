@@ -4,7 +4,7 @@ bin_SCRIPTS = @tkifm@ @ifm2dev@ @scr2ifm@
 
 EXTRA_SCRIPTS = tkifm ifm2dev scr2ifm
 
-EXTRA_DIST = tkifm.tcl scr2ifm.pl
+EXTRA_DIST = tkifm.tcl ifm2dev.pl scr2ifm.pl
 
 tkifm: tkifm.tcl
 	echo '#! $(WISH) -f' > $@
