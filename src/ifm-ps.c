@@ -45,10 +45,9 @@ void
 ps_map_start(void)
 {
     int ylen, c, num_pages, width, height;
-    vhash *sect, *join, *from, *to;
-    char *title, *name, tag[10];
+    char *title, tag[10];
     vscalar *elt;
-    int jnum = 0;
+    vhash *sect;
     FILE *fp;
 
     /* Allow title space for sections with titles */
@@ -60,24 +59,8 @@ ps_map_start(void)
         }
     }
 
-    /* Create joined room names */
-    vl_foreach(elt, joins) {
-        join = vs_pget(elt);
-        from = vh_pget(join, "FROM");
-        to = vh_pget(join, "TO");
-
-        sprintf(tag, " (%d)", ++jnum);
-
-        name = vh_sgetref(from, "PDESC");
-        strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
-        strcat(buf, tag);
-        vh_sstore(from, "PDESC", buf);
-
-        name = vh_sgetref(to, "PDESC");
-        strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
-        strcat(buf, tag);
-        vh_sstore(to, "PDESC", buf);
-    }
+    /* Mark joined rooms */
+    mark_joins();
 
     /* Pack sections */
     width = get_int("map_width", 8);
@@ -187,18 +170,12 @@ ps_map_section(vhash *sect)
 void
 ps_map_room(vhash *room)
 {
-    char *desc, *str, *itemlist = NULL;
+    char *str, *itemlist = NULL;
     vlist *items;
 
-    /* Initialise */
-    desc = vh_sgetref(room, "PDESC");
-    if (desc == NULL)
-        desc = vh_sgetref(room, "DESC");
-    if (desc == NULL)
-        desc = "";
-
     /* Write coords */
-    printf("%s %g %g", ps_string(desc),
+    printf("%s %g %g",
+           ps_string(vh_sgetref(room, "JDESC")),
            vh_dget(room, "X") + ps_xoff,
            vh_dget(room, "Y") + ps_yoff);
 

@@ -47,14 +47,17 @@ tk_map_start(void)
 {
     char *title = get_string("title", NULL);
 
-    /* Set variables */
-    printf("set ifm(title) {%s}\n", title == NULL ? "IFM" : title);
+    /* Mark joined rooms */
+    mark_joins();
 
+    /* Set variables */
     printf("set ifm(pagewidth) %s\n", get_string("page_width", "7i"));
     printf("set ifm(pageheight) %s\n", get_string("page_height", "7i"));
 
     printf("set ifm(mapwidth) %d\n", get_int("map_width", 8));
     printf("set ifm(mapheight) %d\n", get_int("map_height", 6));
+
+    printf("set ifm(mapcol) %s\n", get_string("map_colour", "Wheat"));
 
     printf("set ifm(framewidth) %g\n", get_real("box_width", 3.0));
     printf("set ifm(frameheight) %g\n", get_real("box_height", 3.0));
@@ -62,14 +65,27 @@ tk_map_start(void)
     printf("set ifm(roomwidth) %g\n", get_real("room_width", 0.8));
     printf("set ifm(roomheight) %g\n", get_real("room_height", 0.65));
 
+    printf("set ifm(roomlinewidth) %d\n", get_int("room_linewidth", 2));
+
     printf("set ifm(roomfont) {%s}\n", get_string("room_font",
                                                   "Times 10 bold"));
 
-    printf("set ifm(curvelines) %s\n",
-           get_int("link_spline", 1) ? "true" : "false");
+    printf("set ifm(puzzlecol) %s\n", get_string("room_puzzle_colour",
+                                                 "grey80"));
 
-    printf("set ifm(puzzlecol) %s\n", get_string("room_puzzlecol",
-                                                 "LightBlue"));
+    printf("set ifm(linklinewidth) %d\n", get_int("link_linewidth", 1));
+
+    printf("set ifm(curvelines) %s\n", (get_int("link_spline", 1) ?
+                                        "true" : "false"));
+
+    printf("set ifm(specialcol) %s\n", get_string("link_special_colour",
+                                                  "grey60"));
+
+    printf("set ifm(labelfont) {%s}\n", get_string("label_font",
+                                                   "Times 8 bold"));
+
+    printf("set ifm(labelcol) %s\n", get_string("label_colour",
+                                                "red"));
 }
 
 void
@@ -98,7 +114,7 @@ tk_map_room(vhash *room)
 
     vh_istore(room, "NUM", ++room_num);
     printf("AddRoom {%s} %d %d %d\n",
-           vh_sgetref(room, "DESC"),
+           vh_sgetref(room, "JDESC"),
            vh_iget(room, "X"),
            vh_iget(room, "Y"),
            vh_iget(room, "PUZZLE"));
