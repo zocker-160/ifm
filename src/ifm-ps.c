@@ -86,9 +86,9 @@ ps_map_start(void)
     num_pages = pack_sections(width, height, 1);
 
     /* Check overriding of page rotation */
-    ps_rotflag = (get_var("ps_rotate") != NULL);
+    ps_rotflag = (get_var("page_rotate") != NULL);
     if (ps_rotflag)
-        ps_rotate = get_int("ps_rotate", 0);
+        ps_rotate = get_int("page_rotate", 0);
 
     /* Get paper size */
     pagesize = get_string("page_size", "A4");
