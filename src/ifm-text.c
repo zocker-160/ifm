@@ -34,6 +34,9 @@ taskfuncs text_taskfuncs = {
 /* Total score */
 static int total = 0;
 
+/* Total distance travelled */
+static int travel = 0;
+
 /* Item functions */
 void
 text_item_entry(vhash *item)
@@ -70,12 +73,13 @@ text_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
     static vhash *lastroom = NULL;
+    vhash *item, *reach, *move;
     int dist, type, score;
     static int count = 0;
     static int flag = 0;
     char *note = NULL;
     vscalar *elt;
-    vhash *item;
+    vlist *path;
 
     if (count++ == 0) {
         char *title = get_string("title", NULL);
@@ -83,10 +87,22 @@ text_task_entry(vhash *task)
                title != NULL ? title : "Interactive Fiction game");
     }
 
+    if ((path = vh_pget(task, "PATH")) != NULL) {
+        printf("\nMove:\n");
+        vl_foreach(elt, path) {
+            reach = vs_pget(elt);
+            move = vh_pget(reach, "TO");
+            printf("   %s\n", vh_sgetref(move, "DESC"));
+            travel++;
+        }
+    }
+
     if (room != lastroom && room != NULL) {
         printf("\n%s", vh_sgetref(room, "DESC"));
+#if 0
         if ((dist = vh_iget(task, "DIST")) > 0)
             printf(" (%d room%s away)", dist, dist > 1 ? "s" : "");
+#endif
         printf(":\n");
     } else if (lastroom == NULL && flag++ == 0) {
         printf("\nFirstly:\n");
@@ -121,6 +137,8 @@ text_task_entry(vhash *task)
 void
 text_task_finish(void)
 {
+    if (travel > 0)
+        printf("\nTotal distance travelled: %d\n", travel);
     if (total > 0)
         printf("\nTotal score: %d\n", total);
 }
