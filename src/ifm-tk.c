@@ -27,6 +27,30 @@
 #include "ifm-tk.h"
 #include "ifm-text.h"
 
+#define PRINT_COLOUR(name) \
+        if (var_changed(#name)) \
+                printf("set ifm(%s) %s\n", #name, var_string(#name))
+
+#define PRINT_FONTDEF(name) \
+        if (var_changed(#name)) \
+                printf("set ifm(%s) {%s}\n", #name, var_string(#name))
+
+#define PRINT_INT(name) \
+        if (var_changed(#name)) \
+                printf("set ifm(%s) %d\n", #name, var_int(#name))
+
+#define PRINT_REAL(name) \
+        if (var_changed(#name)) \
+                printf("set ifm(%s) %g\n", #name, var_real(#name))
+
+#define PRINT_STRING(name) \
+        if (var_changed(#name)) \
+                printf("set ifm(%s) {%s}\n", #name, var_string(#name))
+
+#define PRINT_BOOL(name) \
+        if (var_changed(#name)) \
+                printf("set ifm(%s) %s\n", #name, var_int(#name) ? "true" : "false")
+
 /* Map function list */
 mapfuncs tk_mapfuncs = {
     tk_map_start,
@@ -58,6 +82,10 @@ errfuncs tk_errfuncs = {
     tk_error
 };
 
+/* Internal functions */
+static void tk_print_room_vars(void);
+static void tk_print_link_vars(void);
+
 /* Map functions */
 void
 tk_map_start(void)
@@ -66,70 +94,18 @@ tk_map_start(void)
     setup_room_names(1, var_int("show_tags"));
 
     /* Canvas variables */
-    printf("set ifm(mapwidth) %d\n",
-           var_int("canvas_width"));
-    printf("set ifm(mapheight) %d\n",
-           var_int("canvas_height"));
-    printf("set ifm(mapcol) %s\n",
-           var_string("canvas_background_colour"));
+    PRINT_INT(canvas_width);
+    PRINT_INT(canvas_height);
+    PRINT_COLOUR(canvas_background_colour);
+    PRINT_REAL(room_size);
+    PRINT_REAL(room_width);
+    PRINT_REAL(room_height);
 
-    /* Room variables */
-    printf("set ifm(roomsize) %g\n",
-           var_real("room_size"));
-    printf("set ifm(roomwidth) %g\n",
-           var_real("room_width"));
-    printf("set ifm(roomheight) %g\n",
-           var_real("room_height"));
-    printf("set ifm(roomlinewidth) %g\n",
-           var_real("room_border_width"));
-    printf("set ifm(roomshadowx) %g\n",
-           var_real("room_shadow_xoff"));
-    printf("set ifm(roomshadowy) %g\n",
-           var_real("room_shadow_yoff"));
-    printf("set ifm(roomfont) {%s}\n",
-           var_string("room_text_fontdef"));
-    printf("set ifm(puzzlecol) %s\n",
-           var_string("room_puzzle_colour"));
-    printf("set ifm(roomtextcol) %s\n",
-           var_string("room_text_colour"));
-    printf("set ifm(bordercol) %s\n",
-           var_string("room_border_colour"));
-    printf("set ifm(roomcol) %s\n",
-           var_string("room_colour"));
-    printf("set ifm(shadowcol) %s\n",
-           var_string("room_shadow_colour"));
-    printf("set ifm(exitwidth) %g\n",
-           var_real("room_exit_width"));
-    printf("set ifm(exitcol) %s\n",
-           var_string("room_exit_colour"));
+    /* Room style variables */
+    tk_print_room_vars();
 
-    /* Item variables */
-    printf("set ifm(showitems) %d\n",
-           var_int("show_items"));
-    printf("set ifm(itemfont) {%s}\n",
-           var_string("item_text_fontdef"));
-    printf("set ifm(itemcol) {%s}\n",
-           var_string("item_text_colour"));
-
-    /* Link variables */
-    printf("set ifm(linkcol) %s\n",
-           var_string("link_colour"));
-    printf("set ifm(linkwidth) %g\n",
-           var_real("link_line_width"));
-    printf("set ifm(linkspline) %s\n",
-           (var_int("link_spline") ? "true" : "false"));
-    printf("set ifm(linkspecialcol) %s\n",
-           var_string("link_special_colour"));
-    printf("set ifm(linktextcol) %s\n",
-           var_string("link_text_colour"));
-    printf("set ifm(linkfont) {%s}\n",
-           var_string("link_text_fontdef"));
-    printf("set ifm(arrowsize) %g\n",
-           var_real("link_arrow_size"));
-    printf("set ifm(linkupdown) {%s}\n",
-           var_string("link_updown_string"));
-    printf("set ifm(linkinout) {%s}\n",
-           var_string("link_inout_string"));
+    /* Link style variables */
+    tk_print_link_vars();
 }
 
 void
@@ -159,6 +135,9 @@ tk_map_room(vhash *room)
     int x, y, xoff, yoff;
     vscalar *elt;
 
+    /* Room style variables */
+    tk_print_room_vars();
+
     /* Build item list if required */
     items = vh_pget(room, "ITEMS");
     if (items != NULL && vl_length(items) > 0) {
@@ -180,10 +159,9 @@ tk_map_room(vhash *room)
     /* Do room command */
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
-    put_string("AddRoom {%s} {%s} %d %d %d\n",
+    put_string("AddRoom {%s} {%s} %d %d\n",
                vh_sgetref(room, "RDESC"),
-               (itemlist != NULL ? itemlist : ""), x, y,
-               vh_iget(room, "PUZZLE"));
+               (itemlist != NULL ? itemlist : ""), x, y);
 
     /* Do room exit commands (if any) */
     ex = vh_pget(room, "EX");
@@ -206,13 +184,15 @@ tk_map_link(vhash *link)
     int updown = (go == D_UP || go == D_DOWN);
     int inout = (go == D_IN || go == D_OUT);
 
+    /* Link style variables */
+    tk_print_link_vars();
+
     printf("AddLink");
     printf(" {%s}", vl_join(x, " "));
     printf(" {%s}", vl_join(y, " "));
-    printf(" %d %d %d %d\n",
+    printf(" %d %d %d\n",
            updown, inout,
-           vh_iget(link, "ONEWAY"),
-           vh_iget(link, "SPECIAL"));
+           vh_iget(link, "ONEWAY"));
 }
 
 /* Item functions */
@@ -277,4 +257,37 @@ tk_error(char *file, int line, char *msg)
     }
 
     exit(0);
+}
+
+/* Print room style variables */
+static void
+tk_print_room_vars(void)
+{
+    PRINT_FONTDEF(room_text_fontdef);
+    PRINT_COLOUR(room_colour);
+    PRINT_COLOUR(room_text_colour);
+    PRINT_COLOUR(room_border_colour);
+    PRINT_REAL(room_border_width);
+    PRINT_REAL(room_shadow_xoff);
+    PRINT_REAL(room_shadow_yoff);
+    PRINT_COLOUR(room_shadow_colour);
+    PRINT_COLOUR(room_exit_colour);
+    PRINT_REAL(room_exit_width);
+    PRINT_BOOL(show_items);
+    PRINT_FONTDEF(item_text_fontdef);
+    PRINT_COLOUR(item_text_colour);
+}
+
+/* Print link style variables */
+static void
+tk_print_link_vars(void)
+{
+    PRINT_COLOUR(link_colour);
+    PRINT_BOOL(link_spline);
+    PRINT_REAL(link_arrow_size);
+    PRINT_COLOUR(link_text_colour);
+    PRINT_FONTDEF(link_text_fontdef);
+    PRINT_REAL(link_line_width);
+    PRINT_STRING(link_updown_string);
+    PRINT_STRING(link_inout_string);
 }

@@ -11,22 +11,22 @@
 
     % Page orientation.
     {
-	/pagewidth origpageheight def
-	/pageheight origpagewidth def
-	/mapwidth origmapheight def
-	/mapheight origmapwidth def
+	/pagewidth page_height def
+	/pageheight page_width def
+	/mapwidth map_height def
+	/mapheight map_width def
 	90 rotate
 	0 pageheight neg translate
     } {
-	/pagewidth origpagewidth def
-	/pageheight origpageheight def
-	/mapwidth origmapwidth def
-	/mapheight origmapheight def
+	/pagewidth page_width def
+	/pageheight page_height def
+	/mapwidth map_width def
+	/mapheight map_height def
     } ifelse
 
     % Leave space for title if required.
-    showtitle {
-	/pageheight pageheight titlefontsize 1.2 mul sub def
+    show_title {
+	/pageheight pageheight title_fontsize 1.2 mul sub def
     } if
 
     % Get width and height of page contents.
@@ -34,8 +34,8 @@
     /bp-width exch def
 
     % Calculate box size.
-    /bp-boxx pagewidth pagemargin 2 mul sub mapwidth bp-width max div def
-    /bp-boxy pageheight pagemargin 2 mul sub mapheight bp-height max div def
+    /bp-boxx pagewidth page_margin 2 mul sub mapwidth bp-width max div def
+    /bp-boxy pageheight page_margin 2 mul sub mapheight bp-height max div def
     /boxsize bp-boxx bp-boxy min def
 
     % Calculate page offsets.
@@ -44,29 +44,29 @@
 
     % Draw background.
     newpath
-    pagemargin pagemargin moveto
-    pagewidth pagemargin 2 mul sub 0 rlineto
-    0 pageheight pagemargin 2 mul sub rlineto
-    pagewidth pagemargin 2 mul sub neg 0 rlineto
-    closepath backgroundcolour selectcolour fill
+    page_margin page_margin moveto
+    pagewidth page_margin 2 mul sub 0 rlineto
+    0 pageheight page_margin 2 mul sub rlineto
+    pagewidth page_margin 2 mul sub neg 0 rlineto
+    closepath page_background_colour selectcolour fill
 
-    showborder {
+    show_border {
 	newpath
-	pagemargin pagemargin moveto
-	pagewidth pagemargin 2 mul sub 0 rlineto
-	0 pageheight pagemargin 2 mul sub rlineto
-	pagewidth pagemargin 2 mul sub neg 0 rlineto
-	closepath bordercolour selectcolour stroke
+	page_margin page_margin moveto
+	pagewidth page_margin 2 mul sub 0 rlineto
+	0 pageheight page_margin 2 mul sub rlineto
+	pagewidth page_margin 2 mul sub neg 0 rlineto
+	closepath page_border_colour selectcolour stroke
     } if
 
     % Draw title if required.
-    showtitle {
-	titlefont titlefontsize selectfont
-	titlecolour selectcolour
+    show_title {
+	title_font title_fontsize selectfont
+	title_colour selectcolour
 
 	titlestring
 	pagewidth 2 div
-	pageheight pagemargin sub titlefontsize add false text
+	pageheight page_margin sub title_fontsize add false text
     } if
 
     % Calculate font scaling factor.
@@ -78,15 +78,14 @@
 % Start a map section.
 /map {				% STRING X Y map
     % Draw map title.
-    maptextcolour selectcolour
-    mapfont mapfontsize selectfont
+    map_text_colour selectcolour
+    map_text_font map_text_fontsize selectfont
     pagepos false text
 } def
 
 % Draw a room. 
-/room {				% STRING X Y [ITEMLIST] ITEMS PUZZLE room
+/room {				% STRING X Y [ITEMLIST] ITEMS room
     % Convert and save arguments.
-    /rm-puzzle exch def
     /rm-items exch def
     rm-items {
 	/rm-itemlist exch def
@@ -99,68 +98,70 @@
 
     gsave
 	% Draw room shadow box if required.
-	roomshadowx 0 ne roomshadowy 0 ne or {
-	    roomshadowcolour selectcolour
+	room_shadow_xoff 0 ne room_shadow_yoff 0 ne or {
+	    room_shadow_colour selectcolour
 
 	    newpath
 	    rm-xpos rm-ypos moveto
-	    boxsize 1 roomshadowx 2 mul sub mul roomwidth 2 div mul
-	    boxsize 1 roomshadowy 2 mul sub mul roomheight 2 div mul
+	    boxsize 1 room_shadow_xoff 2 mul sub mul room_width 2 div mul
+	    boxsize 1 room_shadow_yoff 2 mul sub mul room_height 2 div mul
 	    rmoveto
 
-	    roomwidth boxsize mul neg 0 rlineto
-	    0 roomheight boxsize mul neg rlineto
-	    roomwidth boxsize mul 0 rlineto
+	    room_width boxsize mul neg 0 rlineto
+	    0 room_height boxsize mul neg rlineto
+	    room_width boxsize mul 0 rlineto
 	    closepath fill
 	} if
 
 	% Draw room box.
-	roombordercolour selectcolour
+	gsave
+	    room_border_dashed {
+		[ 2 2 ] 2 setdash
+	    } if
 
-	roomlinewidth setlinewidth
-	newpath
-	rm-xpos rm-ypos moveto
-	boxsize roomwidth 2 div mul
-	boxsize roomheight 2 div mul
-	rmoveto
+	    room_border_colour selectcolour
 
-	roomwidth boxsize mul neg 0 rlineto
-	0 roomheight boxsize mul neg rlineto
-	roomwidth boxsize mul 0 rlineto
-	closepath
+	    room_border_width setlinewidth
+	    newpath
+	    rm-xpos rm-ypos moveto
+	    boxsize room_width 2 div mul
+	    boxsize room_height 2 div mul
+	    rmoveto
 
-	gsave 
-	    rm-puzzle {
-		roompuzzlecolour
-	    }{
-		roomcolour
-	    } ifelse selectcolour fill
-	grestore 
-	stroke
+	    room_width boxsize mul neg 0 rlineto
+	    0 room_height boxsize mul neg rlineto
+	    room_width boxsize mul 0 rlineto
+	    closepath
+
+	    gsave 
+		room_colour selectcolour fill
+	    grestore 
+	    stroke
+	grestore
 
 	% Draw room text (and item text if required).
-	roomtextcolour selectcolour
-	roomfont roomfontsize fontscale mul selectfont
+	room_text_colour selectcolour
+	room_text_font room_text_fontsize fontscale mul selectfont
 
-	rm-items showitems and {
+	rm-items show_items and {
 	    rm-string rm-xpos rm-ypos
-	    boxsize roomheight mul 1 roomitemratio sub 2 div mul add
-	    boxsize roomwidth mul
-	    boxsize roomheight mul roomitemratio mul
+	    boxsize room_height mul 1 roomitemratio sub 2 div mul add
+	    boxsize room_width mul
+	    boxsize room_height mul roomitemratio mul
 	    boxtext
 
-	    itemtextcolour selectcolour
-	    itemfont itemfontsize fontscale mul selectfont
+	    item_text_colour selectcolour
+	    item_text_font item_text_fontsize fontscale mul selectfont
 
 	    rm-itemlist rm-xpos rm-ypos
-	    boxsize roomheight mul roomitemratio 2 div mul sub
-	    boxsize roomwidth mul
-	    boxsize roomheight mul 1 roomitemratio sub mul
+	    boxsize room_height mul roomitemratio 2 div mul sub
+	    boxsize room_width mul
+	    boxsize room_height mul 1 roomitemratio sub mul
 	    boxtext
 	}{
 	    rm-string rm-xpos rm-ypos
-	    boxsize roomwidth mul
-	    boxsize roomheight mul
+	    boxsize room_width mul
+	    boxsize room_height mul
 	    boxtext
 	} ifelse
     grestore
@@ -176,8 +177,8 @@
 
     gsave
 	% Draw line.
-	roomexitcolour selectcolour
-	roomexitlinewidth setlinewidth
+	room_exit_colour selectcolour
+	room_exit_width setlinewidth
 	re-x1 re-y1 pagepos moveto
 	re-x2 re-y2 pagepos lineto
 	stroke
@@ -185,9 +186,8 @@
 } def
 
 % Draw a link.
-/link {				% [ X Y ... ] UPDOWN INOUT ONEWAY SPECIAL link
+/link {				% [ X Y ... ] UPDOWN INOUT ONEWAY link
     % Save arguments.
-    /ln-special exch def
     /ln-oneway exch def
     /ln-inout exch def
     /ln-updown exch def
@@ -195,18 +195,14 @@
     /ln-np ln-points length def
 
     gsave
-	% Mark special if required.
-	ln-special {
-	    linkspecialcolour selectcolour
-	    linkspecialdashed {
-		[ 2 2 ] 2 setdash
-	    } if
-	}{
-	    linkcolour selectcolour
-	} ifelse
+	% Dashed line if required.
+	link_dashed {
+	    [ 2 2 ] 2 setdash
+	} if
 
 	% Draw line.
-	linklinewidth setlinewidth
+	link_colour selectcolour
+	link_line_width setlinewidth
  	/ln-lines ln-points length 2 div 1 sub def
  	/ln-x ln-points 0 get def
  	/ln-y ln-points 1 get def
@@ -238,19 +234,19 @@
  	    /ln-xmid ln-x ln-xn add 2 div def
  	    /ln-ymid ln-y ln-yn add 2 div def
  
-	    linktextcolour selectcolour
- 	    linkfont linkfontsize fontscale mul selectfont
+	    link_text_colour selectcolour
+ 	    link_text_font link_text_fontsize fontscale mul selectfont
  
  	    ln-updown {
-		linkupdowntext
+		link_updown_string
  	    }{
- 		linkinouttext
- 	    } ifelse ln-xmid ln-ymid pagepos backgroundcolour true text
+ 		link_inout_string
+ 	    } ifelse ln-xmid ln-ymid pagepos page_background_colour true text
  	} if
 
 	% Draw arrow if oneway.
 	ln-oneway {
-	    linkcolour selectcolour
+	    link_colour selectcolour
  	    /ln-x ln-points ln-np 4 sub get def
  	    /ln-y ln-points ln-np 3 sub get def
  	    /ln-xn ln-points ln-np 2 sub get def
@@ -411,7 +407,7 @@
     /ah-x1 exch def
 
     /ah-angle ah-y2 ah-y1 sub ah-x2 ah-x1 sub atan def
-    /ah-size boxsize linkarrowsize mul def
+    /ah-size boxsize link_arrow_size mul def
 
     gsave
 	ah-x2 ah-y2 translate

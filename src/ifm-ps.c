@@ -26,6 +26,34 @@
 #include "ifm-vars.h"
 #include "ifm-ps.h"
 
+#define PRINT_COLOUR(name) \
+        if (var_changed(#name)) \
+                printf("/%s [%s] def\n", #name, var_colour(#name))
+
+#define PRINT_FONT(name) \
+        if (var_changed(#name)) \
+                printf("/%s /%s def\n", #name, var_string(#name))
+
+#define PRINT_FONTSIZE(name) \
+        if (var_changed(#name)) \
+                printf("/%s %g def\n", #name, var_real(#name) * ps_font_scale)
+
+#define PRINT_INT(name) \
+        if (var_changed(#name)) \
+                printf("/%s %d def\n", #name, var_int(#name))
+
+#define PRINT_REAL(name) \
+        if (var_changed(#name)) \
+                printf("/%s %g def\n", #name, var_real(#name))
+
+#define PRINT_STRING(name) \
+        if (var_changed(#name)) \
+                printf("/%s %s def\n", #name, ps_string(var_string(#name)))
+
+#define PRINT_BOOL(name) \
+        if (var_changed(#name)) \
+                printf("/%s %s def\n", #name, var_int(#name) ? "true" : "false")
+
 /* Map function list */
 mapfuncs ps_mapfuncs = {
     ps_map_start,
@@ -66,6 +94,8 @@ static double ps_room_height;   /* Current room height factor */
 static double ps_font_scale;    /* Font scaling factor */
 
 /* Internal functions */
+static void ps_print_room_vars(void);
+static void ps_print_link_vars(void);
 static int ps_getsize(char *pagesize, double *width, double *height);
 static char *ps_string(char *str);
 
@@ -141,108 +171,39 @@ ps_map_start(void)
     fclose(fp);
 
     /* Page variables */
-    printf("/pagemargin %g cm def\n",
-           var_real("page_margin"));
-    printf("/origpagewidth %g cm def\n",
-           ps_page_width);
-    printf("/origpageheight %g cm def\n",
-           ps_page_height);
-    printf("/origmapwidth %d def\n",
-           width);
-    printf("/origmapheight %d def\n",
-           height);
-    printf("/showborder %s def\n",
-           var_int("show_border") ? "true" : "false");
-    printf("/bordercolour [%s] def\n",
-           var_colour("page_border_colour"));
-    printf("/backgroundcolour [%s] def\n",
-           var_colour("page_background_colour"));
+    printf("/page_margin %g cm def\n", var_real("page_margin"));
+    printf("/page_width %g cm def\n", ps_page_width);
+    printf("/page_height %g cm def\n", ps_page_height);
+    printf("/map_width %d def\n", width);
+    printf("/map_height %d def\n", height);
+
+    PRINT_BOOL(show_border);
+    PRINT_COLOUR(page_border_colour);
+    PRINT_COLOUR(page_background_colour);
 
     /* Title variables */
     if (title != NULL) {
-        printf("/showtitle %s def\n",
-               var_int("show_title") ? "true" : "false");
-        put_string("/titlestring %s def\n",
-                   ps_string(title));
-        printf("/titlefont /%s def\n",
-               var_string("title_font"));
-        printf("/titlefontsize %g def\n",
-               var_real("title_fontsize") * ps_font_scale);
-        printf("/titlecolour [%s] def\n",
-               var_colour("title_colour"));
+        PRINT_BOOL(show_title);
+        put_string("/titlestring %s def\n", ps_string(title));
+        PRINT_FONT(title_font);
+        PRINT_FONTSIZE(title_fontsize);
+        PRINT_COLOUR(title_colour);
     } else {
-        printf("/showtitle false def\n");
+        printf("/show_title false def\n");
     }
 
     /* Map variables */
-    printf("/maptextcolour [%s] def\n",
-           var_colour("map_text_colour"));
-    printf("/mapfont /%s def\n",
-           var_string("map_text_font"));
-    printf("/mapfontsize %g def\n",
-           var_real("map_text_fontsize") * ps_font_scale);
+    PRINT_FONT(map_text_font);
+    PRINT_FONTSIZE(map_text_fontsize);
+    PRINT_COLOUR(map_text_colour);
+    printf("/room_width %g def\n", ps_room_width);
+    printf("/room_height %g def\n", ps_room_height);
 
-    /* Room variables */
-    printf("/roomwidth %g def\n",
-           ps_room_width);
-    printf("/roomheight %g def\n",
-           ps_room_height);
-    printf("/roomfont /%s def\n",
-           var_string("room_text_font"));
-    printf("/roomfontsize %g def\n",
-           var_real("room_text_fontsize") * ps_font_scale);
-    printf("/roomcolour [%s] def\n",
-           var_colour("room_colour"));
-    printf("/roomtextcolour [%s] def\n",
-           var_colour("room_text_colour"));
-    printf("/roombordercolour [%s] def\n",
-           var_colour("room_border_colour"));
-    printf("/roomlinewidth %g def\n",
-           var_real("room_border_width"));
-    printf("/roompuzzlecolour [%s] def\n",
-           var_colour("room_puzzle_colour"));
-    printf("/roomshadowx %g def\n",
-           var_real("room_shadow_xoff"));
-    printf("/roomshadowy %g def\n",
-           var_real("room_shadow_yoff"));
-    printf("/roomshadowcolour [%s] def\n",
-           var_colour("room_shadow_colour"));
-    printf("/roomexitcolour [%s] def\n",
-           var_colour("room_exit_colour"));
-    printf("/roomexitlinewidth %g def\n",
-           var_real("room_exit_width"));
+    /* Room style variables */
+    ps_print_room_vars();
 
-    /* Item variables */
-    printf("/showitems %s def\n",
-           var_int("show_items") ? "true" : "false");
-    printf("/itemfont /%s def\n",
-           var_string("item_text_font"));
-    printf("/itemfontsize %g def\n",
-           var_real("item_text_fontsize") * ps_font_scale);
-    printf("/itemtextcolour [%s] def\n",
-           var_colour("item_text_colour"));
-
-    /* Link variables */
-    printf("/linkcolour [%s] def\n",
-           var_colour("link_colour"));
-    printf("/linktextcolour [%s] def\n",
-           var_colour("link_text_colour"));
-    printf("/linkspecialcolour [%s] def\n",
-           var_colour("link_special_colour"));
-    printf("/linkspecialdashed %s def\n",
-           var_int("link_special_dashed") ? "true" : "false");
-    printf("/linkarrowsize %g def\n",
-           var_real("link_arrow_size"));
-    printf("/linkfont /%s def\n",
-           var_string("link_text_font"));
-    printf("/linkfontsize %g def\n",
-           var_real("link_text_fontsize") * ps_font_scale);
-    printf("/linklinewidth %g def\n",
-           var_real("link_line_width"));
-    printf("/linkupdowntext %s def\n",
-           ps_string(var_string("link_updown_string")));
-    printf("/linkinouttext %s def\n",
-           ps_string(var_string("link_inout_string")));
+    /* Link style variables */
+    ps_print_link_vars();
 
     printf("\n%%%%EndProlog\n");
 }
@@ -293,6 +254,9 @@ ps_map_room(vhash *room)
     char *itemlist = NULL;
     int x, y;
 
+    /* Room style variables */
+    ps_print_room_vars();
+
     /* Write coords */
     x = vh_iget(room, "X");
     y = vh_iget(room, "Y");
@@ -324,7 +288,6 @@ ps_map_room(vhash *room)
     else
         printf(" false");
 
-    printf(" %s", vh_iget(room, "PUZZLE") ? "true" : "false");
     printf(" room\n");
 
     /* Write room exits (if any) */
@@ -362,13 +325,15 @@ ps_map_room(vhash *room)
 void
 ps_map_link(vhash *link)
 {
-    int special = vh_iget(link, "SPECIAL");
     int oneway = vh_iget(link, "ONEWAY");
     int go = vh_iget(link, "GO");
     int updown = (go == D_UP || go == D_DOWN);
     int inout = (go == D_IN || go == D_OUT);
     vlist *x, *y;
     int i, np;
+
+    /* Link style variables */
+    ps_print_link_vars();
 
     x = vh_pget(link, "X");
     y = vh_pget(link, "Y");
@@ -385,7 +350,6 @@ ps_map_link(vhash *link)
     printf(" %s", (updown ? "true" : "false"));
     printf(" %s", (inout ? "true" : "false"));
     printf(" %s", (oneway ? "true" : "false"));
-    printf(" %s", (special ? "true" : "false"));
 
     printf(" link\n");
 }
@@ -400,6 +364,43 @@ void
 ps_map_finish(void)
 {
     printf("endpage\n");
+}
+
+/* Print room style variables */
+static void
+ps_print_room_vars(void)
+{
+    PRINT_FONT(room_text_font);
+    PRINT_FONTSIZE(room_text_fontsize);
+    PRINT_COLOUR(room_colour);
+    PRINT_COLOUR(room_text_colour);
+    PRINT_COLOUR(room_border_colour);
+    PRINT_BOOL(room_border_dashed);
+    PRINT_REAL(room_border_width);
+    PRINT_REAL(room_shadow_xoff);
+    PRINT_REAL(room_shadow_yoff);
+    PRINT_COLOUR(room_shadow_colour);
+    PRINT_COLOUR(room_exit_colour);
+    PRINT_REAL(room_exit_width);
+    PRINT_BOOL(show_items);
+    PRINT_FONT(item_text_font);
+    PRINT_FONTSIZE(item_text_fontsize);
+    PRINT_COLOUR(item_text_colour);
+}
+
+/* Print room style variables */
+static void
+ps_print_link_vars(void)
+{
+    PRINT_COLOUR(link_colour);
+    PRINT_BOOL(link_dashed);
+    PRINT_REAL(link_arrow_size);
+    PRINT_FONT(link_text_font);
+    PRINT_FONTSIZE(link_text_fontsize);
+    PRINT_COLOUR(link_text_colour);
+    PRINT_REAL(link_line_width);
+    PRINT_STRING(link_updown_string);
+    PRINT_STRING(link_inout_string);
 }
 
 /* Get page dimensions given a page description */

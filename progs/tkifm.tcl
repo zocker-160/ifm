@@ -57,8 +57,21 @@ set ifm(aboutcmd) {ifm -version}
 set ifm(untitled) "untitled.ifm"
 set ifm(ifmfiles) {{"IFM files" {.ifm}} {"All files" *}}
 set ifm(psfiles)  {{"PostScript files" {.ps}} {"All files" *}}
-
 set ifm(roomitemratio) 0.5
+
+# Room style variable names.
+set ifm(roomvars) {
+    room_text_fontdef room_colour room_text_colour room_border_colour
+    room_border_width room_shadow_xoff room_shadow_yoff room_shadow_colour
+    room_exit_colour room_exit_width show_items item_text_fontdef
+    item_text_colour
+}
+
+# Link style variable names.
+set ifm(linkvars) {
+    link_colour link_arrow_size link_text_colour link_text_fontdef
+    link_line_width link_updown_string link_inout_string link_spline
+}
 
 # Set up the main window.
 proc MainWindow {} {
@@ -173,15 +186,15 @@ proc DrawMap {num} {
     set ylen [Get $sect ylen]
 
     # Calculate dimensions.
-    set width [expr $ifm(roomsize) * $xlen]
-    set height [expr $ifm(roomsize) * $ylen]
-    set xgap [expr ($ifm(roomsize) * (1 - $ifm(roomwidth))) / 2]
-    set ygap [expr ($ifm(roomsize) * (1 - $ifm(roomheight))) / 2]
+    set width [expr $ifm(room_size) * $xlen]
+    set height [expr $ifm(room_size) * $ylen]
+    set xgap [expr ($ifm(room_size) * (1 - $ifm(room_width))) / 2]
+    set ygap [expr ($ifm(room_size) * (1 - $ifm(room_height))) / 2]
 
-    set mapwidth [expr $ifm(mapwidth) * $ifm(roomsize)]
-    if {$mapwidth > $width} {set mapwidth $width}
-    set mapheight [expr $ifm(mapheight) * $ifm(roomsize)]
-    if {$mapheight > $height} {set mapheight $height}
+    set canvas_width [expr $ifm(canvas_width) * $ifm(room_size)]
+    if {$canvas_width > $width} {set canvas_width $width}
+    set canvas_height [expr $ifm(canvas_height) * $ifm(room_size)]
+    if {$canvas_height > $height} {set canvas_height $height}
 
     # Initialise window.
     set w .$sect
@@ -195,12 +208,12 @@ proc DrawMap {num} {
     pack $f -fill both -expand yes
 
     set c $f.map
-    canvas $c -width ${mapwidth}c -height ${mapheight}c \
+    canvas $c -width ${canvas_width}c -height ${canvas_height}c \
 	    -scrollregion "0 0 ${width}c ${height}c" \
 	    -xscrollcommand "$f.xscroll set" \
 	    -yscrollcommand "$f.yscroll set" \
 	    -relief sunken -bd 2 \
-	    -bg $ifm(mapcol)
+	    -bg $ifm(canvas_background_colour)
     scrollbar $f.xscroll -command "$c xview" -orient horiz
     scrollbar $f.yscroll -command "$c yview"
 
@@ -224,54 +237,57 @@ proc DrawMap {num} {
 	    set xoff [Get $room xpos]
 	    set yoff [Get $room ypos]
 	    set yoff [expr $ylen - 1 - $yoff]
-	    set puzzle [Get $room puzzle]
 	    set items [Get $room items]
+	    set sxoff [Get $room room_shadow_xoff]
+	    set syoff [Get $room room_shadow_yoff]
 
-	    if {$ifm(roomshadowx) != 0 || $ifm(roomshadowy) != 0} {
-		set xsoff [expr $ifm(roomsize) * $ifm(roomshadowx)]
-		set ysoff [expr $ifm(roomsize) * $ifm(roomshadowy)]
-		set xmin [expr $xoff * $ifm(roomsize) + $xgap - $xsoff]
-		set ymin [expr $yoff * $ifm(roomsize) + $ygap + $ysoff]
-		set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
-		set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
+	    if {$sxoff != 0 || $syoff != 0} {
+		set xsoff [expr $ifm(room_size) * $sxoff]
+		set ysoff [expr $ifm(room_size) * $syoff]
+		set xmin [expr $xoff * $ifm(room_size) + $xgap - $xsoff]
+		set ymin [expr $yoff * $ifm(room_size) + $ygap + $ysoff]
+		set xmax [expr $xmin + $ifm(room_size) * $ifm(room_width)]
+		set ymax [expr $ymin + $ifm(room_size) * $ifm(room_height)]
 
 		$c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
-			-width $ifm(roomlinewidth) -outline $ifm(shadowcol) \
-			-fill $ifm(shadowcol)
+			-width $ifm(room_border_width) \
+			-outline $ifm(room_shadow_colour) \
+			-fill $ifm(room_shadow_colour)
 	    }
 
-	    set xmin [expr $xoff * $ifm(roomsize) + $xgap]
-	    set ymin [expr $yoff * $ifm(roomsize) + $ygap]
-	    set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
-	    set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
-
-	    set fillcol $ifm(roomcol)
-	    if {$puzzle} {set fillcol $ifm(puzzlecol)}
+	    set xmin [expr $xoff * $ifm(room_size) + $xgap]
+	    set ymin [expr $yoff * $ifm(room_size) + $ygap]
+	    set xmax [expr $xmin + $ifm(room_size) * $ifm(room_width)]
+	    set ymax [expr $ymin + $ifm(room_size) * $ifm(room_height)]
 
 	    $c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
-		    -width $ifm(roomlinewidth) -outline $ifm(bordercol) \
-		    -fill $fillcol
+		    -width [Get $room room_border_width] \
+		    -outline [Get $room room_border_colour] \
+		    -fill [Get $room room_colour]
 
 	    set xc [expr ($xmin + $xmax) / 2]
 	    set yc [expr ($ymin + $ymax) / 2]
 	    set wid [expr ($xmax - $xmin) * 0.9]
 
-	    if {$ifm(showitems) && $items != ""} {
+	    if {[Get $room show_items] && $items != ""} {
 		set fac $ifm(roomitemratio)
 
-		set yo [expr $ifm(roomsize) * $ifm(roomheight) * $fac / 2]
+		set yo [expr $ifm(room_size) * $ifm(room_height) * $fac / 2]
 		$c create text ${xc}c [expr $yc - $yo]c -text $desc \
-			-width ${wid}c -justify center -font $ifm(roomfont) \
-			-fill $ifm(roomtextcol)
+			-width ${wid}c -justify center \
+			-font [Get $room room_text_fontdef] \
+			-fill [Get $room room_text_colour]
 
-		set yo [expr $ifm(roomsize) * $ifm(roomheight) * (1 - $fac) / 2]
+		set yo [expr $ifm(room_size) * $ifm(room_height) * (1 - $fac) / 2]
 		$c create text ${xc}c [expr $yc + $yo]c -text $items \
-			-width ${wid}c -justify center -font $ifm(itemfont) \
-			-fill $ifm(itemcol)
+			-width ${wid}c -justify center \
+			-font [Get $room item_text_fontdef] \
+			-fill [Get $room item_text_colour]
 	    } else {
 		$c create text ${xc}c ${yc}c -text $desc \
-			-width ${wid}c -justify center -font $ifm(roomfont) \
-			-fill $ifm(roomtextcol)
+			-width ${wid}c -justify center \
+			-font [Get $room room_text_fontdef] \
+			-fill [Get $room room_text_colour]
 	    }
 	}
     }
@@ -279,7 +295,7 @@ proc DrawMap {num} {
     # Draw room exits.
     foreach exit $exits {
 	if {[Get $exit sect] == $sect} {
-	    set coords [Truncate $exit $ifm(roomwidth) $ifm(roomheight)]
+	    set coords [Truncate $exit $ifm(room_width) $ifm(room_height)]
 	    set xlist [lindex $coords 0]
 	    set ylist [lindex $coords 1]
 
@@ -297,15 +313,16 @@ proc DrawMap {num} {
 
 	    set cmd "$c create line"
 
-	    set x1 [expr ($x1 + 0.5) * $ifm(roomsize)]
-	    set y1 [expr ($y1 + 0.5) * $ifm(roomsize)]
+	    set x1 [expr ($x1 + 0.5) * $ifm(room_size)]
+	    set y1 [expr ($y1 + 0.5) * $ifm(room_size)]
 	    lappend cmd ${x1}c ${y1}c
 
-	    set x2 [expr ($x2 + 0.5) * $ifm(roomsize)]
-	    set y2 [expr ($y2 + 0.5) * $ifm(roomsize)]
+	    set x2 [expr ($x2 + 0.5) * $ifm(room_size)]
+	    set y2 [expr ($y2 + 0.5) * $ifm(room_size)]
 	    lappend cmd ${x2}c ${y2}c
 
-	    lappend cmd -width $ifm(exitwidth) -fill $ifm(exitcol)
+	    lappend cmd -width [Get $room room_exit_width] \
+		    -fill [Get $room room_exit_colour]
 	    eval $cmd
 	}
     }
@@ -313,14 +330,9 @@ proc DrawMap {num} {
     # Draw links.
     foreach link $links {
 	if {[Get $link sect] == $sect} {
-	    set coords [Truncate $link $ifm(roomwidth) $ifm(roomheight)]
+	    set coords [Truncate $link $ifm(room_width) $ifm(room_height)]
 	    set xlist [lindex $coords 0]
 	    set ylist [lindex $coords 1]
-
-	    set updown [Get $link updown]
-	    set inout [Get $link inout]
-	    set oneway [Get $link oneway]
-	    set special [Get $link special]
 
 	    set cmd "$c create line"
 	    for {set i 0} {$i < [llength $xlist]} {incr i} {
@@ -332,39 +344,38 @@ proc DrawMap {num} {
 		set xoff [lindex $xlist $i]
 		set yoff [lindex $ylist $i]
 		set yoff [expr $ylen - 1 - $yoff]
-		set x [expr ($xoff + 0.5) * $ifm(roomsize)]
-		set y [expr ($yoff + 0.5) * $ifm(roomsize)]
+		set x [expr ($xoff + 0.5) * $ifm(room_size)]
+		set y [expr ($yoff + 0.5) * $ifm(room_size)]
 		lappend cmd ${x}c ${y}c
 	    }
 
-	    if {$oneway} {
-		set a1 [expr $ifm(arrowsize) * $ifm(roomsize)]
+	    if [Get $link oneway] {
+		set a1 [expr [Get $link link_arrow_size] * $ifm(room_size)]
 		set a2 $a1
 		set a3 [expr $a2 / 2]
 		lappend cmd -arrow last -arrowshape "${a1}c ${a2}c ${a3}c"
 	    }
 
-	    if {$special} {
-		lappend cmd -fill $ifm(linkspecialcol)
-	    } else {
-		lappend cmd -fill $ifm(linkcol)
-	    }
-
-	    lappend cmd -width $ifm(linkwidth) -smooth $ifm(linkspline)
+	    lappend cmd -fill [Get $link link_colour]
+	    lappend cmd -width [Get $link link_line_width] \
+		    -smooth [Get $link link_spline]
 	    eval $cmd
 
+	    set updown [Get $link updown]
+	    set inout [Get $link inout]
 	    if {$updown || $inout} {
 		set xmid [expr ($x + $xlast) / 2]
 		set ymid [expr ($y + $ylast) / 2]
 
 		if {$updown} {
-		    set text $ifm(linkupdown)
+		    set text [Get $link link_updown_string]
 		} else {
-		    set text $ifm(linkinout)
+		    set text [Get $link link_inout_string]
 		}
 
 		$c create text ${xmid}c ${ymid}c -text $text \
-			-font $ifm(linkfont) -fill $ifm(linktextcol)
+			-font [Get $link link_text_fontdef] \
+			-fill [Get $link link_text_colour]
 	    }
 	}
     }
@@ -648,8 +659,8 @@ proc AddSect {title xlen ylen} {
 }
 
 # Add a room.
-proc AddRoom {desc items xpos ypos puzzle} {
-    global rooms roomnum sectnum
+proc AddRoom {desc items xpos ypos} {
+    global ifm rooms roomnum sectnum
     incr roomnum
     set var room$roomnum
     lappend rooms $var
@@ -659,14 +670,17 @@ proc AddRoom {desc items xpos ypos puzzle} {
     Set $var items $items
     Set $var xpos $xpos
     Set $var ypos $ypos
-    Set $var puzzle $puzzle
 
     Set $var sect sect$sectnum
+
+    foreach attr $ifm(roomvars) {
+	Set $var $attr $ifm($attr)
+    }
 }
 
 # Add a link.
-proc AddLink {xlist ylist updown inout oneway special} {
-    global links linknum sectnum
+proc AddLink {xlist ylist updown inout oneway} {
+    global ifm links linknum sectnum
     incr linknum
     set var link$linknum
     global $var
@@ -678,9 +692,12 @@ proc AddLink {xlist ylist updown inout oneway special} {
     Set $var updown $updown
     Set $var inout $inout
     Set $var oneway $oneway
-    Set $var special $special
 
     Set $var sect sect$sectnum
+
+    foreach attr $ifm(linkvars) {
+	Set $var $attr $ifm($attr)
+    }
 }
 
 # Add a room exit.
