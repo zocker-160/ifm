@@ -19,63 +19,121 @@
 #include "ifm-util.h"
 #include "ifm-raw.h"
 
+/* Map function list */
+mapfuncs raw_mapfuncs = {
+    raw_map_start,
+    raw_map_section,
+    raw_map_room,
+    raw_map_link,
+    raw_map_join,
+    NULL,
+    NULL
+};
+
 /* Item function list */
 itemfuncs raw_itemfuncs = {
-    raw_item_start,
+    NULL,
     raw_item_entry,
     NULL
 };
 
 /* Task function list */
 taskfuncs raw_taskfuncs = {
-    raw_task_start,
+    NULL,
     raw_task_entry,
     NULL
 };
 
-/* Item functions */
+/* Map functions */
 void
-raw_item_start(void)
+raw_map_start(void)
 {
-    printf("%s\t%s\t%s\n", "ITEM", "ROOM", "NOTE");
 }
 
 void
+raw_map_section(vhash *sect)
+{
+}
+
+void
+raw_map_room(vhash *room)
+{
+}
+
+void
+raw_map_link(vhash *link)
+{
+}
+
+void
+raw_map_join(vhash *join)
+{
+}
+
+/* Item functions */
+void
 raw_item_entry(vhash *item)
 {
+    vlist *notes = vh_pget(item, "NOTE");
     vhash *room = vh_pget(item, "ROOM");
-    char *idesc = vh_sgetref(item, "DESC");
-    char *rdesc = (room == NULL ? "" : vh_sgetref(room, "DESC"));
-    char *note = vh_sgetref(item, "NOTE");
+    int score = vh_iget(item, "SCORE");
+    static int first = 1;
+    vscalar *elt;
 
-    printf("%s\t%s\t%s\n",
-           idesc,
-           (rdesc == NULL ? "" : rdesc),
-           (note == NULL ? "" : note));
+    if (!first)
+        printf("\n");
+    first = 0;
+
+    printf("item: %s\n", vh_sgetref(item, "DESC"));
+
+    printf("id: %d\n", vh_iget(item, "ID"));
+
+    if (vh_exists(item, "TAG"))
+        printf("tag: %s\n", vh_sgetref(item, "TAG"));
+
+    if (room != NULL)
+        printf("room: %s\n", vh_sgetref(room, "DESC"));
+
+    if (score > 0)
+        printf("score: %d\n", score);
+
+    if (notes != NULL) {
+        vl_foreach(elt, notes)
+            printf("note: %s\n", vs_sgetref(elt));
+    }
 }
 
 /* Task functions */
 void
-raw_task_start(void)
-{
-    printf("%s\t%s\t%s\t%s\n",
-           "ROOM", "TASK", "NOTE", "SCORE");
-}
-
-void
 raw_task_entry(vhash *task)
 {
+    vlist *notes = vh_pget(task, "NOTE");
     vhash *room = vh_pget(task, "ROOM");
     int score = vh_iget(task, "SCORE");
-    char *note = vh_sgetref(task, "NOTE");
-    static vhash *last = NULL;
+    int type = vh_iget(task, "TYPE");
+    static int first = 1;
+    vscalar *elt;
 
-    printf("%s\t%s\t%s\t%s\n",
-           (room == last || room == NULL ? "" : vh_sgetref(room, "DESC")),
-           vh_sgetref(task, "DESC"),
-           (note == NULL ? "" : note),
-           (score ? vh_sget(task, "SCORE") : ""));
+    if (!first)
+        printf("\n");
+    first = 0;
+
+    printf("task: %s\n", vh_sgetref(task, "DESC"));
+
+    if (vh_exists(task, "TAG"))
+        printf("tag: %s\n", vh_sgetref(task, "TAG"));
 
     if (room != NULL)
-        last = room;
+        printf("room: %s\n", vh_sgetref(room, "DESC"));
+
+    if (vh_exists(task, "CMD"))
+        printf("cmd: %s\n", vh_sgetref(task, "CMD"));
+
+    if (score > 0)
+        printf("score: %d\n", score);
+
+    if (notes != NULL) {
+        vl_foreach(elt, notes)
+            printf("note: %s\n", vs_sgetref(elt));
+    }
 }
