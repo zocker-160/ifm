@@ -61,8 +61,12 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
         vh_pstore(obj, attr, list);
     }
 
-    VPRINT(buf, fmt);
-    vl_spush(list, buf);
+    if (fmt != NULL) {
+        VPRINT(buf, fmt);
+        vl_spush(list, buf);
+    } else {
+        vl_empty(list);
+    }
 }
 
 /* Return direction given offsets */
