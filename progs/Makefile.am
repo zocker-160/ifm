@@ -4,17 +4,7 @@ bin_SCRIPTS = @tkifm@ @scr2ifm@
 
 EXTRA_SCRIPTS = tkifm scr2ifm
 
-infodir = $(prefix)/info
-
-info_DATA = tkifm.info scr2ifm.info
-
-EXTRA_DIST = tkifm.tcl tkifm.txt tkifm.html tkifm.info scr2ifm.pl	\
-scr2ifm.txt scr2ifm.html scr2ifm.info
-
-#ETAGS_ARGS = scr2ifm.pl
-#ETAGS_ARGS = -l none -r '/proc[ \t]+\([^ \t]+\)/\1/' tkifm.tcl
-
-#TAGS_DEPENDENCIES = tkifm.tcl scr2ifm.pl
+EXTRA_DIST = tkifm.tcl scr2ifm.pl
 
 tkifm: tkifm.tcl
 	echo '#! $(WISH) -f' > $@

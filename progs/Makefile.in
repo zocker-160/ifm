@@ -27,6 +27,7 @@ sysconfdir = @sysconfdir@
 sharedstatedir = @sharedstatedir@
 localstatedir = @localstatedir@
 libdir = @libdir@
+infodir = @infodir@
 mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
@@ -70,20 +71,13 @@ bin_SCRIPTS = @tkifm@ @scr2ifm@
 
 EXTRA_SCRIPTS = tkifm scr2ifm
 
-infodir = $(prefix)/info
-
-info_DATA = tkifm.info scr2ifm.info
-
-EXTRA_DIST = tkifm.tcl tkifm.txt tkifm.html tkifm.info scr2ifm.pl	scr2ifm.txt scr2ifm.html scr2ifm.info
-
+EXTRA_DIST = tkifm.tcl scr2ifm.pl
 
 CLEANFILES = tkifm scr2ifm
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ../etc/config.h
 CONFIG_CLEAN_FILES = 
 SCRIPTS =  $(bin_SCRIPTS)
-
-DATA =  $(info_DATA)
 
 DIST_COMMON =  Makefile.am Makefile.in
 
@@ -120,25 +114,6 @@ uninstall-binSCRIPTS:
 	list='$(bin_SCRIPTS)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
 	done
-
-install-infoDATA: $(info_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(infodir)
-	@list='$(info_DATA)'; for p in $$list; do \
-	  if test -f $(srcdir)/$$p; then \
-	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(infodir)/$$p"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(infodir)/$$p; \
-	  else if test -f $$p; then \
-	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(infodir)/$$p"; \
-	    $(INSTALL_DATA) $$p $(DESTDIR)$(infodir)/$$p; \
-	  fi; fi; \
-	done
-
-uninstall-infoDATA:
-	@$(NORMAL_UNINSTALL)
-	list='$(info_DATA)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(infodir)/$$p; \
-	done
 tags: TAGS
 TAGS:
 
@@ -174,20 +149,20 @@ installcheck: installcheck-am
 install-exec-am: install-binSCRIPTS
 install-exec: install-exec-am
 
-install-data-am: install-infoDATA
+install-data-am:
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binSCRIPTS uninstall-infoDATA
+uninstall-am: uninstall-binSCRIPTS
 uninstall: uninstall-am
-all-am: Makefile $(SCRIPTS) $(DATA)
+all-am: Makefile $(SCRIPTS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(infodir)
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -218,19 +193,13 @@ maintainer-clean-am:  maintainer-clean-generic distclean-am
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: uninstall-binSCRIPTS install-binSCRIPTS uninstall-infoDATA \
-install-infoDATA tags distdir info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+.PHONY: uninstall-binSCRIPTS install-binSCRIPTS tags distdir info-am \
+info dvi-am dvi check check-am installcheck-am installcheck \
+install-exec-am install-exec install-data-am install-data install-am \
+install uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-#ETAGS_ARGS = scr2ifm.pl
-#ETAGS_ARGS = -l none -r '/proc[ \t]+\([^ \t]+\)/\1/' tkifm.tcl
-
-#TAGS_DEPENDENCIES = tkifm.tcl scr2ifm.pl
 
 tkifm: tkifm.tcl
 	echo '#! $(WISH) -f' > $@
