@@ -286,11 +286,6 @@ fig_create_textbox(vhash *parent,
 
     V_VPRINT(buf, fmt);
 
-#if 0
-    fig_value(width);
-    fig_value(height);
-#endif
-
     /* Reduce font size until it fits the box */
     while (1) {
         linegap = 1 * fontsize / (POINTS_PER_INCH * scale);
@@ -305,33 +300,11 @@ fig_create_textbox(vhash *parent,
 
         vl_destroy(lines);
 
-#if 0
         fig_debug("trying fontsize %g: %d rows, %d cols",
                   fontsize, nrows, ncols);
 
-        fig_value(linegap);
-        fig_value(nrows * linegap);
-        fig_value(height);
-#endif
-
-        if (nrows * linegap <= height) {
-#if 0
-            while (1) {
-                lines = vl_filltext(buf, ncols);
-                count = vl_length(lines);
-                vl_destroy(lines);
-
-                if (count != nrows)
-                    break;
-                else
-                    ncols++;
-
-                fig_debug("increasing column size: %d", ncols);
-            }
-#endif
-
+        if (nrows * linegap <= height)
             break;
-        }
 
         if (fontsize <= 4)
             break;
