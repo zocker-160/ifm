@@ -1,0 +1,2571 @@
+#LyX 1.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 218
+\textclass article
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\float_placement !htb
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\paperorientation portrait
+\leftmargin 30mm
+\topmargin 30mm
+\rightmargin 30mm
+\bottommargin 30mm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language swedish
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+
+\layout Title
+
+IFM -- Interactive Fiction Mapper
+\newline 
+Version 4.2
+\layout Author
+
+by Glenn Hutchings 
+\family typewriter 
+<zondo@pillock.freeserve.co.uk>
+\layout Standard
+\pagebreak_top \pagebreak_bottom 
+
+\begin_inset LatexCommand \tableofcontents{}
+
+\end_inset 
+
+
+\layout Section
+
+Introduction
+\begin_inset LatexCommand \label{sec:introduction}
+
+\end_inset 
+
+
+\layout Standard
+
+IFM is a language for keeping track of your progress through an Interactive
+ Fiction game, and a program for producing various different sorts of output
+ using it.
+ You can record each room you visit and its relation to other rooms, the
+ initial locations of useful items you find, and the tasks you need to perform
+ in order to solve the game.
+\layout Standard
+
+The IFM mapping commands are designed so that you can easily add to the
+ map as you explore the game.
+ You type in the rooms you visit and the directions you move in to reach
+ other rooms, and IFM calculates the position of each room in relation to
+ the others.
+ A map can consist of several independent sections, allowing you to divide
+ up the map however you like.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:making-maps}
+
+\end_inset 
+
+ for an example of how to make a map.
+\layout Standard
+
+The IFM task commands, if used, allow you to specify the order in which
+ game-solving tasks must be done.
+ The IFM program can then calculate and print a high-level 
+\begin_inset Quotes sld
+\end_inset 
+
+walkthrough
+\begin_inset Quotes srd
+\end_inset 
+
+ of the game.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:solving-game}
+
+\end_inset 
+
+ for examples of how to do this.
+\layout Standard
+
+Several output formats are available, including PostScript and ASCII text
+ -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:output-formats}
+
+\end_inset 
+
+.
+ Some of the output formats have a set of variables which control the appearance
+ of the output -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+.
+\layout Section
+
+Operation
+\begin_inset LatexCommand \label{sec:operation}
+
+\end_inset 
+
+
+\layout Standard
+
+On startup, IFM does the following.
+ Firstly, the system initialization file is read.
+ This sets defaults used by everyone.
+ This file is called 
+\family typewriter 
+ifm-init.ifm
+\family default 
+, and is found by searching a standard set of directories.
+ You can override this search path by setting the environment variable 
+\family typewriter 
+IFMPATH
+\family default 
+ to be a colon-separated list of directories.
+\layout Standard
+
+Then, if you have a personal initialization file, that is read.
+ This file is found in the directory specified by your 
+\family typewriter 
+HOME
+\family default 
+ environment variable.
+ On Unix systems it is called 
+\family typewriter 
+.ifmrc
+\family default 
+, and on Win32 systems it is called 
+\family typewriter 
+ifm.ini
+\family default 
+.
+ You can use this file to customize the default variable settings for different
+ types of output.
+\layout Standard
+
+Then input from the file(s) on the command-line is read.
+ If no files were specified, stdin is read.
+ A filename equal to 
+\family typewriter 
+-
+\family default 
+ also indicates that stdin should be read at that point.
+\layout Standard
+
+If any of the 
+\family typewriter 
+-map
+\family default 
+, 
+\family typewriter 
+-items
+\family default 
+, 
+\family typewriter 
+-tasks
+\family default 
+ or 
+\family typewriter 
+-show
+\family default 
+ options was specified, the appropriate output is produced.
+ If not, only a syntax check of the input is done.
+\layout Standard
+
+When producing output, the output format specified by the 
+\family typewriter 
+-format
+\family default 
+ option is used.
+ If this was not specified, the first format in the list which supports
+ this type of output is chosen.
+\layout Standard
+
+Some of the output formats use additional library files to do their work.
+ For example, the PostScript output format adds a standard 
+\begin_inset Quotes sld
+\end_inset 
+
+prologue
+\begin_inset Quotes srd
+\end_inset 
+
+ file to all output.
+ These files are found using the same search path as the system initialization
+ file (see above).
+\layout Standard
+
+Here's a list of the command-line options (which can be abbreviated):
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-m,\SpecialChar ~
+-map
+\family default 
+ Draw a map of the game.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-i,\SpecialChar ~
+-items
+\family default 
+ Print a list of items which appear in the game.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-t,\SpecialChar ~
+-tasks
+\family default 
+ Print a list of tasks required to solve the game.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-f,\SpecialChar ~
+-format
+\family default 
+ format Specify the output format (see *note Output Formats::).
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-o,\SpecialChar ~
+-output
+\family default 
+ file Write to the specified file, instead of stdout.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-w,\SpecialChar ~
+-nowarn
+\family default 
+ Don't print warnings.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-d,\SpecialChar ~
+-debug
+\family default 
+ Print debugging information.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-s,\SpecialChar ~
+-show
+\family default 
+\SpecialChar ~
+
+\family typewriter 
+type
+\family default 
+ Show one of several types of information, and exit.
+ See below for a list of valid arguments.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-I,\SpecialChar ~
+-include\SpecialChar ~
+dir
+\family default 
+ Prepend the specified directory to the library and include file search
+ path.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-noinit
+\family default 
+ Don't read your personal init file.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-version
+\family default 
+ Print the program version.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+-help
+\family default 
+ Just print some usage information.
+\layout Standard
+
+Here's a list of the 
+\family typewriter 
+-show
+\family default 
+ options (which can be abbreviated):
+\layout List
+\labelwidthstring 00.00.0000
+
+path Show the directories that are searched for library and include files.
+\layout List
+\labelwidthstring 00.00.0000
+
+vars Show a complete list of defined variables, in a format suitable for
+ feeding back into IFM.
+ See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+.
+\layout Section
+
+Making Maps
+\begin_inset LatexCommand \label{sec:making-maps}
+
+\end_inset 
+
+
+\layout Standard
+
+This section gives you a tour of the main commands for making maps.
+ It's not complete -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:language}
+
+\end_inset 
+
+ for a full list of commands.
+\layout Subsection
+
+Introduction to Maps
+\layout Standard
+
+The traditional Infocom-style way of drawing Interactive Fiction maps is
+ the 
+\begin_inset Quotes sld
+\end_inset 
+
+boxes-and-lines
+\begin_inset Quotes srd
+\end_inset 
+
+ method.
+ For example:
+\layout Standard
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+
+\begin_inset Figure size 178 68
+file map
+width 4 60
+flags 9
+
+\end_inset 
+
+
+\layout Standard
+
+This is the style of map that IFM produces.
+ Rooms are represented as boxes on a square grid, and links between the
+ rooms are drawn as lines connecting them.
+ Links emanate from rooms in any of the eight standard compass directions,
+ and also follow the grid.
+\layout Standard
+
+In the following sections, we'll introduce the IFM commands used to draw
+ the example map above.
+\layout Subsection
+
+Adding Rooms
+\layout Standard
+
+To draw the example map from the previous section, you first choose an arbitrary
+ start location: the kitchen (when mapping a real game, you'd choose your
+ actual start location).
+ To add the kitchen, just type this:
+\layout LyX-Code
+
+room "Kitchen";
+\layout Standard
+
+Now you're in the kitchen.
+ Suppose, if this were a real game, that you first went south to explore
+ the garage.
+ That can be added to the map like this:
+\layout LyX-Code
+
+room "Garage" dir south;
+\layout Standard
+
+Now you've said which way you went to get to the garage, and since you were
+ in the kitchen, IFM knows that the garage is south of the kitchen.
+ By the way, 
+\family typewriter 
+south
+\family default 
+ can be abbreviated 
+\family typewriter 
+s
+\family default 
+ (and similarly for all other directions), just like in the games.
+\layout Standard
+
+Ok, you're in the garage.
+ Unfortunately, that's a dead end and you have to retrace your steps to
+ the kitchen.
+ You've already mapped that, so there's no need to do anything.
+ Now you head off east to the lounge.
+ Now, you're moving from the kitchen again but IFM thinks you're in the
+ garage (IFM's idea of 
+\begin_inset Quotes sld
+\end_inset 
+
+where you are
+\begin_inset Quotes srd
+\end_inset 
+
+ is always the last room mentioned).
+ You need a way of referring to the kitchen again -- to do that, you add
+ a 
+\begin_inset Quotes sld
+\end_inset 
+
+tag
+\begin_inset Quotes srd
+\end_inset 
+
+ to it by changing the 
+\begin_inset Quotes sld
+\end_inset 
+
+kitchen
+\begin_inset Quotes srd
+\end_inset 
+
+ line like this:
+\layout LyX-Code
+
+room "Kitchen" tag Kitchen;
+\layout Standard
+
+The tag name can be any name you like.
+ You might think that you could refer to the kitchen by using the name in
+ quotes, but that would mean you could never have two distinct rooms with
+ the same name.
+ Another advantage of tags is that they can be much shorter than the real
+ room names.
+ The tag 
+\family typewriter 
+K
+\family default 
+ would be just as valid in the example above (though not as readable).
+\layout Standard
+
+Now you can refer to the kitchen by its tag, so you can move east from it
+ into the lounge like this:
+\layout LyX-Code
+
+room "Lounge" dir e from Kitchen;
+\layout Standard
+
+The 
+\family typewriter 
+from
+\family default 
+ clause tells IFM where you're moving from.
+ If it's omitted, it assumes you're moving from the last room mentioned.
+\layout Standard
+
+Continuing your exploration, you move south into the dining room:
+\layout LyX-Code
+
+room "Dining Room" dir s;
+\layout Standard
+
+You exit the dining room to the east, and turn a corner north before entering
+ the study.
+ How can you represent the corner faithfully on the map? Like this:
+\layout LyX-Code
+
+room "Study" dir e n;
+\layout Standard
+
+This says that you move east, then north, to get to the study.
+ Now, what if someone locked the study door behind you and the only way
+ out was through the window? That's a one-way trip into the study, which
+ you can indicate using the 
+\family typewriter 
+oneway
+\family default 
+ attribute like this:
+\layout LyX-Code
+
+room "Study" dir e n oneway;
+\layout Standard
+
+This is indicated on the map by an arrow.
+\layout Subsection
+
+Adding Links
+\layout Standard
+
+The map as it stands is not complete -- the diagonal link between the kitchen
+ and the dining room is missing (because you didn't go that way in visiting
+ the kitchen or the dining room).
+ To add it, you need to modify the dining room command like this:
+\layout LyX-Code
+
+room "Dining Room" dir s link Kitchen;
+\layout Standard
+
+The 
+\family typewriter 
+link
+\family default 
+ clause creates a straight-line link between the current room and the room
+ with the specified tag name (in this case, the kitchen).
+\layout Standard
+
+Note that if this link needed to turn corners, as in the study example above,
+ then that method of linking the rooms wouldn't have worked.
+ In that case, you'd have to use the stand-alone 
+\family typewriter 
+link
+\family default 
+ command.
+ For example:
+\layout LyX-Code
+
+link Diner to Kitchen dir n nw;
+\layout Standard
+
+This assumes you've given the dining room the tag name 
+\family typewriter 
+Diner
+\family default 
+.
+ The link starts off going north, then turns northwest, and finally goes
+ toward the kitchen.
+ Note that in a 
+\family typewriter 
+link
+\family default 
+ command, if you omit the final direction which leads to the linked room,
+ it is added automatically.
+\layout Subsection
+
+Other Directions
+\layout Standard
+
+Suppose that there were steps down from the kitchen into the garage, and
+ that you wanted to indicate that you could up or down as well.
+ You could do that using the 
+\family typewriter 
+go
+\family default 
+ clause, like this:
+\layout LyX-Code
+
+room "Garage" dir s go down;
+\layout Standard
+
+This indicates that the actual direction travelled is downwards, but it
+ is still represented as south on the map.
+ The 
+\family typewriter 
+go
+\family default 
+ clause accepts 
+\family typewriter 
+up
+\family default 
+, 
+\family typewriter 
+down
+\family default 
+, 
+\family typewriter 
+in
+\family default 
+ and 
+\family typewriter 
+out
+\family default 
+.
+ As with compass directions, 
+\family typewriter 
+up
+\family default 
+ and 
+\family typewriter 
+down
+\family default 
+ may be abbreviated as 
+\family typewriter 
+u
+\family default 
+ and 
+\family typewriter 
+d
+\family default 
+.
+\layout Subsection
+
+Room Exits
+\layout Standard
+
+At various points in a game, you arrive in a room with many directions to
+ explore.
+ It is useful to be able to mark some of these directions as unexplored,
+ so that you can come back and explore them later.
+ You could mark these by creating dummy rooms in those directions, but this
+ is tedious.
+ Alternatively, you can use the 
+\family typewriter 
+exit
+\family default 
+ clause, like this:
+\layout LyX-Code
+
+room "Dining Room" dir s exit nw e;
+\layout Standard
+
+This says that there are two unexplored exits from this room, in the northwest
+ and east directions.
+ When a map is drawn, this fact will be displayed by a small line poking
+ out of the room in those directions.
+\layout Standard
+
+When you come to actually explore those directions, and add links to new
+ rooms, the corresponding room exit markers will no longer be drawn.
+ So you can leave the exit clauses in if you want.
+\layout Subsection
+
+Map Sections
+\layout Standard
+
+In IFM, rooms are divided into groups called 
+\begin_inset Quotes sld
+\end_inset 
+
+map sections
+\begin_inset Quotes srd
+\end_inset 
+
+.
+ Each room in a map section has an explicit spatial relationship to all
+ the other rooms in that section.
+ A room which is obtained by moving via a 
+\family typewriter 
+dir
+\family default 
+ clause from a previous room is on the same map section as the previous
+ room, since its co-ordinates can be calculated relative to it.
+\layout Standard
+
+There are several reasons why it might be a good idea to split a game map
+ into different sections:
+\layout Itemize
+
+Some maps can be very large, and may not look good on a single piece of
+ paper.
+\layout Itemize
+
+It might be awkward to put rooms in relation to each other because of, say,
+ a lot of up/down connections which have to be 
+\begin_inset Quotes sld
+\end_inset 
+
+flattened out
+\begin_inset Quotes srd
+\end_inset 
+
+.
+\layout Itemize
+
+The game might naturally divide into sections -- a prologue, middle-game
+ and end-game, for example.
+\layout Standard
+
+IFM manages independent map sections automatically, by deciding which rooms
+ are on which section.
+ No special command is needed to start a new map section -- simply define
+ a room which has no connection to any previous room, by leaving out the
+ 
+\family typewriter 
+dir
+\family default 
+ clause (note that that's how the kitchen starts out, in the example).
+\layout Standard
+
+Rooms on different map sections are completely separate, and you may not
+ link them via the 
+\family typewriter 
+link
+\family default 
+ command.
+ However, you can indicate where a room on one section is connected to a
+ room on another, using the 
+\family typewriter 
+join
+\family default 
+ command:
+\layout LyX-Code
+
+join Room1 to Room2;
+\layout Standard
+
+As usual, 
+\family typewriter 
+Room1
+\family default 
+ and 
+\family typewriter 
+Room2
+\family default 
+ are tag names.
+ You can also use 
+\family typewriter 
+join
+\family default 
+ as a clause in a room command (usually done with the room starting in a
+ new section):
+\layout LyX-Code
+
+room "Basement" join Ground_Floor;
+\layout Standard
+
+The 
+\begin_inset Quotes sld
+\end_inset 
+
+joined
+\begin_inset Quotes srd
+\end_inset 
+
+ status of the two rooms is indicated on the map, the exact manner depending
+ on the output format.
+\layout Standard
+
+Each map section can be given a title using the 
+\family typewriter 
+map
+\family default 
+ command, like this:
+\layout LyX-Code
+
+map "Kensington Gardens";
+\layout Standard
+
+This names the next map section that hasn't been named.
+ Note that you should have as many 
+\family typewriter 
+map
+\family default 
+ commands as you have map sections, although this isn't enforced -- any
+ names that are missing will be assigned default names, and extra names
+ will be ignored.
+ It's conventional to give a 
+\family typewriter 
+map
+\family default 
+ command just before starting a new map section.
+\layout Standard
+
+In rare circumstances (e.g.\SpecialChar ~
+a three-dimensional maze) you may need to have
+ rooms on the same map section which are not connected to each other.
+ The room 
+\family typewriter 
+dir
+\family default 
+ clause creates an implicit link from the previous room by default, but
+ you can stop this from happening by using the 
+\family typewriter 
+nolink
+\family default 
+ attribute.
+ As a trivial example:
+\layout LyX-Code
+
+room "One Side of Wall" tag this_side;
+\layout LyX-Code
+
+room "Other Side of Wall" dir e nolink tag other_side;
+\layout LyX-Code
+
+room "Underground Passage" tag passage_1;
+\layout LyX-Code
+
+room "Underground Passage" tag passage_2 dir e;
+\layout LyX-Code
+
+join this_side to passage_1 go down;
+\layout LyX-Code
+
+join passage_2 to other_side go up;
+\layout Standard
+
+In this example, there are two map sections: above ground, and below ground.
+ But the two above-ground rooms are not connected directly.
+\layout Subsection
+
+Adding Items
+\layout Standard
+
+As well as rooms, IFM can indicate the initial rooms of various items found
+ in the game.
+ To add an item, use the 
+\family typewriter 
+item
+\family default 
+ command like this:
+\layout LyX-Code
+
+item "Spoon" in Kitchen;
+\layout Standard
+
+The 
+\family typewriter 
+in
+\family default 
+ clause can be omitted, and then the room defaults to the last room mentioned.
+ You can also add an arbitrary note to each item (e.g.\SpecialChar ~
+to remind you what it's
+ for) using the 
+\family typewriter 
+note
+\family default 
+ attribute:
+\layout LyX-Code
+
+item "Spoon" in Kitchen note "Stirs tea";
+\layout Standard
+
+Here's the completed map description for the above example, with a few other
+ items thrown in:
+\layout LyX-Code
+
+# Example map.
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Kitchen" tag Kitchen;
+\layout LyX-Code
+
+  item "spoon" note "Stirs tea";
+\layout LyX-Code
+
+  item "sink"; item "monkey";
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Garage" dir s go down;
+\layout LyX-Code
+
+  item "monkey wrench" note "For wrenching monkey out of sink";
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Lounge" dir e from Kitchen;
+\layout LyX-Code
+
+  item "TV set";
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Dining Room" dir s link Kitchen;
+\layout LyX-Code
+
+  item "table"; item "chair";
+\layout LyX-Code
+
+\layout LyX-Code
+
+room "Study" dir e n oneway;
+\layout Standard
+
+See Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:map-output}
+
+\end_inset 
+
+ for how to display it.
+\layout Subsection
+
+Conflicts
+\layout Standard
+
+After creating a map from a real game and sending the results through IFM,
+ you may get warnings which talk about things overlapping.
+ This is due to two rooms, or a room and a link, wanting to occupy the same
+ space on the map.
+ There are several ways that this could occur:
+\layout Itemize
+
+The game designer made some room links longer than others, and you haven't
+ taken that into account.
+ To extend the length of a link, just add a length indicator after the direction
+ in the 
+\family typewriter 
+dir
+\family default 
+ clause (e.g.\SpecialChar ~
+
+\family typewriter 
+dir\SpecialChar ~
+e\SpecialChar ~
+2
+\family default 
+ instead of 
+\family typewriter 
+dir\SpecialChar ~
+e
+\family default 
+).
+\layout Itemize
+
+One of the links turned a corner, so that the direction you use to go back
+ isn't the opposite of the one you used to get here.
+ In that case, you need to add the corner-turn in the link (e.g.\SpecialChar ~
+
+\family typewriter 
+dir\SpecialChar ~
+e\SpecialChar ~
+s
+\family default 
+ instead of 
+\family typewriter 
+dir\SpecialChar ~
+e
+\family default 
+).
+\layout Itemize
+
+The map is multi-level, in which case it's probably best to split it into
+ different map sections.
+\layout Itemize
+
+The map is just weird.
+ Colossal Cave is a good example, particularly the above-ground section
+ and the mazes.
+ There seems to be no logic tying the rooms together.
+ You're on your own.
+\layout Section
+
+Solving the Game
+\begin_inset LatexCommand \label{sec:solving-game}
+
+\end_inset 
+
+
+\layout Standard
+
+As well as making a map of your game, IFM can be used to record the steps
+ you took to solve it.
+ The IFM program can then calculate a (fairly) optimal solution.
+ This section is a guide to how to do it.
+ Again, it's not a complete specification -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:language}
+
+\end_inset 
+
+ for that.
+\layout Subsection
+
+Introduction to Tasks
+\layout Standard
+
+The basic game-solving action is called a task in IFM-speak.
+ To introduce a task, you use the 
+\family typewriter 
+task
+\family default 
+ command, like this:
+\layout LyX-Code
+
+task "Put the fluffy bunny in the incinerator";
+\layout Standard
+
+Most tasks need to be done in a certain room.
+ The default is that a task must be done in the last room mentioned.
+ You can change that by using the 
+\family typewriter 
+in
+\family default 
+ clause, just as for items.
+ Some tasks can be done anywhere -- you can say 
+\family typewriter 
+in\SpecialChar ~
+any
+\family default 
+ to indicate that.
+ As usual, you can add tags to tasks in order to refer to them later.
+\layout Standard
+
+The game solver in IFM divides tasks into two fundamental types: 
+\begin_inset Quotes sld
+\end_inset 
+
+safe
+\begin_inset Quotes srd
+\end_inset 
+
+ and 
+\begin_inset Quotes sld
+\end_inset 
+
+unsafe
+\begin_inset Quotes srd
+\end_inset 
+
+.
+ An unsafe task is one that, if done, might get you into a position where
+ solving the game is impossible.
+ The game solver avoids doing unsafe tasks until it really has to.
+\layout Subsection
+
+Requiring Tasks
+\layout Standard
+
+A lot of tasks require a previous task to be done first.
+ To say this, you use the 
+\family typewriter 
+after
+\family default 
+ clause:
+\layout LyX-Code
+
+task "Press incinerator start switch" tag press_switch;
+\layout LyX-Code
+
+...
+\layout LyX-Code
+
+task "Put the fluffy bunny in the incinerator" after press_switch;
+\layout Standard
+
+As a shortcut, to avoid having to tag many tasks, you can say 
+\family typewriter 
+after\SpecialChar ~
+last
+\family default 
+ to indicate the last task mentioned.
+ For example, if the two tasks above could be done in the same room, you
+ could say
+\layout LyX-Code
+
+task "Press incinerator start switch" tag press_switch;
+\layout LyX-Code
+
+task "Put the fluffy bunny in the incinerator" after last;
+\layout Standard
+
+Alternatively, you could merge the two into a single task -- the simplicity
+ or complexity of tasks is up to you.
+\layout Standard
+
+The 
+\family typewriter 
+after
+\family default 
+ clause only says that a task will come after another -- it doesn't specify
+ how soon after.
+ But in some situations it is essential that a task immediately follows
+ a specific previous task, without deviation.
+ You can use the task 
+\family typewriter 
+follow
+\family default 
+ clause to specify this.
+ For example:
+\layout LyX-Code
+
+room "Mission Control" ...;
+\layout LyX-Code
+
+task "Activate launch sequence" tag activate;
+\layout LyX-Code
+
+...
+\layout LyX-Code
+
+room "Rocket Cabin" ...;
+\layout LyX-Code
+
+task "Fasten seat belt" follow activate;
+\layout Standard
+
+The 
+\family typewriter 
+follow
+\family default 
+ clause creates a chain of tasks that must be done one after the other.
+ The game solver will not attempt the first task in the chain until it knows
+ that all the tasks are possible (i.e.\SpecialChar ~
+all the prerequisites for each task
+ in the chain are satisfied).
+ Also, if one of the tasks in the chain is unsafe, then all previous tasks
+ in the chain are also marked unsafe.
+\layout Standard
+
+Of course, you can only have a single task in a 
+\family typewriter 
+follow
+\family default 
+ clause -- the immediately preceding task.
+ It is an error for two or more tasks to try to immediately follow the same
+ task.
+\layout Subsection
+
+Requiring Items
+\layout Standard
+
+For a lot of tasks, you need to have one or more items in your possession.
+ You can indicate this by using the 
+\family typewriter 
+need
+\family default 
+ clause, like this:
+\layout LyX-Code
+
+task "Put the fluffy bunny in the incinerator" need bunny;
+\layout Standard
+
+Here, 
+\family typewriter 
+bunny
+\family default 
+ is the tag name of the corresponding item.
+ You can list more than one item tag -- e.g.\SpecialChar ~
+
+\family typewriter 
+need\SpecialChar ~
+bunny\SpecialChar ~
+asbestos_gloves
+\family default 
+.
+\layout Standard
+
+Note that you don't need to add tasks to get required items yourself --
+ the game solver does that automatically.
+ It knows it has to get all the items which appear in 
+\family typewriter 
+need
+\family default 
+ clauses.
+\layout Subsection
+
+Obtaining Items
+\layout Standard
+
+Some tasks need to be done before you can get an item.
+ One way to indicate this is with the task 
+\family typewriter 
+get
+\family default 
+ clause:
+\layout LyX-Code
+
+task "Put money in drinks machine" need coin get lemonade;
+\layout Standard
+
+This naturally implies that all tasks which supply an item (via the 
+\family typewriter 
+get
+\family default 
+ clause) must be done before any task which needs that item.
+\layout Standard
+
+An alternate way to phrase this is with the item 
+\family typewriter 
+after
+\family default 
+ clause, which says that the item can't be picked up until a specified task
+ is done.
+ This is a common combination in IFM:
+\layout LyX-Code
+
+task "Put money in drinks machine" need coin;
+\layout LyX-Code
+
+item "lemonade" hidden after last;
+\layout Standard
+
+Some items are only available 
+\emph on 
+before
+\emph default 
+ doing a certain task.
+ You can use the 
+\family typewriter 
+before
+\family default 
+ clause to say that:
+\layout LyX-Code
+
+item "precious diamond" before trigger_alarm;
+\layout Standard
+
+Some items can only be picked up if you're already carrying another -- use
+ the 
+\family typewriter 
+need
+\family default 
+ clause for that:
+\layout LyX-Code
+
+item "hot coal" need tongs;
+\layout Standard
+
+Sometimes, doing a task not only allows you to get an item, but also puts
+ it in your inventory.
+ You can say that using the 
+\family typewriter 
+give
+\family default 
+ clause:
+\layout LyX-Code
+
+task "Buy beer" need money give beer_mug;
+\layout Standard
+
+Note that 
+\family typewriter 
+give
+\family default 
+ overrides all other restrictions placed on getting items.
+\layout Subsection
+
+Losing Items
+\layout Standard
+
+Some tasks cause items to be destroyed.
+ You can say that with the 
+\family typewriter 
+lose
+\family default 
+ clause:
+\layout LyX-Code
+
+task "Light bonfire" need match lose match;
+\layout Standard
+
+This naturally implies that all other tasks which need the item must be
+ done before the task that destroys it.
+ A 
+\begin_inset Quotes sld
+\end_inset 
+
+drop
+\begin_inset Quotes srd
+\end_inset 
+
+ task is never generated for items that are lost in this way.
+\layout Standard
+
+Incidentally, you can use the special tag 
+\family typewriter 
+it
+\family default 
+ to refer to the last room, item or task tag name within a command.
+ So the previous example could also have been written
+\layout LyX-Code
+
+task "Light bonfire" need match lose it;
+\layout Subsection
+
+Dropping Items
+\layout Standard
+
+Normally, you don't have to add explicit drop-item tasks -- IFM knows when
+ an item is no longer useful, and drops it automatically.
+ But sometimes items need to be dropped only temporarily.
+ You can do that using the 
+\family typewriter 
+drop
+\family default 
+ clause:
+\layout LyX-Code
+
+task "Throw spear at tree stump" need spear drop it tag target_practice;
+\layout Standard
+
+In this example, the spear is dropped in the same room that the task was
+ done in.
+ If you ever need the spear for anything else, it will be picked up by the
+ game solver.
+ Note that an item will only be dropped if it is being carried -- mentioning
+ an item in a 
+\family typewriter 
+drop
+\family default 
+ clause does not imply that it's needed to do the task.
+\layout Standard
+
+Sometimes items must be dropped in a different room to the one you're in.
+ You can use the 
+\family typewriter 
+in
+\family default 
+ clause to modify things:
+\layout LyX-Code
+
+room "Top of Chute"; 
+\layout LyX-Code
+
+task "Put laundry in chute" need laundry drop it in Bottom_of_Chute;
+\layout Standard
+
+In other cases, you need to drop all the items you're carrying, or all except
+ certain items.
+ You can use 
+\family typewriter 
+drop\SpecialChar ~
+all
+\family default 
+ and 
+\family typewriter 
+drop\SpecialChar ~
+all\SpecialChar ~
+except
+\family default 
+ to say that.
+\layout Standard
+
+Normally, if an item is dropped but is needed again for some other task,
+ there is nothing to stop the game solver picking it up again (provided
+ there's a path to the room the item was dropped in).
+ But sometimes you need to drop an item and not pick it up again until you've
+ done something else.
+ You can use the 
+\family typewriter 
+until
+\family default 
+ clause to say that:
+\layout LyX-Code
+
+task "Put coin in slot" give chocolate drop coin until open_machine;
+\layout Standard
+
+A task which drops items will be marked unsafe if there is no path back
+ to the dropped items.
+\layout Subsection
+
+Leaving Items
+\layout Standard
+
+There are some situations where your movement is blocked if you are carrying
+ particular items.
+ You can use the 
+\family typewriter 
+leave
+\family default 
+ attribute of rooms, links and joins to specify a list of items that must
+ be left behind before using them.
+ For example:
+\layout LyX-Code
+
+room "Bottom of Canyon"; 
+\layout LyX-Code
+
+item "heavy boulder" tag boulder;
+\layout LyX-Code
+
+room "Top of Canyon" dir n go up leave boulder;
+\layout Standard
+
+If the 
+\family typewriter 
+leave
+\family default 
+ clause appears before the 
+\family typewriter 
+dir
+\family default 
+ clause, that means the items must be dropped before entering the room (from
+ any direction).
+ It is generally the case that, if an attribute could apply to a room or
+ its implicit link with the previous one, its position relative to the 
+\family typewriter 
+dir
+\family default 
+ clause is what decides it.
+\layout Standard
+
+You can also say 
+\family typewriter 
+leave\SpecialChar ~
+all
+\family default 
+, which means that you must leave all the items you're currently carrying,
+ and 
+\family typewriter 
+leave\SpecialChar ~
+all\SpecialChar ~
+except
+\family default 
+, which omits certain items from being left behind.
+\layout Standard
+
+When finding a solution, the game solver will carry items until it is forced
+ to drop them.
+ If the dropped items are needed later, the game solver will try to come
+ back and get them.
+ If it is trying to do a task which requires items, it will choose a route
+ to get to the task room which doesn't involve dropping any of the needed
+ items.
+\layout Subsection
+
+Limiting Movement
+\layout Standard
+
+Sometimes an item is required, or a task needs to be done, before movement
+ in a certain direction is possible.
+ To represent this, you can give 
+\family typewriter 
+need
+\family default 
+ and 
+\family typewriter 
+after
+\family default 
+ clauses to rooms, links and joins.
+ For example:
+\layout LyX-Code
+
+...
+\layout LyX-Code
+
+room "Cemetery" dir s from winding_path;
+\layout LyX-Code
+
+task "Unlock the iron door" need rusty_key;
+\layout LyX-Code
+
+room "Crypt" dir s go down after last;
+\layout LyX-Code
+
+...
+\layout Standard
+
+Here's another example:
+\layout LyX-Code
+
+...
+\layout LyX-Code
+
+room "Dimly-lit Passage" dir e;
+\layout LyX-Code
+
+room "Dark Passage" dir e need candle;
+\layout LyX-Code
+
+...
+\layout Standard
+
+In this case it is the link between the two rooms that is blocked off until
+ the candle is obtained.
+ If the 
+\family typewriter 
+dir
+\family default 
+ clause had appeared before the 
+\family typewriter 
+need
+\family default 
+ clause, the restriction would apply to the room itself (i.e.\SpecialChar ~
+no entering the
+ room from 
+\emph on 
+any
+\emph default 
+ direction without the candle).
+\layout Standard
+
+In some cases, doing a task closes off a room, link or join so that it can't
+ be used any more.
+ You can use the 
+\family typewriter 
+before
+\family default 
+ clause to indicate this:
+\layout LyX-Code
+
+room "Bank Vault" tag Vault;
+\layout LyX-Code
+
+room "Bank Entrance" tag Entrance dir e before trigger_alarm;
+\layout Standard
+
+All tasks which close things off like this are marked unsafe, since they
+ could block off a crucial path through the game.
+\layout Standard
+
+Sometimes in a game there is the situation where a path is closed off and,
+ later on in the game, reopened again.
+ A single link or join can't represent this.
+ However, there's nothing to stop you from using two or more joins between
+ the same rooms.
+ If you mark them with the 'hidden' attribute, they won't appear on the
+ map either.
+ For example, this line could be added to the previous example to provide
+ an escape route:
+\layout LyX-Code
+
+join Vault to Entrance go e after disable_alarm hidden;
+\layout Subsection
+
+Movement Tasks
+\layout Standard
+
+There are several different ways of moving around in a game.
+ The usual way is to say the direction you want to go in.
+ Another way is to do something else which results in movement.
+ A good example is the magic word XYZZY from Colossal Cave.
+ It acts exactly like a movement command, in that you can use it again and
+ again and it moves you somewhere predictable.
+ The best way to represent this in IFM is to use a join to connect the two
+ rooms, and specify the command used to do the movement via the 
+\family typewriter 
+cmd
+\family default 
+ clause, like this:
+\layout LyX-Code
+
+join Debris_Room to Building after examine_wall cmd "XYZZY";
+\layout Standard
+
+Yet another way of moving around is a one-off event that 
+\begin_inset Quotes sld
+\end_inset 
+
+teleports
+\begin_inset Quotes srd
+\end_inset 
+
+ you to a different room.
+ You can indicate that this happens using the task 
+\family typewriter 
+goto
+\family default 
+ clause, and supplying the tag name of the destination room.
+ For example:
+\layout LyX-Code
+
+task "Get captured by goblins" goto Dungeon;
+\layout Standard
+
+As soon as the task is done, you teleport to the new location -- no intervening
+ rooms are visited.
+ Note that because each task is only done once, this method of travel can
+ only be used once.
+ Note also that the 
+\family typewriter 
+drop
+\family default 
+ and 
+\family typewriter 
+leave
+\family default 
+ actions are done 
+\emph on 
+before
+\emph default 
+ teleporting you to the new location (so if you drop items in the 
+\begin_inset Quotes sld
+\end_inset 
+
+current room
+\begin_inset Quotes srd
+\end_inset 
+
+, you will be teleported away from the dropped items).
+\layout Subsection
+
+Scoring Points
+\layout Standard
+
+Many games have some sort of scoring system, whereby you get points for
+ doing various things.
+ In IFM you can record this using the 
+\family typewriter 
+score\SpecialChar ~
+<integer>
+\family default 
+ clause, which can apply to rooms, items or tasks.
+ For rooms, it's the score you get when visiting it for the first time.
+ For items, it's the score for first picking it up.
+ For tasks, it's the score for doing that task.
+\layout Standard
+
+If an item has a score, but is given to the player via a task 
+\family typewriter 
+give
+\family default 
+ clause, then its score is added to the score for that task instead.
+ If an item has a score and also has the (obsolete) 
+\family typewriter 
+given
+\family default 
+ attribute, the score won't be registered at all.
+ So don't use 
+\family typewriter 
+given
+\family default 
+ -- use the task 
+\family typewriter 
+give
+\family default 
+ clause instead.
+\layout Subsection
+
+Finishing the Game
+\layout Standard
+
+Usually a game finishes when you complete some final task.
+ You can indicate which task this is using the 
+\family typewriter 
+finish
+\family default 
+ attribute.
+ This attribute can attach to rooms, items or tasks, giving three different
+ types of finish condition: entering a room, picking up an object or doing
+ a task.
+ If the game solver ever manages to do something which is flagged with the
+ 
+\family typewriter 
+finish
+\family default 
+ attribute, it considers the game solved and stops.
+ Any extra things left to do will not be done, even if they score points.
+\layout Subsection
+
+Finding a Solution
+\layout Standard
+
+Here's what the game solver does in order to come up with a solution to
+ the game.
+ First, extra internal tasks are generated.
+ These are tasks to (a) get items which are scored, (b) get items which
+ are required for explicitly-mentioned tasks to be done, (c) get items which
+ are needed to go in certain directions, and (d) go to rooms which are scored.
+\layout Standard
+
+Next, all the rooms are connected using their links and joins.
+ This means that for each room, a list is made of all other rooms reachable
+ in one move.
+ Note that it is possible for some rooms to be unreachable -- for example,
+ all rooms in a section where there is no 
+\begin_inset Quotes sld
+\end_inset 
+
+join
+\begin_inset Quotes srd
+\end_inset 
+
+ to rooms on other sections.
+\layout Standard
+
+Then the task dependencies are calculated.
+ A dependency is where one task must be done before another.
+ The task dependencies are examined to see if there are any cycles -- that
+ is, chains of tasks where each one must be done before the next, and the
+ last must be done before the first.
+ If there are any, then the game is unsolvable, since none of the tasks
+ in a cycle can be done.
+\layout Standard
+
+If there are no cyclic dependencies, the task list is 
+\begin_inset Quotes sld
+\end_inset 
+
+traversed
+\begin_inset Quotes srd
+\end_inset 
+
+ to find a sequence which solves the game while satisfying the task dependencies.
+ The start room is the room which was first mentioned in the input (but
+ this can be changed -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:language}
+
+\end_inset 
+
+).
+ While there are tasks left in the task list, the following steps are performed:
+\layout Enumerate
+
+The map is traversed to find the distances of all rooms from the current
+ room.
+ Then the task list is sorted in order of ascending distance of the rooms
+ they must be done in.
+ Tasks which can be done in any room count as having distance zero.
+\layout Enumerate
+
+Scan the sorted task list to find the nearest possible task.
+ For a task to be possible, the player must (a) have all required items,
+ (b) have done all required previous tasks, and (c) be able to get from
+ the current room to the task room via a path which doesn't require items
+ not yet collected, or tasks not yet done, or which involves dropping needed
+ items on the way.
+\newline 
+
+\newline 
+Priority is given to safe tasks.
+ For a task to be safe, it must (a) not have previously been marked unsafe
+ (e.g.
+ because it closes off map connections) and (b) there must be a return path
+ from the task room back to the current one.
+ The second condition is to avoid taking a one-way trip before preparing
+ properly.
+\newline 
+
+\newline 
+If there are any safe tasks, the nearest one will be done next regardless
+ of how close an unsafe task is.
+ If there are no safe task, the nearest unsafe task will be chosen.
+\layout Enumerate
+
+If there was a possible task, do it and remove it from the list.
+ Move to the room the task was done in (if any).
+ If not, then the game is unsolvable.
+ Give up.
+\layout Standard
+
+The game solver automatically keeps track of which items the player is carrying,
+ and knows when an item will no longer be needed -- that's when all tasks
+ requiring that item have been done.
+ When that happens, a 
+\begin_inset Quotes sld
+\end_inset 
+
+drop
+\begin_inset Quotes srd
+\end_inset 
+
+ task for the item is done.
+ An exception is items which are needed to move in a certain direction (see
+ the last example above).
+ In that case the item is never dropped, since the game solver can't rule
+ out having to go that way again.
+\layout Standard
+
+Some items, although they have no direct game-solving function, need to
+ be carried throughout the game -- e.g.\SpecialChar ~
+some sort of container for carrying
+ other things.
+ You can mark such items with the 
+\family typewriter 
+keep
+\family default 
+ attribute -- then they will never be dropped.
+\layout Subsection
+
+Tweaking the Solution
+\layout Standard
+
+There will be some situations (quite a few, actually) where the game solver
+ doesn't do things the way you want it to.
+ This section gives a few tips, and some new keywords, for modifying things.
+\layout Subsubsection*
+
+Making things safe
+\layout Standard
+
+Firstly, the game solver is completely paranoid.
+ It has to be, because it doesn't do any lookahead past the current task.
+ It won't do anything unsafe (e.g.\SpecialChar ~
+go to a room to do a task when there's no
+ immediate return journey) unless there's nothing safe left to do.
+ It will quite happily plod halfway across the map to pick something up
+ rather than do something a bit scary in the next room.
+\layout Standard
+
+However, you can reassure it with the task 
+\family typewriter 
+safe
+\family default 
+ attribute.
+ Adding this to a task tells the solver that this task is safe, regardless
+ of what it thinks.
+ So if you 
+\emph on 
+know
+\emph default 
+ that a one-way trip can eventually be returned from, by doing other tasks,
+ you can stop the solver from avoiding it.
+ But bear in mind that by doing this you are taking full responsibility
+ if the solver gets stuck.
+\layout Subsubsection*
+
+Changing path lengths
+\layout Standard
+
+Another thing the solver doesn't know about is how easy or difficult it
+ is to get from place to place on the map.
+ Suppose you're in a game which is on two levels separated by a tiresome
+ set of access doors with ID cards.
+ The connection between the levels may only be two rooms on the map, but
+ it's a lot more in terms of typing.
+ You can avoid unnecessary trips through these doors by artificially changing
+ the 
+\begin_inset Quotes sld
+\end_inset 
+
+length
+\begin_inset Quotes srd
+\end_inset 
+
+ of the connection between levels, by using the 
+\family typewriter 
+length
+\family default 
+ attribute of links and joins:
+\layout LyX-Code
+
+room "Level A" tag LA ...;
+\layout LyX-Code
+
+room "Level B" tag LB dir e length 50;
+\layout Standard
+
+In this way, by choosing an appropriate number for the length, you make
+ it appear to the solver that all the rooms in level A are closer to each
+ other than any of the rooms in level B.
+ This means that priority will be given to tasks in rooms in the same level
+ as you are now, (hopefully) minimizing the number of level changes.
+ Note that the 
+\family typewriter 
+length
+\family default 
+ attribute doesn't affect map drawing at all.
+\layout Subsubsection*
+
+Closing off paths
+\layout Standard
+
+There may be times when you want a map connection to appear on the map,
+ but not be used in solving the game -- for example, it may be certain death
+ to go that way.
+ You can use the 
+\family typewriter 
+nopath
+\family default 
+ attribute of rooms, links and joins to indicate this.
+ It doesn't affect map output in any way.
+\layout Standard
+
+Another use for this attribute is to force the game solver to do things
+ in a different order.
+ This might be preferable to adding fake task dependencies.
+\layout Subsubsection*
+
+Keeping fixes together
+\layout Standard
+
+It's probably best to keep all your 
+\begin_inset Quotes sld
+\end_inset 
+
+game tweaks
+\begin_inset Quotes srd
+\end_inset 
+
+ together, separate from the 
+\begin_inset Quotes sld
+\end_inset 
+
+pure
+\begin_inset Quotes srd
+\end_inset 
+
+ game, and commented appropriately.
+ You can do this by using commands which just modify existing objects, instead
+ of creating new ones, by referring to their tags.
+ As an example, suppose you have the following situation:
+\layout LyX-Code
+
+room "Top of Chute" ...;
+\layout LyX-Code
+
+room "Bottom of Chute" dir s go down oneway;
+\layout LyX-Code
+
+task "Do something weird" tag weird_task;
+\layout LyX-Code
+
+...
+\layout Standard
+
+Suppose you're at the top of the chute, and that there's some stuff to be
+ done at the bottom, but no immediate way back up.
+ As usual, the game solver balks at taking a one-way trip and will do anything
+ to avoid it.
+ But suppose you know that, as long as you have your giant inflatable cheeseburg
+er, you can get back out again.
+ You can say:
+\layout LyX-Code
+
+# Bottom of chute isn't that scary.
+\layout LyX-Code
+
+task weird_task need burger safe;
+\layout Standard
+
+which modifies the task at the bottom of the chute to (a) require the burger
+ (so that you won't go down there without it), and (b) be considered safe
+ by the game solver.
+ So it will happily slide down the chute without getting stuck at the bottom.
+\layout Standard
+
+This way of modifying previous objects applies all types of object, even
+ links and joins -- these can be tagged too, in the normal way.
+ The single exception is the implicit link created by the room 
+\family typewriter 
+dir
+\family default 
+ clause.
+ These links automatically get tagged when the room does, and with the same
+ name.
+ So the two-level example above could be split into:
+\layout LyX-Code
+
+room "Level A" tag LA ...;
+\layout LyX-Code
+
+room "Level B" tag LB dir e;
+\layout LyX-Code
+
+...
+\layout LyX-Code
+
+# Stop gratuitous travel between levels.
+ link LB length 50;
+\layout Subsubsection*
+
+Debugging
+\layout Standard
+
+Finally...
+ you can gain an insight into what the game solver's up to by using the
+ 
+\family typewriter 
+-debug
+\family default 
+ command-line option.
+ This produces reams of output giving details of the game solver's thoughts
+ before it does anything.
+ It's supposed to be self-explanatory, but my view is slightly biased.
+ Detailed documentation may follow (a) if enough people ask for it, and
+ (b) if I ever get around to it.
+\layout Subsection
+
+Limitations
+\layout Standard
+
+Given the wild imaginations of today's IF authors, there are bound to be
+ some game solving situations that can't easily be dealt with using IFM.
+ Some of the things that IFM ignores are:
+\layout Itemize
+
+Random events.
+ For example, the Carousel room in Zork, and all the NPCs in Colossal Cave.
+ There's no way to address this problem, but then again, hand-written walkthroug
+hs have the same difficulty.
+ However, if you're trying to tailor recording output so that it will play
+ back properly in an interpreter, there is a workaround -- see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:task-output}
+
+\end_inset 
+
+.
+\layout Itemize
+
+Carrying capacity.
+ A solution may require you to carry more than you're allowed.
+ This might be addressed in a future version, but inventory-juggling puzzles
+ are out of fashion these days (if they were ever in) so this is not much
+ of a problem.
+ Some games provide you with an item that can carry stuff for you -- if
+ so, a workaround is to add some special tasks that periodically put everything
+ you're carrying into it.
+\layout Standard
+
+There are some other limitations that are the result of certain keyword
+ combinations in the current implementation of IFM.
+ These are fixable, and hopefully will be in a later version.
+ They are:
+\layout Itemize
+
+If you have more than one link or join which connects the same two rooms,
+ then if any of them set the 
+\family typewriter 
+length
+\family default 
+ attribute, they must 
+\emph on 
+all
+\emph default 
+ set it -- and to the same value.
+ Otherwise IFM will give an error.
+\layout Itemize
+
+Unsafe tasks in a 
+\begin_inset Quotes sld
+\end_inset 
+
+follow
+\begin_inset Quotes srd
+\end_inset 
+
+ task chain normally cause all the previous tasks in the chain to be marked
+ unsafe too (so the solver will avoid trying the first, knowing it'll be
+ forced to do something distasteful later).
+ However, some tasks are not known to be unsafe until just before they might
+ be done -- specifically, those for which there is no return path.
+ This is because whether there's a return path depends on where you are
+ now.
+ So a 
+\begin_inset Quotes sld
+\end_inset 
+
+follow
+\begin_inset Quotes srd
+\end_inset 
+
+ chain could possibly lead to a game-solving dead end.
+\layout Itemize
+
+There's a problem with the 
+\family typewriter 
+leave
+\family default 
+/
+\family typewriter 
+need
+\family default 
+ attribute combination.
+ The game solver could select a path from one room to another in which an
+ item must be left behind at one point, but is needed for movement later
+ on in the path.
+ This sort of path should be invalid, but isn't.
+\layout Section
+
+Output Formats
+\begin_inset LatexCommand \label{sec:output-formats}
+
+\end_inset 
+
+
+\layout Standard
+
+IFM has three different types of output (a map, a list of items, and a list
+ of tasks) and several different output formats.
+ Not all types of output are produced by each output format.
+\layout Subsection
+
+Map Output
+\begin_inset LatexCommand \label{sec:map-output}
+
+\end_inset 
+
+
+\layout Standard
+
+Maps are drawn in the classic Infocom style.
+ Rooms are drawn as boxes, and links as are drawn as lines (oneway with
+ an arrow).
+ Joins are marked by adding a 
+\begin_inset Quotes sld
+\end_inset 
+
+join number
+\begin_inset Quotes srd
+\end_inset 
+
+ to the room text of the joined rooms.
+ Non-hidden items can be shown in their initial rooms.
+\layout Standard
+
+The following output formats produce maps:
+\layout List
+\labelwidthstring MMMMMMMMM
+
+PostScript\SpecialChar ~
+(
+\family typewriter 
+ps
+\family default 
+) Several map sections may be printed per page.
+ Automatic packing is done to try to get a good fit on the page.
+ Also, portrait or landscape is chosen depending on whichever gives the
+ best fit.
+ Fonts of room and item text are scaled to fit them in the room boxes, if
+ required.
+\newline 
+
+\newline 
+To view the PostScript file on-screen, you'll need a PostScript previewer.
+ I recommend Ghostview, which is free and is available for most systems.
+ This can also print the map on your printer, even if the printer doesn't
+ normally print PostScript files.
+\layout List
+\labelwidthstring MMMMMMMMM
+
+Tk\SpecialChar ~
+commands\SpecialChar ~
+(
+\family typewriter 
+tk
+\family default 
+) This produces commands for input to 
+\family typewriter 
+tkifm
+\family default 
+, a simple graphical interface to IFM.
+ It isn't very useful to produce this output yourself -- 
+\family typewriter 
+tkifm
+\family default 
+ does that internally to build its map pictures.
+ But you can control its display by setting variables in the usual way.
+\layout List
+\labelwidthstring MMMMMMMMM
+
+Raw\SpecialChar ~
+data\SpecialChar ~
+(
+\family typewriter 
+raw
+\family default 
+) This produces raw data intended for use by other programs.
+ Each entry consists of a number of data lines, and is separated from other
+ entries by a blank line.
+ Each data line consists of an attribute, a colon, and its value.
+ The attributes should be self-explanatory.
+\layout Subsection
+
+Item Output
+\layout Standard
+
+The following output formats produce item lists:
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+ASCII\SpecialChar ~
+text\SpecialChar ~
+(
+\family typewriter 
+text
+\family default 
+) This produces human-readable output.
+ The output should be fairly self-explanatory.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+Raw\SpecialChar ~
+data\SpecialChar ~
+(
+\family typewriter 
+raw
+\family default 
+) This produces raw data intended for use by other programs.
+ Each entry consists of a number of data lines, and is separated from other
+ entries by a blank line.
+ Each data line consists of an attribute, a colon, and its value.
+ The attributes should be self-explanatory.
+\layout Subsection
+
+Task Output
+\begin_inset LatexCommand \label{sec:task-output}
+
+\end_inset 
+
+
+\layout Standard
+
+The following output formats produce task lists:
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+ASCII\SpecialChar ~
+text\SpecialChar ~
+(
+\family typewriter 
+text
+\family default 
+) This produces human-readable output.
+ The output should be fairly self-explanatory.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+Recording\SpecialChar ~
+commands\SpecialChar ~
+(
+\family typewriter 
+rec
+\family default 
+) This output produces a list of commands suitable for feeding to IF interpreter
+s in playback mode.
+ All the commands in the output are converted to uppercase.
+\newline 
+
+\newline 
+In order for this to work properly, you have to give commands that the game
+ will understand.
+ The 
+\family typewriter 
+cmd
+\family default 
+ attribute of rooms, links, joins and tasks can help with this.
+ Currently there's no item 
+\family typewriter 
+cmd
+\family default 
+ attribute, so you have to make sure that the item description is recognized
+ by the game (for get and drop commands).
+ Also, if a task is implicitly done in the game without you having to type
+ any commands (e.g.\SpecialChar ~
+visiting a room), you can indicate this by using 
+\family typewriter 
+cmd\SpecialChar ~
+none
+\family default 
+.
+\newline 
+
+\newline 
+Of course, a recording will only play back properly in an interpreter if
+ it provides correct game commands.
+ Random events can't be dealt with by IFM, and will probably cause playback
+ to fail.
+ But you can work around this with an interpreter that is able to fix the
+ random seed at startup (e.g.
+\family typewriter 
+\SpecialChar ~
+frotz
+\family default 
+).
+ This should eliminate most (but not all) of the problems of randomness.
+\layout List
+\labelwidthstring MMMMMMMMMMMMMM
+
+Raw\SpecialChar ~
+data\SpecialChar ~
+(
+\family typewriter 
+raw
+\family default 
+) This produces raw data intended for use by other programs.
+ Each entry consists of a number of data lines, and is separated from other
+ entries by a blank line.
+ Each data line consists of an attribute, a colon, and its value.
+ The attributes should be self-explanatory.
+\layout Subsection
+
+Customization
+\layout Standard
+
+You can change the appearance of many map features according to your taste.
+ You do this by setting the values of the variables that control those features.
+ This section tells you how to use variables -- for a complete list of the
+ customization variables available, see Section\SpecialChar ~
+
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+.
+\layout Standard
+
+As a first example, the background colour of rooms is determined by the
+ variable 
+\family typewriter 
+room_colour
+\family default 
+.
+ Its default value is "white".
+ It can be changed like this:
+\layout LyX-Code
+
+room_colour = "beige";
+\layout Standard
+
+Setting a variable like this will affect all output formats.
+ But in some cases you don't want to do that.
+ A good example is the one above -- if you don't have a colour printer,
+ you may not want to have beige rooms printed (they'll come out greyish).
+ To get around that, you can set variables that are specific to a particular
+ output format:
+\layout LyX-Code
+
+tk room_colour = "beige";
+\layout Standard
+
+This says to set the variable to "beige" only if producing Tk output.
+ The default for all other formats is still "white".
+\layout Standard
+
+You can also customize the appearance of individual rooms and links on the
+ map, by using different display styles.
+ A display style is just a group of variable settings with a given name.
+ For example, suppose you're making a map of Colossal Cave and want to mark
+ rooms where you can refill your water bottle.
+ You can define a style called, say, Water, like this:
+\layout LyX-Code
+
+style Water;
+\layout LyX-Code
+
+room_colour = "light blue";
+\layout LyX-Code
+
+endstyle;
+\layout Standard
+
+The values of variables that are set between the 
+\family typewriter 
+style
+\family default 
+ and 
+\family typewriter 
+endstyle
+\family default 
+ clauses only apply to things drawn in that style.
+ Now, if you declare rooms like this:
+\layout LyX-Code
+
+room "At End Of Road";
+\layout LyX-Code
+
+room "Inside Building" dir e go in style Water;
+\layout Standard
+
+then the room "Inside Building" will be drawn with a light blue background.
+ You can customize individual links in a similar manner.
+\layout Standard
+
+An alternative way to define a variable in a particular style is to use
+ the 
+\family typewriter 
+in\SpecialChar ~
+style
+\family default 
+ clause, like this:
+\layout LyX-Code
+
+room_colour = "light blue" in style Water;
+\layout Standard
+
+If a style only changes a single variable, this may be more convenient.
+\layout Standard
+
+If you assign a style (say, called 
+\begin_inset Quotes sld
+\end_inset 
+
+newstyle
+\begin_inset Quotes srd
+\end_inset 
+
+) to an object, but don't define it anywhere in your input, then IFM will
+ look for a file called 
+\family typewriter 
+newstyle.ifm
+\family default 
+ using the standard search path.
+ If the file exists, it is expected to define style 
+\begin_inset Quotes sld
+\end_inset 
+
+newstyle
+\begin_inset Quotes srd
+\end_inset 
+
+.
+ For example, you could put the "Water" style definition above into a file
+ called 
+\family typewriter 
+Water.ifm
+\family default 
+ somewhere on the IFM search path, and it would be read automatically.
+ This is useful if, for example, you want to use the same style in several
+ different maps.
+\layout Subsection
+
+Output Variables
+\begin_inset LatexCommand \label{sec:variables}
+
+\end_inset 
+
+
+\layout Standard
+
+There are many variables available for customizing output.
+ At the moment, only map output can be customized.
+\layout Standard
+
+The names, descriptions and default values of the customization variables
+ are all contained in the IFM initialization file.
+ You can change this file to set global defaults for everybody, or alternatively
+ set your own preferences in your personal init file.
+\layout Standard
+
+Here's the original initialization file that came bundled with IFM.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{../lib/ifm-init.ifm}
+
+\end_inset 
+
+
+\layout Standard
+
+Previous versions of IFM had two object attributes which are now implemented
+ as display styles: the room 
+\family typewriter 
+puzzle
+\family default 
+ attribute, and the link 
+\family typewriter 
+special
+\family default 
+ attribute.
+ Here's the 
+\family typewriter 
+puzzle
+\family default 
+ style:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{../lib/puzzle.ifm}
+
+\end_inset 
+
+
+\layout Standard
+
+And here's the 
+\family typewriter 
+special
+\family default 
+ style:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{../lib/special.ifm}
+
+\end_inset 
+
+
+\layout Section
+
+Language
+\begin_inset LatexCommand \label{sec:language}
+
+\end_inset 
+
+
+\layout Standard
+
+This section gives a formal description of the IFM input language.
+\layout Subsection
+
+Symbols
+\layout Subsection
+
+Format
+\layout Subsection
+
+Control
+\layout Subsection
+
+Tags
+\layout Subsection
+
+Commands
+\layout Subsection
+
+Rooms
+\layout Subsection
+
+Items
+\layout Subsection
+
+Links
+\layout Subsection
+
+Joins
+\layout Subsection
+
+Tasks
+\layout Subsection
+
+Variables
+\layout Subsection
+
+Styles
+\layout Subsection
+
+Expressions
+\layout Subsection
+
+Include Files
+\layout Section
+
+Diagnostics
+\begin_inset LatexCommand \label{sec:diagnostics}
+
+\end_inset 
+
+
+\layout Section
+
+Environment
+\begin_inset LatexCommand \label{sec:environment}
+
+\end_inset 
+
+
+\the_end

@@ -1,0 +1,384 @@
+<?xml version="1.0"?>
+<diagram xmlns:dia="http://www.lysator.liu.se/~alla/dia/">
+  <diagramdata>
+    <attribute name="background">
+      <color val="#ffffff"/>
+    </attribute>
+    <attribute name="paper">
+      <composite type="paper">
+        <attribute name="name">
+          <string>#A4#</string>
+        </attribute>
+        <attribute name="tmargin">
+          <real val="2.82"/>
+        </attribute>
+        <attribute name="bmargin">
+          <real val="2.82"/>
+        </attribute>
+        <attribute name="lmargin">
+          <real val="2.82"/>
+        </attribute>
+        <attribute name="rmargin">
+          <real val="2.82"/>
+        </attribute>
+        <attribute name="is_portrait">
+          <boolean val="true"/>
+        </attribute>
+        <attribute name="scaling">
+          <real val="0.706359"/>
+        </attribute>
+        <attribute name="fitto">
+          <boolean val="true"/>
+        </attribute>
+        <attribute name="fitwidth">
+          <int val="1"/>
+        </attribute>
+        <attribute name="fitheight">
+          <int val="1"/>
+        </attribute>
+      </composite>
+    </attribute>
+    <attribute name="grid">
+      <composite type="grid">
+        <attribute name="width_x">
+          <real val="1"/>
+        </attribute>
+        <attribute name="width_y">
+          <real val="1"/>
+        </attribute>
+        <attribute name="visible_x">
+          <int val="1"/>
+        </attribute>
+        <attribute name="visible_y">
+          <int val="1"/>
+        </attribute>
+      </composite>
+    </attribute>
+    <attribute name="guides">
+      <composite type="guides">
+        <attribute name="hguides"/>
+        <attribute name="vguides"/>
+      </composite>
+    </attribute>
+  </diagramdata>
+  <layer name="Background" visible="true">
+    <object type="Flowchart - Box" version="0" id="O0">
+      <attribute name="obj_pos">
+        <point val="9.76528,1.55"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="9.71528,1.5;15.65,4.85"/>
+      </attribute>
+      <attribute name="elem_corner">
+        <point val="9.76528,1.55"/>
+      </attribute>
+      <attribute name="elem_width">
+        <real val="5.83472"/>
+      </attribute>
+      <attribute name="elem_height">
+        <real val="3.25"/>
+      </attribute>
+      <attribute name="show_background">
+        <boolean val="true"/>
+      </attribute>
+      <attribute name="padding">
+        <real val="0.5"/>
+      </attribute>
+      <attribute name="text">
+        <composite type="text">
+          <attribute name="string">
+            <string>#Lounge#</string>
+          </attribute>
+          <attribute name="font">
+            <font name="Times-Bold"/>
+          </attribute>
+          <attribute name="height">
+            <real val="0.8"/>
+          </attribute>
+          <attribute name="pos">
+            <point val="12.6826,3.41029"/>
+          </attribute>
+          <attribute name="color">
+            <color val="#000000"/>
+          </attribute>
+          <attribute name="alignment">
+            <enum val="1"/>
+          </attribute>
+        </composite>
+      </attribute>
+    </object>
+    <object type="Flowchart - Box" version="0" id="O1">
+      <attribute name="obj_pos">
+        <point val="1.40468,1.45"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="1.35468,1.4;7.45,4.95"/>
+      </attribute>
+      <attribute name="elem_corner">
+        <point val="1.40468,1.45"/>
+      </attribute>
+      <attribute name="elem_width">
+        <real val="5.99532"/>
+      </attribute>
+      <attribute name="elem_height">
+        <real val="3.45"/>
+      </attribute>
+      <attribute name="show_background">
+        <boolean val="true"/>
+      </attribute>
+      <attribute name="padding">
+        <real val="0.5"/>
+      </attribute>
+      <attribute name="text">
+        <composite type="text">
+          <attribute name="string">
+            <string>#Kitchen#</string>
+          </attribute>
+          <attribute name="font">
+            <font name="Times-Bold"/>
+          </attribute>
+          <attribute name="height">
+            <real val="0.8"/>
+          </attribute>
+          <attribute name="pos">
+            <point val="4.40234,3.41029"/>
+          </attribute>
+          <attribute name="color">
+            <color val="#000000"/>
+          </attribute>
+          <attribute name="alignment">
+            <enum val="1"/>
+          </attribute>
+        </composite>
+      </attribute>
+    </object>
+    <object type="Flowchart - Box" version="0" id="O2">
+      <attribute name="obj_pos">
+        <point val="17.7062,1.65"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="17.6562,1.6;23.1,4.75"/>
+      </attribute>
+      <attribute name="elem_corner">
+        <point val="17.7062,1.65"/>
+      </attribute>
+      <attribute name="elem_width">
+        <real val="5.34384"/>
+      </attribute>
+      <attribute name="elem_height">
+        <real val="3.05"/>
+      </attribute>
+      <attribute name="show_background">
+        <boolean val="true"/>
+      </attribute>
+      <attribute name="padding">
+        <real val="0.5"/>
+      </attribute>
+      <attribute name="text">
+        <composite type="text">
+          <attribute name="string">
+            <string>#Study#</string>
+          </attribute>
+          <attribute name="font">
+            <font name="Times-Bold"/>
+          </attribute>
+          <attribute name="height">
+            <real val="0.8"/>
+          </attribute>
+          <attribute name="pos">
+            <point val="20.3781,3.41029"/>
+          </attribute>
+          <attribute name="color">
+            <color val="#000000"/>
+          </attribute>
+          <attribute name="alignment">
+            <enum val="1"/>
+          </attribute>
+        </composite>
+      </attribute>
+    </object>
+    <object type="Flowchart - Box" version="0" id="O3">
+      <attribute name="obj_pos">
+        <point val="1.45164,6.6"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="1.40164,6.55;7.4,9.7"/>
+      </attribute>
+      <attribute name="elem_corner">
+        <point val="1.45164,6.6"/>
+      </attribute>
+      <attribute name="elem_width">
+        <real val="5.89836"/>
+      </attribute>
+      <attribute name="elem_height">
+        <real val="3.05"/>
+      </attribute>
+      <attribute name="show_background">
+        <boolean val="true"/>
+      </attribute>
+      <attribute name="padding">
+        <real val="0.5"/>
+      </attribute>
+      <attribute name="text">
+        <composite type="text">
+          <attribute name="string">
+            <string>#Garage#</string>
+          </attribute>
+          <attribute name="font">
+            <font name="Times-Bold"/>
+          </attribute>
+          <attribute name="height">
+            <real val="0.8"/>
+          </attribute>
+          <attribute name="pos">
+            <point val="4.40082,8.36029"/>
+          </attribute>
+          <attribute name="color">
+            <color val="#000000"/>
+          </attribute>
+          <attribute name="alignment">
+            <enum val="1"/>
+          </attribute>
+        </composite>
+      </attribute>
+    </object>
+    <object type="Flowchart - Box" version="0" id="O4">
+      <attribute name="obj_pos">
+        <point val="9.73356,6.55"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="9.68356,6.5;15.6164,9.7"/>
+      </attribute>
+      <attribute name="elem_corner">
+        <point val="9.73356,6.55"/>
+      </attribute>
+      <attribute name="elem_width">
+        <real val="5.83288"/>
+      </attribute>
+      <attribute name="elem_height">
+        <real val="3.1"/>
+      </attribute>
+      <attribute name="show_background">
+        <boolean val="true"/>
+      </attribute>
+      <attribute name="padding">
+        <real val="0.5"/>
+      </attribute>
+      <attribute name="text">
+        <composite type="text">
+          <attribute name="string">
+            <string>#Dining Room#</string>
+          </attribute>
+          <attribute name="font">
+            <font name="Times-Bold"/>
+          </attribute>
+          <attribute name="height">
+            <real val="0.8"/>
+          </attribute>
+          <attribute name="pos">
+            <point val="12.65,8.33529"/>
+          </attribute>
+          <attribute name="color">
+            <color val="#000000"/>
+          </attribute>
+          <attribute name="alignment">
+            <enum val="1"/>
+          </attribute>
+        </composite>
+      </attribute>
+    </object>
+    <object type="Standard - Line" version="0" id="O5">
+      <attribute name="obj_pos">
+        <point val="4.40234,4.9"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="4.35082,4.85;4.45234,6.65"/>
+      </attribute>
+      <attribute name="conn_endpoints">
+        <point val="4.40234,4.9"/>
+        <point val="4.40082,6.6"/>
+      </attribute>
+      <attribute name="numcp">
+        <int val="1"/>
+      </attribute>
+      <connections>
+        <connection handle="0" to="O1" connection="13"/>
+        <connection handle="1" to="O3" connection="2"/>
+      </connections>
+    </object>
+    <object type="Standard - Line" version="0" id="O6">
+      <attribute name="obj_pos">
+        <point val="7.4,3.175"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="7.35,3.125;9.81528,3.225"/>
+      </attribute>
+      <attribute name="conn_endpoints">
+        <point val="7.4,3.175"/>
+        <point val="9.76528,3.175"/>
+      </attribute>
+      <attribute name="numcp">
+        <int val="1"/>
+      </attribute>
+      <connections>
+        <connection handle="0" to="O1" connection="8"/>
+        <connection handle="1" to="O0" connection="7"/>
+      </connections>
+    </object>
+    <object type="Standard - Line" version="0" id="O7">
+      <attribute name="obj_pos">
+        <point val="7.4,4.9"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="7.35,4.85;9.78356,6.6"/>
+      </attribute>
+      <attribute name="conn_endpoints">
+        <point val="7.4,4.9"/>
+        <point val="9.73356,6.55"/>
+      </attribute>
+      <attribute name="numcp">
+        <int val="1"/>
+      </attribute>
+      <connections>
+        <connection handle="0" to="O1" connection="15"/>
+        <connection handle="1" to="O4" connection="0"/>
+      </connections>
+    </object>
+    <object type="Standard - Line" version="0" id="O8">
+      <attribute name="obj_pos">
+        <point val="12.6826,4.8"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="12.6,4.75;12.7326,6.6"/>
+      </attribute>
+      <attribute name="conn_endpoints">
+        <point val="12.6826,4.8"/>
+        <point val="12.65,6.55"/>
+      </attribute>
+      <attribute name="numcp">
+        <int val="1"/>
+      </attribute>
+      <connections>
+        <connection handle="0" to="O0" connection="13"/>
+        <connection handle="1" to="O4" connection="2"/>
+      </connections>
+    </object>
+    <object type="Standard - PolyLine" version="0" id="O9">
+      <attribute name="obj_pos">
+        <point val="15.5664,8.1"/>
+      </attribute>
+      <attribute name="obj_bb">
+        <rectangle val="15.5164,4.65;20.5,8.2"/>
+      </attribute>
+      <attribute name="poly_points">
+        <point val="15.5664,8.1"/>
+        <point val="20.45,8.15"/>
+        <point val="20.3781,4.7"/>
+      </attribute>
+      <connections>
+        <connection handle="0" to="O4" connection="8"/>
+        <connection handle="2" to="O2" connection="13"/>
+      </connections>
+    </object>
+  </layer>
+</diagram>
