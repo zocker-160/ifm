@@ -29,7 +29,7 @@
         }
 
 #define WARN_IGNORED(attr) \
-        warn("attribute `%s' ignored -- no `dir' link", #attr)
+        warn("attribute `%s' ignored -- no implicit link", #attr)
 
 static vhash *curroom = NULL;   /* Current room */
 static vhash *curlink = NULL;   /* Current link */
@@ -37,16 +37,15 @@ static vhash *curitem = NULL;   /* Current item */
 static vhash *curjoin = NULL;   /* Current join */
 static vhash *curtask = NULL;   /* Current task */
 
-static vlist *curdirs = NULL;   /* Current direction list */
-
+static vlist *currooms = NULL;  /* Current room list */
 static vlist *curitems = NULL;  /* Current item list */
-static vlist *curlinks = NULL;  /* Current link list */
-static vlist *curjoins = NULL;  /* Current join list */
 static vlist *curtasks = NULL;  /* Current task list */
 
-static vhash *lastroom = NULL;  /* Last room visited */
+static vhash *lastroom = NULL;  /* Last room mentioned */
 static vhash *lastitem = NULL;  /* Last item mentioned */
 static vhash *lasttask = NULL;  /* Last task mentioned */
+
+static vlist *curdirs = NULL;   /* Current direction list */
 
 static int modify;              /* Modification flag */
 static int implicit;            /* Implicit-link flag */
@@ -65,15 +64,14 @@ static int implicit;            /* Implicit-link flag */
 %token        LEAVE UNDEF FINISH
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
-%token <ival> UP DOWN IN OUT INTEGER
+%token <ival> UP DOWN IN OUT
 
+%token <ival> INTEGER
 %token <dval> REAL
-
 %token <sval> STRING ID
 
-%type  <ival> go dir
-
-%type  <vval> var
+%type  <ival> compass otherdir
+%type  <vval> var room item task
 
 %%
 
@@ -131,14 +129,23 @@ room_stmt	: ROOM STRING
 
                         vh_pstore(link, "FROM", near);
                         vh_pstore(link, "TO", curroom);
-                        vh_istore(link, "GO", vh_iget(curroom, "GO"));
-                        vh_istore(link, "ONEWAY", vh_iget(curroom, "ONEWAY"));
-                        vh_istore(link, "SPECIAL", vh_iget(curroom, "SPECIAL"));
-                        vh_istore(link, "LEN", vh_iget(curroom, "LEN"));
-                        vh_pstore(link, "BEFORE", vh_pget(curroom, "LINK_BEFORE"));
-                        vh_pstore(link, "AFTER", vh_pget(curroom, "LINK_AFTER"));
-                        vh_pstore(link, "NEED", vh_pget(curroom, "LINK_NEED"));
-                        vh_pstore(link, "LEAVE", vh_pget(curroom, "LINK_LEAVE"));
+
+                        vh_istore(link, "GO",
+                                  vh_iget(curroom, "GO"));
+                        vh_istore(link, "ONEWAY",
+                                  vh_iget(curroom, "ONEWAY"));
+                        vh_istore(link, "SPECIAL",
+                                  vh_iget(curroom, "SPECIAL"));
+                        vh_istore(link, "LEN",
+                                  vh_iget(curroom, "LEN"));
+                        vh_pstore(link, "BEFORE",
+                                  vh_pget(curroom, "LINK_BEFORE"));
+                        vh_pstore(link, "AFTER",
+                                  vh_pget(curroom, "LINK_AFTER"));
+                        vh_pstore(link, "NEED",
+                                  vh_pget(curroom, "LINK_NEED"));
+                        vh_pstore(link, "LEAVE",
+                                  vh_pget(curroom, "LINK_LEAVE"));
 
                         if ((str = vh_sgetref(curroom, "TAG")) != NULL)
                             set_tag("link", str, link, linktags);
@@ -158,6 +165,8 @@ room_stmt	: ROOM STRING
                             WARN_IGNORED(oneway);
                         if (vh_exists(curroom, "SPECIAL"))
                             WARN_IGNORED(special);
+                        if (vh_exists(curroom, "LEN"))
+                            WARN_IGNORED(length);
                         if (vh_exists(curroom, "TO_CMD"))
                             WARN_IGNORED(cmd);
                     }
@@ -226,13 +235,13 @@ room_attr	: TAG ID
 
                     curdirs = NULL;
 		}
-		| LINK link_list
+		| LINK room_list
 		{
                     vscalar *elt;
                     vhash *link;
                     char *tag;
 
-                    vl_foreach(elt, curlinks) {
+                    vl_foreach(elt, currooms) {
                         tag = vs_sgetref(elt);
                         link = vh_create();
                         vh_pstore(link, "FROM", curroom);
@@ -240,16 +249,16 @@ room_attr	: TAG ID
                         vl_ppush(links, link);
                     }
 
-                    vl_destroy(curlinks);
-                    curlinks = NULL;
+                    vl_destroy(currooms);
+                    currooms = NULL;
 		}
-		| JOIN join_list
+		| JOIN room_list
 		{
                     vscalar *elt;
                     vhash *join;
                     char *tag;
 
-                    vl_foreach(elt, curjoins) {
+                    vl_foreach(elt, currooms) {
                         tag = vs_sgetref(elt);
                         join = vh_create();
                         vh_pstore(join, "FROM", curroom);
@@ -257,10 +266,10 @@ room_attr	: TAG ID
                         vl_ppush(joins, join);
                     }
 
-                    vl_destroy(curjoins);
-                    curjoins = NULL;
+                    vl_destroy(currooms);
+                    currooms = NULL;
 		}
-		| GO go
+		| GO otherdir
 		{
                     vh_istore(curroom, "GO", $2);
 		}
@@ -361,9 +370,9 @@ item_attr	: TAG ID
                     else
                         err("can't change item tag name");
 		}
-		| IN ID
+		| IN room
 		{
-                    vh_sstore(curitem, "IN", $2);
+                    vh_store(curitem, "IN", $2);
 		}
 		| NOTE STRING
 		{
@@ -407,11 +416,11 @@ item_attr	: TAG ID
                 }
 		;
 
-link_stmt	: LINK ID TO ID
+link_stmt	: LINK room TO room
                 {
                     curlink = vh_create();
-                    vh_sstore(curlink, "FROM", $2);
-                    vh_sstore(curlink, "TO", $4);
+                    vh_store(curlink, "FROM", $2);
+                    vh_store(curlink, "TO", $4);
                     modify = 0;
                 }
                 link_attrs ';'
@@ -438,7 +447,7 @@ link_attr	: DIR dir_list
                     vh_pstore(curlink, "DIR", curdirs);
                     curdirs = NULL;
 		}
-		| GO go
+		| GO otherdir
 		{
                     vh_istore(curlink, "GO", $2);
 		}
@@ -490,11 +499,11 @@ link_attr	: DIR dir_list
 		}
                 ; 
 
-join_stmt	: JOIN ID TO ID
+join_stmt	: JOIN room TO room
                 {
                     curjoin = vh_create();
-                    vh_sstore(curjoin, "FROM", $2);
-                    vh_sstore(curjoin, "TO", $4);
+                    vh_store(curjoin, "FROM", $2);
+                    vh_store(curjoin, "TO", $4);
                     modify = 0;
                 }
                 join_attrs ';'
@@ -516,7 +525,11 @@ join_attrs	: /* empty */
 		| join_attrs join_attr
 		;
 
-join_attr	: GO go
+join_attr	: GO compass
+		{
+                    vh_istore(curjoin, "GO", $2);
+		}
+                | GO otherdir
 		{
                     vh_istore(curjoin, "GO", $2);
 		}
@@ -622,13 +635,13 @@ task_attr	: TAG ID
                 {
                     vh_sstore(curtask, "GOTO", $2);
                 }
-                | FOLLOW ID
+                | FOLLOW task
                 {
-                    vh_sstore(curtask, "FOLLOW", $2);
+                    vh_store(curtask, "FOLLOW", $2);
                 }
-		| IN ID
+		| IN room
 		{
-                    vh_sstore(curtask, "IN", $2);
+                    vh_store(curtask, "IN", $2);
 		}
 		| IN ANY
 		{
@@ -697,77 +710,86 @@ ctrl_stmt       : TITLE var ';'
                 }
 		;
 
-link_list	: link_elt
-		| link_list link_elt
+room_list	: room_elt
+		| room_list room_elt
 		;
 
-link_elt	: ID
+room_elt	: room
 		{
-                    if (curlinks == NULL)
-                        curlinks = vl_create();
-                    vl_spush(curlinks, $1);
+                    if (currooms == NULL)
+                        currooms = vl_create();
+                    vl_push(currooms, $1);
 		}
 		;
 
-join_list	: join_elt
-		| join_list join_elt
-		;
-
-join_elt	: ID
-		{
-                    if (curjoins == NULL)
-                        curjoins = vl_create();
-                    vl_spush(curjoins, $1);
-		}
-		;
-
-task_list	: task_elt
-		| task_list task_elt
-		;
-
-task_elt	: ID
-		{
-                    if (curtasks == NULL)
-                        curtasks = vl_create();
-                    vl_spush(curtasks, $1);
-		}
+room            : ID
+                {
+                    $$ = vs_screate($1);
+                }
                 | LAST
-		{
-                    if (curtasks == NULL)
-                        curtasks = vl_create();
-                    if (lasttask == NULL)
-                        err("no last task");
+                {
+                    if (lastroom == NULL)
+                        err("no last room");
                     else
-                        vl_ppush(curtasks, lasttask);
-		}
-		;
+                        $$ = vs_pcreate(lastroom);
+                }
+                ;
 
 item_list	: item_elt
 		| item_list item_elt
 		;
 
-item_elt	: ID
+item_elt	: item
 		{
                     if (curitems == NULL)
                         curitems = vl_create();
-                    vl_spush(curitems, $1);
+                    vl_push(curitems, $1);
 		}
+		;
+
+item            : ID
+                {
+                    $$ = vs_screate($1);
+                }
                 | LAST
-		{
-                    if (curitems == NULL)
-                        curitems = vl_create();
+                {
                     if (lastitem == NULL)
                         err("no last item");
                     else
-                        vl_ppush(curitems, lastitem);
+                        $$ = vs_pcreate(lastitem);
+                }
+                ;
+
+task_list	: task_elt
+		| task_list task_elt
+		;
+
+task_elt	: task
+		{
+                    if (curtasks == NULL)
+                        curtasks = vl_create();
+                    vl_push(curtasks, $1);
 		}
 		;
+
+task            : ID
+                {
+                    $$ = vs_screate($1);
+                }
+                | LAST
+                {
+                    if (lasttask == NULL)
+                        err("no last task");
+                    else
+                        $$ = vs_pcreate(lasttask);
+                }
+                ;
 
 dir_list	: dir_elt
 		| dir_list dir_elt
 		;
 
-dir_elt		: dir
+dir_elt		: compass
 		{
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -775,7 +797,7 @@ dir_elt		: dir
 		}
 		;
 
-dir		: NORTH		{ $$ = D_NORTH;	    }
+compass		: NORTH		{ $$ = D_NORTH;	    }
 		| EAST		{ $$ = D_EAST;	    }
 		| SOUTH		{ $$ = D_SOUTH;	    }
 		| WEST		{ $$ = D_WEST;	    }
@@ -785,11 +807,10 @@ dir		: NORTH		{ $$ = D_NORTH;	    }
 		| SOUTHWEST	{ $$ = D_SOUTHWEST; }
 		;
 
-go		: IN            { $$ = D_IN;   }
+otherdir	: IN            { $$ = D_IN;   }
 		| OUT           { $$ = D_OUT;  }
 		| UP            { $$ = D_UP;   }
 		| DOWN          { $$ = D_DOWN; }
-                | dir
 		;
 
 var             : INTEGER       { $$ = vs_icreate($1); }
