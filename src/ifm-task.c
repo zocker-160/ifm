@@ -12,21 +12,18 @@
 #include <string.h>
 #include "ifm.h"
 
-#define NOLIMIT 1000
-
 /* Verbose flag */
 extern int ifm_verbose;
 
 /* Task step list */
-static vlist *tasklist = NULL;
+vlist *tasklist = NULL;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
 /* Internal functions */
 static void task_pair(vhash *before, vhash *after);
-static int task_possible(vhash *room, vhash *step, int maxlen,
-                         int *dist, int *len, int *safe);
+static int task_possible(vhash *room, vhash *step);
 static vhash *task_step(int type, vhash *data);
 
 /* Add a new task */
@@ -115,6 +112,10 @@ do_task(vhash *task, vhash *from, vhash *to)
         if (vh_iget(item, "TAKEN") && !vh_iget(item, "DROPPED"))
             vl_ppush(invent, item);
     }
+
+    /* Flag path modification if required */
+    if (vh_iget(task, "MODPATH"))
+        modify_path();
 
     /* Flag it as done */
     vh_istore(task, "DONE", 1);
@@ -206,6 +207,7 @@ setup_tasks(void)
             vl_foreach(elt, list) {
                 task = vs_pget(elt);
                 step = vh_pget(task, "STEP");
+                vh_istore(step, "MODPATH", 1);
                 vh_istore(step, "UNSAFE", 1);
             }
         }
@@ -220,6 +222,7 @@ setup_tasks(void)
                 room = vh_pget(item, "ROOM");
                 if (room != NULL) {
                     step = vh_pget(item, "STEP");
+                    vh_istore(step, "MODPATH", 1);
                     task_pair(step, step);
                 }
             }
@@ -233,7 +236,18 @@ setup_tasks(void)
                 vl_foreach(elt, list) {
                     task = vs_pget(elt);
                     step = vh_pget(task, "STEP");
+                    vh_istore(step, "MODPATH", 1);
                     vh_istore(step, "UNSAFE", 1);
+                }
+            }
+
+            /* Mention 'after' tasks for this connection */
+            if ((list = vh_pget(reach, "AFTER")) != NULL) {
+                vl_foreach(elt, list) {
+                    task = vs_pget(elt);
+                    step = vh_pget(task, "STEP");
+                    vh_istore(step, "MODPATH", 1);
+                    task_pair(step, step);
                 }
             }
 
@@ -244,20 +258,10 @@ setup_tasks(void)
                     vh_istore(item, "USED", 1);
                     vh_istore(item, "NEEDED", 1);
                     step = vh_pget(item, "STEP");
+                    vh_istore(step, "MODPATH", 1);
                     task_pair(step, step);
                 }
             }
-
-#if 0
-            /* Don't think I need this */
-            if ((list = vh_pget(reach, "AFTER")) != NULL) {
-                vl_foreach(elt, list) {
-                    task = vs_pget(elt);
-                    step = vh_pget(task, "STEP");
-                    task_pair(step, step);
-                }
-            }
-#endif
         }
     }
 
@@ -411,7 +415,7 @@ void
 solve_game(void)
 {
     vhash *nextroom, *gotoroom, *room, *step, *trystep, *item, *task, *next;
-    int drop, len, trysafe, trydist, trylen, safeflag, tasksleft;
+    int drop, safeflag, tasksleft;
     vlist *itasks;
     vscalar *elt;
 
@@ -434,6 +438,14 @@ solve_game(void)
         printf("\nSolving game...\n");
 
     do {
+        if (ifm_verbose) {
+            indent(1);
+            printf("room: %s\n", vh_sgetref(room, "DESC"));
+        }
+
+        /* Initialise path searches from this room */
+        init_path(room);
+
         /* Check for dropping unneeded items */
         if (next == NULL) {
             vl_foreach(elt, items) {
@@ -471,14 +483,8 @@ solve_game(void)
 
         /* Search for next task */
         step = NULL;
-        len = NOLIMIT;
         safeflag = 0;
         tasksleft = 0;
-
-        if (ifm_verbose) {
-            indent(1);
-            printf("room: %s\n", vh_sgetref(room, "DESC"));
-        }
 
         vl_foreach(elt, tasklist) {
             trystep = vs_pget(elt);
@@ -494,39 +500,19 @@ solve_game(void)
             if (next != NULL && trystep != next)
                 continue;
 
-            /*
-             * If we have a safe task in the current room, skip
-             * the rest.
-             */
-            if (safeflag && len == 0)
+            /* If we have a safe task, skip the rest */
+            if (safeflag)
                 continue;
 
-            /*
-             * Check task is possible.  If we already have a safe task
-             * to do N rooms away, skip tasks with paths longer than N.
-             */
-            if (!task_possible(room, trystep, (safeflag ? len : NOLIMIT),
-                               &trydist, &trylen, &trysafe))
+            /* Check task is possible */
+            if (!task_possible(room, trystep))
                 continue;
 
-#if 0
-            /* Record task attributes */
-            vh_istore(trystep, "DIST", trydist);
-            vh_istore(trystep, "SAFE", trysafe);
-#endif
-
-            if (trysafe && !safeflag) {
-                /* This task is the first safe one -- choose it */
+            if (!safeflag && vh_iget(trystep, "SAFEFLAG")) {
                 safeflag = 1;
                 step = trystep;
-                len = trylen;
-            } else if (!trysafe && safeflag) {
-                /* We have a safe task but this isn't -- skip it */
-                continue;
-            } else if (step == NULL || trylen < len) {
-                /* Choose based on distance to travel */
+            } else if (step == NULL) {
                 step = trystep;
-                len = trylen;
             }
         }
 
@@ -598,13 +584,12 @@ task_pair(vhash *before, vhash *after)
     }
 }
 
-/* Return whether a task is possible (and other stats) */
+/* Return whether a task is possible */
 static int
-task_possible(vhash *room, vhash *step, int maxlen,
-              int *dist, int *len, int *safe)
+task_possible(vhash *room, vhash *step)
 {
+    int tmp1, tmp2, dist, len, safe, path = 1;
     vhash *before, *taskroom, *gotoroom;
-    int tmp1, tmp2, path = 1;
     vscalar *elt;
     vlist *prev;
 
@@ -628,43 +613,50 @@ task_possible(vhash *room, vhash *step, int maxlen,
         printf("consider: %s\n", vh_sgetref(step, "DESC"));
     }
 
-    *dist = *len = 0;
+    dist = len = 0;
     if (taskroom == NULL || taskroom == room) {
         /*
          * Task can be done anywhere, or in current room -- if it's a
          * goto-room task, you must be able to get there.
          */
         if (vh_iget(step, "TYPE") == T_GOTO)
-            path = find_path(NULL, room, gotoroom, maxlen, dist, len);
+            path = find_path(room, gotoroom, &dist, &len);
     } else {
         /*
          * Task must be done elsewhere -- there must be a path from
          * here to the task room.
          */
-        path = find_path(NULL, room, taskroom, maxlen, dist, len);
+        path = find_path(room, taskroom, &dist, &len);
     }
 
     if (path) {
-        /* If no return path, mark it as unsafe */
-        *safe = 1;
-        if (gotoroom != NULL)
-            taskroom = gotoroom;
-        if (taskroom != NULL
-            && !find_path(NULL, taskroom, room, NOLIMIT, &tmp1, &tmp2))
-            *safe = 0;
+        /* See whether task is safe */
+        if (vh_exists(step, "SAFE")) {
+            /* User says it's safe, and they know best */
+            safe = 1;
+        } else if (vh_exists(step, "UNSAFE")) {
+            /* It's been flagged unsafe already */
+            safe = 0;
+        } else {
+            /* If no return path, mark it as unsafe */
+            safe = 1;
+            if (gotoroom != NULL)
+                taskroom = gotoroom;
+            if (taskroom != NULL
+                && !find_path(taskroom, room, &tmp1, &tmp2))
+                safe = 0;
+        }
 
-        /* Override safe flag if required */
-        if (vh_exists(step, "UNSAFE"))
-            *safe = 0;
-        if (vh_exists(step, "SAFE"))
-            *safe = 1;
+        /* Record stats */
+        vh_istore(step, "DIST", dist);
+        vh_istore(step, "SAFEFLAG", safe);
 
         if (ifm_verbose) {
             indent(2);
             printf("possible: %s", vh_sgetref(step, "DESC"));
-            if (*len > 0)
-                printf(" (distance %d)", *len);
-            if (!*safe)
+            if (len > 0)
+                printf(" (distance %d)", len);
+            if (!safe)
                 printf(" (unsafe)");
             printf("\n");
         }
