@@ -7,11 +7,16 @@
 
 /* Recording output driver */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <vars.h>
+
 #include "ifm-driver.h"
 #include "ifm-map.h"
 #include "ifm-util.h"

@@ -7,6 +7,10 @@
 
 /* Main functions */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -640,7 +644,7 @@ fatal(char *fmt, ...)
 static void
 print_version(void)
 {
-    printf("This is Ifm version %s, copyright (C) G. Hutchings\n", VERSION);
+    printf("This is IFM version %s, copyright (C) G. Hutchings\n", VERSION);
 
     printf("\nLibrary file search path:\n   %s\n\n",
            vl_join(search_path(), "\n   "));
