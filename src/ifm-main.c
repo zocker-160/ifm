@@ -95,6 +95,9 @@ int line_number;
 /* Search path */
 vlist *ifm_search = NULL;
 
+/* Global styles */
+vlist *ifm_styles = NULL;
+
 /* No. of errors */
 static int ifm_errors = 0;
 
@@ -184,6 +187,9 @@ main(int argc, char *argv[])
 
     v_optgroup("Auxiliary options:");
 
+    v_option('S', "style", V_OPT_LIST, "name",
+             "Push a style onto the style list");
+
     v_option('s', "set", V_OPT_LIST, "var=val",
              "Set a customization variable");
 
@@ -252,11 +258,9 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "show"))
         info = vh_sgetref(opts, "show");
 
-    if (vh_exists(opts, "output")) {
-        file = vh_sgetref(opts, "output");
-        if (freopen(file, "w", stdout) == NULL)
-            fatal("can't open %s", file);
-    }
+    if ((ifm_styles = vh_pget(opts, "style")) != NULL)
+        vl_foreach(elt, ifm_styles)
+            ref_style(vs_sgetref(elt));
 
     switch (vh_iget(opts, "DEBUG")) {
 #ifdef FLEX_DEBUG
@@ -319,6 +323,13 @@ main(int argc, char *argv[])
     /* Set output format if not already specified */
     if (output != O_NONE && ifm_fmt == F_NONE)
         ifm_fmt = select_format(NULL, output);
+
+    /* Open output file if required */
+    if (vh_exists(opts, "output")) {
+        file = vh_sgetref(opts, "output");
+        if (freopen(file, "w", stdout) == NULL)
+            fatal("can't open %s", file);
+    }
 
     /* Resolve tags */
     resolve_tags();
@@ -403,6 +414,7 @@ print_map(void)
             vh_istore(sect, "NOPRINT", 1);
     }
 
+    set_style_list(ifm_styles);
     set_map_vars();
 
     if (func->map_start != NULL)
@@ -479,6 +491,8 @@ print_items(void)
     if (func == NULL)
         fatal("no item driver for %s output", drv.name);
 
+    set_style_list(ifm_styles);
+
     if (func->item_start != NULL)
         (*func->item_start)();
 
@@ -512,6 +526,8 @@ print_tasks(void)
 
     if (func == NULL)
         fatal("no task driver for %s output", drv.name);
+
+    set_style_list(ifm_styles);
 
     if (func->task_start != NULL)
         (*func->task_start)();
@@ -699,6 +715,16 @@ warn(char *fmt, ...)
         PRINT_MSG(warning, buf);
     } else {
         (*func->warning)(ifm_input, line_number, buf);
+    }
+}
+
+/* Give a debugging message */
+void
+debug(char *fmt, ...)
+{
+    if (getenv("IFM_DEBUG")) {
+        V_VPRINT(buf, fmt);
+        fprintf(stderr, "IFM: %s\n", buf);
     }
 }
 

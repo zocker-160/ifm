@@ -15,15 +15,15 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-#define INIT_VARS \
-        if (nvars == NULL) cvars = nvars = vh_create(); \
-        if (alias == NULL) alias = vh_create(); \
-        if (styles == NULL) styles = vh_create(); \
+#define INIT_VARS                                                       \
+        if (nvars == NULL) cvars = nvars = vh_create();                 \
+        if (alias == NULL) alias = vh_create();                         \
+        if (styles == NULL) styles = vh_create();                       \
         if (rstyles == NULL) rstyles = vh_create()
 
-#define VAR_CHECK(id, var) \
-        if ((var = var_get(id)) == NULL) \
-                fatal("variable `%s' is not defined", id)
+#define VAR_CHECK(id, var)                                              \
+        if ((var = var_get(id)) == NULL)                                \
+            fatal("variable `%s' is not defined", id)
 
 #define ALPHA(c) (c == '_' || isalpha(c))
 #define ALNUM(c) (c == '_' || isalnum(c))
@@ -54,14 +54,33 @@ static vhash *read_colour_defs(FILE *fp);
 static char *var_encode(char *driver, char *var);
 static void var_print(vhash *vars, char *style, int alias);
 
+/* Add a style to the style list */
+void
+add_style(char *name)
+{
+    if (style_list == NULL)
+        style_list = vl_create();
+
+    vl_spush(style_list, name);
+}
+
 /* Return a copy of the current style list */
 vlist *
 current_styles(void)
 {
-    if (style_list == NULL || vl_length(style_list) == 0)
-        return NULL;
+    vlist *styles = NULL;
 
-    return vl_copy(style_list);
+    if (ifm_styles != NULL)
+        styles = vl_copy(ifm_styles);
+
+    if (style_list != NULL) {
+        if (styles == NULL)
+            styles = vl_copy(style_list);
+        else
+            vl_append(styles, style_list);
+    }
+
+    return styles;
 }
 
 /* Load styles that have been referenced but not defined */
@@ -80,8 +99,10 @@ load_styles(void)
         name = vs_sgetref(elt);
         if (vh_exists(styles, name))
             continue;
+
         sprintf(buf, "%s.ifm", name);
         parse_input(buf, 1, 0);
+
         if (!vh_exists(styles, name))
             warn("style `%s' referenced but not defined", name);
     }
@@ -91,9 +112,8 @@ load_styles(void)
 void
 push_style(char *name)
 {
-    if (style_list == NULL)
-        style_list = vl_create();
-    vl_spush(style_list, name);
+    debug("push style: %s", name);
+    add_style(name);
     set_style(name);
 }
 
@@ -102,6 +122,8 @@ void
 pop_style(char *name)
 {
     char *sname;
+
+    debug("pop style");
 
     if (style_list != NULL && vl_length(style_list) > 0) {
         sname = vl_spop(style_list);
@@ -114,6 +136,42 @@ pop_style(char *name)
     } else {
         warn("no matching style command");
     }
+}
+
+/* Read and return colour definitions from a stream */
+static vhash *
+read_colour_defs(FILE *fp)
+{
+    int red, green, blue, pos;
+    vbuffer *val;
+    vhash *defs;
+
+    defs = vh_create();
+    val = vb_create();
+
+    while (fgets(buf, BUFSIZ, fp) != NULL) {
+        /* Get RGB values */
+        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
+            continue;
+
+        /* Get offset of colour name */
+        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
+            continue;
+
+        /* Scale RGB values */
+        vb_empty(val);
+        vb_printf(val, "%.3g", red / 255.0);
+        vb_printf(val, " %.3g", green / 255.0);
+        vb_printf(val, " %.3g", blue / 255.0);
+
+        /* Add colour */
+        v_chop(buf);
+        vh_sstore(defs, &buf[pos], vb_get(val));
+    }
+
+    vb_destroy(val);
+
+    return defs;
 }
 
 /* Mark a style as referenced */
@@ -151,6 +209,8 @@ set_style_list(vlist *list)
 void
 var_alias(char *alias_id, char *id)
 {
+    INIT_VARS;
+
     if (id != NULL)
         vh_sstore(alias, alias_id, id);
     else
@@ -235,7 +295,7 @@ var_get(char *id)
     char *key, *style;
     vscalar *var;
     vhash *svars;
-    int i;
+    int i, len;
 
     INIT_VARS;
 
@@ -245,10 +305,10 @@ var_get(char *id)
 
     /* Check style list if required */
     if (style_list != NULL) {
-        for (i = vl_length(style_list) - 1; i >= 0; i--) {
+        len = vl_length(style_list);
+        for (i = len - 1; i >= 0; i--) {
             style = vl_sgetref(style_list, i);
-            svars = vh_pget(styles, style);
-            if (svars == NULL)
+            if ((svars = vh_pget(styles, style)) == NULL)
                 continue;
 
             /* Check current output format first */
@@ -485,40 +545,4 @@ var_subst(char *string)
     }
 
     return vb_get(b);
-}
-
-/* Read and return colour definitions from a stream */
-static vhash *
-read_colour_defs(FILE *fp)
-{
-    int red, green, blue, pos;
-    vbuffer *val;
-    vhash *defs;
-
-    defs = vh_create();
-    val = vb_create();
-
-    while (fgets(buf, BUFSIZ, fp) != NULL) {
-        /* Get RGB values */
-        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
-            continue;
-
-        /* Get offset of colour name */
-        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
-            continue;
-
-        /* Scale RGB values */
-        vb_empty(val);
-        vb_printf(val, "%.3g", red / 255.0);
-        vb_printf(val, " %.3g", green / 255.0);
-        vb_printf(val, " %.3g", blue / 255.0);
-
-        /* Add colour */
-        v_chop(buf);
-        vh_sstore(defs, &buf[pos], vb_get(val));
-    }
-
-    vb_destroy(val);
-
-    return defs;
 }
