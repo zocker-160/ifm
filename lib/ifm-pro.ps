@@ -32,13 +32,15 @@
     /widthoffset pagewidth bp-width boxsize mul sub 2 div def
     /heightoffset pageheight bp-height boxsize mul sub 2 div def
 
-    % Put border around page.
-    newpath
-    pagemargin pagemargin moveto
-    pagewidth pagemargin 2 mul sub 0 rlineto
-    0 pageheight pagemargin 2 mul sub rlineto
-    pagewidth pagemargin 2 mul sub neg 0 rlineto
-    closepath stroke
+    % Put border around page if required.
+    border {
+	newpath
+	pagemargin pagemargin moveto
+	pagewidth pagemargin 2 mul sub 0 rlineto
+	0 pageheight pagemargin 2 mul sub rlineto
+	pagewidth pagemargin 2 mul sub neg 0 rlineto
+	closepath stroke
+    } if
 
     % Calculate font scaling factor.
     /scalewidth mapwidth dup bp-width max div def
@@ -73,13 +75,13 @@
 	    [ 2 2 ] 2 setdash
 	} if
 
-	% Move to top right corner of box.
-	newpath rm-xpos rm-ypos moveto
+	% Draw box around room.
+	newpath 
+	rm-xpos rm-ypos moveto
 	boxsize roomwidth 2 div mul
 	boxsize roomheight 2 div mul
 	rmoveto
 
-	% Draw box.
 	roomwidth boxsize mul neg 0 rlineto
 	0 roomheight boxsize mul neg rlineto
 	roomwidth boxsize mul 0 rlineto
@@ -131,58 +133,53 @@
 	} if
 
 	% Draw line.
-	newpath
-
-	/ln-lines ln-points length 2 div 1 sub def
-	/ln-x ln-points 0 get def
-	/ln-y ln-points 1 get def
-	ln-x ln-y pagepos moveto
-
-	1 1 ln-lines {
-	    /ln-i exch def
-	    /ln-x ln-points ln-i 2 mul get def
-	    /ln-y ln-points ln-i 2 mul 1 add get def
-
-	    ln-i ln-lines eq {
-		ln-x ln-y pagepos lineto
-	    }{
-		/ln-xn ln-points ln-i 1 add 2 mul get def
-		/ln-yn ln-points ln-i 1 add 2 mul 1 add get def
-		ln-x ln-y pagepos ln-xn ln-yn pagepos 10 arcto
-	    } ifelse
-	} for
-
-	stroke
+ 	/ln-lines ln-points length 2 div 1 sub def
+ 	/ln-x ln-points 0 get def
+ 	/ln-y ln-points 1 get def
+ 	ln-x ln-y pagepos moveto
+ 
+ 	1 1 ln-lines {
+ 	    /ln-i exch def
+ 	    /ln-x ln-points ln-i 2 mul get def
+ 	    /ln-y ln-points ln-i 2 mul 1 add get def
+ 
+ 	    ln-i ln-lines eq {
+ 		ln-x ln-y pagepos lineto
+ 	    }{
+ 		/ln-xn ln-points ln-i 1 add 2 mul get def
+ 		/ln-yn ln-points ln-i 1 add 2 mul 1 add get def
+ 		ln-x ln-y pagepos ln-xn ln-yn pagepos 10 arcto
+ 	    } ifelse
+ 	} for
+ 
+ 	stroke
 
 	% Mark updown/inout if required.
-	ln-updown ln-inout or {
-	    /ln-x ln-points ln-np 4 sub get def
-	    /ln-y ln-points ln-np 3 sub get def
-	    /ln-xn ln-points ln-np 2 sub get def
-	    /ln-yn ln-points ln-np 1 sub get def
-	    /ln-xmid ln-x ln-xn add 2 div def
-	    /ln-ymid ln-y ln-yn add 2 div def
-
-	    labelfont labelfontsize fontscale mul selectfont
-
-	    ln-updown {
-		(U/D)
-	    }{
-		(I/O)
-	    } ifelse ln-xmid ln-ymid pagepos centredtext
-	} if
+ 	ln-updown ln-inout or {
+ 	    /ln-x ln-points ln-np 4 sub get def
+ 	    /ln-y ln-points ln-np 3 sub get def
+ 	    /ln-xn ln-points ln-np 2 sub get def
+ 	    /ln-yn ln-points ln-np 1 sub get def
+ 	    /ln-xmid ln-x ln-xn add 2 div def
+ 	    /ln-ymid ln-y ln-yn add 2 div def
+ 
+ 	    labelfont labelfontsize fontscale mul selectfont
+ 
+ 	    ln-updown {
+ 		(U/D)
+ 	    }{
+ 		(I/O)
+ 	    } ifelse ln-xmid ln-ymid pagepos centredtext
+ 	} if
 
 	% Draw arrow if oneway.
 	ln-oneway {
-	    /ln-x ln-points ln-np 4 sub get def
-	    /ln-y ln-points ln-np 3 sub get def
-	    /ln-xn ln-points ln-np 2 sub get def
-	    /ln-yn ln-points ln-np 1 sub get def
-	    /ln-xmid ln-x ln-xn add 2 div def
-	    /ln-ymid ln-y ln-yn add 2 div def
+ 	    /ln-x ln-points ln-np 4 sub get def
+ 	    /ln-y ln-points ln-np 3 sub get def
+ 	    /ln-xn ln-points ln-np 2 sub get def
+ 	    /ln-yn ln-points ln-np 1 sub get def
+	    ln-x ln-y pagepos ln-xn ln-yn pagepos arrowhead
 	} if
-
-	% FINISH ME.
     grestore
 } def
 
@@ -325,6 +322,27 @@
     % Process the last line.
     /bl-lastchar bl-textstring length def
     bl-textstring bl-startchar bl-lastchar bl-startchar sub getinterval bl-proc
+} bind def
+
+% Draw an arrowhead.
+/arrowhead {			% X1 Y1 X2 Y2 arrowhead
+    /ah-y2 exch def
+    /ah-x2 exch def
+    /ah-y1 exch def
+    /ah-x1 exch def
+
+    /ah-angle ah-y2 ah-y1 sub ah-x2 ah-x1 sub atan def
+    /ah-size boxsize 10 div def
+
+    gsave
+	ah-x2 ah-y2 translate
+	ah-angle rotate
+	newpath
+	0 0 moveto
+	ah-size neg ah-size 2 div rlineto
+	0 ah-size neg rlineto
+	closepath 0 setgray fill
+    grestore
 } bind def
 
 % Draw centred text.
