@@ -91,6 +91,16 @@ get_var(char *id)
     return NULL;
 }
 
+/* Indent output line */
+void
+indent(int num)
+{
+    int i;
+
+    for (i = 0; i < 3 * num; i++)
+        putchar(' ');
+}
+
 /* Open a library file for reading */
 FILE *
 open_libfile(char *name)
@@ -133,7 +143,11 @@ void
 set_var(char *driver, char *type, char *var, vscalar *val)
 {
     char *key = var_encode(driver, type, mapnum, var);
-    vh_store(vars, key, val);
+
+    if (val != NULL)
+        vh_store(vars, key, val);
+    else
+        vh_delete(vars, key);
 }
 
 /* Split a line based on a given width/height ratio */
