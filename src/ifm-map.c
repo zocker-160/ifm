@@ -53,6 +53,9 @@ vlist *sectnames = NULL;	/* List of section names */
 
 int mapnum = 0;                 /* Current map section number */
 
+/* Scribble buffer */
+static char buf[BUFSIZ];
+
 /* Add a direction to the current direction list */
 void
 add_dir(int dir)
@@ -136,6 +139,40 @@ init_map(void)
     vh_pstore(map, "ROOMTAGS", roomtags);
     vh_pstore(map, "ITEMTAGS", itemtags);
     vh_pstore(map, "TASKTAGS", tasktags);
+}
+
+/* Mark joined rooms */
+void
+mark_joins(void)
+{
+    vhash *room, *join, *from, *to;
+    char tag[10], *name;
+    int jnum = 0;
+    vscalar *elt;
+
+    vl_foreach(elt, joins) {
+        join = vs_pget(elt);
+        from = vh_pget(join, "FROM");
+        to = vh_pget(join, "TO");
+
+        sprintf(tag, " (%d)", ++jnum);
+
+        name = vh_sgetref(from, "JDESC");
+        strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
+        strcat(buf, tag);
+        vh_sstore(from, "JDESC", buf);
+
+        name = vh_sgetref(to, "JDESC");
+        strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
+        strcat(buf, tag);
+        vh_sstore(to, "JDESC", buf);
+    }
+
+    vl_foreach(elt, rooms) {
+        room = vs_pget(elt);
+        if (!vh_exists(room, "JDESC"))
+            vh_sstore(room, "JDESC", vh_sgetref(room, "DESC"));
+    }
 }
 
 /* Pack sections onto virtual pages */
