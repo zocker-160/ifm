@@ -20,8 +20,18 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
+#define MAPX(x) (fig_origin_x + room_size * (fig_xoff + x))
+#define MAPY(y) (fig_origin_y + room_size * (fig_yoff + y))
+
+/* Figure */
+static vhash *fig = NULL;
+
+/* Page dimensions */
+static float fig_width, fig_height;
+static float fig_origin_x, fig_origin_y;
+
 /* Room offsets */
-static float fig_xoff, fig_yoff;
+static float fig_xoff = 0.0, fig_yoff = 0.0;
 
 /* Map function list */
 mapfuncs fig_mapfuncs = {
@@ -38,11 +48,14 @@ mapfuncs fig_mapfuncs = {
 void
 fig_map_start(void)
 {
-    int ylen, c, width, height;
-    char *title, *pagesize;
-    double room_size;
+    int ylen, width, height, orient;
+    double ratio;
     vscalar *elt;
+    char *title;
     vhash *sect;
+
+    /* Set map variables */
+    set_map_vars();
 
     /* Allow title space for sections with titles */
     vl_foreach(elt, sects) {
@@ -56,30 +69,64 @@ fig_map_start(void)
     /* Set room names */
     setup_room_names(1, show_tags);
 
-    /* Get global font scaling factor */
+    /* Get initial dimensions, in rooms */
+    fig_width = page_width - 2 * page_margin;
+    fig_height = page_height - 2 * page_margin;
 
-#if 0
-    /* Get desired dimensions, in rooms */
-    room_size = V_MAX(room_size, 0.1);
-    width = (int) (fig_page_width / room_size) + 1;
-    height = (int) (fig_page_height / room_size) + 1;
+    width = (int) (fig_width / room_size) + 1;
+    height = (int) (fig_height / room_size) + 1;
+    ratio = page_height / page_width;
 
-    /* Pack sections */
-    pack_sections(width, height, 1);
-#endif
+    /* Increase dimensions until sections fit on one page */
+    while (pack_sections(width, height, 1) > 1) {
+        width++;
+        height = (int) (width * ratio) + 1;
+    }
 
-    /* Print header */
-    if (vh_exists(map, "TITLE"))
-        title = vh_sgetref(map, "TITLE");
+    fig_width = width * room_size;
+    fig_height = height * room_size;
+    page_width = 2 * page_margin + fig_width;
+    page_height = 2 * page_margin + fig_height;
+
+    fig_origin_x = page_width / 2 - width * room_size;
+    fig_origin_y = page_height / 2 - height * room_size;
+    fig_origin_x = V_MAX(fig_origin_x, page_margin);
+    fig_origin_y = V_MAX(fig_origin_y, page_margin);
+
+    /* Determine orientation */
+    if (VAR_DEF("page_rotate"))
+        orient = var_int("page_rotate") ? FIG_LANDSCAPE : FIG_PORTRAIT;
+    else if (width < height)
+        orient = FIG_PORTRAIT;
     else
-        title = "Interactive Fiction map";
+        orient = FIG_LANDSCAPE;
+
+    /* Initialise figure */
+    fig = fig_create(FIG_METRIC);
+    fig_set_orientation(fig, orient);
+    fig_set_papersize(fig, page_size);
+
+    /* Draw background */
+    fig_create_box(fig,
+                   page_margin, page_margin,
+                   page_width - page_margin, page_height - page_margin);
+
+    /* Add title if required */
+    if (var_int("show_title")) {
+        if (vh_exists(map, "TITLE"))
+            title = vh_sgetref(map, "TITLE");
+        else
+            title = "Interactive Fiction map";
+
+        /* FINISH ME */
+    }
 }
 
 void
 fig_map_section(vhash *sect)
 {
-    int xlen, ylen;
     double xpos, ypos;
+    int xlen, ylen;
 
     /* Set section offsets */
     fig_xoff = vh_dget(sect, "XOFF");
@@ -125,13 +172,6 @@ fig_map_room(vhash *room)
         vl_destroy(list);
     }
 
-    if (itemlist != NULL)
-        ;
-    else
-        printf(" false");
-
-    printf(" room\n");
-
     /* Write room exits (if any) */
     ex = vh_pget(room, "EX");
     ey = vh_pget(room, "EY");
@@ -156,10 +196,6 @@ fig_map_room(vhash *room)
 
             x2 = x1 + 0.35 * (x2 - x1);
             y2 = y1 + 0.35 * (y2 - y1);
-
-            printf("%g %g %g %g roomexit\n",
-                   fig_xoff + x1, fig_yoff + y1,
-                   fig_xoff + x2, fig_yoff + y2);
         }
     }
 }
@@ -177,20 +213,6 @@ fig_map_link(vhash *link)
     x = vh_pget(link, "X");
     y = vh_pget(link, "Y");
     truncate_points(x, y, room_width, room_height);
-
-    printf("[");
-    np = vl_length(x);
-    for (i = 0; i < np; i++)
-        printf(" %g %g",
-               vl_dget(x, i) + fig_xoff,
-               vl_dget(y, i) + fig_yoff);
-    printf(" ]");
-
-    printf(" %s", (updown ? "true" : "false"));
-    printf(" %s", (inout ? "true" : "false"));
-    printf(" %s", (oneway ? "true" : "false"));
-
-    printf(" link\n");
 }
 
 void
@@ -202,5 +224,6 @@ fig_map_endsection(void)
 void
 fig_map_finish(void)
 {
-    /* Nothing to do */
+    /* Write figure */
+    fig_write_figure(fig, stdout);
 }
