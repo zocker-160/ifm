@@ -1,6 +1,10 @@
 ## Automake template for IFM documentation.
 
-# Main target.
+docdir = $(prefix)/doc/ifm
+
+doc_DATA = ifm.pdf
+
+# Main targets.
 
 doc: fig pdf html
 
@@ -43,19 +47,14 @@ html: fig ifm.tex ifm.aux
 
 # Installation stuff.
 
-DOC_DIR = $(pkgdatadir)
-
 install-doc:
 	@ if test -d $(srcdir)/$(HTML_DIR); then			\
 	   thisdir=`pwd`;						\
 	   docdir=`basename $$thisdir`;					\
-	   $(mkinstalldirs) $(DOC_DIR);					\
-	   cmd="rm -rf $(DOC_DIR)/$$docdir";				\
-	   echo $$cmd;							\
-	   eval $$cmd;							\
-	   cmd="cp -r $(srcdir)/$(HTML_DIR) $(DOC_DIR)/$$docdir";	\
-	   echo $$cmd;							\
-	   eval $$cmd;							\
+	   $(mkinstalldirs) $(docdir);					\
+	   set -x;							\
+	   rm -rf $(docdir)/$(HTML_DIR);				\
+	   cp -r $(srcdir)/$(HTML_DIR) $(docdir);			\
 	fi
 
 # Distribution stuff.

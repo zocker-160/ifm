@@ -10,8 +10,6 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-# Main target.
-
 
 SHELL = @SHELL@
 
@@ -71,6 +69,10 @@ YACC = @YACC@
 scr2ifm = @scr2ifm@
 tkifm = @tkifm@
 
+docdir = $(prefix)/doc/ifm
+
+doc_DATA = ifm.pdf
+
 # General rules.
 
 SUFFIXES = .lyx .ps .tex .aux .pdf .eps .dia
@@ -88,10 +90,6 @@ HTML_EXTRA = -short_extn
 LATEX2HTML = latex2html $(HTML_DISP) $(HTML_IMAGE) $(HTML_NAV) $(HTML_FILE) $(HTML_TEXT) $(HTML_EXTRA)
 
 
-# Installation stuff.
-
-DOC_DIR = $(pkgdatadir)
-
 # Distribution stuff.
 
 EXTRA_DIST = ifm.pdf ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	   tkifm.txt
@@ -108,6 +106,8 @@ CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DATA =  $(doc_DATA)
+
 DIST_COMMON =  Makefile.am Makefile.in
 
 
@@ -125,6 +125,25 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
+
+install-docDATA: $(doc_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(docdir)
+	@list='$(doc_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(docdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(docdir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(docdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(docdir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-docDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(doc_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(docdir)/$$p; \
+	done
 tags: TAGS
 TAGS:
 
@@ -161,7 +180,7 @@ installcheck: installcheck-am
 install-exec-am:
 install-exec: install-exec-am
 
-install-data-am:
+install-data-am: install-docDATA
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-data: install-data-am
@@ -169,13 +188,14 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am:
+uninstall-am: uninstall-docDATA
 uninstall: uninstall-am
-all-am: Makefile
+all-am: Makefile $(DATA)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(docdir)
 
 
 mostlyclean-generic:
@@ -205,13 +225,15 @@ maintainer-clean-am:  maintainer-clean-generic distclean-am
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: tags distdir info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+.PHONY: uninstall-docDATA install-docDATA tags distdir info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+
+# Main targets.
 
 doc: fig pdf html
 
@@ -235,17 +257,16 @@ fig: map.eps
 html: fig ifm.tex ifm.aux
 	$(LATEX2HTML) ifm.tex
 
+# Installation stuff.
+
 install-doc:
 	@ if test -d $(srcdir)/$(HTML_DIR); then			\
 	   thisdir=`pwd`;						\
 	   docdir=`basename $$thisdir`;					\
-	   $(mkinstalldirs) $(DOC_DIR);					\
-	   cmd="rm -rf $(DOC_DIR)/$$docdir";				\
-	   echo $$cmd;							\
-	   eval $$cmd;							\
-	   cmd="cp -r $(srcdir)/$(HTML_DIR) $(DOC_DIR)/$$docdir";	\
-	   echo $$cmd;							\
-	   eval $$cmd;							\
+	   $(mkinstalldirs) $(docdir);					\
+	   set -x;							\
+	   rm -rf $(docdir)/$(HTML_DIR);				\
+	   cp -r $(srcdir)/$(HTML_DIR) $(docdir);			\
 	fi
 
 dist-doc: $(EXTRA_DIST)
