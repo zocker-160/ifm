@@ -42,24 +42,28 @@
     /widthoffset pagewidth bp-width boxsize mul sub 2 div def
     /heightoffset pageheight bp-height boxsize mul sub 2 div def
 
-    % Put border around page if required.
+    % Draw background.
+    newpath
+    pagemargin pagemargin moveto
+    pagewidth pagemargin 2 mul sub 0 rlineto
+    0 pageheight pagemargin 2 mul sub rlineto
+    pagewidth pagemargin 2 mul sub neg 0 rlineto
+    closepath
+
+    gsave backgroundcolour selectcolour fill grestore
+
     showborder {
-	newpath
-	pagemargin pagemargin moveto
-	pagewidth pagemargin 2 mul sub 0 rlineto
-	0 pageheight pagemargin 2 mul sub rlineto
-	pagewidth pagemargin 2 mul sub neg 0 rlineto
-	closepath stroke
+	gsave bordercolour selectcolour stroke grestore
     } if
 
     % Draw title if required.
     showtitle {
 	titlefont titlefontsize selectfont
+	titlecolour selectcolour
 
 	titlestring
 	pagewidth 2 div
-	pageheight pagemargin sub titlefontsize add
-	text
+	pageheight pagemargin sub titlefontsize add false text
     } if
 
     % Calculate font scaling factor.
@@ -71,8 +75,9 @@
 % Start a map section.
 /map {				% STRING X Y map
     % Draw map title.
+    maptextcolour selectcolour
     mapfont mapfontsize selectfont
-    pagepos text
+    pagepos false text
 } def
 
 % Draw a room. 
@@ -90,13 +95,10 @@
     /rm-string exch def
 
     gsave
-	% Mark puzzle if required.
-	rm-puzzle {
-	    [ 2 2 ] 2 setdash
-	} if
-
 	% Draw room shadow box if required.
 	roomshadow 0 gt {
+	    roomshadowcolour selectcolour
+
 	    newpath
 	    rm-xpos rm-ypos moveto
 	    boxsize 1 roomshadow 2 mul sub mul roomwidth 2 div mul
@@ -106,12 +108,12 @@
 	    roomwidth boxsize mul neg 0 rlineto
 	    0 roomheight boxsize mul neg rlineto
 	    roomwidth boxsize mul 0 rlineto
-	    closepath
-
-	    gsave 0 setgray fill grestore stroke
+	    closepath fill
 	} if
 
 	% Draw room box.
+	roombordercolour selectcolour
+
 	roomlinewidth setlinewidth
 	newpath
 	rm-xpos rm-ypos moveto
@@ -124,9 +126,17 @@
 	roomwidth boxsize mul 0 rlineto
 	closepath
 
-	gsave roomshading setgray fill grestore stroke
+	gsave 
+	    rm-puzzle {
+		roompuzzlecolour
+	    }{
+		roomcolour
+	    } ifelse selectcolour fill
+	grestore 
+	stroke
 
 	% Draw room text (and item text if required).
+	roomtextcolour selectcolour
 	roomfont roomfontsize fontscale mul selectfont
 
 	rm-items showitems and {
@@ -136,6 +146,7 @@
 	    boxsize roomheight mul roomitemratio mul
 	    boxtext
 
+	    itemtextcolour selectcolour
 	    itemfont itemfontsize fontscale mul selectfont
 
 	    rm-itemlist rm-xpos rm-ypos
@@ -162,7 +173,8 @@
 
     gsave
 	% Draw line.
-	exitlinewidth setlinewidth
+	roomexitcolour selectcolour
+	roomexitlinewidth setlinewidth
 	re-x1 re-y1 pagepos moveto
 	re-x2 re-y2 pagepos lineto
 	stroke
@@ -182,8 +194,13 @@
     gsave
 	% Mark special if required.
 	ln-special {
-	    [ 2 2 ] 2 setdash
-	} if
+	    linkspecialcolour selectcolour
+	    linkspecialdashed {
+		[ 2 2 ] 2 setdash
+	    } if
+	}{
+	    linkcolour selectcolour
+	} ifelse
 
 	% Draw line.
 	linklinewidth setlinewidth
@@ -218,17 +235,19 @@
  	    /ln-xmid ln-x ln-xn add 2 div def
  	    /ln-ymid ln-y ln-yn add 2 div def
  
- 	    labelfont labelfontsize fontscale mul selectfont
+	    linktextcolour selectcolour
+ 	    linkfont linkfontsize fontscale mul selectfont
  
  	    ln-updown {
- 		(U/D)
+		linkupdowntext
  	    }{
- 		(I/O)
- 	    } ifelse ln-xmid ln-ymid pagepos text
+ 		linkinouttext
+ 	    } ifelse ln-xmid ln-ymid pagepos backgroundcolour true text
  	} if
 
 	% Draw arrow if oneway.
 	ln-oneway {
+	    linkcolour selectcolour
  	    /ln-x ln-points ln-np 4 sub get def
  	    /ln-y ln-points ln-np 3 sub get def
  	    /ln-xn ln-points ln-np 2 sub get def
@@ -289,7 +308,7 @@
 	    bt-textheight 2 div sub
 
 	    % Draw it.
-	    0 exch text
+	    0 exch false text
 	} for
     grestore
 } def
@@ -389,7 +408,7 @@
     /ah-x1 exch def
 
     /ah-angle ah-y2 ah-y1 sub ah-x2 ah-x1 sub atan def
-    /ah-size boxsize arrowsize mul def
+    /ah-size boxsize linkarrowsize mul def
 
     gsave
 	ah-x2 ah-y2 translate
@@ -398,12 +417,17 @@
 	0 0 moveto
 	ah-size neg ah-size 2 div rlineto
 	0 ah-size neg rlineto
-	closepath 0 setgray fill
+	closepath fill
     grestore
 } bind def
 
 % Draw centred text.
-/text {				% STRING X Y text
+/text {				% STRING X Y [BGCOLOUR] BGFLAG text
+    /tx-bgbox exch def
+    tx-bgbox {
+	/tx-bgcolour exch def
+    } if
+
     gsave
 	% Move to text centre.
 	translate
@@ -421,10 +445,13 @@
 	neg 2 div currentfontsize neg 3 div
 	moveto
 
-	% Draw text outline in background.
-	gsave
-	    tx-string false charpath pathbbox 1 setgray rectangle
-	grestore
+	% Draw text outline in background if required.
+	tx-bgbox {
+	    gsave
+		tx-bgcolour selectcolour
+		tx-string false charpath pathbbox rectangle
+	    grestore
+	} if
 
 	% Draw text.
 	tx-string show
@@ -460,16 +487,15 @@
     findfont currentfontsize scalefont setfont
 } bind def
 
+% Select a colour.
+/selectcolour {			% COLOUR-ARRAY selectcolour
+    aload pop setrgbcolor
+} bind def
+
 % Convert to page coordinates.
 /pagepos {			% X Y pagepos PX PY
     0.5 add boxsize mul heightoffset add exch
     0.5 add boxsize mul widthoffset add exch
-} def
-
-% Unused.
-/pagecoords {
-    boxsize dup scale
-    widthoffset heightoffset translate
 } def
 
 % Print stack if debugging.
