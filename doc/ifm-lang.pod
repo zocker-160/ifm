@@ -232,14 +232,6 @@ This is identical to 'cmd' on its own, and only exists for symmetry.
 Indicate that the return journey from this room to the previous one is not
 possible.
 
-=item puzzle
-
-Indicate that there is an unsolved puzzle in this room.
-
-=item special
-
-Indicate that the direction link to this room is special.
-
 =item length NUMBER
 
 Indicate that the direction link to this room has the specified length
@@ -389,10 +381,6 @@ This is identical to 'cmd' on its own, and only exists for symmetry.
 
 Indicate that this is a one-way link, in a similar manner to the room
 attribute of the same name.
-
-=item special
-
-Indicate that this link is special.
 
 =item hidden
 
@@ -651,6 +639,9 @@ references get the value of the variable inserted.  If you want a literal $
 inside a string, use $$.  If you want substitution to be performed on a
 variable that is cuddled up to other text that looks like part of the
 variable name, you must surround it with twiddly brackets, like ${this}.
+Note that variable substitution only happens when the string is output --
+this happens after all other processing, so it is the final value of the
+variable that will be substituted.
 
 Variables can have 'aliases' -- that is, other names.  A variable alias is
 set using the syntax
@@ -724,7 +715,15 @@ combination using the following constructs (in order of precedence):
 Note that in expressions, all variables are treated as numeric.  If a
 variable is set to be a string and is then used in an expression, its
 numeric value will be read from the string.  For most strings, this will be
-zero.
+zero.  This means that if you want to set a string variable to be exactly
+equal to another variable, you can't say something like
+
+    string_var = $other_string_var;
+
+because the right hand side is an expression, which is treated as numeric.
+The way to do it is to use variable substitution in strings:
+
+    string_var = "$other_string_var";
 
 =head2 Include Files
 
