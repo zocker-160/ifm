@@ -55,15 +55,6 @@ int mapnum = 0;                 /* Current map section number */
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
-/* Add a direction to the current direction list */
-void
-add_dir(int dir)
-{
-    if (curdirs == NULL)
-	curdirs = vl_create();
-    vl_ipush(curdirs, dir);
-}
-
 /* Initialise the map */
 void
 init_map(void)
@@ -98,6 +89,16 @@ init_map(void)
     vh_pstore(map, "ROOMTAGS", roomtags);
     vh_pstore(map, "ITEMTAGS", itemtags);
     vh_pstore(map, "TASKTAGS", tasktags);
+}
+
+/* Put room at a given location */
+void
+put_room_at(vhash * room, int sect, int x, int y)
+{
+    sprintf(buf, "%d,%d,%d", sect, x, y);
+    vh_pstore(rpos, buf, room);
+    vh_istore(room, "X", x);
+    vh_istore(room, "Y", y);
 }
 
 /* Resolve a tag */
@@ -214,6 +215,39 @@ resolve_tags(void)
     }
 }
 
+/* Return room at given location */
+vhash *
+room_at(int sect, int x, int y)
+{
+    sprintf(buf, "%d,%d,%d", sect, x, y);
+    return vh_pget(rpos, buf);
+}
+
+/* Set/unset a room exit */
+void
+room_exit(vhash *room, int xoff, int yoff, int flag)
+{
+    vhash *flags;
+
+    if (xoff == 0 && yoff == 0)
+        fatal("internal: invalid direction offset");
+
+    flags = vh_pget(room, "EXIT");
+    if (flags == NULL) {
+        if (!flag)
+            return;
+        flags = vh_create();
+        vh_pstore(room, "EXIT", flags);
+    }
+
+    sprintf(buf, "%d,%d", xoff, yoff);
+
+    if (flag)
+        vh_istore(flags, buf, 1);
+    else
+        vh_delete(flags, buf);
+}
+
 /* Set a tag table entry */
 void
 set_tag(char *type, char *tag, vhash *val, vhash *table)
@@ -226,56 +260,258 @@ set_tag(char *type, char *tag, vhash *val, vhash *table)
     }
 }
 
-/* Set up room names */
+/* Set up room exits */
 void
-setup_room_names(int jflag, int tflag)
+setup_exits(void)
 {
-    vhash *room, *join, *from, *to;
-    char tag[10], *name;
-    int jnum = 0;
+    vhash *room, *flags;
+    vlist *ex, *ey;
     vscalar *elt;
+    char *tag;
+    int x, y;
 
-    /* Add join numbers if required */
-    if (jflag) {
-        vl_foreach(elt, joins) {
-            join = vs_pget(elt);
-            if (vh_iget(join, "HIDDEN"))
-                continue;
-
-            from = vh_pget(join, "FROM");
-            to = vh_pget(join, "TO");
-
-            sprintf(tag, " (%d)", ++jnum);
-
-            name = vh_sgetref(from, "RDESC");
-            strcpy(buf, (name == NULL ? vh_sgetref(from, "DESC") : name));
-            strcat(buf, tag);
-            vh_sstore(from, "RDESC", buf);
-
-            name = vh_sgetref(to, "RDESC");
-            strcpy(buf, (name == NULL ? vh_sgetref(to, "DESC") : name));
-            strcat(buf, tag);
-            vh_sstore(to, "RDESC", buf);
-        }
-    }
-
-    /* Set room names of rooms that don't have one yet */
     vl_foreach(elt, rooms) {
         room = vs_pget(elt);
-        if (!vh_exists(room, "RDESC"))
-            vh_sstore(room, "RDESC", vh_sgetref(room, "DESC"));
+        flags = vh_pget(room, "EXIT");
+        if (flags == NULL)
+            continue;
+
+        ex = ey = NULL;
+        vh_foreach(tag, elt, flags) {
+            if (ex == NULL) {
+                ex = vl_create();
+                ey = vl_create();
+                vh_pstore(room, "EX", ex);
+                vh_pstore(room, "EY", ey);
+            }
+
+            sscanf(tag, "%d,%d", &x, &y);
+            vl_ipush(ex, x);
+            vl_ipush(ey, y);
+        }
+
+        vh_destroy(flags);
+        vh_delete(room, "EXIT");
+    }
+}
+
+/* Set up room links */
+void
+setup_links(void)
+{
+    vhash *room, *near, *link, *from, *to, *other, *sect;
+    int x, y, xt, yt, xoff, yoff, dir, num, count, ndirs;
+    vlist *dirs, *xpos, *ypos, *list;
+    char *fname, *tname, *str;
+    vscalar *elt;
+
+    /* Set up links between 'near' rooms */
+    vl_foreach(elt, rooms) {
+	room = vs_pget(elt);
+	near = vh_pget(room, "NEAR");
+	if (near == NULL)
+	    continue;
+
+	link = vh_create();
+
+	vh_pstore(link, "FROM", near);
+	vh_pstore(link, "TO", room);
+	vh_istore(link, "GO", vh_iget(room, "GO"));
+	vh_istore(link, "ONEWAY", vh_iget(room, "ONEWAY"));
+	vh_istore(link, "SPECIAL", vh_iget(room, "SPECIAL"));
+	vh_istore(link, "LEN", vh_iget(room, "LEN"));
+        vh_pstore(link, "BEFORE", vh_pget(room, "LINK_BEFORE"));
+        vh_pstore(link, "AFTER", vh_pget(room, "LINK_AFTER"));
+        vh_pstore(link, "NEED", vh_pget(room, "LINK_NEED"));
+
+        if ((str = vh_sgetref(room, "FROM_CMD")) != NULL)
+            vh_sstore(link, "FROM_CMD", str);
+
+        if ((str = vh_sgetref(room, "TO_CMD")) != NULL)
+            vh_sstore(link, "TO_CMD", str);
+
+	dirs = vh_pget(room, "DIR");
+	vl_ipop(dirs);
+	vh_pstore(link, "DIR", dirs);
+
+	vl_ppush(links, link);
     }
 
-    /* Add tag names if required */
-    if (tflag) {
-        vl_foreach(elt, rooms) {
-            room = vs_pget(elt);
-            if (vh_exists(room, "TAG")) {
-                sprintf(buf, "%s [%s]", vh_sgetref(room, "RDESC"),
-                        vh_sgetref(room, "TAG"));
-                vh_sstore(room, "RDESC", buf);
+    /* Build coordinate list for each link */
+    vl_foreach(elt, links) {
+	link = vs_pget(elt);
+
+	from = vh_pget(link, "FROM");
+	fname = vh_sgetref(from, "DESC");
+
+	to = vh_pget(link, "TO");
+	tname = vh_sgetref(to, "DESC");
+
+	sect = vh_pget(from, "SECT");
+        num = vh_iget(sect, "NUM");
+
+        /* Check rooms are linkable */
+	if (vh_pget(to, "SECT") != sect) {
+	    err("can't link `%s' to `%s' -- different map sections",
+                fname, tname);
+	    continue;
+	}
+
+        /* Add link to section links */
+        list = vh_pget(sect, "LINKS");
+        vl_ppush(list, link);
+        vh_pstore(link, "SECT", sect);
+
+        /* Get from/to locations */
+	x = vh_iget(from, "X");
+	y = vh_iget(from, "Y");
+	xt = vh_iget(to, "X");
+	yt = vh_iget(to, "Y");
+
+        /* Initialise coordinate lists */
+	xpos = vl_create();
+	vh_pstore(link, "X", xpos);
+	ypos = vl_create();
+	vh_pstore(link, "Y", ypos);
+
+        vl_ipush(xpos, x);
+        vl_ipush(ypos, y);
+        count = 0;
+
+        /* Traverse direction list */
+        if ((dirs = vh_pget(link, "DIR")) != NULL) {
+            ndirs = vl_length(dirs);
+
+            vl_foreach(elt, dirs) {
+                dir = vs_iget(elt);
+                xoff = dirinfo[dir].xoff;
+                yoff = dirinfo[dir].yoff;
+
+                /* Move to new coordinates */
+                x += xoff;
+                y += yoff;
+                vl_ipush(xpos, x);
+                vl_ipush(ypos, y);
+
+                /* Check for first direction */
+                if (count++ == 0) {
+                    /* Remove any room exits */
+                    room_exit(from, xoff, yoff, 0);
+
+                    /* Record 'to' direction */
+                    vh_istore(link, "TO_DIR", dir);
+                }
+
+                /* Check for crossing other rooms */
+                if ((x != xt || y != yt || count < ndirs)
+                    && (other = room_at(num, x, y)) != NULL)
+                    warn("room `%s' crossed by link line",
+                         vh_sgetref(other, "DESC"));
             }
         }
+
+        if (x == xt && y == yt) {
+            /* Already at target room */
+            room_exit(to, -xoff, -yoff, 0);
+        } else {
+            /* Get final direction to target room */
+            xoff = xt - x;
+            yoff = yt - y;
+
+            /* Check it's on the grid */
+            if (xoff != 0 && yoff != 0 && abs(xoff) != abs(yoff)) {
+                warn("link from `%s' to `%s' outside grid",
+                     fname, tname);
+            } else {
+                /* Unitize direction */
+                if (xoff != 0)
+                    xoff = (xoff > 0 ? 1 : -1);
+                if (yoff != 0)
+                    yoff = (yoff > 0 ? 1 : -1);
+
+                /* Remove room exits */
+                if (count == 0)
+                    room_exit(from, xoff, yoff, 0);
+                room_exit(to, -xoff, -yoff, 0);
+
+                /* Add final coordinates */
+                while (1) {
+                    x += xoff;
+                    y += yoff;
+                    if (x == xt && y == yt)
+                        break;
+
+                    vl_ipush(xpos, x);
+                    vl_ipush(ypos, y);
+                    if ((other = room_at(num, x, y)) != NULL)
+                        warn("room `%s' crossed by link line",
+                             vh_sgetref(other, "DESC"));
+                }
+            }
+
+            vl_ipush(xpos, xt);
+            vl_ipush(ypos, yt);
+        }
+
+        /* Record 'from' direction */
+        vh_istore(link, "FROM_DIR", get_direction(-xoff, -yoff));
+
+        /* Record 'to' direction if not already done */
+        if (count == 0)
+            vh_istore(link, "TO_DIR", get_direction(xoff, yoff));
+    }
+}
+
+/* Set up room positions */
+void
+setup_rooms(void)
+{
+    vhash *base, *room, *near, *other, *sect;
+    int nfound, x, y, dir, num;
+    vlist *list, *dirs;
+    vscalar *elt;
+
+    vl_foreach(elt, sects) {
+        sect = vs_pget(elt);
+        num = vh_iget(sect, "NUM");
+        list = vh_pget(sect, "ROOMS");
+
+	/* Position base room */
+	base = vl_ptail(list);
+	put_room_at(base, num, 0, 0);
+
+	/* Position all other rooms relative to it */
+        do {
+	    nfound = 0;
+
+	    vl_foreach(elt, list) {
+		room = vs_pget(elt);
+                if (vh_exists(room, "X"))
+		    continue;
+		if ((near = vh_pget(room, "NEAR")) == NULL)
+		    continue;
+                if (!vh_exists(near, "X"))
+		    continue;
+
+		x = vh_iget(near, "X");
+		y = vh_iget(near, "Y");
+
+		dirs = vh_pget(room, "DIR");
+		vl_foreach(elt, dirs) {
+		    dir = vs_iget(elt);
+		    x += dirinfo[dir].xoff;
+		    y += dirinfo[dir].yoff;
+		}
+
+		if ((other = room_at(num, x, y)) != NULL)
+		    warn("rooms `%s' and `%s' overlap",
+                         vh_sgetref(room, "DESC"),
+                         vh_sgetref(other, "DESC"));
+
+		put_room_at(room, num, x, y);
+		nfound++;
+	    }
+	} while (nfound > 0);
     }
 }
 

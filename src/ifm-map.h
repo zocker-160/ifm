@@ -22,13 +22,17 @@ extern vlist *taskorder, *sectnames;
 extern int mapnum;
 
 /* Advertised functions */
-extern void add_dir(int dir);
 extern void init_map(void);
+extern void put_room_at(vhash *room, int sect, int x, int y);
 extern void resolve_tag(char *type, vscalar *elt, vhash *table);
 extern void resolve_tag_list(char *type, vlist *list, vhash *table);
 extern void resolve_tags(void);
+extern vhash *room_at(int sect, int x, int y);
+extern void room_exit(vhash *room, int xoff, int yoff, int flag);
 extern void set_tag(char *type, char *tag, vhash *val, vhash *table);
-extern void setup_room_names(int jflag, int tflag);
+extern void setup_exits(void);
+extern void setup_links(void);
+extern void setup_rooms(void);
 extern void setup_sections(void);
 
 #endif
