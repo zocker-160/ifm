@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/ifm-main.c)
+AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(ifm, 2.2)
 
 dnl Checks for programs.
@@ -8,7 +9,9 @@ AC_PROG_YACC
 AM_PROG_LEX
 AM_PROG_INSTALL
 AC_PROG_RANLIB
-AC_CHECK_PROGS(WISH, wish wish8.0)
+AC_PROG_MAKE_SET
+AC_PATH_PROG(PERL, perl)
+AC_PATH_PROGS(WISH, wish wish8.0, no)
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
@@ -32,11 +35,29 @@ AC_CHECK_FUNCS(re_comp regcomp strdup strerror)
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sin)
 
+dnl Determine what to build.
+BUILD="lib src doc tests"
+AC_SUBST(BUILD)
+
+if test $PERL != no; then
+	BUILD="$BUILD scr2ifm"
+fi
+
+if test $WISH != no; then
+	BUILD="$BUILD tkifm"
+fi
+
+dnl Add common Makefile rules.
+common_rules=$srcdir/config/Makefile.add
+AC_SUBST_FILE(common_rules)
+
+dnl Write Makefiles.
 AC_OUTPUT(
 Makefile
 lib/Makefile
 src/Makefile
 doc/Makefile
+scr2ifm/Makefile
 tkifm/Makefile
 tests/Makefile
 )
