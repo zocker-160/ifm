@@ -216,7 +216,15 @@ static char *
 var_encode(char *driver, char *var)
 {
     static char encbuf[BUFSIZ];
-    sprintf(encbuf, "%s %s", (driver == NULL ? "global" : driver), var);
+
+    if (driver == NULL)
+        driver = "global";
+
+    if (strchr(var, '.') != NULL)
+        strcpy(encbuf, var);
+    else
+        sprintf(encbuf, "%s.%s", driver, var);
+
     return encbuf;
 }
 
