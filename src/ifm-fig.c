@@ -66,7 +66,6 @@ fig_map_start(void)
     int ylen, width, height, orient;
     vhash *sect, *box;
     vscalar *elt;
-    char *title;
 
     /* Allow title space for sections with titles */
     vl_foreach(elt, sects) {
@@ -257,7 +256,7 @@ fig_map_room(vhash *room)
 
     set_colour(box, room_border_colour);
     set_fillcolour(box, room_colour);
-    fig_set_linewidth(box, room_border_width);
+    fig_set_linewidth(box, (int) room_border_width);
 
     if (room_border_dashed)
         fig_set_linestyle(box, FIG_DASH);
@@ -360,7 +359,7 @@ fig_map_room(vhash *room)
                                    MAPX(x2 + xoff), MAPY(y2 + yoff));
 
             set_colour(line, room_exit_colour);
-            fig_set_linewidth(line, room_exit_width);
+            fig_set_linewidth(line, (int) room_exit_width);
             fig_set_depth(line, FIG_LINK_DEPTH);
         }
     }
@@ -395,7 +394,7 @@ fig_map_link(vhash *link)
         fig_create_point(line, MAPX(xp), MAPY(yp));
     }
 
-    fig_set_linewidth(line, link_line_width);
+    fig_set_linewidth(line, (int) link_line_width);
     set_colour(line, link_colour);
 
     if (link_dashed)

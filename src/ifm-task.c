@@ -120,7 +120,7 @@ check_cycles(void)
 static int
 do_task(vhash *task, int print, int recurse)
 {
-    int scoretask = 1, score, filter = 0, modpath = 0;
+    int scoretask = 1, score, filter = 0;
     vhash *item, *room, *otask, *step;
     vlist *list, *until;
     vscalar *elt;
@@ -978,8 +978,8 @@ setup_tasks(void)
 void
 solve_game(void)
 {
-    vhash *step, *trystep, *item, *task, *next;
     int count, tasksleft, status, ignore = 0;
+    vhash *step, *trystep, *item, *next;
     vscalar *elt;
 
     /* Don't bother if no tasks */

@@ -59,7 +59,7 @@ static struct driver_st {
       &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs, &tk_errfuncs }
 };
 
-#define NUM_DRIVERS (sizeof(drivers) / sizeof(drivers[0]))
+#define NUM_DRIVERS (int) (sizeof(drivers) / sizeof(drivers[0]))
 
 /* Init file */
 #ifndef INITFILE
@@ -119,9 +119,6 @@ static vlist *sections = NULL;
 
 /* Whether to only preprocess */
 static int prep_only = 0;
-
-/* Parse function */
-extern void yyparse();
 
 /* Internal functions */
 static void print_map(void);

@@ -307,7 +307,7 @@ find_path(vhash *step, vhash *from, vhash *to)
         if ((path = PATH_INFO(from, to)) == NULL)
             return NOPATH;
 
-        len = vl_dshift(path);
+        len = vl_ishift(path);
         vh_pstore(step, "PATH", path);
     } else {
         path_task = NULL;
@@ -385,7 +385,6 @@ init_path(vhash *room)
 {
     vhash *step, *item, *taskroom;
     int len, blockable, offset;
-    extern vlist *tasklist;
     vscalar *elt;
     vlist *list;
     double dist;
@@ -527,7 +526,7 @@ link_size(char *fnode, char *tnode, vscalar *s)
 {
     vlist *list = vs_pget(s);
     vhash *reach = vl_pget(list, 0);
-    return vh_iget(reach, "LEN");
+    return vh_dget(reach, "LEN");
 }
 
 /* Flag path modification */

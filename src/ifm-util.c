@@ -19,20 +19,20 @@
 
 /* Direction info (same order as direction enum list) */
 struct d_info dirinfo[] = {
-    "?",   "none",      D_NONE,      D_NONE,       0,  0,
-    "N",   "north",     D_NORTH,     D_SOUTH,      0,  1,
-    "S",   "south",     D_SOUTH,     D_NORTH,      0, -1,
-    "E",   "east",      D_EAST,      D_WEST,       1,  0,
-    "W",   "west",      D_WEST,      D_EAST,      -1,  0,
-    "NE",  "northeast", D_NORTHEAST, D_SOUTHWEST,  1,  1,
-    "SW",  "southwest", D_SOUTHWEST, D_NORTHEAST, -1, -1,
-    "NW",  "northwest", D_NORTHWEST, D_SOUTHEAST, -1,  1,
-    "SE",  "southeast", D_SOUTHEAST, D_NORTHWEST,  1, -1,
-    "U",   "up",        D_UP,        D_DOWN,       0,  0,
-    "D",   "down",      D_DOWN,      D_UP,         0,  0,
-    "IN",  "in",        D_IN,        D_OUT,        0,  0,
-    "OUT", "out",       D_OUT,       D_IN,         0,  0,
-    NULL,  NULL,        D_NONE,      D_NONE,       0,  0
+    { "?",   "none",      D_NONE,      D_NONE,       0,  0 },
+    { "N",   "north",     D_NORTH,     D_SOUTH,      0,  1 },
+    { "S",   "south",     D_SOUTH,     D_NORTH,      0, -1 },
+    { "E",   "east",      D_EAST,      D_WEST,       1,  0 },
+    { "W",   "west",      D_WEST,      D_EAST,      -1,  0 },
+    { "NE",  "northeast", D_NORTHEAST, D_SOUTHWEST,  1,  1 },
+    { "SW",  "southwest", D_SOUTHWEST, D_NORTHEAST, -1, -1 },
+    { "NW",  "northwest", D_NORTHWEST, D_SOUTHEAST, -1,  1 },
+    { "SE",  "southeast", D_SOUTHEAST, D_NORTHWEST,  1, -1 },
+    { "U",   "up",        D_UP,        D_DOWN,       0,  0 },
+    { "D",   "down",      D_DOWN,      D_UP,         0,  0 },
+    { "IN",  "in",        D_IN,        D_OUT,        0,  0 },
+    { "OUT", "out",       D_OUT,       D_IN,         0,  0 },
+    { NULL,  NULL,        D_NONE,      D_NONE,       0,  0 }
 };
 
 /* Standard paper sizes */
@@ -40,14 +40,14 @@ static struct paper_st {
     char *name;
     double width, height;
 } paper_sizes[] = {
-    "A3",       29.7,   42.01,
-    "A4",       21.0,   29.7,
-    "A",        21.59,  27.94,
-    "B",        27.94,  43.18,
-    "C",        43.18,  55.88,
-    "Legal",    21.59,  35.56,
-    "Letter",   21.59,  27.94,
-    NULL,       0.0,    0.0
+    { "A3",       29.7,   42.01 },
+    { "A4",       21.0,   29.7  },
+    { "A",        21.59,  27.94 },
+    { "B",        27.94,  43.18 },
+    { "C",        43.18,  55.88 },
+    { "Legal",    21.59,  35.56 },
+    { "Letter",   21.59,  27.94 },
+    { NULL,       0.0,    0.0   }
 };
 
 /* Scribble buffer */

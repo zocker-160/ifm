@@ -75,8 +75,8 @@ static char *ps_string(char *str);
 void
 ps_map_start(void)
 {
-    char *title, *pagesize, *prolog, *file;
     int ylen, c, num_pages, width, height;
+    char *title, *prolog, *file;
     vscalar *elt;
     vhash *sect;
     FILE *fp;
@@ -213,7 +213,7 @@ ps_map_section(vhash *sect)
     /* Print title if required */
     if (show_map_title && vh_exists(sect, "TITLE")) {
         xpos = (double) (xlen - 1) / 2;
-        ypos = ylen - 1;
+        ypos = (double) ylen - 1;
         put_string("%s %g %g maptitle\n",
                    ps_string(vh_sgetref(sect, "TITLE")),
                    xpos + ps_xoff, ypos + ps_yoff);
