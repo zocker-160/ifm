@@ -14,29 +14,32 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-#define SET_LIST(object, attr, list)                                    \
-        {                                                               \
-                vlist *l = vh_pget(object, attr);                       \
-                if (l == NULL) {                                        \
-                        vh_pstore(object, attr, list);                  \
-                        list = NULL;                                    \
-                } else {                                                \
-                        vl_append(l, list);                             \
-                        vl_destroy(list);                               \
-                        list = NULL;                                    \
-                }                                                       \
-        }
+#define SET_LIST(object, attr, list) {                                  \
+        vlist *l = vh_pget(object, attr);                               \
+        if (l == NULL) {                                                \
+            vh_pstore(object, attr, list);                              \
+            list = NULL;                                                \
+        } else {                                                        \
+            vl_append(l, list);                                         \
+            vl_destroy(list);                                           \
+            list = NULL;                                                \
+        }                                                               \
+}
 
 #define ATTR(name) \
         (implicit ? "LINK_" #name : #name)
 
-#define RESET_IT \
-        itroom = ititem = ittask = NULL
+#define RESET_IT                                                        \
+        RESET_VAR(itroom);                                              \
+        RESET_VAR(ititem);                                              \
+        RESET_VAR(ittask)
 
-#define WARN_IGNORED(attr) \
+#define RESET_VAR(var) if (var != NULL) { vs_destroy(var); var = NULL; }
+
+#define WARN_IGNORED(attr)                                              \
         warn("attribute `%s' ignored -- no implicit link", #attr)
 
-#define CHANGE_ERROR(attr) \
+#define CHANGE_ERROR(attr)                                              \
         err("can't modify `%s' attribute", #attr)
 
 static vhash *curobj = NULL;    /* Current object */
@@ -442,7 +445,8 @@ room_elt	: room
 
 room            : ID
                 {
-                    $$ = itroom = vs_screate($1);
+                    $$ = vs_screate($1);
+                    itroom = vs_copy($$);
                 }
                 | IT
                 {
@@ -585,7 +589,8 @@ item_elt	: item
 
 item            : ID
                 {
-                    $$ = ititem = vs_screate($1);
+                    $$ = vs_screate($1);
+                    ititem = vs_copy($$);
                 }
                 | IT
                 {
@@ -982,7 +987,8 @@ task_elt	: task
 
 task            : ID
                 {
-                    $$ = ittask = vs_screate($1);
+                    $$ = vs_screate($1);
+                    ittask = vs_copy($$);
                 }
                 | IT
                 {
