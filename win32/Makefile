@@ -16,7 +16,8 @@ DLL = $(bindir)/cygwin1.dll
 FILES = $(TOPDIR)/README $(TOPDIR)/README.maps $(TOPDIR)/NEWS	\
 $(TOPDIR)/COPYING
 
-PROGS = $(SRCDIR)/$(EXE) $(PROGDIR)/tkifm.tcl $(PROGDIR)/scr2ifm.pl
+PROGS = $(SRCDIR)/$(EXE) $(PROGDIR)/ifm2dev.pl $(PROGDIR)/tkifm.tcl	\
+$(PROGDIR)/scr2ifm.pl
 
 DOCS = $(DOCDIR)/ifm.pdf $(DOCDIR)/html
 
@@ -34,13 +35,13 @@ zip:;	rm -rf $(ZIPDIR)
 	for i in README NEWS COPYING; do				\
 	   mv $(ZIPDIR)/$$i $(ZIPDIR)/$$i.txt;				\
 	done
-	mv README.win32 $(ZIPDIR)/WIN32.txt
+	cp README.win32 $(ZIPDIR)/WIN32.txt
 	mv $(ZIPDIR)/README.maps $(ZIPDIR)/MAPS.txt
 	mkdir $(ZIPDIR)/progs
 	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
 	strip $(ZIPDIR)/progs/$(EXE)
 	mkdir $(ZIPDIR)/docs
-	cp -r $(DOCS) $(ZIPDIR)/docs
+	- cp -r $(DOCS) $(ZIPDIR)/docs
 	mkdir $(ZIPDIR)/lib
 	cp $(LIBS) $(ZIPDIR)/lib
 	mkdir $(ZIPDIR)/maps
