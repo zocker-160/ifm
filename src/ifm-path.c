@@ -78,17 +78,18 @@ connect_rooms(void)
 
 /* Find a path between two rooms */
 int
-find_path(vlist *path, vhash *from, vhash *to)
+find_path(vlist *path, vhash *from, vhash *to, int maxdist)
 {
     vhash *node, *reach, *task, *item, *last, *step;
     vlist *visit, *need, *after, *rlist;
-    int found = 0, length = 0, addnode;
+    int dist, found = 0, addnode;
     static int visit_id = 0;
     vscalar *elt;
 
     /* Initialise */
     visit = vl_create();
     vl_ppush(visit, from);
+    vh_istore(from, "DIST", 0);
     vh_pstore(from, "FP_LAST", NULL);
     last = from;
     visit_id++;
@@ -98,6 +99,8 @@ find_path(vlist *path, vhash *from, vhash *to)
         node = vl_pshift(visit);
         if (vh_iget(node, "FP_VISIT") == visit_id)
             continue;
+
+        dist = vh_iget(node, "DIST");
         vh_istore(node, "FP_VISIT", visit_id);
         last = node;
 
@@ -106,6 +109,10 @@ find_path(vlist *path, vhash *from, vhash *to)
             found = 1;
             break;
         }
+
+        /* If path is too long, end */
+        if (dist > maxdist)
+            break;
 
         /* Add reachable nodes to the visit list */
         rlist = vh_pget(node, "REACH");
@@ -117,8 +124,7 @@ find_path(vlist *path, vhash *from, vhash *to)
             addnode = 1;
 
             /* Check items needed */
-            need = vh_pget(reach, "NEED");
-            if (need != NULL) {
+            if (addnode && (need = vh_pget(reach, "NEED")) != NULL) {
                 vl_foreach(elt, need) {
                     item = vs_pget(elt);
                     step = vh_pget(item, "STEP");
@@ -128,8 +134,7 @@ find_path(vlist *path, vhash *from, vhash *to)
             }
 
             /* Check tasks needing to be done first */
-            after = vh_pget(reach, "AFTER");
-            if (after != NULL) {
+            if (addnode && (after = vh_pget(reach, "AFTER")) != NULL) {
                 vl_foreach(elt, after) {
                     task = vs_pget(elt);
                     step = vh_pget(task, "STEP");
@@ -142,6 +147,7 @@ find_path(vlist *path, vhash *from, vhash *to)
             if (addnode) {
                 if (node != from)
                     vh_pstore(node, "FP_LAST", last);
+                vh_istore(node, "DIST", dist + 1);
                 vl_ppush(visit, node);
             }
         }
@@ -150,7 +156,8 @@ find_path(vlist *path, vhash *from, vhash *to)
     vl_destroy(visit);
 
     /* Do nothing if no path */
-    if (!found) return 0;
+    if (!found)
+        return -1;
 
     /* Initialise path */
     if (path != NULL)
@@ -162,8 +169,7 @@ find_path(vlist *path, vhash *from, vhash *to)
         if (path != NULL)
             vl_punshift(path, node);
         node = vh_pget(node, "FP_LAST");
-        length++;
     }
 
-    return length;
+    return dist;
 }

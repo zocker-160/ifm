@@ -12,6 +12,6 @@
 
 /* Advertised functions */
 extern void connect_rooms(void);
-extern int find_path(vlist *path, vhash *from, vhash *to);
+extern int find_path(vlist *path, vhash *from, vhash *to, int maxdist);
 
 #endif
