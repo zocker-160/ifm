@@ -57,7 +57,6 @@ connect_rooms(void)
     char *cmd, id[10];
     vscalar *elt;
 
-    solver_msg(0, "Task debugging information\n");
     solver_msg(0, "Connecting rooms...");
 
     /* Initialise */
@@ -799,7 +798,7 @@ use_node(char *node, vscalar *s, double dist)
     }
 
 #ifdef SHOW_VISIT
-    if (ifm_debug && room != start_room) {
+    if (TASK_VERBOSE && room != start_room) {
         indent(4 - vg_caching());
         printf("visit: %s (dist %g)\n",
                vh_sgetref(room, "DESC"), dist);
