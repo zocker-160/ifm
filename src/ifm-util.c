@@ -176,27 +176,32 @@ obsolete(char *old, char *new)
     warn("%s is obsolete -- use %s instead", old, new);
 }
 
-/* Open a library file for reading */
+/* Open a file */
 FILE *
-open_libfile(char *name)
+open_file(char *file, int libflag)
 {
-    vlist *pathlist = search_path();
+    FILE *fp = NULL;
     vscalar *elt;
-    FILE *fp;
 
-    /* Try each path */
-    vl_foreach(elt, pathlist) {
-        sprintf(buf, "%s/%s", vs_sgetref(elt), name);
-        if ((fp = fopen(buf, "r")) != NULL)
-            return fp;
+    /* Try the search path if required */
+    if (libflag) {
+        vl_foreach(elt, ifm_search) {
+            sprintf(buf, "%s/%s", vs_sgetref(elt), file);
+            if ((fp = fopen(buf, "r")) != NULL) {
+                strcpy(ifm_input, buf);
+                vl_break(ifm_search);
+                break;
+            }
+        }
+    } else {
+        fp = fopen(file, "r");
+        strcpy(ifm_input, file);
     }
 
-    /* Give up */
-    fatal("can't find `%s' in any of these directories:\n   %s",
-          name, vl_join(pathlist, "\n   "));
+    if (fp == NULL)
+        fatal("can't open %s `%s'", (libflag ? "library file" : "file"), file);
 
-    /* Shut lint up */
-    return NULL;
+    return fp;
 }
 
 /* Pack sections onto virtual pages */
@@ -369,20 +374,6 @@ pack_sections(int xmax, int ymax, int border)
 
     vl_destroy(pages);
     return num;
-}
-
-/* Return the library file search path */
-vlist *
-search_path(void)
-{
-    static vlist *pathlist = NULL;
-
-    if (pathlist == NULL) {
-        char *env = getenv("IFMPATH");
-        pathlist = vl_split(env != NULL ? env : IFMPATH, ":");
-    }
-
-    return pathlist;
 }
 
 /* Set a scalar variable */
