@@ -1,0 +1,241 @@
+=head1 NAME
+
+scr2ifm -- convert game transcript to IFM format
+
+=head1 SYNOPSIS
+
+scr2ifm [options] [file]
+
+=head1 DESCRIPTION
+
+B<scr2ifm> reads a transcript of an Interactive Fiction game and produces a
+map of it in B<ifm> format.  It works on Infocom-style transcripts -- those
+produced by Inform- and TADS-generated games (and of course Infocom games
+themselves).  For best results, you should follow a few simple guidelines
+when creating your transcript (see L<"HINTS AND TIPS">).
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-t> title
+
+Add a title to the output, using the B<ifm> 'title' command.
+
+=item B<-c> F<file>
+
+Append the given file of B<ifm> and parameter commands to the end of the
+map.  This allows some customization of the results (see
+L<"CUSTOMIZATION">).
+
+=item B<-o> F<file>
+
+Write output to the given file instead of stdout.
+
+=item B<-l>
+
+Add a comment to each room and link line indicating the line number of the
+command in the transcript file that generated it.
+
+=item B<-d>
+
+Add the description text of each room as a comment following each room line
+in the output.
+
+=item B<-v>
+
+Be verbose about things.
+
+=item B<-w>
+
+Don't print warnings.
+
+=back
+
+=head1 OPERATION
+
+B<scr2ifm> works by recognizing several key things in the transcript:
+
+=over 4
+
+=item *
+
+The commands you type.  These are easy to spot, because they are preceded
+by a prompt (usually ">").
+
+=item *
+
+When the current room changes.  This is not quite so easy, but still fairly
+simple.  When you enter a new room, a short room title is printed (for
+example, "West of House").  The program looks for these short titles in the
+text that follows a command.  First, a line is checked for an invalid
+format -- things that never appear in a title (e.g. "?" or "!").  Then the
+word count is checked -- titles are hardly ever more than 7 or 8 words
+long.  Finally the maximum length of an uncapitalized word is examined --
+this is almost always 3 or less in titles (the length of "the").
+
+=item *
+
+When a previously-visited room is visited again.  This is the most
+difficult thing to determine, since anything might have changed in the room
+If there is a description, an exact description match is tried.  If that
+fails, a substring match is attempted.  If I<that> fails, the first few
+words are examined to see if they match.  If there's no description, an
+exact room name match is tried.
+
+=back
+
+All these checks can be customized -- see L<"CUSTOMIZATION">.  Output from
+B<scr2ifm> is in the following format:
+
+=over 4
+
+=item *
+
+After the title (if any) there's a list of rooms defined with the B<ifm>
+room command.  Each room is given a tag name formed by the initials of each
+capitalized word in its name.  To make tags unique, the second and
+subsequent occurrences of a tag name have that number appended.
+
+If a movement command was up, down, in or out, then a compass direction is
+chosen for it that doesn't clash with other rooms (if possible) and the
+'go' attribute is used to mark its real direction.  If a movement command
+isn't recognized, the same is done except this time the 'cmd' attribute is
+used to record the command instead.
+
+=item *
+
+Then follows a list of extra links between already-visited rooms (if any)
+in the same manner.  Link tags are built by concatenating the room tags of
+the linked rooms with an underscore in between.
+
+=item *
+
+Finally the B<ifm> commands from the file indicated by the B<-c> option are
+echoed (if any).
+
+=back
+
+=head1 HINTS AND TIPS
+
+For best results with B<scr2ifm>, you should follow these guidelines when
+making a transcript:
+
+=over 4
+
+=item *
+
+Always use 'verbose' mode.  If you don't, then when you revisit a room
+you've been in before, no description will be printed.  In that case,
+B<scr2ifm> will have to rely on the room name to tell where it is.  If
+there's more than one room with that name, it'll get confused (and so will
+you when you look at the map!).
+
+=item *
+
+After starting the script, look around.  Otherwise your starting room may
+not be included on the map, since the room description may not get
+printed.
+
+=item *
+
+If there's a bend in a link (e.g. if you leave a room by going east, and
+enter the next room from the south) make sure you do the return journey.
+Otherwise, B<scr2ifm> won't know about the bend.
+
+=item *
+
+Avoid commands that teleport you.  Things like this are best dealt with in
+B<ifm> by joins, which B<scr2ifm> can't generate.  If you accidentally
+teleport, just UNDO and edit out the relevant part of the transcript.  Note
+that RESTART and RESTORE are also teleport commands.  Since these are
+standard, B<scr2ifm> gives an error if it sees them.
+
+=item *
+
+Avoid places where different rooms have the same room description
+(i.e. mazes).  B<scr2ifm> can't resolve cases like this, and will assume
+there's just a single room.  Note that this doesn't exclude I<all> mazes --
+the 'twisty passages, all different' maze from Colossal Cave would still
+work, since the descriptions are different.
+
+=back
+
+=head1 CUSTOMIZATION
+
+You an customize the results you get from a transcript by creating a
+command file and specifying it with the B<-c> option.  There are two types
+of customization: parameter commands and B<ifm> commands.
+
+Parameter commands change the values of default parameters used when
+scanning the transcript.  They take the form
+
+    <parameter> = <value>
+
+All parameters are variables with begin with a dollar symbol.  Here's a
+list of them, and their defaults:
+
+=over 4
+
+=item $name_maxwords (default: 8)
+
+Maximum no. of words in a room name.
+
+=item $name_maxuncap (default: 3)
+
+Maximum length of an uncapitalized word in a room name.
+
+=item $name_invalid (default: '[.!?]')
+
+Regexp matching an invalid room name.
+
+=item $desc_minwords (default: 20)
+
+Minimum no. of matching words required to match a room description.
+
+=item $cmd_prompt (default: '^>\s*')
+
+Regexp matching a command prompt.
+
+=item $cmd_look (default: '^L(OOK)?$')
+
+Regexp matching a 'look' command.
+
+=item $cmd_end (default: '^UNSCRIPT$')
+
+Regexp matching an end-of-script command.
+
+=item $cmd_ignore (default: '^UNDO$')
+
+Regexp matching commands that, although they generate a room description,
+should be ignored.
+
+=item $cmd_invalid (default: '^RE(START|STORE)$')
+
+Regexp matching commands that aren't allowed.
+
+=back
+
+If a command isn't recognized as a parameter command, it's assumed to be an
+B<ifm> command, and is passed straight into the output verbatim.  You can
+use these to resolve conflicts in the generated map, by stretching certain
+links or hiding them altogether.
+
+=head1 RESTRICTIONS
+
+Only a single map section is produced from a transcript.  But there's
+nothing to stop you taking several transcript fragments and munging them
+together.
+
+There's currently no support for mapping mazes.  Different maze rooms that
+look identical will simply appear as a single room.
+
+=head1 SEE ALSO
+
+ifm(1)
+
+=head1 AUTHOR
+
+Glenn Hutchings
+
+=cut
