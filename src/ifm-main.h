@@ -16,6 +16,28 @@
 #define O_ITEMS 0x2             /* Item list */
 #define O_TASKS 0x4             /* Task list */
 
+/* Debugging stuff */
+#define DEBUG0(level, msg) \
+        if (ifm_debug) { \
+                indent(level); \
+                printf(msg); \
+                putchar('\n'); \
+        }
+
+#define DEBUG1(level, msg, arg1) \
+        if (ifm_debug) { \
+                indent(level); \
+                printf(msg, arg1); \
+                putchar('\n'); \
+        }
+
+#define DEBUG2(level, msg, arg1, arg2) \
+        if (ifm_debug) { \
+                indent(level); \
+                printf(msg, arg1, arg2); \
+                putchar('\n'); \
+        }
+
 /* External vars */
 extern char *progname;
 extern int line_number;
