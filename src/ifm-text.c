@@ -82,37 +82,48 @@ void
 text_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
-    int score = vh_iget(task, "SCORE");
-    char *note = vh_sgetref(task, "NOTE");
-    int dist = vh_iget(task, "DIST");
-    static vhash *last = NULL;
+    static vhash *lastroom = NULL;
+    static vhash *lastitem = NULL;
+    int dist, type, score;
     static int flag = 0;
+    char *note = NULL;
     vscalar *elt;
 
-    if (room != last && room != NULL) {
+    if (room != lastroom && room != NULL) {
         printf("\n%s", vh_sgetref(room, "DESC"));
-        if (dist > 0)
+        if ((dist = vh_iget(task, "DIST")) > 0)
             printf(" (%d room%s away)", dist, dist > 1 ? "s" : "");
         printf(":\n");
-    } else if (last == NULL && flag++ == 0) {
+    } else if (lastroom == NULL && flag++ == 0) {
         printf("\nFirstly:\n");
     }
 
     printf("   %s\n", vh_sgetref(task, "DESC"));
 
-    if (score > 0)
+    if ((score = vh_iget(task, "SCORE")) > 0)
         printf("      score: %d\n", score);
 
-    if (vh_iget(task, "TYPE") == T_GET) {
-        vhash *item = vh_pget(task, "DATA");
-        note = vh_sgetref(item, "NOTE");
-    }
+    type = vh_iget(task, "TYPE");
+    switch (type) {
+    case T_GET:
+        lastitem = vh_pget(task, "DATA");
+        note = vh_sgetref(lastitem, "NOTE");
+        break;
+    case T_DROP:
+        if (vh_pget(task, "DATA") == lastitem)
+            note = "this item isn't used yet";
+        break;
+    case T_USER:
+        lastitem = NULL;
+        note = vh_sgetref(task, "NOTE");
+        break;
+    } 
 
     if (note != NULL && !STREQ(note, ""))
         printf("      note: %s\n", note);
 
     if (room != NULL)
-        last = room;
+        lastroom = room;
     total += score;
 }
 
