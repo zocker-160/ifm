@@ -74,6 +74,7 @@ VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
 ifm2dev = @ifm2dev@
+ifm2tex = @ifm2tex@
 scr2ifm = @scr2ifm@
 tkifm = @tkifm@
 

@@ -41,12 +41,16 @@ AC_PATH_PROGS(PERL, perl5.002 perl5 perl, no)
 ifm2dev=ifm2dev
 AC_SUBST(ifm2dev)
 
+ifm2tex=ifm2tex
+AC_SUBST(ifm2tex)
+
 scr2ifm=scr2ifm
 AC_SUBST(scr2ifm)
 
 if test $PERL = no; then
    AC_MSG_WARN(perl not found -- not building perl scripts)
    ifm2dev=
+   ifm2tex=
    scr2ifm=
 fi
 

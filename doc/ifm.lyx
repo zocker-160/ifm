@@ -6942,6 +6942,92 @@ You can supply options to IFM by first giving the end-of-options indicator
 
 
 \family typewriter 
+ifm2tex
+\family default 
+ --- convert IFM maps to LaTeX
+\begin_inset LatexCommand \label{sec:ifm2tex}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+ifm2tex
+\family default 
+ is a program for creating a summary file in LaTeX format, suitable for
+ converting to PostScript and printing.
+ It uses 
+\family typewriter 
+ifm2dev
+\family default 
+ to create the maps.
+ The command format is:
+\layout LyX-Code
+
+ifm2tex [-m] [-i] [-t] [-- ifm-options] file
+\layout Standard
+
+The options indicate which combinations of things you want output (maps,
+ items or tasks).
+ Several files are written, whose names depend on the prefix of the input
+ file (i.e.\SpecialChar ~
+minus its 
+\family typewriter 
+.ifm
+\family default 
+ suffix):
+\layout List
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+prefix.tex
+\family default 
+ The main LaTeX input file, which includes all the others.
+\layout List
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+prefix-maps.tex
+\family default 
+ The maps, which include the EPS figures.
+\layout List
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+prefix-items.tex
+\family default 
+ The table of items.
+\layout List
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+prefix-tasks.tex
+\family default 
+ The table of tasks.
+\layout List
+\labelwidthstring MMMMMMMMMMMM
+
+
+\family typewriter 
+prefix-map-N.eps
+\family default 
+ An EPS figure for each map section.
+\layout Standard
+
+At the moment, the program is very basic and doesn't have any options to
+ control anything.
+ But you can sort of customize things by using your own main LaTeX file
+ and doing your own including of the other files.
+\layout Subsection
+
+
+\family typewriter 
 tkifm
 \family default 
  --- create maps interactively

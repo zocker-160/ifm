@@ -72,11 +72,11 @@ VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
 
-bin_SCRIPTS = @tkifm@ @ifm2dev@ @scr2ifm@
+bin_SCRIPTS = @tkifm@ @ifm2dev@ @ifm2tex@ @scr2ifm@
 
-EXTRA_SCRIPTS = tkifm ifm2dev scr2ifm
+EXTRA_SCRIPTS = tkifm ifm2dev ifm2tex scr2ifm
 
-EXTRA_DIST = tkifm.tcl ifm2dev.pl scr2ifm.pl
+EXTRA_DIST = tkifm.tcl ifm2dev.pl ifm2tex.pl scr2ifm.pl
 
 CLEANFILES = $(bin_SCRIPTS)
 
@@ -223,7 +223,15 @@ ifm2dev: ifm2dev.pl
 	cat $< >> $@
 	chmod +x $@
 
-test:; perl ifm2dev.pl -L png -v lgop.ifm
+ifm2tex: ifm2tex.pl
+	echo '#! $(PERL)' > $@
+	cat $< >> $@
+	chmod +x $@
+
+test:;	perl ifm2tex.pl -m test.ifm
+	for i in 1 2 3; do latex test.tex; done
+	dvips -o test.ps test.dvi
+	gv test.ps
 
 log:;	@ echo
 	@ echo Finding source changes in the last $(DAYS) days...

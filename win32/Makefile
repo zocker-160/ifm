@@ -20,8 +20,8 @@ DLL = $(bindir)/cygwin1.dll
 
 FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
 
-PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/ifm2dev.pl	\
-$(PROGDIR)/tkifm.tcl $(PROGDIR)/scr2ifm.pl
+PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/ifm2tex.pl		\
+$(PROGDIR)/ifm2dev.pl $(PROGDIR)/tkifm.tcl $(PROGDIR)/scr2ifm.pl
 
 DOCS = $(DOCDIR)/ifm.pdf $(DOCDIR)/html
 
