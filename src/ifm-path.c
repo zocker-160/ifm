@@ -12,6 +12,7 @@
 #include <string.h>
 #include <vars.h>
 
+#include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-path.h"
 #include "ifm-task.h"
@@ -21,9 +22,6 @@
 
 #define INIT_CACHE(room) \
         ap_visit++; ap_room = room
-
-/* Verbose flag */
-extern int ifm_verbose;
 
 /* Modified-path flag */
 static int path_modify = 0;
@@ -50,8 +48,10 @@ connect_rooms(void)
     vscalar *elt;
     char *cmd;
 
-    if (ifm_verbose)
-        printf("\nConnecting rooms...\n");
+    if (ifm_debug) {
+        printf("Task debugging information\n\n");
+        printf("Connecting rooms...\n");
+    }
 
     /* Create lists of reachable rooms from each room */
     vl_foreach(elt, rooms) {
@@ -94,7 +94,7 @@ connect_rooms(void)
 
         vl_ppush(rlist, reach);
 
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(1);
             printf("link `%s' to `%s' (%s)",
                    vh_sgetref(from, "DESC"),
@@ -133,7 +133,7 @@ connect_rooms(void)
 
             vl_ppush(rlist, reach);
 
-            if (ifm_verbose) {
+            if (ifm_debug) {
                 indent(1);
                 printf("link `%s' to `%s' (%s)",
                        vh_sgetref(to, "DESC"),
@@ -178,7 +178,7 @@ connect_rooms(void)
 
         vl_ppush(rlist, reach);
 
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(1);
             printf("join `%s' to `%s' (%s)",
                    vh_sgetref(from, "DESC"),
@@ -214,7 +214,7 @@ connect_rooms(void)
 
             vl_ppush(rlist, reach);
 
-            if (ifm_verbose) {
+            if (ifm_debug) {
                 indent(1);
                 printf("join `%s' to `%s' (%s)",
                        vh_sgetref(to, "DESC"),
@@ -242,7 +242,7 @@ find_path(vhash *step, vhash *from, vhash *to)
     if (from == to)
         return 0;
 
-    if (ifm_verbose && to != NULL) {
+    if (ifm_debug && to != NULL) {
         indent(3);
         printf("find path to: %s", vh_sgetref(to, "DESC"));
     }
@@ -255,14 +255,14 @@ find_path(vhash *step, vhash *from, vhash *to)
         /* Task blockable by leaving needed items */
         if (vh_exists(step, "HASPATH")) {
             if (!vh_iget(step, "HASPATH")) {
-                if (ifm_verbose)
+                if (ifm_debug)
                     printf(" (cached: no path)\n");
 
                 return NOPATH;
             } else if ((path = vh_pget(step, "PATH")) != NULL) {
                 len = vl_length(path);
 
-                if (ifm_verbose)
+                if (ifm_debug)
                     printf(" (cached: distance %d)\n", len);
 
                 return len;
@@ -273,20 +273,20 @@ find_path(vhash *step, vhash *from, vhash *to)
             /* Target room has been visited */
             len = vh_iget(to, "AP_LEN");
 
-            if (ifm_verbose)
+            if (ifm_debug)
                 printf(" (cached: distance %d)\n", len);
 
             return len;
         } else if (vh_iget(ap_room, "AP_VISIT") == ap_visit) {
             /* Cache exists */
-            if (ifm_verbose)
+            if (ifm_debug)
                 printf(" (cached: no path)\n");
 
             return NOPATH;
         }
     }
 
-    if (ifm_verbose && to != NULL)
+    if (ifm_debug && to != NULL)
         printf("\n");
 
     /* Initialise search */
@@ -318,7 +318,7 @@ find_path(vhash *step, vhash *from, vhash *to)
         if (from == ap_room)
             vh_istore(node, "AP_VISIT", ap_visit);
 
-        if (ifm_verbose && node != from && to != NULL) {
+        if (ifm_debug && node != from && to != NULL) {
             indent(4);
             printf("visit: %s (distance %d)\n",
                    vh_sgetref(node, "DESC"), len);
@@ -364,7 +364,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     block = vh_pget(item, "BLOCK");
                     if (block != NULL && block == step) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked link: %s (must leave %s)\n",
                                    vh_sgetref(node, "DESC"),
@@ -381,7 +381,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     block = vh_pget(item, "BLOCK");
                     if (block != NULL && block == step) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked room: %s (must leave %s)\n",
                                    vh_sgetref(node, "DESC"),
@@ -397,7 +397,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     item = vs_pget(elt);
                     if (!vh_iget(item, "TAKEN")) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked link: %s (need %s)\n",
                                    vh_sgetref(node, "DESC"),
@@ -412,7 +412,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     item = vs_pget(elt);
                     if (!vh_iget(item, "TAKEN")) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked room: %s (need %s)\n",
                                    vh_sgetref(node, "DESC"),
@@ -429,7 +429,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     tstep = vh_pget(task, "STEP");
                     if (vh_iget(tstep, "DONE")) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked link: %s (done `%s')\n",
                                    vh_sgetref(node, "DESC"),
@@ -445,7 +445,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     tstep = vh_pget(task, "STEP");
                     if (!vh_iget(tstep, "DONE")) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked link: %s (not done `%s')\n",
                                    vh_sgetref(node, "DESC"),
@@ -462,7 +462,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     tstep = vh_pget(task, "STEP");
                     if (vh_iget(tstep, "DONE")) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked room: %s (done `%s')\n",
                                    vh_sgetref(node, "DESC"),
@@ -478,7 +478,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                     tstep = vh_pget(task, "STEP");
                     if (!vh_iget(tstep, "DONE")) {
                         addnode = 0;
-                        if (ifm_verbose && to != NULL) {
+                        if (ifm_debug && to != NULL) {
                             indent(4);
                             printf("blocked room: %s (not done `%s')\n",
                                    vh_sgetref(node, "DESC"),
@@ -508,7 +508,7 @@ find_path(vhash *step, vhash *from, vhash *to)
     if (step != NULL)
         vh_istore(step, "HASPATH", 0);
 
-    if (ifm_verbose && to != NULL) {
+    if (ifm_debug && to != NULL) {
         indent(4);
         printf("failed: no path\n");
     }
@@ -589,7 +589,7 @@ init_path(vhash *room)
         /* Find path to task room */
         vh_istore(step, "BLOCK", 1);
 
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(2);
             printf("update path: %s\n", vh_sgetref(step, "DESC"));
             indent(2);
@@ -614,7 +614,7 @@ init_path(vhash *room)
     INIT_CACHE(room);
     len = find_path(NULL, room, NULL);
 
-    if (ifm_verbose) {
+    if (ifm_debug) {
         indent(2);
         printf("updated paths (max distance: %d)\n", len);
     }
@@ -641,7 +641,7 @@ init_path(vhash *room)
     /* Sort tasks according to distance */
     vl_sort_inplace(tasklist, sort_tasks);
 
-    if (ifm_verbose) {
+    if (ifm_debug) {
         vl_foreach(elt, tasklist) {
             step = vs_pget(elt);
             if (vh_iget(step, "DONE"))
@@ -650,9 +650,9 @@ init_path(vhash *room)
                 continue;
 
             indent(3);
-            printf("dist: %s (%d)\n",
-                   vh_sgetref(step, "DESC"),
-                   vh_iget(step, "DIST"));
+            printf("dist %d: %s\n",
+                   vh_iget(step, "DIST"),
+                   vh_sgetref(step, "DESC"));
         }
     }
 }
@@ -663,7 +663,7 @@ modify_path(void)
 {
     path_modify = 1;
 
-    if (ifm_verbose) {
+    if (ifm_debug) {
         indent(2);
         printf("flag path update\n");
     }

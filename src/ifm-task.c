@@ -18,9 +18,6 @@
 #include "ifm-task.h"
 #include "ifm-util.h"
 
-/* Verbose flag */
-extern int ifm_verbose;
-
 /* Task step list */
 vlist *tasklist = NULL;
 
@@ -52,7 +49,7 @@ add_task(vhash *task)
     vl_ppush(tasklist, task);
     vh_pstore(task, "DEPEND", vl_create());
 
-    if (ifm_verbose) {
+    if (ifm_debug) {
         indent(1);
         printf("do `%s'\n", vh_sgetref(task, "DESC"));
     }
@@ -118,7 +115,7 @@ do_task(vhash *task, int print)
     if (print) {
         vl_ppush(taskorder, task);
 
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(2);
             printf("do task: %s\n", vh_sgetref(task, "DESC"));
         }
@@ -139,7 +136,7 @@ do_task(vhash *task, int print)
 
             vh_istore(item, "TAKEN", 1);
 
-            if (ifm_verbose) {
+            if (ifm_debug) {
                 indent(2);
                 printf("give: %s\n", vh_sgetref(item, "DESC"));
             }
@@ -163,7 +160,7 @@ do_task(vhash *task, int print)
             item = vs_pget(elt);
             vh_istore(item, "TAKEN", 0);
 
-            if (ifm_verbose) {
+            if (ifm_debug) {
                 indent(2);
                 printf("lose: %s\n", vh_sgetref(item, "DESC"));
             }
@@ -181,7 +178,7 @@ do_task(vhash *task, int print)
             item = vs_pget(elt);
             drop_item(item, room, until, 0);
 
-            if (ifm_verbose) {
+            if (ifm_debug) {
                 indent(2);
                 printf("drop: %s\n", vh_sgetref(item, "DESC"));
             }
@@ -309,7 +306,7 @@ goto_room(vhash *task)
         if (vh_iget(room, "FINISH"))
             add_note(mtask, "Finishes the game");
 
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(2);
             printf("move to: %s\n", vh_sgetref(room, "DESC"));
         }
@@ -411,7 +408,7 @@ order_tasks(vhash *before, vhash *after)
         depend = vh_pget(after, "DEPEND");
         vl_ppush(depend, before);
 
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(1);
             printf("dependency: do `%s' before `%s'\n",
                    vh_sgetref(before, "DESC"),
@@ -432,7 +429,7 @@ setup_tasks(void)
     int num = 0, leaveall;
     vscalar *elt;
 
-    if (ifm_verbose)
+    if (ifm_debug)
         printf("\nSetting up tasks...\n");
 
     /* Create 'goto room' steps */
@@ -796,11 +793,11 @@ solve_game(void)
     location = startroom;
     next = NULL;
 
-    if (ifm_verbose)
+    if (ifm_debug)
         printf("\nSolving game...\n");
 
     do {
-        if (ifm_verbose) {
+        if (ifm_debug) {
             indent(1);
             printf("room: %s\n", vh_sgetref(location, "DESC"));
         }
@@ -898,7 +895,7 @@ solve_game(void)
 
             vl_destroy(tmp);
             break;
-        } else if (ifm_verbose) {
+        } else if (ifm_debug) {
             indent(2);
             printf("no more tasks\n\n");
         }
@@ -929,7 +926,7 @@ task_possible(vhash *room, vhash *step)
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
 
-    if (ifm_verbose) {
+    if (ifm_debug) {
         indent(2);
         printf("consider: %s\n", vh_sgetref(step, "DESC"));
     }
@@ -970,7 +967,7 @@ task_possible(vhash *room, vhash *step)
     /* Record safe flag */
     vh_istore(step, "SAFEFLAG", safemsg == NULL);
 
-    if (ifm_verbose) {
+    if (ifm_debug) {
         indent(2);
         printf("possible: %s", vh_sgetref(step, "DESC"));
         if (len > 0)

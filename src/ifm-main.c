@@ -105,14 +105,11 @@ char *ifm_format = NULL;
 /* Output type name */
 char *ifm_output = NULL;
 
-/* Verbose flag */
-int ifm_verbose = 0;
-
 /* Parse function */
 extern void yyparse();
 
 /* Debugging flag */
-static int ifm_debug = 0;
+int ifm_debug = 0;
 
 /* Local functions */
 static void print_map(void);
@@ -166,8 +163,8 @@ main(int argc, char *argv[])
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
-    v_option('v', "verbose", V_OPT_FLAG, NULL,
-             "Be very verbose about things");
+    v_option('d', "debug", V_OPT_FLAG, NULL,
+             "Print debugging information");
 
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
@@ -175,13 +172,13 @@ main(int argc, char *argv[])
     v_option('\0', "nosysinit", V_OPT_FLAG, NULL,
              "Don't read system init file");
 
-    v_option('V', "version", V_OPT_FLAG, NULL,
+    v_option('v', "version", V_OPT_FLAG, NULL,
              "Print program version");
 
     v_option('h', "help", V_OPT_FLAG, NULL,
              "This help message");
 
-    v_option('D', "debug", V_OPT_ARG, "flag", NULL);
+    v_option('D', "DEBUG", V_OPT_ARG, "flag", NULL);
 
     /* Parse command-line arguments */
     if ((opts = vh_getopt(argc, argv)) == NULL)
@@ -214,14 +211,14 @@ main(int argc, char *argv[])
     if (vh_exists(opts, "nosysinit"))
         sysinit = 0;
 
-    if (vh_exists(opts, "verbose"))
-        ifm_verbose = 1;
+    if (vh_exists(opts, "debug"))
+        ifm_debug = 1;
 
     if ((file = vh_sgetref(opts, "output")) != NULL)
         if (freopen(file, "w", stdout) == NULL)
             fatal("can't open %s", file);
 
-    switch (vh_iget(opts, "debug")) {
+    switch (vh_iget(opts, "DEBUG")) {
 #ifdef FLEX_DEBUG
     case 1:
         yy_flex_debug = 1;
@@ -233,9 +230,7 @@ main(int argc, char *argv[])
         yydebug = 1;
         break;
 #endif
-
     default:
-        ifm_debug = 1;
         break;
     }
 
