@@ -45,7 +45,7 @@ static int modify;
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
-%token        LEAVE UNDEF
+%token        LEAVE UNDEF FINISH
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT INTEGER
@@ -258,6 +258,10 @@ room_attr	: TAG IDENT
 		{
                     startroom = curroom;
 		}
+                | FINISH
+                {
+                    vh_istore(curroom, "FINISH", 1);
+                }
                 | NEED item_list
                 {
                     char *attr = (vh_exists(curroom, "DIR") ?
@@ -299,7 +303,7 @@ room_attr	: TAG IDENT
                 }
 		| NOTE STRING
 		{
-                    vh_sstore(curroom, "NOTE", $2);
+                    add_note(curroom, $2);
 		}
 		;
 
@@ -345,7 +349,7 @@ item_attr	: TAG IDENT
 		}
 		| NOTE STRING
 		{
-                    vh_sstore(curitem, "NOTE", $2);
+                    add_note(curitem, $2);
 		}
 		| HIDDEN
 		{
@@ -379,6 +383,10 @@ item_attr	: TAG IDENT
 		{
                     vh_istore(curitem, "SCORE", $2);
 		}
+                | FINISH
+                {
+                    vh_istore(curitem, "FINISH", 1);
+                }
 		;
 
 link_stmt	: LINK IDENT TO IDENT
@@ -616,9 +624,13 @@ task_attr	: TAG IDENT
 		{
                     vh_istore(curtask, "SCORE", $2);
 		}
+                | FINISH
+                {
+                    vh_istore(curtask, "FINISH", 1);
+                }
 		| NOTE STRING
 		{
-                    vh_sstore(curtask, "NOTE", $2);
+                    add_note(curtask, $2);
 		}
 		;
 

@@ -40,8 +40,8 @@ static void
 do_task(vhash *task)
 {
     int print = 1, score = 1;
+    vhash *item, *room;
     vscalar *elt;
-    vhash *item;
     vlist *list;
 
     /* Do the task */
@@ -53,6 +53,10 @@ do_task(vhash *task)
         vh_istore(item, "TAKEN", 1);
         if (vh_iget(item, "GIVEN"))
             print = 0;
+        if (!vh_iget(item, "USED"))
+            add_note(task, "This item isn't used yet");
+        if (vh_iget(item, "FINISH"))
+            add_note(task, "Finishes the game");
         break;
     case T_DROP:
         item = vh_pget(task, "DATA");
@@ -63,6 +67,13 @@ do_task(vhash *task)
         break;
     case T_GOTO:
         print = 0;
+        break;
+    case T_USER:
+        if ((room = vh_pget(task, "GOTO")) != NULL)
+            add_note(task, "Teleports you to %s",
+                     vh_sgetref(room, "DESC"));
+        if (vh_iget(task, "FINISH"))
+            add_note(task, "Finishes the game");
         break;
     }
 
@@ -181,6 +192,9 @@ moveto_room(vhash *task, vhash *from, vhash *to)
             vh_delete(mtask, "SCORE");
         vh_istore(room, "VISITED", 1);
 
+        if (vh_iget(room, "FINISH"))
+            add_note(mtask, "Finishes the game");
+
         if (ifm_verbose) {
             indent(2);
             printf("move to: %s\n", vh_sgetref(room, "DESC"));
@@ -202,21 +216,21 @@ setup_tasks(void)
     if (ifm_verbose)
         printf("\nSetting up tasks...\n");
 
-    /* Create 'goto room' steps, and mention scored rooms */
+    /* Create 'goto room' steps */
     vl_foreach(elt, rooms) {
         room = vs_pget(elt);
         step = task_step(T_GOTO, room);
         vh_pstore(room, "STEP", step);
-        if (vh_iget(room, "SCORE") > 0)
+        if (vh_iget(room, "SCORE") > 0 || vh_iget(room, "FINISH"))
             task_pair(step, step);
     }
 
-    /* Create 'get item' steps, and mention scored items */
+    /* Create 'get item' steps */
     vl_foreach(elt, items) {
         item = vs_pget(elt);
         step = task_step(T_GET, item);
         vh_pstore(item, "STEP", step);
-        if (vh_iget(item, "SCORE") > 0)
+        if (vh_iget(item, "SCORE") > 0 || vh_iget(item, "FINISH"))
             task_pair(step, step);
     }
 
@@ -565,14 +579,20 @@ solve_game(void)
             /* Do the task */
             nextroom = vh_pget(step, "ROOM");
             gotoroom = vh_pget(step, "GOTO");
+
             if (nextroom != NULL && room != nextroom)
                 moveto_room(step, room, nextroom);
-            do_task(step);
+
             if (nextroom != NULL)
                 room = nextroom;
             if (gotoroom != NULL)
                 room = gotoroom;
+
+            do_task(step);
             next = vh_pget(step, "NEXT");
+
+            if (vh_iget(step, "FINISH") || vh_iget(room, "FINISH"))
+                tasksleft = 0;
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
             vlist *tmp = vl_create();
@@ -751,7 +771,6 @@ task_step(int type, vhash *data)
         vh_pstore(step, "NEED", vh_pget(data, "NEED"));
         vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
         vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
-        vh_sstore(step, "NOTE", vh_sgetref(data, "NOTE"));
         vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
         break;
     default:
@@ -760,6 +779,12 @@ task_step(int type, vhash *data)
 
     if (vh_exists(data, "SAFE"))
         vh_istore(step, "SAFE", vh_iget(data, "SAFE"));
+
+    if (vh_exists(data, "FINISH"))
+        vh_istore(step, "FINISH", vh_iget(data, "FINISH"));
+
+    if (vh_exists(data, "NOTE") && type != T_DROP)
+        vh_pstore(step, "NOTE", vh_pget(data, "NOTE"));
 
     vh_sstore(step, "DESC", buf);
     vh_pstore(step, "ROOM", room);
