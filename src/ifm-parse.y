@@ -18,7 +18,6 @@
 #include <vars.h>
 
 #include "ifm-map.h"
-#include "ifm-task.h"
 #include "ifm-util.h"
 
 #define SET_LIST(object, attr, list) \
