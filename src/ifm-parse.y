@@ -76,7 +76,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE ALIAS STYLE ENDSTYLE
+%token        NOPATH NONE ALIAS STYLE ENDSTYLE WITH
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -528,6 +528,14 @@ item_attr	: TAG ID
 		| KEEP
 		{
                     vh_istore(curobj, "KEEP", 1);
+		}
+		| KEEP WITH item_list
+		{
+                    SET_LIST(curobj, "KEEP_WITH", curitems);
+		}
+		| KEEP UNTIL task_list
+		{
+                    SET_LIST(curobj, "KEEP_UNTIL", curtasks);
 		}
                 | NEED item_list
                 {

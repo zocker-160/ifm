@@ -39,6 +39,7 @@ static void invert_items(vhash *obj, char *attr);
 static vhash *new_task(int type, vhash *data);
 static void order_tasks(vhash *before, vhash *after);
 static int task_status(vhash *room, vhash *step);
+static int want_item(vhash *item);
 static void warn_failure(void);
 
 /* Add a task to the task list */
@@ -294,8 +295,8 @@ drop_item(vhash *item, vhash *room, vlist *until, int print)
         }
     }
 
-    /* If item kept or needed for paths, mention it but flag it optional */
-    if (vh_iget(item, "NEEDED") || vh_iget(item, "KEEP")) {
+    /* If the item is still wanted, flag an optional retrieval */
+    if (want_item(item)) {
         add_task(step);
         vh_istore(step, "OPTIONAL", 1);
     }
@@ -789,6 +790,10 @@ setup_tasks(void)
         item = vs_pget(elt);
         istep = vh_pget(item, "STEP");
 
+        /* Mark item as taken if it starts off that way */
+        if ((room = vh_pget(item, "ROOM")) == NULL)
+            vh_istore(item, "TAKEN", 1);
+
         /* Must get required items before getting this item */
         if ((list = vh_pget(item, "NEED")) != NULL) {
             vl_foreach(elt, list) {
@@ -937,7 +942,7 @@ void
 solve_game(void)
 {
     vhash *step, *trystep, *item, *task, *next;
-    int drop, tasksleft, status;
+    int drop, dropped, tasksleft, status;
     vlist *itasks;
     vscalar *elt;
 
@@ -966,34 +971,47 @@ solve_game(void)
 
         /* Check for dropping unneeded items */
         if (next == NULL) {
-            vl_foreach(elt, items) {
-                item = vs_pget(elt);
+            while (1) {
+                dropped = 0;
 
-                if (!vh_iget(item, "TAKEN"))
-                    continue;
-                if (vh_iget(item, "NEEDED"))
-                    continue;
-                if (vh_iget(item, "KEEP"))
-                    continue;
-                if (!vh_iget(item, "USED"))
-                    continue;
+                vl_foreach(elt, items) {
+                    item = vs_pget(elt);
 
-                drop = 1;
-                itasks = vh_pget(item, "TASKS");
-                if (itasks != NULL) {
-                    vl_foreach(elt, itasks) {
-                        if (!drop)
-                            continue;
-                        task = vs_pget(elt);
-                        if (!vh_iget(task, "DONE"))
-                            drop = 0;
+                    /* Skip if not carried */
+                    if (!vh_iget(item, "TAKEN"))
+                        continue;
+
+#if 0
+                    /* Skip if not used yet */
+                    if (!vh_iget(item, "USED"))
+                        continue;
+#endif
+
+                    /* Skip if wanted */
+                    if (want_item(item))
+                        continue;
+
+                    drop = 1;
+                    itasks = vh_pget(item, "TASKS");
+                    if (itasks != NULL) {
+                        vl_foreach(elt, itasks) {
+                            if (!drop)
+                                continue;
+                            task = vs_pget(elt);
+                            if (!vh_iget(task, "DONE"))
+                                drop = 0;
+                        }
+                    }
+
+                    if (drop) {
+                        step = new_task(T_DROP, item);
+                        do_task(step, 1);
+                        dropped = 1;
                     }
                 }
 
-                if (drop) {
-                    step = new_task(T_DROP, item);
-                    do_task(step, 1);
-                }
+                if (!dropped)
+                    break;
             }
         }
 
@@ -1107,6 +1125,51 @@ task_status(vhash *room, vhash *step)
     }
 
     return (safemsg == NULL ? TS_SAFE : TS_UNSAFE);
+}
+
+/* Return whether an item is wanted */
+static int
+want_item(vhash *item)
+{
+    vlist *ktasks, *kitems;
+    vhash *kitem, *ktask;
+    int wanted = 0;
+    vscalar *elt;
+
+    /* Yes if needed for paths */
+    if (vh_iget(item, "NEEDED"))
+        return 1;
+
+    /* Yes if it's an unconditionally kept item */
+    if (vh_iget(item, "KEEP"))
+        return 1;
+
+    /* Yes if at least one 'keep with' item is held */
+    if ((kitems = vh_pget(item, "KEEP_WITH")) != NULL) {
+        vl_foreach(elt, kitems) {
+            kitem = vs_pget(elt);
+            if (!vh_exists(kitem, "TAKEN") || vh_iget(kitem, "TAKEN"))
+                wanted = 1;
+        }
+
+        if (wanted)
+            return 1;
+    }
+
+    /* Yes if at least one 'keep until' task isn't done yet */
+    if ((ktasks = vh_pget(item, "KEEP_UNTIL")) != NULL) {
+        vl_foreach(elt, ktasks) {
+            ktask = vs_pget(elt);
+            if (!vh_iget(ktask, "DONE"))
+                wanted = 1;
+        }
+
+        if (wanted)
+            return 1;
+    }
+
+    /* Otherwise, no */
+    return 0;
 }
 
 /* Warn about failure to solve the game */

@@ -189,6 +189,8 @@ resolve_tags(void)
         resolve_tag_list("task", vh_pget(item, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(item, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(item, "NEED"), itemtags);
+        resolve_tag_list("item", vh_pget(item, "KEEP_WITH"), itemtags);
+        resolve_tag_list("task", vh_pget(item, "KEEP_UNTIL"), tasktags);
 
         room = vh_pget(item, "IN");
 

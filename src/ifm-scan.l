@@ -163,6 +163,7 @@ VAR             \${ID}
 "up"		{ return UP; }
 "w"		{ return WEST; }
 "west"		{ return WEST; }
+"with"          { return WITH; }
 
 ^"include"      {
                     BEGIN(INC);
