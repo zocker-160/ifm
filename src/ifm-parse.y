@@ -81,7 +81,7 @@ static int repeat = 0;          /* String repeat count */
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
-%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES
+%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -159,6 +159,8 @@ room_stmt	: ROOM STRING
                                   vh_iget(curroom, "ONEWAY"));
                         vh_istore(link, "SPECIAL",
                                   vh_iget(curroom, "SPECIAL"));
+                        vh_istore(link, "NOLINK",
+                                  vh_iget(curroom, "NOLINK"));
                         vh_istore(link, "LEN",
                                   vh_iget(curroom, "LEN"));
                         vh_pstore(link, "BEFORE",
@@ -181,7 +183,10 @@ room_stmt	: ROOM STRING
 
                         vh_pstore(link, "DIR", dirs);
                         vl_ppush(links, link);
-                    } else {
+                    }
+
+                    /* Warn about ignored attributes */
+                    if (dirs == NULL || vh_iget(curroom, "NOLINK")) {
                         if (vh_exists(curroom, "GO"))
                             WARN_IGNORED(go);
                         if (vh_exists(curroom, "ONEWAY"))
@@ -193,6 +198,9 @@ room_stmt	: ROOM STRING
                         if (vh_exists(curroom, "TO_CMD"))
                             WARN_IGNORED(cmd);
                     }
+
+                    if (dirs == NULL && vh_iget(curroom, "NOLINK"))
+                        WARN_IGNORED(nolink);
 
                     lastroom = curroom;
                     RESET_IT;
@@ -310,6 +318,10 @@ room_attr	: TAG ID
 		| ONEWAY
 		{
                     vh_istore(curroom, "ONEWAY", 1);
+		}
+		| NOLINK
+		{
+                    vh_istore(curroom, "NOLINK", 1);
 		}
 		| SPECIAL
 		{
@@ -782,6 +794,10 @@ task_attr	: TAG ID
                 {
                     vh_istore(curtask, "FINISH", 1);
                 }
+                | HIDDEN
+                {
+                    vh_istore(curtask, "HIDDEN", 1);
+                }
                 | CMD string_repeat
                 {
                     while (repeat-- > 0)
@@ -949,6 +965,13 @@ dir_elt		: compass
                         curdirs = vl_create();
                     vl_ipush(curdirs, $1);
 		}
+                | compass TIMES INTEGER
+                {
+                    if (curdirs == NULL)
+                        curdirs = vl_create();
+                    while ($3-- > 0)
+                        vl_ipush(curdirs, $1);
+                }
 		;
 
 string_repeat   : STRING
