@@ -21,6 +21,8 @@ set ifm(textfont) {Times 12 bold}
 set ifm(textforeground) black
 set ifm(textbackground) wheat
 
+set ifm(roomitemratio) 0.5
+
 set ifm(untitled) "untitled.ifm"
 set ifm(filetypes) {{"IFM files" {.ifm}} {"All files" *}}
 
@@ -242,6 +244,7 @@ proc DrawMap {sect} {
 	    set yoff [Get $room ypos]
 	    set yoff [expr $ylen - 1 - $yoff]
 	    set puzzle [Get $room puzzle]
+	    set items [Get $room items]
 
 	    set xmin [expr $xoff * $ifm(roomsize) + $xgap]
 	    set ymin [expr $yoff * $ifm(roomsize) + $ygap]
@@ -254,12 +257,25 @@ proc DrawMap {sect} {
 	    $c create rectangle ${xmin}c ${ymin}c ${xmax}c ${ymax}c \
 		    -width $ifm(roomlinewidth) -fill $fillcol
 
-	    set xc [expr ( $xmin + $xmax ) / 2]
-	    set yc [expr ( $ymin + $ymax ) / 2]
-	    set wid [expr ( $xmax - $xmin ) * 0.9]
+	    set xc [expr ($xmin + $xmax) / 2]
+	    set yc [expr ($ymin + $ymax) / 2]
+	    set wid [expr ($xmax - $xmin) * 0.9]
 
-	    $c create text ${xc}c ${yc}c -text $desc \
-		    -width ${wid}c -justify center -font $ifm(roomfont)
+	    if {$ifm(showitems) && $items != ""} {
+		set fac $ifm(roomitemratio)
+
+		set yo [expr $ifm(roomsize) * $ifm(roomheight) * $fac / 2]
+		$c create text ${xc}c [expr $yc - $yo]c -text $desc \
+			-width ${wid}c -justify center -font $ifm(roomfont)
+
+		set yo [expr $ifm(roomsize) * $ifm(roomheight) * (1 - $fac) / 2]
+		$c create text ${xc}c [expr $yc + $yo]c -text $items \
+			-width ${wid}c -justify center -font $ifm(itemfont)
+		
+	    } else {
+		$c create text ${xc}c ${yc}c -text $desc \
+			-width ${wid}c -justify center -font $ifm(roomfont)
+	    }
 	}
     }
 }
