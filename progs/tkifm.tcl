@@ -205,10 +205,11 @@ proc DrawMap {num} {
 	    set puzzle [Get $room puzzle]
 	    set items [Get $room items]
 
-	    if {$ifm(roomshadow) > 0} {
-		set soff [expr $ifm(roomsize) * $ifm(roomshadow)]
-		set xmin [expr $xoff * $ifm(roomsize) + $xgap - $soff]
-		set ymin [expr $yoff * $ifm(roomsize) + $ygap + $soff]
+	    if {$ifm(roomshadowx) != 0 || $ifm(roomshadowy) != 0} {
+		set xsoff [expr $ifm(roomsize) * $ifm(roomshadowx)]
+		set ysoff [expr $ifm(roomsize) * $ifm(roomshadowy)]
+		set xmin [expr $xoff * $ifm(roomsize) + $xgap - $xsoff]
+		set ymin [expr $yoff * $ifm(roomsize) + $ygap + $ysoff]
 		set xmax [expr $xmin + $ifm(roomsize) * $ifm(roomwidth)]
 		set ymax [expr $ymin + $ifm(roomsize) * $ifm(roomheight)]
 

@@ -99,13 +99,13 @@
 
     gsave
 	% Draw room shadow box if required.
-	roomshadow 0 gt {
+	roomshadowx 0 ne roomshadowy 0 ne or {
 	    roomshadowcolour selectcolour
 
 	    newpath
 	    rm-xpos rm-ypos moveto
-	    boxsize 1 roomshadow 2 mul sub mul roomwidth 2 div mul
-	    boxsize 1 roomshadow 2 mul sub mul roomheight 2 div mul
+	    boxsize 1 roomshadowx 2 mul sub mul roomwidth 2 div mul
+	    boxsize 1 roomshadowy 2 mul sub mul roomheight 2 div mul
 	    rmoveto
 
 	    roomwidth boxsize mul neg 0 rlineto
