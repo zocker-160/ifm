@@ -191,7 +191,7 @@ link_inout_string = "I/O";
 # Aliases
 ##################################################################
 
-# Alternate spellings for colour variables.
+# Alternate spellings for colour variables, for US IFM fans.
 canvas_background_color == canvas_background_colour;
 color_file == colour_file;
 item_text_color == item_text_colour;
@@ -209,4 +209,18 @@ room_shadow_color == room_shadow_colour;
 room_text_color == room_text_colour;
 title_color == title_colour;
 
-##################################################################
+# Compatibility aliases for old versions of IFM.  If your maps
+# use any of these, you should replace them with the aliased
+# variable -- at some point in the future these aliases may go
+# away.
+exit_colour == room_exit_colour;
+exit_linewidth == room_exit_width;
+item_font == item_text_font;
+item_fontsize == item_text_fontsize;
+label_colour == link_text_colour;
+label_font == link_text_font;
+label_fontsize == link_text_fontsize;
+link_linewidth == link_line_width;
+room_font == room_text_font;
+room_fontsize == room_text_fontsize;
+room_linewidth == room_border_width;
