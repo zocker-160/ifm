@@ -43,6 +43,8 @@ static struct paper_st {
 };
 
 /* Internal variables */
+static int ps_rotate = 0;       /* Whether to rotate pages */
+static int ps_rotflag = 0;      /* Whether to override auto-rotation */
 static int ps_pagenum = 0;      /* Current page */
 static double ps_xoff;          /* Current X offset */
 static double ps_yoff;          /* Current Y offset */
@@ -59,11 +61,10 @@ static char *ps_string(char *str);
 void
 ps_map_start(void)
 {
-    int ylen, c, num_pages, width, height;
-    char *title, tag[10], *pagesize;
+    int ylen, c, num_pages, width, height, i, found;
     double page_width, page_height;
+    char *title, *pagesize;
     vscalar *elt;
-    int i, found;
     vhash *sect;
     FILE *fp;
 
@@ -84,21 +85,10 @@ ps_map_start(void)
     height = get_int("map_height", 12);
     num_pages = pack_sections(width, height, 1);
 
-    /* Print header */
-    title = get_string("title", NULL);
-
-    printf("%%!PS-Adobe-3.0\n");
-    printf("%%%%Title: %s\n",
-           title != NULL ? title : "Interactive Fiction map");
-    printf("%%%%Creator: IFM v%s\n", VERSION);
-    printf("%%%%Pages: %d\n", num_pages);
-    printf("%%%%EndComments\n");
-
-    /* Find and print PostScript prolog */
-    fp = open_libfile(get_string("prolog_file", PS_PROLOG));
-    while ((c = fgetc(fp)) != EOF)
-        putchar(c);
-    fclose(fp);
+    /* Check overriding of page rotation */
+    ps_rotflag = (get_var("ps_rotate") != NULL);
+    if (ps_rotflag)
+        ps_rotate = get_int("ps_rotate", 0);
 
     /* Get paper size */
     pagesize = get_string("page_size", "A4");
@@ -117,6 +107,22 @@ ps_map_start(void)
     /* Allow override */
     page_width = get_real("page_width", page_width);
     page_height = get_real("page_height", page_height);
+
+    /* Print header */
+    title = get_string("title", NULL);
+
+    printf("%%!PS-Adobe-3.0\n");
+    printf("%%%%Title: %s\n",
+           title != NULL ? title : "Interactive Fiction map");
+    printf("%%%%Creator: IFM v%s\n", VERSION);
+    printf("%%%%Pages: %d\n", num_pages);
+    printf("%%%%EndComments\n");
+
+    /* Print PostScript prolog */
+    fp = open_libfile(get_string("prolog_file", PS_PROLOG));
+    while ((c = fgetc(fp)) != EOF)
+        putchar(c);
+    fclose(fp);
 
     /* Print variables */
     printf("/origpagewidth %g inch def\n", page_width);
@@ -144,7 +150,7 @@ ps_map_start(void)
 void
 ps_map_section(vhash *sect)
 {
-    int page, xlen, ylen;
+    int page, xlen, ylen, rotate;
     double xpos, ypos;
 
     /* Get section parameters */
@@ -186,10 +192,12 @@ ps_map_section(vhash *sect)
         printf("/linklinewidth %g def\n", get_real("link_linewidth", 0.8));
         printf("/exitlinewidth %g def\n", get_real("exit_linewidth", 1.2));
 
+        rotate = (ps_rotflag ? ps_rotate : vh_iget(sect, "ROTATE"));
+
         printf("\n%d %d %s beginpage\n",
                vh_iget(sect, "PXLEN"),
                vh_iget(sect, "PYLEN"),
-               (vh_iget(sect, "ROTATE") ? "true" : "false"));
+               (rotate ? "true" : "false"));
     }
 
     /* Print title if required */
