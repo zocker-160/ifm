@@ -205,10 +205,10 @@ Regexp matching a 'look' command.
 
 Regexp matching an end-of-script command.
 
-=item $cmd_ignore (default: '^UNDO$')
+=item $cmd_undo (default: '^UNDO$')
 
-Regexp matching commands that, although they generate a room description,
-should be ignored.
+Regexp matching an UNDO command.  It's assumed that only a single level of
+UNDO is available.
 
 =item $cmd_invalid (default: '^RE(START|STORE)$')
 

@@ -49,12 +49,13 @@ $desc_minwords = 20;
 $cmd_prompt = '^>\s*';
 $cmd_look = '^L(OOK)?$';
 $cmd_end = '^UNSCRIPT$';
-$cmd_ignore = '^UNDO$';
+$cmd_undo = '^UNDO$';
 $cmd_invalid = '^RE(START|STORE)$';
 
 ### Stage 1 -- parse arguments and read input.
 
 # Parse arguments.
+$0 =~ s-.*/--;
 &getopts('c:dhlo:t:vw') or die "Type `$0 -h' for help\n";
 &usage if $opt_h;
 
@@ -111,12 +112,18 @@ while (1) {
 	push(@$reply, $_);
     }
 
-    # Record move.
-    $move = {};
-    $move->{CMD} = $cmd;
-    $move->{REPLY} = $reply;
-    $move->{LINE} = $line;
-    push(@moves, $move);
+    if ($cmd =~ /$cmd_undo/o) {
+	# Undo -- pop previous move (if any).
+	pop(@moves) unless $undone++;
+    } else {
+	# Record move.
+	$move = {};
+	$move->{CMD} = $cmd;
+	$move->{REPLY} = $reply;
+	$move->{LINE} = $line;
+	push(@moves, $move);
+	undef $undone;
+    }
 
     last if eof;
 }
@@ -518,7 +525,7 @@ sub error {
 
 # Print a usage message and exit.
 sub usage {
-    print "Usage: $0 [options] [file]\n\n";
+    print "Usage: $0 [options] [file]\n";
     print "   -t title       add a title\n";
     print "   -c file        add ifm commands from file\n";
     print "   -o file        write to given file\n";
