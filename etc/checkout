@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# Check out vars with IFM.
+
+cvs co -d ifm/vars vars
