@@ -40,8 +40,8 @@ PDF_AUTHOR = Glenn Hutchings
 HTML_TITLE = IFM Version $(VERSION)
 HTML_ADDR  = zondo@pillock.freeserve.co.uk
 HTML_DIR   = html
-HTML_DISP  = -split 5 -link 5 -show_section_numbers -html_version 4.0
-HTML_IMAGE = -no_external_images -local_icons -white -image_type png
+HTML_DISP  = -split 4 -link 4 -show_section_numbers -html_version 4.0
+HTML_IMAGE = -no_external_images -local_icons -white -image_type gif
 HTML_NAV   = -next_page_in_navigation
 HTML_TEXT  = -title "$(HTML_TITLE)" -address "$(HTML_ADDR)" -font_size 12pt
 HTML_FILE  = -dir $(HTML_DIR) -mkdir 
@@ -99,6 +99,8 @@ realclean: htmlclean
 htmlclean:; rm -rf $(HTML_DIR) $(CLEAN_TEX)
 
 # Other stuff.
+
+test:; opera `pwd`/$(HTML_DIR)/index.htm
 
 distclean-local: clean-doc
 
