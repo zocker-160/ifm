@@ -34,9 +34,6 @@ static vhash *vars = NULL;
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
-/* Variable encoding buffer */
-static char encbuf[BUFSIZ];
-
 /* Internal functions */
 static vhash *read_colour_defs(FILE *fp);
 static vlist *var_decode(char *code);
@@ -82,13 +79,6 @@ var_colour(char *id)
     char *name;
     FILE *fp;
 
-    /* Read colour definitions if required */
-    if (defs == NULL) {
-        fp = open_file(var_string("colour_file"), 1, 1);
-        defs = read_colour_defs(fp);
-        fclose(fp);
-    }
-
     /* Get colour name */
     name = var_string(id);
 
@@ -96,7 +86,14 @@ var_colour(char *id)
     if (sscanf(name, "%lf %lf %lf", &red, &green, &blue) == 3)
         return name;
 
-    /* Otherwise, look up colour name */
+    /* Read colour definitions if required */
+    if (defs == NULL) {
+        fp = open_file(var_string("colour_file"), 1, 1);
+        defs = read_colour_defs(fp);
+        fclose(fp);
+    }
+
+    /* Look up colour name */
     if (!vh_exists(defs, name))
         fatal("colour `%s' is not defined", name);
 
@@ -126,6 +123,7 @@ var_decode(char *code)
 static char *
 var_encode(char *driver, char *var)
 {
+    static char encbuf[BUFSIZ];
     sprintf(encbuf, "%s %s", (driver == NULL ? "default" : driver), var);
     return encbuf;
 }
@@ -201,7 +199,7 @@ var_string(char *id)
     if (var == NULL)
         fatal("string variable `%s' is not defined", id);
 
-    return vs_sgetcopy(var);
+    return vs_sget(var);
 }
 
 /* Substitute variable values in a string */
