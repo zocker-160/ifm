@@ -76,24 +76,12 @@ tkifm = @tkifm@
 SUFFIXES = .lyx .ps .tex .aux .pdf .eps .dia
 
 HTML_TITLE = IFM Version $(VERSION)
-
-HTML_ADDRESS = zondo@pillock.freeserve.co.uk
-
+HTML_ADDR = zondo@pillock.freeserve.co.uk
 HTML_DIR = html
-
-HTML_SPLIT = 5
-
-HTML_LINK = 5
-
-HTML_DISP = -split $(HTML_SPLIT) -link $(HTML_LINK) -show_section_numbers -html_version 4.0
-
-
+HTML_DISP = -split 5 -link 5 -show_section_numbers -html_version 4.0
 HTML_IMAGE = -no_external_images -local_icons -white -image_type gif
-
 HTML_NAV = -next_page_in_navigation
-
-HTML_TEXT = -title "$(HTML_TITLE)" -address "$(HTML_ADDRESS)" -font_size 12pt
-
+HTML_TEXT = -title "$(HTML_TITLE)" -address "$(HTML_ADDR)" -font_size 12pt
 HTML_FILE = -dir $(HTML_DIR) -mkdir 
 
 LATEX2HTML = latex2html $(HTML_DISP) $(HTML_IMAGE) $(HTML_NAV) $(HTML_FILE) $(HTML_TEXT) $(HTML_LOCAL)
@@ -233,7 +221,7 @@ fig: map.eps
 
 .lyx.ps:;	lyx --export ps $< > $@
 .lyx.tex:;	lyx --export latex $< > $@
-.ps.gv:;	gv -a4 -magstep -1 -spartan $<
+.ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
 .lyx.pdf:;	tex2pdf $<
 .dia.eps:;	dia -e $@ $<
