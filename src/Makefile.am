@@ -9,22 +9,19 @@ ifm-text.h ifm-tk.c ifm-tk.h ifm-util.c ifm-util.h
 
 ifm_LDADD = -lvars
 
-ifm_LDFLAGS = -L../lib
+ifm_LDFLAGS = -L../vars
 
 PS_PROLOG = ifm-pro.ps
 
-LIBFILES = $(PS_PROLOG)
-
-pkgdata_DATA = $(LIBFILES)
-
-EXTRA_DIST = $(LIBFILES)
+COLOUR_DEFS = ifm-rgb.txt
 
 YFLAGS = -d -v
 
 INCLUDES = -I../lib -DSYSINIT=\"$(pkgdatadir)/ifm-init.ifm\"		\
-           -DIFMPATH=\".:$(pkgdatadir)\" -DPS_PROLOG=\"$(PS_PROLOG)\"
+           -DIFMPATH=\"$(pkgdatadir):.\" -DPS_PROLOG=\"$(PS_PROLOG)\"   \
+	   -DCOLOUR_DEFS=\"$(COLOUR_DEFS)\"
 
-$(bin_PROGRAMS): ../lib/libvars.a
+$(bin_PROGRAMS): ../vars/libvars.a
 
 ifm-parse.h: ifm-parse.c
 
