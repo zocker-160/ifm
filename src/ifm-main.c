@@ -318,15 +318,13 @@ print_map(void)
     ifm_output = "map";
     mapnum = 0;
 
-    sects = vh_pget(map, "SECTS");
-    if (vl_length(sects) == 0)
-        fatal("no rooms found in input");
-
     if (func == NULL)
         fatal("no map driver for %s output", drv.name);
 
     if (func->map_start != NULL)
         (*func->map_start)();
+
+    sects = vh_pget(map, "SECTS");
 
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
@@ -376,10 +374,10 @@ print_items(void)
     if (func == NULL)
         fatal("no item table driver for %s output", drv.name);
 
-    sorted = vl_sort(items, itemsort);
-
     if (func->item_start != NULL)
         (*func->item_start)();
+
+    sorted = vl_sort(items, itemsort);
 
     vl_foreach(elt, sorted) {
         item = vs_pget(elt);
