@@ -34,6 +34,21 @@ struct d_info dirinfo[] = {
     NULL,  NULL,        D_NONE,      D_NONE,       0,  0
 };
 
+/* Standard paper sizes */
+static struct paper_st {
+    char *name;
+    double width, height;
+} paper_sizes[] = {
+    "A3",       29.7,   42.01,
+    "A4",       21.0,   29.7,
+    "A",        21.59,  27.94,
+    "B",        27.94,  43.18,
+    "C",        43.18,  55.88,
+    "Legal",    21.59,  35.56,
+    "Letter",   21.59,  27.94,
+    NULL,       0.0,    0.0
+};
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
@@ -81,6 +96,23 @@ get_direction(int xoff, int yoff)
             return dir;
 
     return D_NONE;
+}
+
+/* Get page dimensions given a page description */
+int
+get_papersize(char *pagesize, double *width, double *height)
+{
+    int i;
+
+    for (i = 0; paper_sizes[i].name != NULL; i++) {
+        if (!strcasecmp(pagesize, paper_sizes[i].name)) {
+            *width = paper_sizes[i].width;
+            *height = paper_sizes[i].height;
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 /* Indent output line */

@@ -58,21 +58,6 @@ mapfuncs ps_mapfuncs = {
     ps_map_finish
 };
 
-/* Standard paper sizes */
-static struct paper_st {
-    char *name;
-    double width, height;
-} paper_sizes[] = {
-    "A3",       29.7,   42.01,
-    "A4",       21.0,   29.7,
-    "A",        21.59,  27.94,
-    "B",        27.94,  43.18,
-    "C",        43.18,  55.88,
-    "Legal",    21.59,  35.56,
-    "Letter",   21.59,  27.94,
-    NULL,       0.0,    0.0
-};
-
 /* Internal variables */
 static int ps_rotate = 0;       /* Whether to rotate pages */
 static int ps_rotflag = 0;      /* Whether to override auto-rotation */
@@ -89,7 +74,6 @@ static double ps_font_scale;    /* Font scaling factor */
 /* Internal functions */
 static void ps_print_room_vars(void);
 static void ps_print_link_vars(void);
-static int ps_getsize(char *pagesize, double *width, double *height);
 static char *ps_string(char *str);
 
 /* Map functions */
@@ -122,7 +106,7 @@ ps_map_start(void)
 
     /* Get paper size */
     pagesize = var_string("page_size");
-    if (!ps_getsize(pagesize, &ps_page_width, &ps_page_height))
+    if (!get_papersize(pagesize, &ps_page_width, &ps_page_height))
         fatal("invalid page size: %s", pagesize);
 
     if (VAR_DEF("page_width"))
@@ -394,23 +378,6 @@ ps_print_link_vars(void)
     PRINT_REAL(link_line_width);
     PRINT_STRING(link_updown_string);
     PRINT_STRING(link_inout_string);
-}
-
-/* Get page dimensions given a page description */
-static int
-ps_getsize(char *pagesize, double *width, double *height)
-{
-    int i;
-
-    for (i = 0; paper_sizes[i].name != NULL; i++) {
-        if (!strcasecmp(pagesize, paper_sizes[i].name)) {
-            *width = paper_sizes[i].width;
-            *height = paper_sizes[i].height;
-            return 1;
-        }
-    }
-
-    return 0;
 }
 
 /* Return a string suitable for passing to PostScript */
