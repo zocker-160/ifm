@@ -160,7 +160,6 @@ void
 tk_item_start(void)
 {
     printf("set itemlist {");
-    text_item_start();
 }
 
 void
@@ -180,7 +179,6 @@ void
 tk_task_start(void)
 {
     printf("set tasklist {");
-    text_task_start();
 }
 
 void
@@ -200,19 +198,23 @@ tk_task_finish(void)
 void
 tk_warning(char *file, int line, char *msg)
 {
-    if (line > 0)
+    if (line > 0) {
+        printf("GotoLine %d\n", line);
         printf("Warning {Warning: line %d: %s}\n", line, msg);
-    else
+    } else {
         printf("Warning {Warning: %s}\n", msg);
+    }
 }
 
 void
 tk_error(char *file, int line, char *msg)
 {
-    if (line > 0)
+    if (line > 0) {
+        printf("GotoLine %d\n", line);
         printf("Error {Error: line %d: %s}\n", line, msg);
-    else
+    } else {
         printf("Error {Error: %s}\n", msg);
+    }
 
     exit(0);
 }
