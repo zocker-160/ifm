@@ -22,3 +22,11 @@ This man page just presents a summary of the command-line options.
 Detailed documentation on how to use IFM can be found in the in the
 .B SEE ALSO
 section.
+
+[ENVIRONMENT]
+.IP IFMPATH
+Colon-separated list of extra directories to search for include files.
+
+[FILES]
+.IP \fC$HOME/.ifmrc\fP
+User resource file (\fCifm.ini\fP on Windoze).

@@ -1,4 +1,30 @@
 ****************************************************************************
+* Version 5.1                                                  15 Oct 2004 *
+****************************************************************************
+
+Additions
+=========
+
+* There is now a man page summarizing the command-line options.
+
+Changes
+=======
+
+* In PostScript output, up/down and in/out labels are now drawn separately,
+  next to their respective rooms.  Thanks to Dan Eble (eble@ticalc.org).
+
+Bug fixes
+=========
+
+* Fixed weird bug with scaled arcs in PostScript output.  Thanks to Dan
+  Eble (eble@ticalc.org).
+
+* Fixed bug in ifm2tex with converting strings to TeX format (specifically,
+  ones with embedded zeros).
+
+* Fixed crash when using 'it' in some circumstances.
+
+****************************************************************************
 * Version 5.0                                                  23 Jan 2003 *
 ****************************************************************************
 
@@ -128,7 +154,7 @@ Additions
 * More information is now printed in item lists -- which tasks require an
   item, which tasks an item requires, etc.
 
-* Some example maps are now bundled with IFM, in the 'maps' subdirectory.
+* Some example maps are now bundled with IFM, in the 'demos' subdirectory.
 
 Changes
 =======

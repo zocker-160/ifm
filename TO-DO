@@ -34,9 +34,6 @@ Just consecutive strings?  Attributes: width, height, anchor, dir, from,
 style.  Generalize put_room_at() to accept things apart from rooms
 (labels).  With labels, the dir clause is mandatory.
 
-Implement separate U/D/I/O labels.  Have table of room offsets given the
-direction.
-
 Add 'show_exit_arrows' variable.  Arrow size controlled same as other
 arrows.
 
@@ -92,8 +89,6 @@ Change T_<attr> to G_<attr>, and T_USER to G_DO.
 How about Dave's item-state idea?
 
 ** PostScript driver
-
-BUG: Fix bugs with zork1.ifm: postscript output is weird.
 
 Implement 'link_spline' using curveto, if poss.
 

@@ -8,7 +8,7 @@ show_map_border = 1;
 map_border_colour = "grey90";
 map_background_colour = "grey90";
 
-room "IFM"; item "Version 5.0"; item "January 2003";
+room "IFM"; item "Version 5.1"; item "October 2004";
 
 room "Interactive"		dir e 2 s w 4 s e oneway;
 room "Fiction"			dir e oneway;

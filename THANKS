@@ -2,5 +2,8 @@ A big thanks to Dave Chapeskie (dchapes@ddm.wox.org) for lots of great
 suggestions for improving IFM, and also for setting up a web page of IFM
 maps (www.sentex.net/~dchapes/ifm).
 
+Thanks to Dan Eble (eble@ticalc.org) for patches to improve PostScript
+output, and a bug fix.
+
 Thanks also to Denis Auroux for writing gpp, the Generic Preprocessor.
 Very useful!
