@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "ifm.h"
 
 /* Split a line based on a given width/height ratio */
