@@ -5,6 +5,8 @@
 
 #include <vars.h>
 
+#define POINTS_PER_INCH 72.27
+
 #define fig_value(exp)                                                  \
         fig_debug(#exp ": %g", exp)
 
@@ -22,5 +24,7 @@ extern void fig_debug(char *fmt, ...);
 extern void fig_fatal(char *fmt, ...);
 extern vscalar *fig_get_attr(vhash *object, char *attr);
 extern vhash *fig_get_figure(vhash *object);
+extern float fig_get_height(vhash *figure, float fontsize);
+extern float fig_get_width(vhash *figure, float fontsize);
 
 #endif

@@ -149,12 +149,8 @@ fig_set_fillstyle(vhash *object, int style)
 void
 fig_set_font(vhash *object, char *font, float fontsize)
 {
-    vhash *figure = fig_get_figure(object);
-    float scale = vh_dget(figure, "SCALE");
-
     vh_istore(object, "FONT", fig_lookup_font(font));
-    vh_fstore(object, "FONTSIZE", fontsize * scale);
-    vh_fstore(object, "HEIGHT", fontsize * FIG_TEXT_HSCALE * scale);
+    vh_fstore(object, "FONTSIZE", fontsize);
 }
 
 /* Set the join style of an object */

@@ -50,7 +50,7 @@ fig_write_figure(vhash *figure, FILE *fp)
     fprintf(fp, "%s\n", fig_get_sval(figure, "UNITS"));
     fprintf(fp, "%s\n", fig_get_sval(figure, "PAPERSIZE"));
     fprintf(fp, "100.00\n");
-    fprintf(fp, "Multiple\n");
+    fprintf(fp, "Single\n");
     fprintf(fp, "-2\n");
     fprintf(fp, "%d 2\n", FIG_RESOLUTION);
 

@@ -7,7 +7,7 @@
 
 #define FIG_RESOLUTION 1200
 
-#define FIG_TEXT_WSCALE 6.2
+#define FIG_TEXT_WSCALE 7
 #define FIG_TEXT_HSCALE 11.25
 
 #define FIG_UNDEF -1

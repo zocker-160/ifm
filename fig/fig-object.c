@@ -47,7 +47,11 @@ fig_create(int units, float scale)
 
     vh_istore(obj, "PENCOLOUR", -1);
     vh_istore(obj, "FILLCOLOUR", -1);
+    vh_istore(obj, "FILLSTYLE", -1);
     vh_istore(obj, "LINEWIDTH", 1);
+
+    fig_set_font(obj, "Times", 10.0);
+    vh_fstore(obj, "ANGLE", 0.0);
 
     fig_set_depth(obj, 100);
     fig_set_justify(obj, FIG_JUSTIFY_CENTRE);
@@ -175,7 +179,7 @@ int
 fig_create_point(vhash *parent, float x, float y)
 {
     vhash *figure = fig_get_figure(parent);
-    float scale = vh_dget(figure, "SCALE");
+    float scale = vh_dget(figure, "SCALE") * SCALE;
     vlist *list;
     int num;
 
@@ -184,14 +188,14 @@ fig_create_point(vhash *parent, float x, float y)
         vh_pstore(parent, "XP", list);
     }
 
-    vl_ipush(list, (int) (x * scale * SCALE));
+    vl_ipush(list, (int) (x * scale));
 
     if ((list = vh_pget(parent, "YP")) == NULL) {
         list = vl_create();
         vh_pstore(parent, "YP", list);
     }
 
-    vl_ipush(list, (int) (y * scale * SCALE));
+    vl_ipush(list, (int) (y * scale));
 
     if ((list = vh_pget(parent, "SHAPE")) == NULL) {
         list = vl_create();
@@ -251,7 +255,7 @@ vhash *
 fig_create_text(vhash *parent, float x, float y, char *fmt, ...)
 {
     vhash *figure = fig_get_figure(parent);
-    float scale = vh_dget(figure, "SCALE");
+    float scale = vh_dget(figure, "SCALE") * SCALE;
     vhash *obj;
 
     obj = fig_create_object(parent, FIG_TEXT);
@@ -259,15 +263,8 @@ fig_create_text(vhash *parent, float x, float y, char *fmt, ...)
     V_VPRINT(buf, fmt);
     vh_sstore(obj, "TEXT", buf);
 
-    vh_istore(obj, "FONT", 0);
-    vh_fstore(obj, "FONTSIZE", 10.0 * scale);
-
-    vh_fstore(obj, "WIDTH", strlen(buf) * FIG_TEXT_WSCALE * scale);
-    vh_fstore(obj, "HEIGHT", 10.0 * FIG_TEXT_HSCALE * scale);
-    vh_fstore(obj, "ANGLE", 0.0);
-
-    vh_istore(obj, "X", (int) (x * scale * SCALE));
-    vh_istore(obj, "Y", (int) (y * scale * SCALE));
+    vh_istore(obj, "X", (int) (x * scale));
+    vh_istore(obj, "Y", (int) (y * scale));
 
     return obj;
 }
@@ -280,44 +277,72 @@ fig_create_textbox(vhash *parent,
                    char *fmt, ...)
 {
     vhash *figure = fig_get_figure(parent);
-#if 1
-    float scale = vh_dget(figure, "SCALE") * SCALE;
-#else
-    float scale = SCALE;
-#endif
+    float scale = vh_dget(figure, "SCALE");
 
     float xt, yt, textwidth, textheight, linegap, offset;
-    int i, nrows, ncols;
+    int i, nrows, ncols, count;
     vhash *obj, *text;
     vlist *lines;
 
     V_VPRINT(buf, fmt);
 
+#if 0
+    fig_value(width);
+    fig_value(height);
+#endif
+
     /* Reduce font size until it fits the box */
     while (1) {
-        linegap = fontsize * FIG_TEXT_HSCALE * 1.1;
-        ncols = width * scale / (FIG_TEXT_WSCALE * fontsize);
+        linegap = 1 * fontsize / (POINTS_PER_INCH * scale);
+        ncols = 2.2 * scale * width * POINTS_PER_INCH / fontsize;
+
         lines = vl_filltext(buf, ncols);
         nrows = vl_length(lines);
 
+        ncols = 0;
+        for (i = 0; i < nrows; i++)
+            ncols = V_MAX(ncols, strlen(vl_sgetref(lines, i)));
+
+        vl_destroy(lines);
+
+#if 0
         fig_debug("trying fontsize %g: %d rows, %d cols",
                   fontsize, nrows, ncols);
 
+        fig_value(linegap);
         fig_value(nrows * linegap);
-        fig_value(height * scale);
+        fig_value(height);
+#endif
 
-        if (nrows * linegap <= height * scale)
+        if (nrows * linegap <= height) {
+#if 0
+            while (1) {
+                lines = vl_filltext(buf, ncols);
+                count = vl_length(lines);
+                vl_destroy(lines);
+
+                if (count != nrows)
+                    break;
+                else
+                    ncols++;
+
+                fig_debug("increasing column size: %d", ncols);
+            }
+#endif
+
             break;
+        }
 
         if (fontsize <= 4)
             break;
 
         fontsize--;
-        vl_destroy(lines);
     }
 
     /* Create text objects */
     obj = fig_create_compound(parent);
+    fig_set_font(obj, font, fontsize);
+    fig_set_justify(obj, justify);
 
     switch (justify) {
     case FIG_JUSTIFY_LEFT:
@@ -331,13 +356,14 @@ fig_create_textbox(vhash *parent,
         break;
     }
 
+    lines = vl_filltext(buf, ncols);
+    nrows = vl_length(lines);
+
     for (i = 0; i < nrows; i++) {
         offset = i + 0.7 - nrows / 2.0;
         yt = y + height / 2;
-        yt += (offset * linegap) / scale;
+        yt += offset * linegap;
         text = fig_create_text(obj, xt, yt, "%s", vl_sgetref(lines, i));
-        fig_set_font(text, font, fontsize);
-        fig_set_justify(text, justify);
     }
 
     vl_destroy(lines);

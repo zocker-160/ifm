@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include "fig-attr.h"
 #include "fig-object.h"
 #include "fig-util.h"
 
@@ -12,8 +13,10 @@ fig_calc_bbox(vhash *object)
     int i, num, xmin, xmax, ymin, ymax, x, y, justify, count = 0;
     int type, bxmin, bxmax, bymin, bymax, width, height;
     vlist *objects, *xp, *yp;
+    vhash *obj, *figure;
+    float fontsize;
     vscalar *elt;
-    vhash *obj;
+    char *text;
 
     type = vh_iget(object, "TYPE");
 
@@ -52,16 +55,35 @@ fig_calc_bbox(vhash *object)
     case FIG_TEXT:
         x = vh_iget(object, "X");
         y = vh_iget(object, "Y");
-        width = vh_fget(object, "WIDTH");
-        height = vh_fget(object, "HEIGHT");
-        justify = vh_iget(object, "JUSTIFY");
 
-        bxmin = x;
-        bxmax = x + height;
-        bymin = y - width / 2;
-        bymax = y + width / 2;
+        figure = fig_get_figure(object);
+        fontsize = fig_get_fval(object, "FONTSIZE");
 
-        /* FINISH ME -- adjust for justification */
+        text = fig_get_sval(object, "TEXT");
+        width = fig_get_width(figure, fontsize) * strlen(text);
+        height = fig_get_height(figure, fontsize);
+        justify = fig_get_ival(object, "JUSTIFY");
+
+        vh_fstore(object, "WIDTH", width);
+        vh_fstore(object, "HEIGHT", height);
+
+        switch (justify) {
+        case FIG_JUSTIFY_LEFT:
+            bxmin = x;
+            bxmax = x + width;
+            break;
+        case FIG_JUSTIFY_CENTRE:
+            bxmin = x - width / 2;
+            bxmax = x + width / 2;
+            break;
+        case FIG_JUSTIFY_RIGHT:
+            bxmin = x - width;
+            bxmax = x;
+            break;
+        }
+
+        bymin = y - height;
+        bymax = y;
         break;
 
     default:
@@ -77,10 +99,8 @@ fig_calc_bbox(vhash *object)
             y = vl_iget(yp, i);
 
             if (count++ == 0) {
-                bxmin = x;
-                bxmax = x;
-                bymin = y;
-                bymax = y;
+                bxmin = bxmax = x;
+                bymin = bymax = y;
             } else {
                 bxmin = V_MIN(x, bxmin);
                 bxmax = V_MAX(x, bxmax);
@@ -96,6 +116,10 @@ fig_calc_bbox(vhash *object)
     vh_istore(object, "XMAX", bxmax);
     vh_istore(object, "YMIN", bymin);
     vh_istore(object, "YMAX", bymax);
+
+    fig_debug("bounding box of %s: %d-%d, %d-%d",
+              vh_exists(object, "NAME") ? vh_sgetref(object, "NAME") : "object",
+              bxmin, bxmax, bymin, bymax);
 
     return 1;
 }
@@ -138,6 +162,8 @@ fig_get_attr(vhash *object, char *attr)
         fig_fatal("no such attribute: %s", attr);
 #endif
 
+    fig_debug("%s = %s", attr, vh_sget(object, attr));
+
     return vh_get(object, attr);
 }
 
@@ -151,4 +177,18 @@ fig_get_figure(vhash *object)
         object = parent;
 
     return object;
+}
+
+/* Return the height of a character in a given fontsize */
+float
+fig_get_height(vhash *figure, float fontsize)
+{
+    return fontsize * FIG_TEXT_HSCALE;
+}
+
+/* Return the width of a character in a given fontsize */
+float
+fig_get_width(vhash *figure, float fontsize)
+{
+    return fontsize * FIG_TEXT_WSCALE;
 }
