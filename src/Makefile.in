@@ -72,13 +72,15 @@ tkifm = @tkifm@
 
 bin_PROGRAMS = ifm
 
-SRCS = ifm-dot.c ifm-driver.c ifm-fig.c ifm-gpp.c ifm-main.c ifm-map.c	  ifm-parse.y ifm-path.c ifm-ps.c ifm-raw.c ifm-rec.c ifm-scan.l ifm-task.c ifm-text.c ifm-tk.c ifm-util.c ifm-vars.c
+SRCS = ifm-dot.c ifm-driver.c ifm-fig.c ifm-gpp.c ifm-main.c ifm-map.c	ifm-path.c ifm-ps.c ifm-raw.c ifm-rec.c ifm-task.c ifm-text.c ifm-tk.c	ifm-util.c ifm-vars.c
 
+
+NOLINT_SRCS = ifm-parse.y ifm-scan.l
 
 HDRS = ifm-dot.h ifm-driver.h ifm-fig.h ifm-gpp.h ifm-main.h ifm-map.h	  ifm-parse.h ifm-path.h ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h ifm-tk.h ifm-util.h ifm-vars.h
 
 
-ifm_SOURCES = $(SRCS) $(HDRS)
+ifm_SOURCES = $(SRCS) $(NOLINT_SRCS) $(HDRS)
 
 EXTRA_DIST = ifm-parse.c ifm-scan.c
 
@@ -101,6 +103,22 @@ PATHDEF = -DIFMPATH=\"$(pkgdatadir)\"
 GPPDEF = -DGPPPATH=\"$(pkglibdir)/gpp\"
 
 INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(SYSDEF) $(PATHDEF) $(GPPDEF)
+
+# Add lint support.
+
+SUFFIXES = .lint
+
+LINT = splint
+
+LINTARGS = +quiet -weak +show-scan -badflag
+
+LINTGLOBAL = -fixed-formal-array +posix-lib +export-header +ignore-signs  -zero-ptr +eval-order +noret +unreachable +noeffect +warn-lint-comments	  -null-deref +export-header-var +case-break -unrecog -buffer-overflow-high -ret-val-other +match-any-integral +relax-types
+
+
+LINTDEFS = -I. $(CPPFLAGS) $(DEFS) $(INCLUDES)
+
+LINTCMD = $(LINT) $(LINTARGS) $(LINTLOCAL) $(LINTGLOBAL) $(LINTFLAGS)	$(LINTDEFS)
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ../etc/config.h
 CONFIG_CLEAN_FILES = 
@@ -112,8 +130,8 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ifm_OBJECTS =  ifm-dot.o ifm-driver.o ifm-fig.o ifm-gpp.o ifm-main.o \
-ifm-map.o ifm-parse.o ifm-path.o ifm-ps.o ifm-raw.o ifm-rec.o \
-ifm-scan.o ifm-task.o ifm-text.o ifm-tk.o ifm-util.o ifm-vars.o
+ifm-map.o ifm-path.o ifm-ps.o ifm-raw.o ifm-rec.o ifm-task.o ifm-text.o \
+ifm-tk.o ifm-util.o ifm-vars.o ifm-parse.o ifm-scan.o
 ifm_DEPENDENCIES = 
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LEXLIB = @LEXLIB@
@@ -138,7 +156,7 @@ OBJECTS = $(ifm_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .l .o .s .y
+.SUFFIXES: .S .c .l .lint .o .s .y
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
 
@@ -360,7 +378,9 @@ $(bin_PROGRAMS): $(FIG_BIN)/libfig.a $(VARS_BIN)/libvars.a
 
 ifm-parse.h: ifm-parse.c
 
-lint:; lint -habx $(DEFS) $(INCLUDES) *.c
+.c.lint:; @ $(LINTCMD) $<
+
+lint:; $(LINTCMD) $(DEFS) $(INCLUDES) $(SRCS)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
