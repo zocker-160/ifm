@@ -353,7 +353,7 @@ sub room {
 # Convert a string for feeding to LaTeX.
 sub texstr {
     my $text = shift;
-    $text =~ s/([\\\#$%&~_^{}])/\\$1/g;
+    $text =~ s/([\\\#\$%&~_^{}])/\\$1/g;
     return $text;
 }
 
