@@ -101,7 +101,7 @@ connect_rooms(void)
                    vh_sgetref(to, "DESC"),
                    cmd);
             if (len > 1)
-                printf(" (distance %d)", len);
+                printf(" (dist %d)", len);
             printf("\n");
         }
 
@@ -140,7 +140,7 @@ connect_rooms(void)
                        vh_sgetref(from, "DESC"),
                        cmd);
                 if (len > 1)
-                    printf(" (distance %d)", len);
+                    printf(" (dist %d)", len);
                 printf("\n");
             }
         }
@@ -165,7 +165,9 @@ connect_rooms(void)
 
         if (cmd == NULL && goflag)
             cmd = dirinfo[goflag].sname;
-        vh_sstore(reach, "CMD", cmd == NULL ? "?" : cmd);
+        if (cmd == NULL)
+            cmd = "?";
+        vh_sstore(reach, "CMD", cmd);
 
         vh_pstore(reach, "FROM", from);
         vh_pstore(reach, "TO", to);
@@ -185,7 +187,7 @@ connect_rooms(void)
                    vh_sgetref(to, "DESC"),
                    cmd);
             if (len > 1)
-                printf(" (distance %d)", len);
+                printf(" (dist %d)", len);
             printf("\n");
         }
 
@@ -201,7 +203,9 @@ connect_rooms(void)
 
             if (cmd == NULL && goflag)
                 cmd = dirinfo[goflag].sname;
-            vh_sstore(reach, "CMD", cmd == NULL ? "?" : cmd);
+            if (cmd == NULL)
+                cmd = "?";
+            vh_sstore(reach, "CMD", cmd);
 
             vh_pstore(reach, "FROM", to);
             vh_pstore(reach, "TO", from);
@@ -221,7 +225,7 @@ connect_rooms(void)
                        vh_sgetref(from, "DESC"),
                        cmd);
                 if (len > 1)
-                    printf(" (distance %d)", len);
+                    printf(" (dist %d)", len);
                 printf("\n");
             }
         }
@@ -263,7 +267,7 @@ find_path(vhash *step, vhash *from, vhash *to)
                 len = vl_length(path);
 
                 if (ifm_debug)
-                    printf(" (cached: distance %d)\n", len);
+                    printf(" (cached: dist %d)\n", len);
 
                 return len;
             }
@@ -274,7 +278,7 @@ find_path(vhash *step, vhash *from, vhash *to)
             len = vh_iget(to, "AP_LEN");
 
             if (ifm_debug)
-                printf(" (cached: distance %d)\n", len);
+                printf(" (cached: dist %d)\n", len);
 
             return len;
         } else if (vh_iget(ap_room, "AP_VISIT") == ap_visit) {
@@ -320,7 +324,7 @@ find_path(vhash *step, vhash *from, vhash *to)
 
         if (ifm_debug && node != from && to != NULL) {
             indent(4);
-            printf("visit: %s (distance %d)\n",
+            printf("visit: %s (dist %d)\n",
                    vh_sgetref(node, "DESC"), len);
         }
 
@@ -616,7 +620,7 @@ init_path(vhash *room)
 
     if (ifm_debug) {
         indent(2);
-        printf("updated paths (max distance: %d)\n", len);
+        printf("updated paths (max dist: %d)\n", len);
     }
 
     /* Record distance of each task */
@@ -647,6 +651,9 @@ init_path(vhash *room)
             if (vh_iget(step, "DONE"))
                 continue;
             if (vh_iget(step, "DIST") == BIG)
+                continue;
+
+            if (require_task(step) != NULL)
                 continue;
 
             indent(3);
