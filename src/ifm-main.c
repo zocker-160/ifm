@@ -34,12 +34,6 @@ char *progname;
 /* Am I being verbose? */
 static int verbose_flag;
 
-/* Output required */
-static int ifm_output = O_MAP;
-
-/* Output format */
-static int ifm_format = 0;
-
 /* Current line number */
 int line_number = 1;
 
@@ -53,23 +47,69 @@ static char buf[BUFSIZ];
 int ifm_debug = 0;
 
 /* Local functions */
-static void parse_args(int argc, char *argv[]);
-static void print_usage(void);
+static void usage(void);
 
 /* Main routine */
 int
 main(int argc, char *argv[])
 {
+    int c, format, output = O_NONE;
     extern void yyparse();
-    char *cp;
+    extern char *optarg;
+
+#ifdef DEBUG
+    extern int yydebug;
+    int dflag;
+#endif
 
     /* Set program name */
     progname = argv[0];
-    if ((cp = strrchr(progname, '/')) != NULL)
-        progname = cp + 1;
 
     /* Parse command-line arguments */
-    parse_args(argc, argv);
+    while ((c = getopt(argc, argv, "f:himo:tvD:")) != EOF) {
+	switch (c) {
+        case 'm':
+            output = O_MAP;
+            break;
+        case 'i':
+            output = O_ITEMS;
+            break;
+        case 't':
+            output = O_TASKS;
+            break;
+        case 'f':
+            format = select_format(optarg);
+            break;
+	case 'v':
+	    verbose_flag = 1;
+	    break;
+	case 'o':
+	    if (freopen(optarg, "w", stdout) == NULL)
+		fatal("can't open %s", optarg);
+	    break;
+	case 'h':
+            usage();
+            break;
+	case 'D':
+#ifdef DEBUG
+            dflag = atoi(optarg);
+            if (dflag == 1)
+                ifm_debug = 1;
+            else
+                yydebug = 1;
+	    break;
+#else
+            fatal("no compiled-in debugging support");
+#endif
+        default:
+	    fatal("Type `%s -h' for help", progname);
+            break;
+	}
+    }
+
+    /* Last argument (if any) is input file */
+    if (optind < argc && freopen(argv[optind], "r", stdin) == NULL)
+	fatal("can't open %s", argv[optind]);
 
     /* Initialise */
     status("Running %s", progname);
@@ -102,7 +142,7 @@ main(int argc, char *argv[])
     setup_sections();
 
     /* Do task setup if required */
-    if (ifm_output == O_TASKS) {
+    if (output == O_NONE || output == O_TASKS) {
         /* Connect rooms */
         status("Connecting rooms...");
         connect_rooms();
@@ -114,15 +154,18 @@ main(int argc, char *argv[])
     }
 
     /* Do what's required */
-    switch (ifm_output) {
+    switch (output) {
+    case O_NONE:
+        printf("Syntax appears OK\n");
+        break;
     case O_MAP:
-        draw_map(ifm_format);
+        draw_map(format);
         break;
     case O_ITEMS:
-        draw_items(ifm_format);
+        draw_items(format);
         break;
     case O_TASKS:
-        draw_tasks(ifm_format);
+        draw_tasks(format);
         break;
     }
 
@@ -140,13 +183,16 @@ draw_map(int fmt)
     vhash *sect, *room, *link;
     vscalar *elt;
 
+    sects = vh_pget(map, "SECTS");
+    if (vl_length(sects) == 0)
+        fatal("no rooms found in input");
+
     if (func == NULL)
         fatal("no map driver for %s", drv.name);
 
     if (func->map_start != NULL)
         (*func->map_start)(vh_sget(map, "TITLE"));
 
-    sects = vh_pget(map, "SECTS");
     FOREACH(elt, sects) {
         sect = vs_pval(elt);
 
@@ -187,13 +233,16 @@ draw_items(int fmt)
     vlist *items;
     vhash *item;
 
+    items = vh_pget(map, "ITEMS");
+    if (vl_length(items) == 0)
+        fatal("no items found in input");
+
     if (func == NULL)
-        fatal("no item driver for %s", drv.name);
+        fatal("no item table driver for %s", drv.name);
 
     if (func->item_start != NULL)
         (*func->item_start)(vh_sget(map, "TITLE"));
 
-    items= vh_pget(map, "ITEMS");
     FOREACH(elt, items) {
         item = vs_pval(elt);
         if (func->item_entry != NULL)
@@ -214,13 +263,16 @@ draw_tasks(int fmt)
     vlist *tasks;
     vhash *task;
 
+    tasks = vh_pget(map, "TASKS");
+    if (vl_length(tasks) == 0)
+        fatal("no tasks found in input");
+
     if (func == NULL)
-        fatal("no task driver for %s", drv.name);
+        fatal("no task table driver for %s", drv.name);
 
     if (func->task_start != NULL)
         (*func->task_start)(vh_sget(map, "TITLE"));
 
-    tasks= vh_pget(map, "TASKS");
     FOREACH(elt, tasks) {
         task = vs_pval(elt);
         if (func->task_entry != NULL)
@@ -229,67 +281,6 @@ draw_tasks(int fmt)
 
     if (func->task_finish != NULL)
         (*func->task_finish)();
-}
-
-/* Parse arguments */
-static void
-parse_args(int argc, char *argv[])
-{
-    extern int optind, opterr;
-    extern char *optarg;
-    int c;
-
-#ifdef DEBUG
-    extern int yydebug;
-    int dflag;
-#endif
-
-    opterr = 0;
-    optind = 1;
-    while ((c = getopt(argc, argv, "himo:tvD:")) != EOF) {
-	switch (c) {
-        case 'm':
-            ifm_output = O_MAP;
-            break;
-        case 'i':
-            ifm_output = O_ITEMS;
-            break;
-        case 't':
-            ifm_output = O_TASKS;
-            break;
-        case 'f':
-            ifm_format = select_format(optarg);
-            break;
-	case 'v':
-	    verbose_flag = 1;
-	    break;
-	case 'o':
-	    if (freopen(optarg, "w", stdout) == NULL)
-		fatal("can't open %s", optarg);
-	    break;
-	case 'h':
-            print_usage();
-	    exit(0);
-	case 'D':
-#ifdef DEBUG
-            dflag = atoi(optarg);
-            if (dflag == 1)
-                ifm_debug = 1;
-            else
-                yydebug = 1;
-	    break;
-#else
-            fatal("no compiled-in debugging support");
-#endif
-        default:
-	    fatal("invalid argument\nType `%s -h' for help", progname);
-            break;
-	}
-    }
-
-    /* Last argument (if any) is input file */
-    if (optind < argc && freopen(argv[optind], "r", stdin) == NULL)
-	fatal("can't open %s", argv[optind]);
 }
 
 /* Select an output format */
@@ -314,31 +305,6 @@ select_format(char *str)
         fatal("ambiguous output format: %s", str);
 
     return match;
-}
-
-/* Print a usage message */
-static void
-print_usage()
-{
-    int nd = sizeof(drivers) / sizeof(drivers[0]);
-    int i;
-
-    static char *fmt = "  %-15s %s\n";
-
-    fprintf(stderr, "Usage: %s [options] [file]\n", progname);
-
-    fprintf(stderr, fmt, "-m",         "draw map (default)");
-    fprintf(stderr, fmt, "-i",         "print item table");
-    fprintf(stderr, fmt, "-t",         "print task table");
-    fprintf(stderr, fmt, "-f format",  "select output format");
-    fprintf(stderr, fmt, "-o file",    "write output to file");
-    fprintf(stderr, fmt, "-v",         "be verbose about things");
-    fprintf(stderr, fmt, "-h",         "this usage message");
-
-    fprintf(stderr, "\nOutput formats (may be abbreviated):\n");
-
-    for (i = 0; i < nd; i++)
-        fprintf(stderr, fmt, drivers[i].name, drivers[i].desc);
 }
 
 /* Parser-called parse error */
@@ -418,4 +384,33 @@ fatal(char *fmt, ...)
     VPRINT(buf, fmt);
     fprintf(stderr, "%s: error: %s\n", progname, buf);
     exit(1);
+}
+
+/* Print a usage message and exit */
+static void
+usage()
+{
+    int nd = sizeof(drivers) / sizeof(drivers[0]);
+    int i;
+
+    static char *fmt = "  %-15s %s\n";
+
+    fprintf(stderr, "Usage: %s [options] [file]\n", progname);
+
+    fprintf(stderr, "\nOptions:\n");
+
+    fprintf(stderr, fmt, "-m",         "draw map");
+    fprintf(stderr, fmt, "-i",         "print item table");
+    fprintf(stderr, fmt, "-t",         "print task table");
+    fprintf(stderr, fmt, "-f format",  "select output format");
+    fprintf(stderr, fmt, "-o file",    "write output to file");
+    fprintf(stderr, fmt, "-v",         "be verbose about things");
+    fprintf(stderr, fmt, "-h",         "this usage message");
+
+    fprintf(stderr, "\nOutput formats (may be abbreviated):\n");
+
+    for (i = 0; i < nd; i++)
+        fprintf(stderr, fmt, drivers[i].name, drivers[i].desc);
+
+    exit(0);
 }
