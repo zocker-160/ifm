@@ -125,7 +125,8 @@ do that using the 'go' clause, like this:
 
 This indicates that the actual direction travelled is downwards, but it is
 still represented as south on the map.  The 'go' clause accepts 'up',
-'down', 'in' and 'out'.
+'down', 'in' and 'out'.  As with compass directions, 'up' and 'down' may be
+abbreviated as 'u' and 'd'.
 
 =head2 Room Exits
 
@@ -258,6 +259,8 @@ other items thrown in:
     item "chair";
 
     room "Study" dir e n oneway;
+
+See L<"Map Output"> for how to display it.
 
 =head2 Conflicts
 
