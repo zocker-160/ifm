@@ -140,8 +140,8 @@ The IFM mapping commands are designed so that you can easily add to the
  the others.
  A map can consist of several independent sections, allowing you to divide
  up the map however you like.
- See Section 
-\begin_inset LatexCommand \ref{sec:making-maps}
+ See 
+\begin_inset LatexCommand \prettyref{sec:making-maps}
 
 \end_inset 
 
@@ -159,8 +159,8 @@ walkthrough
 \end_inset 
 
  of the game.
- See Section 
-\begin_inset LatexCommand \ref{sec:solving-game}
+ See 
+\begin_inset LatexCommand \prettyref{sec:solving-game}
 
 \end_inset 
 
@@ -168,15 +168,15 @@ walkthrough
 \layout Standard
 
 Several output formats are available, including PostScript, Fig and ASCII
- text --- these are described in Section 
-\begin_inset LatexCommand \ref{sec:using-ifm}
+ text --- these are described in 
+\begin_inset LatexCommand \prettyref{sec:using-ifm}
 
 \end_inset 
 
 .
  Some of the output formats have a set of variables which control the appearance
- of the output --- see Section 
-\begin_inset LatexCommand \ref{sec:output-variables}
+ of the output --- see 
+\begin_inset LatexCommand \prettyref{sec:output-variables}
 
 \end_inset 
 
@@ -254,8 +254,8 @@ Making Maps
 \layout Standard
 
 This section gives you a tour of the main commands for making maps.
- It's not complete; see Section 
-\begin_inset LatexCommand \ref{sec:language}
+ It's not complete; see 
+\begin_inset LatexCommand \prettyref{sec:language}
 
 \end_inset 
 
@@ -274,9 +274,8 @@ boxes-and-lines
 \begin_inset Quotes srd
 \end_inset 
 
- method; an example is shown in Figure\SpecialChar ~
-
-\begin_inset LatexCommand \ref{fig:example-map}
+ method; an example is shown in 
+\begin_inset LatexCommand \prettyref{fig:example-map}
 
 \end_inset 
 
@@ -291,7 +290,7 @@ boxes-and-lines
 \begin_inset Float figure
 placement htbp
 wide false
-collapsed false
+collapsed true
 
 \layout Standard
 \align center 
@@ -795,16 +794,15 @@ Here's the completed map description for the above example, with a few other
 \layout LyX-Code
 
 
-\begin_inset Include \verbatiminput{../maps/example.ifm}
+\begin_inset Include \verbatiminput{../demos/example.ifm}
 
 \end_inset 
 
 
 \layout Standard
 
-See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:using-ifm}
+See 
+\begin_inset LatexCommand \prettyref{sec:using-ifm}
 
 \end_inset 
 
@@ -883,9 +881,8 @@ As well as making a map of your game, you can record the steps you took
  to solve it.
  IFM can then calculate a (fairly) optimal solution.
  This section is a guide to how to do it.
- Again, it's not a complete specification --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:language}
+ Again, it's not a complete specification --- see 
+\begin_inset LatexCommand \prettyref{sec:language}
 
 \end_inset 
 
@@ -1219,9 +1216,8 @@ do
 \emph default 
  have a purpose --- you just don't know what it is yet.
  This is relevant when you're creating a recording from a partially-played
- game; see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:recording}
+ game; see 
+\begin_inset LatexCommand \prettyref{sec:recording}
 
 \end_inset 
 
@@ -1319,9 +1315,8 @@ task "Light bonfire" need match lose it;
 Dropping Items
 \layout Standard
 
-As mentioned in Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:inventory}
+As mentioned in 
+\begin_inset LatexCommand \prettyref{sec:inventory}
 
 \end_inset 
 
@@ -1763,9 +1758,8 @@ traversed
 
  to find a sequence which solves the game while satisfying the task dependencies.
  The start room is the room which was first mentioned in the input (but
- this can be changed --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:language}
+ this can be changed --- see 
+\begin_inset LatexCommand \prettyref{sec:language}
 
 \end_inset 
 
@@ -2091,9 +2085,8 @@ Random events.
  There's no way to address this problem, but then again, hand-written walkthroug
 hs have the same difficulty.
  However, if you're trying to tailor recording output so that it will play
- back properly in an interpreter, there is a workaround --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:recording}
+ back properly in an interpreter, there is a workaround --- see 
+\begin_inset LatexCommand \prettyref{sec:recording}
 
 \end_inset 
 
@@ -2185,7 +2178,7 @@ IFM is run from the command line.
  The general form of the command is:
 \layout LyX-Code
 
-ifm [options] [file]
+ifm [options] [file...]
 \layout Standard
 
 On startup, IFM does the following.
@@ -2196,7 +2189,8 @@ On startup, IFM does the following.
 ifm-init.ifm
 \family default 
 , and is found by searching a standard set of directories.
- You can override this search path by setting the environment variable 
+ You can prepend to this search path by setting the environment variable
+ 
 \family typewriter 
 IFMPATH
 \family default 
@@ -2223,12 +2217,30 @@ ifm.ini
 \layout Standard
 
 Then input from the file(s) on the command-line is read.
- If no files were specified, stdin is read.
+ If no files were specified, 
+\family typewriter 
+stdin
+\family default 
+ is read.
  A filename equal to 
 \family typewriter 
 -
 \family default 
- also indicates that stdin should be read at that point.
+ also indicates that 
+\family typewriter 
+stdin
+\family default 
+ should be read at that point.
+\layout Standard
+
+Before IFM sees any input, it's passed through a preprocessor, in a similar
+ manner to C programs.
+ See 
+\begin_inset LatexCommand \prettyref{sec:preprocessor}
+
+\end_inset 
+
+ for more details.
 \layout Standard
 
 If any of the 
@@ -2274,7 +2286,8 @@ prologue
  file (see above).
 \layout Standard
 
-Here's a list of the command-line options (which can be abbreviated):
+Here's a summary of the command-line options (which can be abbreviated),
+ starting with the output options:
 \layout List
 \labelwidthstring MMMMMMM
 
@@ -2348,6 +2361,9 @@ FILE
 
 \newline 
 Write to the specified file, instead of stdout.
+\layout Standard
+
+Next comes the auxiliary options:
 \layout List
 \labelwidthstring MMMMMMM
 
@@ -2361,9 +2377,8 @@ STYLE
 
 \newline 
 Set a global style.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:customization}
+ See 
+\begin_inset LatexCommand \prettyref{sec:customization}
 
 \end_inset 
 
@@ -2398,6 +2413,17 @@ Set a customization variable.
 
 
 \family typewriter 
+-noinit
+\family default 
+ Don't read your personal init file.
+\layout Standard
+
+These are the preprocessor options:
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
 -I,\SpecialChar ~
 -include\SpecialChar ~
 DIR
@@ -2407,6 +2433,26 @@ DIR
 \newline 
 Prepend the specified directory to the library and include file search path.
  This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-Dvar[=val]
+\family default 
+ Define a preprocessor symbol.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMM
+
+
+\family typewriter 
+-P
+\family default 
+ Just show the results of preprocessing the input.
+\layout Standard
+
+Finally, here are the information options:
 \layout List
 \labelwidthstring MMMMMMM
 
@@ -2453,21 +2499,13 @@ vars
 \family default 
  Show a complete list of defined variables, in a format suitable for feeding
  back into IFM.
- See Section 
-\begin_inset LatexCommand \ref{sec:output-variables}
+ See 
+\begin_inset LatexCommand \prettyref{sec:output-variables}
 
 \end_inset 
 
 .
 \end_deeper 
-\layout List
-\labelwidthstring MMMMMMM
-
-
-\family typewriter 
--noinit
-\family default 
- Don't read your personal init file.
 \layout List
 \labelwidthstring MMMMMMM
 
@@ -2493,9 +2531,8 @@ IFM has three different types of output (a map, a list of items, and a list
  of tasks) and several different output formats, which are described in
  the following sections.
  Not all types of output are produced by each output format.
- Table\SpecialChar ~
-
-\begin_inset LatexCommand \ref{tab:output-formats}
+ 
+\begin_inset LatexCommand \prettyref{tab:output-formats}
 
 \end_inset 
 
@@ -2503,7 +2540,7 @@ IFM has three different types of output (a map, a list of items, and a list
 \begin_inset Float table
 placement htbp
 wide false
-collapsed false
+collapsed true
 
 \layout Standard
 \align center 
@@ -2836,9 +2873,8 @@ This produces a map which can be read (and edited) by Xfig, and any other
 \family typewriter 
 ifm2dev
 \family default 
- which automatically does this --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:ifm2dev}
+ which automatically does this --- see 
+\begin_inset LatexCommand \prettyref{sec:ifm2dev}
 
 \end_inset 
 
@@ -2871,9 +2907,8 @@ This produces map commands for input to
 \family typewriter 
 tkifm
 \family default 
-, a simple graphical interface to IFM (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:tkifm}
+, a simple graphical interface to IFM (see 
+\begin_inset LatexCommand \prettyref{sec:tkifm}
 
 \end_inset 
 
@@ -3004,9 +3039,8 @@ You can change the appearance of many output features according to your
  taste.
  You do this by setting the values of the variables that control those features.
  This section tells you how to use variables --- for a complete list of
- the customization variables available, see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:output-variables}
+ the customization variables available, see 
+\begin_inset LatexCommand \prettyref{sec:output-variables}
 
 \end_inset 
 
@@ -3200,11 +3234,15 @@ Here's the original initialization file that came bundled with IFM.
 \layout Subsection
 
 Predefined Styles
+\begin_inset LatexCommand \label{sec:style-defs}
+
+\end_inset 
+
+
 \layout Standard
 
-IFM comes with a few predefined style files, as shown in Table\SpecialChar ~
-
-\begin_inset LatexCommand \ref{tab:styles}
+IFM comes with a few predefined style files, as shown in 
+\begin_inset LatexCommand \prettyref{tab:styles}
 
 \end_inset 
 
@@ -3380,6 +3418,76 @@ Predefined styles
 \end_inset 
 
 
+\layout Subsection
+
+Backward Compatibility
+\layout Standard
+
+If you have any existing IFM maps created with previous versions of IFM,
+ you may find that some of them don't work properly any more.
+ That's because some old IFM features have been replaced with better ones;
+ here's a list of the problems you may encounter.
+\layout Itemize
+
+The old 
+\family typewriter 
+puzzle
+\family default 
+ and 
+\family typewriter 
+special
+\family default 
+ attributes have been removed.
+ You must use the corresponding styles instead --- see 
+\begin_inset LatexCommand \prettyref{sec:style-defs}
+
+\end_inset 
+
+.
+\layout Itemize
+
+Include files are now included with 
+\family typewriter 
+%include
+\family default 
+, not 
+\family typewriter 
+include
+\family default 
+.
+ This is because IFM now uses a separate preprocessor to manage included
+ files; see 
+\begin_inset LatexCommand \prettyref{sec:preprocessor}
+
+\end_inset 
+
+ for details.
+\layout Itemize
+
+The old concept of 
+\begin_inset Quotes eld
+\end_inset 
+
+aliases
+\begin_inset Quotes erd
+\end_inset 
+
+ has been removed.
+ You can get the same effect by using 
+\family typewriter 
+%define
+\family default 
+ --- again, see 
+\begin_inset LatexCommand \prettyref{sec:preprocessor}
+
+\end_inset 
+
+.
+ If you used any old aliased variables, you must now include the file 
+\family typewriter 
+ifm-compat.ifm
+\family default 
+ to fix things.
 \layout Section
 \pagebreak_top 
 Language
@@ -3463,9 +3571,8 @@ Note that dollars (
 $
 \family default 
 ) are special inside strings --- they mark the start of a variable substitution.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:variables}
+ See 
+\begin_inset LatexCommand \prettyref{sec:variables}
 
 \end_inset 
 
@@ -3483,9 +3590,8 @@ $$
 \family typewriter 
 NUMBER
 \family default 
- A number, or an arithmetic expression (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:expressions}
+ A number, or an arithmetic expression (see 
+\begin_inset LatexCommand \prettyref{sec:expressions}
 
 \end_inset 
 
@@ -3599,9 +3705,8 @@ map STRING;
 
 This sets the title of the next map section.
  Also, any variables set after this command are local to the next map section
- (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:variables}
+ (see 
+\begin_inset LatexCommand \prettyref{sec:variables}
 
 \end_inset 
 
@@ -3662,15 +3767,13 @@ In many cases, you are allowed to refer to a tag name anywhere, even earlier
 from\SpecialChar ~
 ID
 \family default 
- clause (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:rooms}
+ clause (see 
+\begin_inset LatexCommand \prettyref{sec:rooms}
 
 \end_inset 
 
-) and tags in commands that modify existing objects (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:commands}
+) and tags in commands that modify existing objects (see 
+\begin_inset LatexCommand \prettyref{sec:commands}
 
 \end_inset 
 
@@ -3827,9 +3930,8 @@ Specify other rooms that this room links to.
 \family typewriter 
 link
 \family default 
- command for that (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:links}
+ command for that (see 
+\begin_inset LatexCommand \prettyref{sec:links}
 
 \end_inset 
 
@@ -3853,9 +3955,8 @@ Specify rooms on other map sections that this room joins to.
 \family typewriter 
 join
 \family default 
- command for that (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:joins}
+ command for that (see 
+\begin_inset LatexCommand \prettyref{sec:joins}
 
 \end_inset 
 
@@ -4104,9 +4205,8 @@ NUMBER \SpecialChar ~
 Indicate that the direction link to this room has the specified length (default
  1).
  This only affects the calculation of the nearest task when solving the
- game --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:tasks}
+ game --- see 
+\begin_inset LatexCommand \prettyref{sec:tasks}
 
 \end_inset 
 
@@ -4173,9 +4273,8 @@ ID\SpecialChar ~
 \family default 
 Add a list of display styles to the room (and also the implicit link, if
  any).
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:styles}
+ See 
+\begin_inset LatexCommand \prettyref{sec:styles}
 
 \end_inset 
 
@@ -4320,8 +4419,8 @@ given
 \family typewriter 
 give
 \family default 
- clause instead (see Section 
-\begin_inset LatexCommand \ref{sec:tasks}
+ clause instead (see 
+\begin_inset LatexCommand \prettyref{sec:tasks}
 
 \end_inset 
 
@@ -4343,9 +4442,8 @@ drop
 \family typewriter 
 lose
 \family default 
- clauses instead (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:tasks}
+ clauses instead (see 
+\begin_inset LatexCommand \prettyref{sec:tasks}
 
 \end_inset 
 
@@ -4421,9 +4519,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the item.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:styles}
+ See 
+\begin_inset LatexCommand \prettyref{sec:styles}
 
 \end_inset 
 
@@ -4584,9 +4681,8 @@ NUMBER
 \newline 
 Indicate that this link has the specified length (default 1).
  This only affects the calculation of the nearest task when solving the
- game --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:tasks}
+ game --- see 
+\begin_inset LatexCommand \prettyref{sec:tasks}
 
 \end_inset 
 
@@ -4691,9 +4787,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the link.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:styles}
+ See 
+\begin_inset LatexCommand \prettyref{sec:styles}
 
 \end_inset 
 
@@ -4839,9 +4934,8 @@ NUMBER
 \newline 
 Indicate that this join has the specified length (default 1).
  This only affects the calculation of the nearest task when solving the
- game --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:tasks}
+ game --- see 
+\begin_inset LatexCommand \prettyref{sec:tasks}
 
 \end_inset 
 
@@ -4946,9 +5040,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the join.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:styles}
+ See 
+\begin_inset LatexCommand \prettyref{sec:styles}
 
 \end_inset 
 
@@ -5254,9 +5347,8 @@ ID\SpecialChar ~
 
 \newline 
 Add a list of display styles to the task.
- See Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:styles}
+ See 
+\begin_inset LatexCommand \prettyref{sec:styles}
 
 \end_inset 
 
@@ -5275,7 +5367,7 @@ Various aspects of output are controlled by variables.
  These are set using the following syntax:
 \layout LyX-Code
 
-[FORMAT.]IDENT = NUMBER | STRING | undef [in style ID];
+[FORMAT.]ID = NUMBER | STRING | undef [in style ID];
 \layout Standard
 
 
@@ -5286,7 +5378,7 @@ FORMAT
  then applies only to that output format.
  
 \family typewriter 
-IDENT
+ID
 \family default 
  is the name of the variable, and it can take a numeric or string value.
  Note that setting a variable to the value 
@@ -5294,12 +5386,9 @@ IDENT
 undef
 \family default 
  effectively removes it.
-\layout Standard
-
-If the style clause is present, this means to only set the variable to this
- value in the specified style (see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:styles}
+ If the style clause is present, this means to only set the variable to
+ this value in the specified style (see 
+\begin_inset LatexCommand \prettyref{sec:styles}
 
 \end_inset 
 
@@ -5338,40 +5427,12 @@ ${this}
  the variable that will be substituted.
 \layout Standard
 
-Variables can have "aliases" --- that is, other names.
- A variable alias is set using the syntax
-\layout LyX-Code
-
-alias_name => var_name;
-\layout Standard
-
-This has the effect that whenever variable 
-\family typewriter 
-alias_name
-\family default 
- is set or accessed, then variable 
-\family typewriter 
-var_name
-\family default 
- is actually set or accessed instead.
- Note that if a variable already exists with name 
-\family typewriter 
-alias_name
-\family default 
-, its value is hidden while the alias is in force.
- Aliases can be removed by saying
-\layout LyX-Code
-
-alias_name => undef;
-\layout Standard
-
 Some output formats use variables so that you can customize them.
  They expect certain variables to be defined, and give an error if they
  aren't.
  The default values for these variables are set in the initialization file
- --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:output-variables}
+ --- see 
+\begin_inset LatexCommand \prettyref{sec:output-variables}
 
 \end_inset 
 
@@ -5414,9 +5475,8 @@ pushes the specified style onto the style list.
 in\SpecialChar ~
 style
 \family default 
- clause --- see Section\SpecialChar ~
-
-\begin_inset LatexCommand \ref{sec:variables}
+ clause --- see 
+\begin_inset LatexCommand \prettyref{sec:variables}
 
 \end_inset 
 
@@ -5682,51 +5742,231 @@ because the right hand side is an expression, which is treated as numeric.
 string_var = "$other_string_var";
 \layout Subsection
 
-Include Files
-\begin_inset LatexCommand \label{sec:includes}
+Preprocessor
+\begin_inset LatexCommand \label{sec:preprocessor}
 
 \end_inset 
 
 
 \layout Standard
 
-Your IFM input can include other input files too, via the 
+Before IFM sees any input, it is 
+\begin_inset Quotes eld
+\end_inset 
+
+preprocessed
+\begin_inset Quotes erd
+\end_inset 
+
+ --- special preprocessing directives are acted upon and removed.
+ This allows you to include other files, define macros, and process the
+ input conditionally.
+\layout Standard
+
+The preprocessing directives all begin with a percent symbol and must be
+ at the start of a line.
+ Some of the available preprocessing directives are:
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+IFM implements preprocessing using 
+\emph on 
+gpp
+\emph default 
+, the Generic Preprocessor.
+ The full set of preprocessing directives can be found in the documentation
+ for 
+\emph on 
+gpp
+\emph default 
+, supplied with IFM.
+\end_inset 
+
+
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
 \family typewriter 
-include
+%include\SpecialChar ~
+"filename"
 \family default 
- directive.
- There are two forms:
-\layout LyX-Code
-
-include "file"
-\layout Standard
-
-and
-\layout LyX-Code
-
-include <file>
-\layout Standard
-
-The first form looks for the exact file name --- either absolute or relative
- to the current directory.
- The second form does a directory search to find the file, using the IFM
- search path (which can be set via the 
+ Include the specified file.
+ A directory search is done to find the file, using the IFM search path
+ (which can be modified via the 
 \family typewriter 
 -I
 \family default 
- command line option or the 
+ command line option, or the 
 \family typewriter 
 IFMPATH
 \family default 
  environment variable).
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
+\family typewriter 
+%define\SpecialChar ~
+ID\SpecialChar ~
+VALUE
+\family default 
+ Define macro 
+\family typewriter 
+ID
+\family default 
+ to expand to the value 
+\family typewriter 
+VALUE
+\family default 
+.
+ If 
+\family typewriter 
+VALUE
+\family default 
+ is not supplied, 
+\family typewriter 
+ID
+\family default 
+ is defined with no value.
+ For example:
+\begin_deeper 
+\layout LyX-Code
+
+%define revealed            hidden after last
 \layout Standard
 
-Note that to be recognized as such, the 
+A macro can also have arguments, indicated in parentheses after 
 \family typewriter 
-include
+ID
 \family default 
- directive must be the first thing on a line.
- Note also that no semicolon is required after it.
+.
+ For example:
+\layout LyX-Code
+
+%define revealed_by(task)   hidden after task
+\end_deeper 
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
+\family typewriter 
+%undef\SpecialChar ~
+ID
+\family default 
+ Remove any existing definition of 
+\family typewriter 
+ID
+\family default 
+.
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
+\family typewriter 
+%ifdef\SpecialChar ~
+ID
+\family default 
+ Begin a conditional block.
+ The following text is evaluated only if 
+\family typewriter 
+ID
+\family default 
+ is defined, until an 
+\family typewriter 
+%else
+\family default 
+ or 
+\family typewriter 
+%endif
+\family default 
+ is encountered.
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
+\family typewriter 
+%ifndef\SpecialChar ~
+ID
+\family default 
+ Begin a conditional block, like 
+\family typewriter 
+%ifdef
+\family default 
+, but the sense of the test is reversed.
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
+\family typewriter 
+%else
+\family default 
+ This toggles the logical value of the current conditional block.
+\layout List
+\labelwidthstring MMMMMMMMMMMMM
+
+
+\family typewriter 
+%endif
+\family default 
+ This ends a conditional block.
+\layout Standard
+
+A few macros are predefined and available to all input:
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+
+\family typewriter 
+IFM_VERSION
+\family default 
+ The current version of IFM.
+\layout List
+\labelwidthstring MMMMMMMMMM
+
+
+\family typewriter 
+IFM_FORMAT
+\family default 
+ If defined, this is the requested output format (e.g.\SpecialChar ~
+
+\family typewriter 
+ps
+\family default 
+, 
+\family typewriter 
+fig
+\family default 
+).
+\layout Standard
+
+IFM also comes with a few predefined include files for you to use:
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+ifm-color.ifm
+\family default 
+ Contains 
+\family typewriter 
+%define
+\family default 
+'s to allow some US variable spellings.
+\layout List
+\labelwidthstring MMMMMMMMMMM
+
+
+\family typewriter 
+ifm-compat.ifm
+\family default 
+ Contains 
+\family typewriter 
+%define
+\family default 
+'s for backward compatibility with some old variable names.
 \layout Section
 \pagebreak_top 
 Diagnostics
