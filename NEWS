@@ -1,9 +1,12 @@
 ****************************************************************************
-* Version 5.1                                                  15 Oct 2004 *
+* Version 5.1                                                  30 Nov 2004 *
 ****************************************************************************
 
 Additions
 =========
+
+* The tkifm program now supports line numbering and syntax highlighting,
+  thanks to a contributor who wishes to remain anonymous.
 
 * There is now a man page summarizing the command-line options.
 
@@ -11,13 +14,17 @@ Changes
 =======
 
 * In PostScript output, up/down and in/out labels are now drawn separately,
-  next to their respective rooms.  Thanks to Dan Eble (eble@ticalc.org).
+  next to their respective rooms.  Also, if a link leaves a room and
+  returns to the same room, it's drawn as a small circle.  Thanks to Dan
+  Eble (eble@ticalc.org).
 
 Bug fixes
 =========
 
-* Fixed weird bug with scaled arcs in PostScript output.  Thanks to Dan
-  Eble (eble@ticalc.org).
+* Hopefully, the Windoze port should work properly now.
+
+* Fixed weird bug with scaled arcs in PostScript output.  More thanks to
+  Dan Eble (eble@ticalc.org).
 
 * Fixed bug in ifm2tex with converting strings to TeX format (specifically,
   ones with embedded zeros).
