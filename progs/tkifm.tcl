@@ -44,7 +44,7 @@ set ifm(tearoff) 1
 set ifm(mapcmd)   {ifm -map -format tk}
 set ifm(itemcmd)  {ifm -nowarn -items -format tk}
 set ifm(taskcmd)  {ifm -nowarn -tasks -format tk}
-set ifm(debugcmd) {ifm -nowarn -debug -format tk}
+set ifm(debugcmd) {ifm -nowarn -set solver_messages=1 -format tk}
 set ifm(printcmd) {ifm -nowarn -map -format ps}
 set ifm(varscmd)  {ifm -nowarn -show vars}
 set ifm(pathcmd)  {ifm -nowarn -show path}
