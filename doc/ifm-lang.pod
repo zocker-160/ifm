@@ -257,7 +257,7 @@ one via the 'dir' clause.
 Indicate that the implicit link from this room should not be used by the
 game solver.
 
-=item style STRING
+=item style ID
 
 Add a display style to the room.  See L<"Styles">.
 
@@ -332,7 +332,7 @@ done.
 
 Indicate that getting this item finishes the game.
 
-=item style STRING
+=item style ID
 
 Add a display style to the item.  See L<"Styles">.
 
@@ -422,7 +422,7 @@ using this connection.
 As above, except indicate that I<all> items must be left behind.  The
 'except' clause can be used to omit specific items.
 
-=item style STRING
+=item style ID
 
 Add a display style to the link.  See L<"Styles">.
 
@@ -507,7 +507,7 @@ using this connection.
 As above, except indicate that I<all> items must be left behind.  The
 'except' clause can be used to omit specific items.
 
-=item style STRING
+=item style ID
 
 Add a display style to the join.  See L<"Styles">.
 
@@ -609,7 +609,7 @@ concatenate into a list of commands.
 
 Indicate that no command is required to do this task.
 
-=item style STRING
+=item style ID
 
 Add a display style to the task.  See L<"Styles">.
 
@@ -620,7 +620,7 @@ Add a display style to the task.  See L<"Styles">.
 Various aspects of output are controlled by variables.  These are set using
 the following syntax:
 
-    [FORMAT] IDENT = NUMBER | STRING | undef [in style STRING];
+    [FORMAT] IDENT = NUMBER | STRING | undef [in style ID];
 
 B<FORMAT>, if specified, is the name of a specific output format -- the
 variable then applies only to that output format.  B<IDENT> is the name of
@@ -668,7 +668,7 @@ Currently, only map output for rooms and links is affected by styles.
 B<IFM> keeps track of the currently active list of display styles, and
 there are two commands which change this list.  The command
 
-    style STRING;
+    style ID;
 
 pushes the specified style onto the style list.  This style becomes the
 current style.  Any B<IFM> objects declared while a style list is in force
@@ -678,11 +678,11 @@ using the 'in style' clause -- see L<"Variables">).
 
 The command
 
-    endstyle [STRING];
+    endstyle [ID];
 
 pops the current style from the style list.  The previous style on the list
-(if any) becomes the current style.  The string, if specified, should match
-the name in the corresponding 'style' command, or a warning is given.
+(if any) becomes the current style.  The ID, if specified, should match the
+ID in the corresponding 'style' command, or a warning is given.
 
 Each display style has its own set of variable values.  On output, when the
 value of a variable is needed for displaying an object, the style list for

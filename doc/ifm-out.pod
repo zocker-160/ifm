@@ -138,9 +138,9 @@ You can also customize the appearance of individual rooms and links on the
 map, by using different display styles.  A display style is just a group of
 variable settings with a given name.  For example, suppose you're making a
 map of Colossal Cave and want to mark rooms where you can refill your water
-bottle.  You can define a style called, say, "water", like this:
+bottle.  You can define a style called, say, Water, like this:
 
-    style "water";
+    style Water;
     room_colour = "light blue";
     endstyle;
 
@@ -149,7 +149,7 @@ clauses only apply to things drawn in that style.  Now, if you declare
 rooms like this:
 
     room "At End Of Road";
-    room "Inside Building" style "water" dir e go in;
+    room "Inside Building" style Water dir e go in;
 
 then the room "Inside Building" will be drawn with a light blue background.
 You can customize individual links in a similar manner.  Note that here you
@@ -160,18 +160,17 @@ implicit link to the previous room instead.
 An alternative way to define a variable in a particular style is to use the
 'in style' clause, like this:
 
-    room_colour = "light blue" in style "water";
+    room_colour = "light blue" in style Water;
 
 If a style only changes a single variable, this may be more convenient.
 
-If you assign a style (say, called B<newstyle>) to a room or link, but
-don't define it anywhere in your input, then B<IFM> will look for a file
-called F<newstyle.ifm> using the standard search path.  If the file exists,
-it is expected to define style B<newstyle>.  For example, you could put the
-"water" style definition above into a file called F<water.ifm> somewhere on
-the B<IFM> search path, and it would be read automatically.  This is
-useful if, for example, you want to use the same style in several different
-maps.
+If you assign a style (say, called B<newstyle>) to an object, but don't
+define it anywhere in your input, then B<IFM> will look for a file called
+F<newstyle.ifm> using the standard search path.  If the file exists, it is
+expected to define style B<newstyle>.  For example, you could put the
+"Water" style definition above into a file called F<Water.ifm> somewhere on
+the B<IFM> search path, and it would be read automatically.  This is useful
+if, for example, you want to use the same style in several different maps.
 
 =head2 Output Variables
 

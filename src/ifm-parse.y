@@ -368,13 +368,13 @@ room_attr	: TAG ID
 		}
 		| SPECIAL
 		{
-                    obsolete("`special' attribute", "`style \"special\"'");
+                    obsolete("`special' attribute", "`style special'");
                     add_attr(curroom, ATTR(STYLE), "special");
                     ref_style("special");
 		}
 		| PUZZLE
 		{
-                    obsolete("`puzzle' attribute", "`style \"puzzle\"'");
+                    obsolete("`puzzle' attribute", "`style puzzle'");
                     add_attr(curroom, ATTR(STYLE), "puzzle");
                     ref_style("puzzle");
 		}
@@ -431,10 +431,20 @@ room_attr	: TAG ID
 		{
                     add_attr(curroom, "NOTE", $2);
 		}
-                | STYLE string
+                | STYLE ID
                 {
                     add_attr(curroom, ATTR(STYLE), $2);
                     ref_style($2);
+                }
+                | STYLE PUZZLE
+                {
+                    add_attr(curroom, ATTR(STYLE), "puzzle");
+                    ref_style("puzzle");
+                }
+                | STYLE SPECIAL
+                {
+                    add_attr(curroom, ATTR(STYLE), "special");
+                    ref_style("special");
                 }
 		;
 
@@ -561,10 +571,20 @@ item_attr	: TAG ID
                 {
                     vh_istore(curitem, "FINISH", 1);
                 }
-                | STYLE string
+                | STYLE ID
                 {
                     add_attr(curitem, "STYLE", $2);
                     ref_style($2);
+                }
+                | STYLE PUZZLE
+                {
+                    add_attr(curitem, "STYLE", "puzzle");
+                    ref_style("puzzle");
+                }
+                | STYLE SPECIAL
+                {
+                    add_attr(curitem, "STYLE", "special");
+                    ref_style("special");
                 }
 		;
 
@@ -711,10 +731,20 @@ link_attr	: DIR dir_list
                     else
                         CHANGE_ERROR(tag);
 		}
-                | STYLE string
+                | STYLE ID
                 {
                     add_attr(curlink, "STYLE", $2);
                     ref_style($2);
+                }
+                | STYLE PUZZLE
+                {
+                    add_attr(curlink, "STYLE", "puzzle");
+                    ref_style("puzzle");
+                }
+                | STYLE SPECIAL
+                {
+                    add_attr(curlink, "STYLE", "special");
+                    ref_style("special");
                 }
                 ; 
 
@@ -817,10 +847,20 @@ join_attr	: GO compass
                     else
                         CHANGE_ERROR(tag);
 		}
-                | STYLE string
+                | STYLE ID
                 {
                     add_attr(curjoin, "STYLE", $2);
                     ref_style($2);
+                }
+                | STYLE PUZZLE
+                {
+                    add_attr(curjoin, "STYLE", "puzzle");
+                    ref_style("puzzle");
+                }
+                | STYLE SPECIAL
+                {
+                    add_attr(curjoin, "STYLE", "special");
+                    ref_style("special");
                 }
 		;
 
@@ -973,10 +1013,20 @@ task_attr	: TAG ID
 		{
                     add_attr(curtask, "NOTE", $2);
 		}
-                | STYLE string
+                | STYLE ID
                 {
                     add_attr(curtask, "STYLE", $2);
                     ref_style($2);
+                }
+                | STYLE PUZZLE
+                {
+                    add_attr(curtask, "STYLE", "puzzle");
+                    ref_style("puzzle");
+                }
+                | STYLE SPECIAL
+                {
+                    add_attr(curtask, "STYLE", "special");
+                    ref_style("special");
                 }
 		;
 
@@ -1062,9 +1112,19 @@ alias_var       : ID ALIAS ID ';'
                 ;
 
 in_style        : /* empty */
-                | IN STYLE string
+                | IN STYLE ID
                 {
                     push_style($3);
+                    instyle++;
+                }
+                | IN STYLE PUZZLE
+                {
+                    push_style("puzzle");
+                    instyle++;
+                }
+                | IN STYLE SPECIAL
+                {
+                    push_style("special");
                     instyle++;
                 }
                 ;
@@ -1073,13 +1133,29 @@ in_style        : /* empty */
 /* Styles
 /************************************************************************/
 
-style_stmt      : STYLE string ';'
+style_stmt      : STYLE ID ';'
                 {
                     push_style($2);
                 }
-                | ENDSTYLE string ';'
+                | STYLE PUZZLE ';'
+                {
+                    push_style("puzzle");
+                }
+                | STYLE SPECIAL ';'
+                {
+                    push_style("special");
+                }
+                | ENDSTYLE ID ';'
                 {
                     pop_style($2);
+                }
+                | ENDSTYLE PUZZLE ';'
+                {
+                    pop_style("puzzle");
+                }
+                | ENDSTYLE SPECIAL ';'
+                {
+                    pop_style("special");
                 }
                 | ENDSTYLE ';'
                 {
