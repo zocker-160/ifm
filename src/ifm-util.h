@@ -40,6 +40,7 @@ extern struct d_info dirinfo[];
 
 /* Advertised functions */
 extern void add_attr(vhash *obj, char *attr, char *fmt, ...);
+extern void add_list(vhash *obj, char *attr, vhash *thing);
 extern int get_direction(int xoff, int yoff);
 extern void indent(int num);
 extern void obsolete(char *old, char *new);

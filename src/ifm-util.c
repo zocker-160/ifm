@@ -44,7 +44,7 @@ struct d_info dirinfo[] = {
 /* Scribble buffer */
 static char buf[BUFSIZ];
 
-/* Add a list attribute to an object */
+/* Add a string attribute to an object */
 void
 add_attr(vhash *obj, char *attr, char *fmt, ...)
 {
@@ -61,6 +61,20 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
     } else {
         vl_empty(list);
     }
+}
+
+/* Add a object attribute to an object */
+void
+add_list(vhash *obj, char *attr, vhash *thing)
+{
+    vlist *list;
+
+    if ((list = vh_pget(obj, attr)) == NULL) {
+        list = vl_create();
+        vh_pstore(obj, attr, list);
+    }
+
+    vl_ppush(list, thing);
 }
 
 /* Return direction given offsets */
