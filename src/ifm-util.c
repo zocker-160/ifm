@@ -95,15 +95,9 @@ get_var(char *id)
 FILE *
 open_libfile(char *name)
 {
-    static vlist *pathlist = NULL;
+    vlist *pathlist = search_path();
     vscalar *elt;
     FILE *fp;
-
-    /* Create path list if required */
-    if (pathlist == NULL) {
-        char *env = getenv("IFMPATH");
-        pathlist = vl_split(env != NULL ? env : IFMPATH, ":");
-    }
 
     /* Try each path */
     vl_foreach(elt, pathlist) {
@@ -118,6 +112,20 @@ open_libfile(char *name)
 
     /* Shut lint up */
     return NULL;
+}
+
+/* Return the library file search path */
+vlist *
+search_path(void)
+{
+    static vlist *pathlist = NULL;
+
+    if (pathlist == NULL) {
+        char *env = getenv("IFMPATH");
+        pathlist = vl_split(env != NULL ? env : IFMPATH, ":");
+    }
+
+    return pathlist;
 }
 
 /* Set a scalar variable */

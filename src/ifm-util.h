@@ -16,6 +16,7 @@ extern double get_real(char *id, double def);
 extern char *get_string(char *id, char *def);
 extern vscalar *get_var(char *id);
 FILE *open_libfile(char *name);
+extern vlist *search_path(void);
 extern void set_var(char *table1, char *table2, char *var,
                     vscalar *val);
 extern vlist *split_line(char *string, double ratio);
