@@ -45,6 +45,7 @@
 (defconst ifm-preprocessor-regexp
   (regexp-opt '("%include" "%define" "%defeval" "%if" "%ifdef" "%undef"
 		"%ifndef" "%ifeq" "%ifneq" "%else" "%endif" "%eval"
+		"%1" "%2" "%3" "%4" "%5" "%6" "%7" "%8" "%9"
 		"%exec" "defined") 'words)
   "Regexp matching preprocessor directives in IFM mode.")
 
