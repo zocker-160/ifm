@@ -405,13 +405,21 @@ read_colour_defs(FILE *fp)
     defs = vh_create();
 
     while (fgets(buf, BUFSIZ, fp) != NULL) {
-        if (sscanf(buf, "%d %d %d", &red, &green, &blue) == 3 &&
-            (pos = strspn(buf, "0123456789 \t\n")) > 0) {
-            sprintf(val, "%.3g %.3g %.3g",
-                    red / 255.0, green / 255.0, blue / 255.0);
-            v_chop(buf);
-            vh_sstore(defs, &buf[pos], val);
-        }
+        /* Get RGB values */
+        if (sscanf(buf, "%d %d %d", &red, &green, &blue) != 3)
+            continue;
+
+        /* Get offset of colour name */
+        if ((pos = strspn(buf, "0123456789 \t\n")) == 0)
+            continue;
+
+        /* Scale RGB values */
+        sprintf(val, "%.3g %.3g %.3g",
+                red / 255.0, green / 255.0, blue / 255.0);
+
+        /* Add colour */
+        v_chop(buf);
+        vh_sstore(defs, &buf[pos], val);
     }
 
     return defs;
