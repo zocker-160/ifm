@@ -18,6 +18,8 @@
 #include "ifm-driver.h"
 #include "ifm-main.h"
 #include "ifm-map.h"
+#include "ifm-path.h"
+#include "ifm-task.h"
 #include "ifm-util.h"
 
 /* Output drivers */
@@ -99,10 +101,10 @@ char *progname;
 int line_number;
 
 /* No. of errors */
-int ifm_errors = 0;
+static int ifm_errors = 0;
 
 /* Whether to print warnings */
-int warning_flag = 1;
+static int warning_flag = 1;
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
@@ -122,11 +124,11 @@ char *ifm_output = NULL;
 /* Verbose flag */
 int ifm_verbose = 0;
 
-/* Debugging flag */
-int ifm_debug = 0;
-
 /* Parse function */
 extern void yyparse();
+
+/* Debugging flag */
+static int ifm_debug = 0;
 
 /* Local functions */
 static void print_map(void);

@@ -18,7 +18,7 @@
 
 /* External vars */
 extern char *progname;
-extern int line_number, ifm_errors, ifm_debug;
+extern int line_number;
 extern char *ifm_format, *ifm_output;
 
 /* Advertised functions */
