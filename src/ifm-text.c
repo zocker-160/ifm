@@ -46,8 +46,10 @@ static int travel = 0;
 void
 text_item_entry(vhash *item)
 {
+    vlist *notes = vh_pget(item, "NOTE");
     vhash *room = vh_pget(item, "ROOM");
     static int count = 0;
+    vscalar *elt;
 
     if (count++ == 0) {
         char *title = get_string("title", NULL);
@@ -68,20 +70,25 @@ text_item_entry(vhash *item)
         printf("   scores %d points when picked up\n",
                vh_iget(item, "SCORE"));
 
-    if (vh_exists(item, "NOTE"))
-        printf("   note: %s\n", vh_sgetref(item, "NOTE"));
+    if (notes != NULL) {
+        vl_foreach(elt, notes)
+            printf("   note: %s\n", vs_sgetref(elt));
+    }
 }
 
 /* Task functions */
 void
 text_task_entry(vhash *task)
 {
+    vlist *notes = vh_pget(task, "NOTE");
     vhash *room = vh_pget(task, "ROOM");
+    static vhash *lastroom = NULL;
     static int moved = 0;
     static int count = 0;
-    char *note = NULL;
     int type, score;
+    vscalar *elt;
     vhash *item;
+    char *str;
 
     if (count == 0) {
         char *title = get_string("title", NULL);
@@ -92,6 +99,8 @@ text_task_entry(vhash *task)
     type = vh_iget(task, "TYPE");
 
     if (type == T_MOVE) {
+        if (count == 0)
+            printf("\nStart: %s\n", vh_sgetref(startroom, "DESC"));
         if (!moved)
             printf("\n");
         printf("%s", vh_sgetref(task, "DESC"));
@@ -101,7 +110,7 @@ text_task_entry(vhash *task)
         travel++;
         moved++;
     } else {
-        if (moved)
+        if (moved || (room != NULL && room != lastroom))
             printf("\n%s:\n", vh_sgetref(room, "DESC"));
         else if (!count)
             printf("\nFirstly:\n");
@@ -110,29 +119,22 @@ text_task_entry(vhash *task)
         moved = 0;
     }
 
-    if        (type == T_MOVE) {
-        note = vh_sgetref(room, "NOTE");
-    } else if (type == T_GET) {
-        item = vh_pget(task, "DATA");
-        note = vh_sgetref(item, "NOTE");
-        if (!vh_iget(item, "USED"))
-            printf("      note: This item isn't used yet\n");
-    } else if (type == T_USER) {
-        note = vh_sgetref(task, "NOTE");
-    } 
-
     if ((score = vh_iget(task, "SCORE")) > 0) {
         if (type != T_MOVE)
             printf("   ");
         printf("   score: %d\n", score);
     }
 
-    if (note != NULL && !STREQ(note, "")) {
-        if (type != T_MOVE)
-            printf("   ");
-        printf("   note: %s\n", note);
+    if (notes != NULL) {
+        vl_foreach(elt, notes) {
+            if (type != T_MOVE)
+                printf("   ");
+            printf("   note: %s\n", vs_sgetref(elt));
+        }
     }
 
+    if (room != NULL)
+        lastroom = room;
     total += score;
     count++;
 }

@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 #include <vars.h>
@@ -44,6 +45,21 @@ static char buf[BUFSIZ];
 /* Internal functions */
 static vlist *var_decode(char *code);
 static char *var_encode(char *driver, char *type, int mapnum, char *var);
+
+/* Add a note to an object */
+void
+add_note(vhash *obj, char *fmt, ...)
+{
+    vlist *list;
+
+    if ((list = vh_pget(obj, "NOTE")) == NULL) {
+        list = vl_create();
+        vh_pstore(obj, "NOTE", list);
+    }
+
+    VPRINT(buf, fmt);
+    vl_spush(list, buf);
+}
 
 /* Return direction given offsets */
 int
