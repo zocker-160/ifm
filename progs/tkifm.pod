@@ -23,12 +23,12 @@ widget.
 
 =item File menu
 
-The standard set of file commands: Open, Save, Save-as, Quit.  Also, a
-command called Redraw, which invokes B<ifm> on the current file again.  You
-must use this after doing any changes to your map, or the changes won't be
-seen in the other menus.  Any errors or warnings that occur when invoking
-B<ifm> will be displayed in a dialog.  Note that Redraw, if successful,
-will also destroy all other windows.
+The standard set of file commands: New, Open, Save, Save-as, Quit.  There's
+also a command called Redraw, which invokes B<ifm> on the current file
+again.  You must use this after doing any changes to your map, or the
+changes won't be seen in the other menus.  Any errors or warnings that
+occur when invoking B<ifm> will be displayed in a dialog.  Note that
+Redraw, if successful, will also destroy all other windows.
 
 =item Map menu
 
@@ -47,9 +47,38 @@ of the game in another window.
 
 =back
 
-=head1 RESTRICTIONS
+=head1 CUSTOMIZATION
 
-It's very simple.
+On startup, B<tkifm> reads an initialisation file in your home directory
+(the one pointed at by the B<HOME> environment variable).  On Unix systems
+it is called F<.tkifmrc>, and on Win32 systems it is called F<tkifm.ini>.
+From there, using Tcl commands, you can set various things that affect the
+appearance of the program.  Here's an example file showing the valid
+variables, their format and defaults.
+
+    # Example tkifm init file.
+
+    # Edit window dimensions.
+    set ifm(editwidth) 80
+    set ifm(editheight) 24
+
+    # Editing font.
+    set ifm(editfont) {Courier 12 bold}
+
+    # Edit window colours.
+    set ifm(editforeground) black
+    set ifm(editbackground) wheat
+
+    # Text window (items and tasks) dimensions.
+    set ifm(textwidth) 50
+    set ifm(textheight) 30
+
+    # Text window font.
+    set ifm(textfont) {Times 12 bold}
+
+    # Text window colours.
+    set ifm(textforeground) black
+    set ifm(textbackground) wheat
 
 =head1 SEE ALSO
 
