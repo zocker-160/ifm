@@ -1,12 +1,14 @@
 ****************************************************************************
-* Version 4.2                                                     Jun 2002 *
+* Version 5.0                                                     Jul 2002 *
 ****************************************************************************
 
 Additions
 =========
 
 * New map output: Fig format, suitable for viewing or editing with Xfig, or
-  conversion to many other formats via fig2dev.
+  exporting to other formats.  There's a new utility program called
+  ifm2dev, which pipes ifm output through fig2dev repeatedly to write each
+  map section to its own file.
 
 * New task output: graphviz (dot) format, which dumps a task dependency
   graph.
@@ -14,22 +16,40 @@ Additions
 * New 'keep with' and 'keep until' syntax for items, allowing items to be
   kept until certain tasks are done or certain other items are dropped.
 
+* New room 'nodrop' attribute, indicating that no items should be dropped
+  there.
+
 * New task and item 'ignore' attribute, indicating that these things should
   be ignored when finding a solution.
 
-* New option: -set, which lets you set global customization variables from
-  the command line.
+* New option: -style, which sets global styles for all IFM objects.
+
+* New option: -set, which lets you set variables from the command line.  To
+  support this, the variable-setting syntax has been changed -- instead of
+  a space separating the driver name from the variable, there's now a
+  period.
 
 * New -show option: 'maps', which lists all the map sections and their
   sizes.
 
 * The -map option now accepts an optional list of map sections to print.
 
-* There are now some variables to control the overall behaviour of the game
-  solver.
+* There's a bunch of new variables to control things, including the overall
+  behaviour of the game solver.
+
+* IFM input is now "preprocessed", in a similar way to C programs.  As a
+  result, the old 'include' and 'alias' features have been replaced with
+  the preprocessor equivalents.
+
+* There's a new 'require' keyword, which lets you say that a certain
+  version of IFM (or later) is required for a map.
 
 * The command-line option `-debug' has been removed; its functionality has
   been replaced by a control variable.
+
+* The old 'puzzle' and 'special' attributes have finally been removed; if
+  you have any old maps which use these, you must replace them with the
+  corresponding styles instead.
 
 * The GNU Emacs IFM mode in the 'contrib' directory now has font lock
   support.
@@ -49,6 +69,9 @@ Bug fixes
 
 * Fixed bug with room 'link' and 'join' attributes: it didn't work to use
   'last' as an argument.
+
+* Fixed glitch in room text on PostScript output: now tries reducing font
+  size before squishing, so that text is filled better.
 
 ****************************************************************************
 * Version 4.1						       10 May 1999 *

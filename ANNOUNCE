@@ -1,8 +1,8 @@
-I'm pleased to announce version 4.2 of IFM, the Interactive Fiction
-Mapper, which has just been posted to the IF archive.
+I'm pleased to announce version 5.0 of IFM, the Interactive Fiction Mapper,
+which has just been posted to the IF archive.
 
 It's been over 3 years since the last update.  This release is the result
-of gradual accumulation of new features, and I've finally got around to
+of the gradual accumulation of new features, and I've finally got around to
 cleaning things up and documenting all the new stuff.
 
 So, what's new?  Here's a short summary of the main new gimmicks.
@@ -14,6 +14,9 @@ So, what's new?  Here's a short summary of the main new gimmicks.
 
 * Another new output format is for Graphviz, a graph drawing program.  IFM
   can write out a task dependency graph to be drawn by Graphviz.
+
+* IFM input is now preprocessed, in a manner similar to C programs.  This
+  allows much more flexibility in writing input.
 
 * There are a few new keywords for use in solving the game.  I won't bother
   repeating it all here; details are in the docs.
