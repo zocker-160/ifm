@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl
+#! @perl@
 
 ### scr2ifm -- convert game transcript to IFM
 
