@@ -24,7 +24,7 @@
 
 /* Direction info (same order as direction enum list) */
 struct d_info dirinfo[] = {
-    "",    "none",      D_NONE,      D_NONE,       0,  0,
+    "?",   "none",      D_NONE,      D_NONE,       0,  0,
     "N",   "north",     D_NORTH,     D_SOUTH,      0,  1,
     "S",   "south",     D_SOUTH,     D_NORTH,      0, -1,
     "E",   "east",      D_EAST,      D_WEST,       1,  0,
