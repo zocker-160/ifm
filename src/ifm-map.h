@@ -11,13 +11,9 @@
 #define IFM_MAP_H
 
 /* External vars */
-extern vhash *map;
+extern vhash *map, *vars, *startroom;
 extern vlist *rooms, *links, *joins, *items, *tasks, *sects;
-extern vhash *vars;
 extern vhash *roomtags, *itemtags, *tasktags, *linktags, *jointags;
-extern vhash *curroom, *curlink, *curitem, *curjoin, *curtask;
-extern vlist *curdirs, *curitems, *curlinks, *curjoins, *curtasks;
-extern vhash *startroom, *lastroom, *lastitem, *lasttask;
 extern vlist *taskorder, *sectnames;
 extern int mapnum;
 

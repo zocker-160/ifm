@@ -34,24 +34,7 @@ vhash *linktags = NULL;         /* Tag -> link mapping */
 vhash *jointags = NULL;         /* Tag -> join mapping */
 vhash *tasktags = NULL;         /* Tag -> task mapping */
 
-vhash *curroom = NULL;          /* Current room */
-vhash *curlink = NULL;          /* Current link */
-vhash *curitem = NULL;          /* Current item */
-vhash *curjoin = NULL;          /* Current join */
-vhash *curtask = NULL;          /* Current task */
-
-vlist *curdirs = NULL;          /* Current direction list */
-
-vlist *curitems = NULL;         /* Current item list */
-vlist *curlinks = NULL;         /* Current link list */
-vlist *curjoins = NULL;         /* Current join list */
-vlist *curtasks = NULL;         /* Current task list */
-
 vhash *startroom = NULL;        /* Starting room */
-
-vhash *lastroom = NULL;         /* Last room visited */
-vhash *lastitem = NULL;         /* Last item mentioned */
-vhash *lasttask = NULL;         /* Last task mentioned */
 
 vlist *taskorder = NULL;        /* Ordered task list */
 vlist *sectnames = NULL;	/* List of section names */
