@@ -488,15 +488,11 @@
 } bind def
 
 % Standard definitions.
-/cm {2.54 72 div mul} def
 /debug false def
-/degree {} def
+/cm {72 mul 2.54 div} def
 /inch {72 mul} def
 /max {2 copy gt {} {exch} ifelse pop} def
 /min {2 copy lt {} {exch} ifelse pop} def
-/mm {25.4 72 div mul} def
-/percent {100 div mul} def
-/point {} def
 
 % Control variables.
 /textspacing 0.1 def
