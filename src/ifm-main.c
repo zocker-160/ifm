@@ -67,8 +67,8 @@ main(int argc, char *argv[])
 {
     int i, output = O_NONE, format = -1, print = 0;
     extern void yyparse();
-    vhash *symtab, *opts;
     vscalar *fmt;
+    vhash *opts;
     vlist *args;
     char *file;
 
@@ -144,23 +144,6 @@ main(int argc, char *argv[])
     /* Initialise */
     status("Running %s", progname);
     init_map();
-
-    /* Set up symbol tables */
-    symtab = vh_create();
-    vh_pstore(vars, "default", symtab);
-    vh_pstore(symtab, "global", vh_create());
-    vh_pstore(symtab, "map", vh_create());
-    vh_pstore(symtab, "item", vh_create());
-    vh_pstore(symtab, "task", vh_create());
-
-    for (i = 0; i < NUM_DRIVERS; i++) {
-        symtab = vh_create();
-        vh_pstore(vars, drivers[i].name, symtab);
-        vh_pstore(symtab, "global", vh_create());
-        vh_pstore(symtab, "map", vh_create());
-        vh_pstore(symtab, "item", vh_create());
-        vh_pstore(symtab, "task", vh_create());
-    }
 
     /* Parse input */
     status("Parsing input...");
@@ -241,6 +224,7 @@ draw_map(int fmt)
     vscalar *elt;
 
     ifm_output = "map";
+    mapnum = 0;
 
     sects = vh_pget(map, "SECTS");
     if (vl_length(sects) == 0)
@@ -254,6 +238,7 @@ draw_map(int fmt)
 
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
+        mapnum++;
 
         if (func->map_section != NULL)
             (*func->map_section)(sect);

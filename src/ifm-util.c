@@ -16,8 +16,15 @@
 /* Hash of used variables */
 static vhash *used_vars = NULL;
 
+/* Variable encoding buffer */
+static char encbuf[BUFSIZ];
+
 /* Scribble buffer */
 static char buf[BUFSIZ];
+
+/* Internal functions */
+static vlist *var_decode(char *code);
+static char *var_encode(char *driver, char *type, int mapnum, char *var);
 
 /* Return an integer variable */
 int
@@ -52,117 +59,55 @@ get_string(char *id, char *def)
     return def;
 }
 
-/* Return a scalar variable from the symbol table */
+/* Return value of a scalar variable */
 vscalar *
 get_var(char *id)
 {
     vscalar *var = NULL;
-    char *fmt, *type;
-    vhash *h1, *h2;
+    int n1, n2, n3;
+    char *key;
 
-    /* Try driver-based symbol table first */
-    if (ifm_format != NULL) {
-        fmt = ifm_format;
-        h1 = vh_pget(vars, fmt);
+    for (n1 = 0; n1 < 2; n1++) {
+        if (n1 == 0 && mapnum == 0)
+            continue;
 
-        if (ifm_output != NULL) {
-            type = ifm_output;
-            h2 = vh_pget(h1, type);
-            var = vh_get(h2, id);
-        }
+        for (n2 = 0; n2 < 2; n2++) {
+            if (n2 == 0 && ifm_output == NULL)
+                continue;
 
-        if (var == NULL) {
-            type = "global";
-            h2 = vh_pget(h1, type);
-            var = vh_get(h2, id);
-        }
-    }
+            for (n3 = 0; n3 < 2; n3++) {
+                if (n3 == 0 && ifm_format == NULL)
+                    continue;
 
-    /* If not, try main symbol table */
-    if (var == NULL) {
-        fmt = "default";
-        h1 = vh_pget(vars, fmt);
-
-        if (ifm_output != NULL) {
-            type = ifm_output;
-            h2 = vh_pget(h1, type);
-            var = vh_get(h2, id);
-        }
-
-        if (var == NULL) {
-            type = "global";
-            h2 = vh_pget(h1, type);
-            var = vh_get(h2, id);
+                key = var_encode((n3 ? ifm_format : NULL),
+                                 (n2 ? ifm_output : NULL),
+                                 (n1 ? mapnum : 0), id);
+                if ((var = vh_get(vars, key)) != NULL) {
+                    if (used_vars == NULL)
+                        used_vars = vh_create();
+                    vh_istore(used_vars, key, 1);
+                    return var;
+                }
+            }
         }
     }
 
-    /* Record used variable */
-    if (used_vars == NULL)
-        used_vars = vh_create();
-    sprintf(buf, "%s %s %s", fmt, type, id);
-    vh_istore(used_vars, buf, 1);
-
-    return var;
+    return NULL;
 }
 
 /* Print currently defined variables */
 void
 print_vars(void)
 {
-    vlist *entries1, *entries2, *tables = vh_sortkeys(vars, NULL);
-    char *table1, *table2, *var;
-    vhash *symtab1, *symtab2;
-    vscalar *elt;
-
-    vl_foreach(elt, tables) {
-        table1 = vs_sgetref(elt);
-        symtab1 = vh_pget(vars, table1);
-        entries1 = vh_sortkeys(symtab1, NULL);
-
-        vl_foreach(elt, entries1) {
-            table2 = vs_sgetref(elt);
-            symtab2 = vh_pget(symtab1, table2);
-            entries2 = vh_sortkeys(symtab2, NULL);
-
-            vl_foreach(elt, entries2) {
-                var = vs_sgetref(elt);
-                sprintf(buf, "%s %s %s", table1, table2, var);
-                fprintf(stderr, "%s = %s", buf, vh_sget(symtab2, var));
-                if (used_vars != NULL && vh_iget(used_vars, buf))
-                    fprintf(stderr, " (used)");
-                fprintf(stderr, "\n");
-            }
-
-            vl_destroy(entries2);
-        }
-
-        vl_destroy(entries1);
-    }
-
-    vl_destroy(tables);
+    /* FINISH ME */
 }
 
 /* Set a scalar variable */
 void
-set_var(char *table1, char *table2, char *var, vscalar *val)
+set_var(char *driver, char *type, char *var, vscalar *val)
 {
-    vhash *h1, *h2;
-
-    h1 = vh_pget(vars, table1);
-
-    if (STREQ(var, "section")) {
-        if (sectnames == NULL)
-            sectnames = vl_create();
-        vl_spush(sectnames, vs_sgetref(val));
-    } else if (h1 != NULL) {
-        h2 = vh_pget(h1, table2);
-        if (h2 != NULL)
-            vh_store(h2, var, val);
-        else
-            err("no such output type: %s", table2);
-    } else {
-        warn("no such output driver: %s", table1);
-    }
+    char *key = var_encode(driver, type, mapnum, var);
+    vh_store(vars, key, val);
 }
 
 /* Split a line based on a given width/height ratio */
@@ -226,4 +171,29 @@ truncate_link(vhash *link, double wid, double ht)
     vl_dstore(y, 0, yf);
     vl_dstore(x, np - 1, xl);
     vl_dstore(y, np - 1, yl);
+}
+
+/* Decode an encoded variable */
+static vlist *
+var_decode(char *code)
+{
+    static vlist *list = NULL;
+
+    if (list != NULL)
+        vl_destroy(list);
+    list = vl_split(code, NULL);
+
+    return list;
+}
+
+/* Encode a variable */
+static char *
+var_encode(char *driver, char *type, int mapnum, char *var)
+{
+    sprintf(encbuf, "%s %s %d %s",
+            (driver == NULL ? "default" : driver),
+            (type == NULL ? "global" : type),
+            mapnum, var);
+
+    return encbuf;
 }

@@ -296,26 +296,27 @@ ctrl_stmt       : TITLE var ';'
                     if (sectnames == NULL)
                         sectnames = vl_create();
                     vl_spush(sectnames, $2);
+                    mapnum++;
                 }
                 | IDENT '=' var ';'
                 {
-                    set_var("default", "global", $1, $3);
+                    set_var(NULL, NULL, $1, $3);
                 }
                 | IDENT IDENT '=' var ';'
                 {
-                    set_var($1, "global", $2, $4);
+                    set_var($1, NULL, $2, $4);
                 }
                 | MAP IDENT '=' var ';'
                 {
-                    set_var("default", "map", $2, $4);
+                    set_var(NULL, "map", $2, $4);
                 }
                 | ITEM IDENT '=' var ';'
                 {
-                    set_var("default", "item", $2, $4);
+                    set_var(NULL, "item", $2, $4);
                 }
                 | TASK IDENT '=' var ';'
                 {
-                    set_var("default", "task", $2, $4);
+                    set_var(NULL, "task", $2, $4);
                 }
                 | IDENT MAP IDENT '=' var ';'
                 {
