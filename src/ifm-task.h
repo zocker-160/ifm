@@ -11,10 +11,9 @@
 #define IFM_TASK_H
 
 /* Task types */
-#define T_GET   1               /* Internal get-item task */
-#define T_DROP  2               /* Internal drop-item task */
-#define T_GOTO  3               /* Internal goto-room task */
-#define T_USER  4               /* User-defined task */
+enum {
+    T_MOVE, T_GET, T_DROP, T_GOTO, T_USER
+};
 
 /* Advertised functions */
 extern void add_task(void);

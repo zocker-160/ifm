@@ -64,31 +64,35 @@ add_task_list(char *tag)
 static void
 do_task(vhash *task, vhash *from, vhash *to)
 {
-    vlist *path = NULL, *invent, *list;
-    vhash *item, *reach, *room;
+    vhash *item, *reach, *room, *mtask;
+    vlist *path, *list;
     vscalar *elt;
+    char *cmd;
 
-    /* Store path taken */
+    /* Add movement tasks if required */
     if (from != to && to != NULL) {
         path = get_path(to);
-        vh_pstore(task, "PATH", path);
-    }
+        vl_foreach(elt, path) {
+            reach = vs_pget(elt);
+            room = vh_pget(reach, "TO");
+            mtask = task_step(T_MOVE, room);
+            cmd = vh_sgetref(reach, "CMD");
+            vh_sstore(mtask, "CMD", cmd);
+            vl_ppush(taskorder, mtask);
 
-    if (ifm_verbose) {
-        if (path != NULL) {
-            vl_foreach(elt, path) {
-                reach = vs_pget(elt);
-                room = vh_pget(reach, "TO");
+            if (ifm_verbose) {
                 indent(2);
                 printf("move to: %s\n", vh_sgetref(room, "DESC"));
             }
         }
+    }
 
+    /* Do the task */
+    if (ifm_verbose) {
         indent(2);
         printf("do task: %s\n", vh_sgetref(task, "DESC"));
     }
 
-    /* Do the task */
     switch (vh_iget(task, "TYPE")) {
     case T_GET:
         item = vh_pget(task, "DATA");
@@ -117,15 +121,6 @@ do_task(vhash *task, vhash *from, vhash *to)
                 printf("lose: %s\n", vh_sgetref(item, "DESC"));
             }
         }
-    }
-
-    /* Record items currently carried */
-    invent = vl_create();
-    vh_pstore(task, "INVENT", invent);
-    vl_foreach(elt, items) {
-        item = vs_pget(elt);
-        if (vh_iget(item, "TAKEN") && !vh_iget(item, "DROPPED"))
-            vl_ppush(invent, item);
     }
 
     /* Flag path modification if required */
@@ -684,18 +679,23 @@ task_possible(vhash *room, vhash *step)
 static vhash *
 task_step(int type, vhash *data)
 {
-    vhash *step = vh_create();
-    vhash *room = vh_pget(data, "ROOM");
     char *desc = vh_sgetref(data, "DESC");
     int score = vh_iget(data, "SCORE");
+    vhash *room, *step;
 
+    step = vh_create();
     vh_istore(step, "TYPE", type);
     if (data != NULL)
         vh_pstore(step, "DATA", data);
 
     switch (type) {
+    case T_MOVE:
+        sprintf(buf, "Move to %s", desc);
+        room = data;
+        break;
     case T_GET:
         sprintf(buf, "Get %s", desc);
+        room = vh_pget(data, "ROOM");
         break;
     case T_DROP:
         sprintf(buf, "Drop %s", desc);
@@ -708,6 +708,7 @@ task_step(int type, vhash *data)
         vh_pstore(step, "GOTO", data);
         break;
     case T_USER:
+        room = vh_pget(data, "ROOM");
         strcpy(buf, desc);
         vh_pstore(step, "NEXT", vh_pget(data, "NEXT"));
         vh_pstore(step, "PREV", vh_pget(data, "PREV"));

@@ -72,66 +72,58 @@ void
 text_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
-    static vhash *lastroom = NULL;
-    vhash *item, *reach, *move;
     int dist, type, score;
+    static int moved = 0;
     static int count = 0;
-    static int flag = 0;
     char *note = NULL;
-    vscalar *elt;
-    vlist *path;
+    vhash *item;
 
-    if (count++ == 0) {
+    if (count == 0) {
         char *title = get_string("title", NULL);
         printf("High-level walkthrough for %s\n",
                title != NULL ? title : "Interactive Fiction game");
     }
 
-    if ((path = vh_pget(task, "PATH")) != NULL) {
-        printf("\nMove:\n");
-        vl_foreach(elt, path) {
-            reach = vs_pget(elt);
-            move = vh_pget(reach, "TO");
-            printf("   %s\n", vh_sgetref(move, "DESC"));
-            travel++;
-        }
-    }
-
-    if (room != lastroom && room != NULL) {
-        printf("\n%s", vh_sgetref(room, "DESC"));
-#if 0
-        if ((dist = vh_iget(task, "DIST")) > 0)
-            printf(" (%d room%s away)", dist, dist > 1 ? "s" : "");
-#endif
-        printf(":\n");
-    } else if (lastroom == NULL && flag++ == 0) {
-        printf("\nFirstly:\n");
-    }
-
-    printf("   %s\n", vh_sgetref(task, "DESC"));
-
-    if ((score = vh_iget(task, "SCORE")) > 0)
-        printf("      score: %d\n", score);
-
     type = vh_iget(task, "TYPE");
-    switch (type) {
-    case T_GET:
+
+    if (type == T_MOVE) {
+        if (!moved)
+            printf("\n");
+        printf("%s", vh_sgetref(task, "DESC"));
+        if (vh_exists(task, "CMD"))
+            printf(" (%s)", vh_sgetref(task, "CMD"));
+        printf("\n");
+        travel++;
+        moved++;
+    } else {
+        if (moved)
+            printf("\nAt %s:\n", vh_sgetref(room, "DESC"));
+        else if (!count)
+            printf("\nFirstly:\n");
+
+        printf("   %s\n", vh_sgetref(task, "DESC"));
+        moved = 0;
+    }
+
+    if        (type == T_MOVE) {
+        note = vh_sgetref(room, "NOTE");
+    } else if (type == T_GET) {
         item = vh_pget(task, "DATA");
         note = vh_sgetref(item, "NOTE");
         if (!vh_iget(item, "USED"))
             printf("      note: This item isn't used yet\n");
-        break;
-    case T_USER:
+    } else if (type == T_USER) {
         note = vh_sgetref(task, "NOTE");
-        break;
     } 
+
+    if ((score = vh_iget(task, "SCORE")) > 0)
+        printf("      score: %d\n", score);
 
     if (note != NULL && !STREQ(note, ""))
         printf("      note: %s\n", note);
 
-    if (room != NULL)
-        lastroom = room;
     total += score;
+    count++;
 }
 
 void
