@@ -366,7 +366,7 @@ resolve_tag(char *type, vscalar *elt, vhash *table)
     if (hash != NULL) {
         vs_pstore(elt, hash);
     } else {
-        error("%s tag `%s' not defined", type, tag);
+        err("%s tag `%s' not defined", type, tag);
         vh_pstore(table, tag, table);
     }
 }
