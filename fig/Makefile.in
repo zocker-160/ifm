@@ -81,10 +81,15 @@ EXTRA_DIST = fig-format.txt
 
 EXTRA_PROGRAMS = testfig
 
-testfig_SOURCES = testfig.c
-testfig_LDADD = libfig.a $(top_srcdir)/vars/src/libvars.a -lm
+VARS = $(top_srcdir)/vars/src
 
-CLEANFILES = test.fig testfig
+INCLUDES = -I$(VARS)
+
+testfig_SOURCES = testfig.c
+testfig_LDFLAGS = -L$(VARS)
+testfig_LDADD = libfig.a -lvars -lm
+
+CLEANFILES = test.fig* testfig
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ../etc/config.h
 CONFIG_CLEAN_FILES = 
@@ -99,8 +104,7 @@ libfig_a_LIBADD =
 libfig_a_OBJECTS =  fig-attr.o fig-file.o fig-object.o
 AR = ar
 testfig_OBJECTS =  testfig.o
-testfig_DEPENDENCIES =  libfig.a $(top_srcdir)/vars/src/libvars.a
-testfig_LDFLAGS = 
+testfig_DEPENDENCIES =  libfig.a
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

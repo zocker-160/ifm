@@ -14,11 +14,11 @@ ifm_SOURCES = $(SRCS) $(HDRS)
 
 EXTRA_DIST = ifm-parse.c ifm-scan.c
 
-FIG = ../fig
+FIG = $(top_srcdir)/fig
 
-VARS = ../vars/src
+VARS = $(top_srcdir)/vars/src
 
-ifm_LDADD = -lfig -lvars
+ifm_LDADD = -lfig -lvars -lm
 
 ifm_LDFLAGS = -L$(FIG) -L$(VARS)
 
