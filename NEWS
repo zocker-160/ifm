@@ -1,5 +1,5 @@
 ****************************************************************************
-* Version 5.0                                                  19 Jan 2003 *
+* Version 5.0                                                  23 Jan 2003 *
 ****************************************************************************
 
 Additions
@@ -70,7 +70,8 @@ Changes
   Info.
 
 * The GNU Emacs IFM mode in the 'contrib' directory now has font lock
-  support.
+  support.  The ifm.vim file has also been updated with the latest
+  keywords.
 
 Bug fixes
 =========
