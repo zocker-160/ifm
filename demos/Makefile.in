@@ -131,7 +131,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
 
-EXTRA_DIST = example.ifm ruins.ifm
+EXTRA_DIST = example.ifm maptest.ifm ruins.ifm
 
 IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib -S helvetica
 

@@ -1,6 +1,6 @@
 ## Automake template for IFM demo maps.
 
-EXTRA_DIST = example.ifm ruins.ifm
+EXTRA_DIST = example.ifm maptest.ifm ruins.ifm
 
 IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib -S helvetica
 
