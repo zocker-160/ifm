@@ -6,6 +6,26 @@ scr2ifm -- create IFM map from game transcript
 
 scr2ifm [options] file [file...]
 
+=begin inf
+
+SCR2IFM -- create an IFM map from a game transcript
+***************************************************
+
+This Info file describes version 1.0 of scr2ifm, a program for creating
+maps in Ifm (*note Ifm:(ifm).) format from one or more files containing
+game transcripts.
+
+=end inf
+
+=for inf node DESCRIPTION, Introduction, What is scr2ifm?
+=for inf node OPTIONS, Options, Command-line options
+=for inf node OPERATION, Operation, How scr2ifm works
+=for inf node HINTS AND TIPS, Hints and Tips, How to improve things
+=for inf node IFM COMMANDS, Ifm Commands, Adding items and tasks
+=for inf node FIXING PROBLEMS, Fixing Problems, Patching things up
+=for inf node EXAMPLE SESSION, Example, Example scr2ifm session
+=for inf node RESTRICTIONS, Restrictions, Limitations of scr2ifm
+
 =head1 DESCRIPTION
 
 B<scr2ifm> reads one or more transcripts of an Interactive Fiction game and
@@ -33,9 +53,9 @@ Write output to the given file instead of stdout.
 
 =item B<-i>
 
-Indent the output nicely (according to my definition, anyway).  This makes
-things look better if you've added 'item' and 'task' commands.  Default is
-no indentation at all.
+Indent the output nicely (according to I<my> definition, anyway).  This
+makes things look better if you've added 'item' and 'task' commands.
+Default is no indentation at all.
 
 =item B<-l>
 
@@ -298,20 +318,20 @@ them in the command file.
 
 =over 4
 
-=item $name_remove (default: C<'\s+\(.+\)'>)
+=item $name_remove (default: '\s+\(.+\)')
 
 Matched text to remove before seeing if a line of text is a room name.
 This is for getting rid of stuff like " (in the dodgem car)".
 
-=item $name_maxwords (default: C<8>)
+=item $name_maxwords (default: 8)
 
 Maximum no. of words in a room name.
 
-=item $name_maxuncap (default: C<3>)
+=item $name_maxuncap (default: 3)
 
 Maximum length of an uncapitalized word in a room name.
 
-=item $name_invalid (default: C<'[.!?]'>)
+=item $name_invalid (default: '[.!?]')
 
 Regexp which, if matched, signals an invalid room name.
 
@@ -321,24 +341,24 @@ Optional regexp matching any other possible room names that should be
 ignored.  You can use this for special cases, where particular transcript
 lines are thought to be room names when they shouldn't be.
 
-=item $desc_minwords (default: C<20>)
+=item $desc_minwords (default: 20)
 
 Minimum no. of matching words required to match a room description.
 
-=item $cmd_prompt (default: C<'^E<gt>\s*'>)
+=item $cmd_prompt (default: '^>\s*')
 
 Regexp matching a command prompt.
 
-=item $cmd_look (default: C<'^l(ook)?$'>)
+=item $cmd_look (default: '^l(ook)?$')
 
 Regexp matching a 'look' command (case-insensitive).
 
-=item $cmd_undo (default: C<'^undo$'>)
+=item $cmd_undo (default: '^undo$')
 
 Regexp matching an UNDO command (case-insensitive).  It's assumed that only
 a single level of UNDO is available.
 
-=item $cmd_teleport (default: C<'^(restart|restore)$'>)
+=item $cmd_teleport (default: '^(restart|restore)$')
 
 Regexp matching commands that are known to cause a teleport to an arbitrary
 room (case-insensitive).
@@ -632,13 +652,19 @@ The 'map' command can cause B<ifm> errors.
 There's currently no support for mapping mazes.  Different maze rooms that
 look identical will simply appear as a single room.
 
+=for inf skipnode
+
 =head1 BUGS
 
 I wouldn't be at all surprised.
 
+=for inf skipnode
+
 =head1 SEE ALSO
 
 ifm(1)
+
+=for inf skipnode
 
 =head1 AUTHOR
 
