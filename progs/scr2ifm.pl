@@ -202,8 +202,8 @@ foreach $move (@moves) {
 	$move->{DESC} = $desc if $desc;
 	$move->{LOOK} = 1 if $move->{CMD} =~ /$cmd_look/io;
 
-	&warning("room `%s' verbose description is missing", $name)
-	    if !$desc && !$roomwarn{$name}++;
+	&warning("room `%s' description is missing", $name)
+	    if !$desc && !$descwarn{$name}++;
     }
 }
 
@@ -269,7 +269,7 @@ foreach $move (@moves) {
 
 # Give first room a default map section name if required.
 $room = $rooms[0];
-if ($section > 0 && $room && !$room->{JOIN}) {
+if ($section > 1 && $room && !$room->{JOIN}) {
     $tag = $room->{TAG};
     $move = $movemap{$tag};
     $move->{MAP} = "Start";
@@ -281,7 +281,7 @@ print "## IFM map created by $0\n";
 
 print "\ntitle \"$title\";\n" if $title;
 
-if ($section > 0) {
+if ($section > 1) {
     print "\n## Map sections.\n";
 
     foreach $move (@moves) {
@@ -358,7 +358,7 @@ sub roomname {
     my $line = shift;
 
     # Remove unwanted stuff.
-    $line =~ s/$name_remove//go;
+    $line =~ s/$name_remove//go if $name_remove;
 
     # User overrides.
     return 1 if $is_room{$line};
@@ -417,7 +417,7 @@ sub newroom {
     }
 
     &warning("more than one room with name `$name'")
-	if $seenroom{$name}++;
+	if ++$seenroom{$name} == 2;
 
     return $tag;
 }
@@ -623,7 +623,7 @@ sub ifmcmd {
 	}
 
 	$room->{JOIN}++;
-	$section++;
+	$room->{SECT} = ++$section;
     } elsif ($cmd =~ /^(\S+)\s+"(.+?)"\s*(.*)/) {
 	# Define object.
 	my $obj = {};
