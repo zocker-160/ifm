@@ -51,8 +51,9 @@ static char encbuf[BUFSIZ];
 static char buf[BUFSIZ];
 
 /* Internal functions */
+static vhash *read_colour_defs(FILE *fp);
 static vlist *var_decode(char *code);
-static char *var_encode(char *driver, char *type, int mapnum, char *var);
+static char *var_encode(char *driver, char *var);
 
 /* Add a list attribute to an object */
 void
@@ -71,6 +72,32 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
     } else {
         vl_empty(list);
     }
+}
+
+/* Return RGB values given a colour name */
+char *
+get_colour(char *name)
+{
+    static vhash *defs = NULL;
+    double red, green, blue;
+    FILE *fp;
+
+    /* Read colour definitions if required */
+    if (defs == NULL) {
+        fp = open_file(COLOUR_DEFS, 1);
+        defs = read_colour_defs(fp);
+        fclose(fp);
+    }
+
+    /* If colour name looks like RGB values, leave it */
+    if (sscanf(name, "%lf %lf %lf", &red, &green, &blue) == 3)
+        return name;
+
+    /* Otherwise, look up colour name */
+    if (!vh_exists(defs, name))
+        fatal("colour `%s' is not defined", name);
+
+    return vh_sgetref(defs, name);
 }
 
 /* Return direction given offsets */
@@ -123,33 +150,20 @@ get_string(char *id, char *def)
 vscalar *
 get_var(char *id)
 {
-    vscalar *var = NULL;
-    int n1, n2, n3;
+    vscalar *var;
     char *key;
 
-    /* Check current map first */
-    for (n1 = 0; n1 < 2; n1++) {
-        if (n1 == 0 && mapnum == 0)
-            continue;
-
-        /* Check current output format first */
-        for (n2 = 0; n2 < 2; n2++) {
-            if (n2 == 0 && ifm_output == NULL)
-                continue;
-
-            /* Check current output type first */
-            for (n3 = 0; n3 < 2; n3++) {
-                if (n3 == 0 && ifm_format == NULL)
-                    continue;
-
-                key = var_encode((n3 ? NULL : ifm_format),
-                                 (n2 ? NULL : ifm_output),
-                                 (n1 ? 0 : mapnum), id);
-                if ((var = vh_get(vars, key)) != NULL)
-                    return var;
-            }
-        }
+    /* Check current output format first */
+    if (ifm_format != NULL) {
+        key = var_encode(ifm_format, id);
+        if ((var = vh_get(vars, key)) != NULL)
+            return var;
     }
+        
+    /* Check global variables */
+    key = var_encode(NULL, id);
+    if ((var = vh_get(vars, key)) != NULL)
+        return var;
 
     return NULL;
 }
@@ -380,11 +394,34 @@ pack_sections(int xmax, int ymax, int border)
     return num;
 }
 
+/* Read and return colour definitions from a stream */
+static vhash *
+read_colour_defs(FILE *fp)
+{
+    int red, green, blue, pos;
+    char val[20];
+    vhash *defs;
+
+    defs = vh_create();
+
+    while (fgets(buf, BUFSIZ, fp) != NULL) {
+        if (sscanf(buf, "%d %d %d", &red, &green, &blue) == 3 &&
+            (pos = strspn(buf, "0123456789 \t\n")) > 0) {
+            sprintf(val, "%.3g %.3g %.3g",
+                    red / 255.0, green / 255.0, blue / 255.0);
+            v_chop(buf);
+            vh_sstore(defs, &buf[pos], val);
+        }
+    }
+
+    return defs;
+}
+
 /* Set a scalar variable */
 void
-set_var(char *driver, char *type, char *var, vscalar *val)
+set_var(char *driver, char *var, vscalar *val)
 {
-    char *key = var_encode(driver, type, mapnum, var);
+    char *key = var_encode(driver, var);
 
     if (val != NULL)
         vh_store(vars, key, val);
@@ -597,12 +634,8 @@ var_decode(char *code)
 
 /* Encode a variable */
 static char *
-var_encode(char *driver, char *type, int mapnum, char *var)
+var_encode(char *driver, char *var)
 {
-    sprintf(encbuf, "%s %s %d %s",
-            (driver == NULL ? "default" : driver),
-            (type == NULL ? "global" : type),
-            mapnum, var);
-
+    sprintf(encbuf, "%s %s", (driver == NULL ? "default" : driver), var);
     return encbuf;
 }
