@@ -152,6 +152,9 @@ pack_sections(int xmax, int ymax, int border)
     pages = vl_create();
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
+        if (vh_iget(sect, "NOPRINT"))
+            continue;
+
         xlen = vh_iget(sect, "XLEN");
         ylen = vh_iget(sect, "YLEN");
 
