@@ -45,13 +45,13 @@ set ifm(tearoff) 1
 
 # IFM exec variables.
 set ifm(mapcmd)   {ifm -map -format tk}
-set ifm(itemcmd)  {ifm -items -format tk}
-set ifm(taskcmd)  {ifm -tasks -format tk}
-set ifm(debugcmd) {ifm -debug -format tk}
-set ifm(printcmd) {ifm -map -format ps}
-set ifm(varscmd)  {ifm -show vars}
-set ifm(pathcmd)  {ifm -show path}
-set ifm(aboutcmd) {ifm -version}
+set ifm(itemcmd)  {ifm -nowarn -items -format tk}
+set ifm(taskcmd)  {ifm -nowarn -tasks -format tk}
+set ifm(debugcmd) {ifm -nowarn -debug -format tk}
+set ifm(printcmd) {ifm -nowarn -map -format ps}
+set ifm(varscmd)  {ifm -nowarn -show vars}
+set ifm(pathcmd)  {ifm -nowarn -show path}
+set ifm(aboutcmd) {ifm -nowarn -version}
 
 # Internal variables.
 set ifm(untitled) "untitled.ifm"
