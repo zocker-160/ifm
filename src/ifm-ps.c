@@ -25,30 +25,15 @@ mapfuncs ps_mapfuncs = {
     ps_map_finish
 };
 
-/* Controllable map parameters */
-static char *ps_title;          /* Title */
-static char *ps_titlefont;      /* Title font */
-static char *ps_roomfont;       /* Room font */
-static char *ps_itemfont;       /* Item font */
-static char *ps_labelfont;      /* Label font */
-static char *ps_prolog;         /* PostScript prolog file */
-
-static double ps_ptsize;        /* Text point size */
-static double ps_room_height;   /* Room height */
-static double ps_room_width;    /* Room width */
-static double ps_page_width;    /* Page width */
-static double ps_page_height;   /* Page height */
-
-static int ps_map_width;        /* Map width */
-static int ps_map_height;       /* Map height */
-static int ps_room_items;       /* Print items in rooms? */
-
 /* Internal variables */
 static int ps_pagenum = 0;      /* Current page */
 static int ps_xoff;             /* Current X offset */
 static int ps_yoff;             /* Current Y offset */
 
 /* Internal functions */
+static char *ps_string(char *str);
+
+/* Return a string suitable for passing to PostScript */
 static char *
 ps_string(char *str)
 {
@@ -75,21 +60,11 @@ ps_string(char *str)
 void
 ps_map_start(void)
 {
+    int ylen, c, num_pages, width, height;
     vscalar *elt;
     vhash *sect;
-    int ylen, c;
+    char *title;
     FILE *fp;
-
-    /* Get variables */
-    ps_title =       get_string("title",       NULL);
-    ps_titlefont =   get_string("title_font",  "Times-Bold");
-    ps_prolog =      get_string("prolog",      PS_PROLOG);
-
-    ps_page_width =  get_real("page_width",    8.3);
-    ps_page_height = get_real("page_height",   11.7);
-
-    ps_map_width =   get_int("map_width",      8);
-    ps_map_height =  get_int("map_height",     12);
 
     /* Allow title space for sections with titles */
     vl_foreach(elt, sects) {
@@ -101,15 +76,37 @@ ps_map_start(void)
     }
 
     /* Pack sections */
-    pack_sections(ps_map_width, ps_map_height, 1);
+    width = get_int("map_width", 8);
+    height = get_int("map_height", 12);
+    num_pages = pack_sections(width, height, 1);
 
     /* Print header */
-    printf("%%!PS-Adobe-3.0\n\n");
+    title = get_string("title", NULL);
+
+    printf("%%!PS-Adobe-3.0\n");
+    printf("%%%%Title: %s\n", title ? title : "Interactive Fiction map");
+    printf("%%%%Creator: IFM v%s\n", VERSION);
+    printf("%%%%Pages: %d\n", num_pages);
+    printf("%%%%EndComments\n");
 
     /* Find and print PostScript prolog */
-    fp = open_libfile(ps_prolog);
+    fp = open_libfile(get_string("prolog", PS_PROLOG));
     while ((c = fgetc(fp)) != EOF)
         putchar(c);
+    fclose(fp);
+
+    /* Print variable values */
+    printf("/origpagewidth %g inch def\n", get_real("page_width", 8.3));
+    printf("/origpageheight %g inch def\n", get_real("page_height", 11.7));
+    printf("/pagemargin %g inch def\n", get_real("page_margin", 0.5));
+
+    printf("/origmapwidth %d def\n", width);
+    printf("/origmapheight %d def\n", height);
+
+    printf("/titlefont /%s def\n", get_string("title_font", "Times-Bold"));
+    printf("/titlefontsize %g def\n", get_real("title_fontsize", 14));
+
+    printf("%%%%EndProlog\n");
 }
 
 void
@@ -117,17 +114,6 @@ ps_map_section(vhash *sect)
 {
     int page, xlen, ylen;
     double xpos, ypos;
-
-    /* Get variables */
-    ps_room_width =  get_real("room_width",    0.8);
-    ps_room_height = get_real("room_height",   0.65);
-    ps_ptsize =      get_real("pointsize",     10.0);
-
-    ps_roomfont =    get_string("room_font",   "Times-Bold");
-    ps_itemfont =    get_string("item_font",   "Times-Roman");
-    ps_labelfont =   get_string("label_font",  "Times-Roman");
-
-    ps_room_items =  get_int("show_items",     0);
 
     /* Get section parameters */
     page = vh_iget(sect, "PAGE");
@@ -140,6 +126,25 @@ ps_map_section(vhash *sect)
             printf("endpage\n");
 
         ps_pagenum = page;
+        printf("%%%%Page: %d\n", ps_pagenum);
+
+        printf("/roomwidth %g def\n", get_real("room_width", 0.8));
+        printf("/roomheight %g def\n", get_real("room_height", 0.65));
+
+        printf("/roomfont /%s def\n", get_string("room_font", "Times-Bold"));
+        printf("/roomfontsize %g def\n", get_real("room_fontsize", 10));
+
+        printf("/itemfont /%s def\n", get_string("item_font", "Times-Roman"));
+        printf("/itemfontsize %g def\n", get_real("item_fontsize", 8));
+
+        printf("/labelfont /%s def\n", get_string("label_font", "Times-Roman"));
+        printf("/labelfontsize %g def\n", get_real("label_fontsize", 10));
+
+        printf("/roomshading %g def\n", 1 - get_real("shading", 0.0));
+
+        printf("/showitems %s def\n",
+               (get_int("show_items", 0) ? "true" : "false"));
+
         printf("\n%d %d %s beginpage\n",
                vh_iget(sect, "PXLEN"),
                vh_iget(sect, "PYLEN"),
@@ -149,10 +154,10 @@ ps_map_section(vhash *sect)
     /* Print title if required */
     if (vh_exists(sect, "TITLE")) {
         xlen = vh_iget(sect, "XLEN");
-        xpos = (xlen - 1) / 2;
+        xpos = (double) (xlen - 1) / 2;
         ylen = vh_iget(sect, "YLEN");
         ypos = ylen - 1;
-        printf("%s %g %g map\n", ps_string(vh_sgetref(sect, "TITLE")),
+        printf("\n%s %g %g map\n", ps_string(vh_sgetref(sect, "TITLE")),
                xpos + ps_xoff, ypos + ps_yoff);
     }
 }
@@ -174,7 +179,7 @@ ps_map_room(vhash *room)
         desc = "";
 
     items = vh_pget(room, "ITEMS");
-    doitems = ps_room_items && items && vl_length(items) > 0;
+    doitems = items && vl_length(items) > 0;
     puzzle = vh_iget(room, "PUZZLE");
 
     /* Write coords */
