@@ -90,6 +90,7 @@ WHITE		[ \t\f]*
 "last"		{ return LAST; }
 "link"		{ return LINK; }
 "lost"          { return LOST; }
+"map"           { return MAP; }
 "n"		{ return NORTH; }
 "ne"		{ return NORTHEAST; }
 "need"          { return NEED; }
