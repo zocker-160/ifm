@@ -32,4 +32,9 @@ typedef struct taskfuncs_st {
     void (*task_finish)(void);
 } taskfuncs;
 
+typedef struct errfuncs_st {
+    void (*warning)(char *file, int line, char *msg);
+    void (*error)(char *file, int line, char *msg);
+} errfuncs;
+
 #endif
