@@ -559,10 +559,10 @@ err(char *fmt, ...)
 
     if (func == NULL) {
         if (line_number > 0)
-            fprintf(stderr, "%: error: %s, line %d: %s",
+            fprintf(stderr, "%s: error: %s, line %d: %s\n",
                     progname, ifm_input, line_number, buf);
         else
-            fprintf(stderr, "%: error: %s: %s",
+            fprintf(stderr, "%s: error: %s: %s\n",
                     progname, ifm_input, buf);
 
         if (ifm_errors >= MAX_ERRORS)
@@ -588,10 +588,10 @@ warn(char *fmt, ...)
 
     if (func == NULL) {
         if (line_number > 0)
-            fprintf(stderr, "%s: warning: %s, line %d: %s",
+            fprintf(stderr, "%s: warning: %s, line %d: %s\n",
                     progname, ifm_input, line_number, buf);
         else
-            fprintf(stderr, "%s: warning: %s: %s",
+            fprintf(stderr, "%s: warning: %s: %s\n",
                     progname, ifm_input, buf);
     } else {
         (*func->warning)(ifm_input, line_number, buf);
