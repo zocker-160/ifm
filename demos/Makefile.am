@@ -17,3 +17,5 @@ dot: ruins.ifm
 	dot -Tps ruins.dot > ruins.ps
 
 CLEANFILES = *.ps *.fig *.dot
+
+include $(top_srcdir)/etc/Makefile.common

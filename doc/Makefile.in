@@ -11,6 +11,9 @@
 # PARTICULAR PURPOSE.
 
 
+# Common Makefile targets.
+
+
 SHELL = @SHELL@
 
 srcdir = @srcdir@
@@ -122,7 +125,7 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .aux .eps .fig .ifm .lyx .pdf .png .ps .tex
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/etc/Makefile.common
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)

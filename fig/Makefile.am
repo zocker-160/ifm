@@ -25,3 +25,5 @@ test: testfig
 	fig2dev -L eps test.fig > test.eps
 
 CLEANFILES = test.fig* test.eps testfig
+
+include $(top_srcdir)/etc/Makefile.common

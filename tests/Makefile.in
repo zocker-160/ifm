@@ -13,6 +13,9 @@
 # Automake template for IFM tests.
 
 
+# Common Makefile targets.
+
+
 SHELL = @SHELL@
 
 srcdir = @srcdir@
@@ -107,7 +110,7 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .ifm .prof .ps .rec .task .test .tk
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/etc/Makefile.common
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu tests/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)

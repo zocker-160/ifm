@@ -37,3 +37,5 @@ tests:		$(SRCS)
 		perl Maketests "$(IFM)" $(SRCS)
 
 CLEANFILES	= *.out
+
+include $(top_srcdir)/etc/Makefile.common

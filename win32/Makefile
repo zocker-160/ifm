@@ -63,3 +63,5 @@ demos:;	- mkdir $(ZIPDIR)/demos
 final:;	chmod -R a+w $(ZIPDIR)
 
 clean:; rm -rf $(ZIPDIR)
+
+include ../etc/Makefile.common

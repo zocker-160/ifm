@@ -61,3 +61,5 @@ $(LINTDEFS)
 .c.lint:; @ $(LINTCMD) $<
 
 lint:; $(LINTCMD) $(DEFS) $(INCLUDES) $(SRCS)
+
+include $(top_srcdir)/etc/Makefile.common

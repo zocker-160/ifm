@@ -24,3 +24,5 @@ ifm2dev: ifm2dev.pl
 CLEANFILES = $(bin_SCRIPTS)
 
 test:; perl ifm2dev.pl -L png -v lgop.ifm
+
+include $(top_srcdir)/etc/Makefile.common

@@ -18,3 +18,5 @@ gpp.tex: gpp gpphelp.pp
 	./gpp -H -Dlatex $(srcdir)/gpphelp.pp -o gpp.tex
 
 CLEANFILES = gpp.1 gpp.html gpp.tex
+
+include $(top_srcdir)/etc/Makefile.common

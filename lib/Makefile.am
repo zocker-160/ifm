@@ -8,3 +8,5 @@ $(STYLES)
 pkgdata_DATA = $(LIBFILES)
 
 EXTRA_DIST = $(LIBFILES)
+
+include $(top_srcdir)/etc/Makefile.common

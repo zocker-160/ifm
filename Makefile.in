@@ -11,6 +11,11 @@
 # PARTICULAR PURPOSE.
 
 
+# Common Makefile targets.
+
+# Show recent source changes.
+
+
 SHELL = @SHELL@
 
 srcdir = @srcdir@
@@ -75,6 +80,8 @@ AUTOMAKE_OPTIONS = foreign check-news
 SUBDIRS = vars fig gpp src lib doc progs demos tests
 
 EXTRA_DIRS = etc contrib win32
+
+DAYS = 7
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
 CONFIG_HEADER = ./etc/config.h
@@ -90,7 +97,7 @@ TAR = gtar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/etc/Makefile.common
 	cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
@@ -394,6 +401,11 @@ dist-touch:
 dist-cleanup:
 	rm -f $(distdir)/etc/config.h
 	rm -f $(distdir)/etc/stamp-h
+
+log:;	@ echo
+	@ echo Finding source changes in the last $(DAYS) days...
+	@ echo
+	@ cvslog $(DAYS)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -11,6 +11,9 @@
 # PARTICULAR PURPOSE.
 
 
+# Common Makefile targets.
+
+
 SHELL = @SHELL@
 
 srcdir = @srcdir@
@@ -88,7 +91,7 @@ TAR = gtar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/etc/Makefile.common
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu progs/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)

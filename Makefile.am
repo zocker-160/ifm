@@ -39,3 +39,5 @@ dist-touch:
 dist-cleanup:
 	rm -f $(distdir)/etc/config.h
 	rm -f $(distdir)/etc/stamp-h
+
+include $(top_srcdir)/etc/Makefile.common

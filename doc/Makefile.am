@@ -107,3 +107,5 @@ install-data-hook: install-doc
 dist-hook: dist-doc
 
 edit:; lyx ifm.lyx
+
+include $(top_srcdir)/etc/Makefile.common
