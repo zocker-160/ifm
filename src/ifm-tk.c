@@ -109,13 +109,15 @@ tk_map_start(void)
            get_string("item_text_colour", "black"));
 
     /* Link variables */
+    printf("set ifm(linkcol) %s\n",
+           get_string("link_colour", "black"));
     printf("set ifm(linkwidth) %g\n",
            get_real("link_line_width", 1.0));
     printf("set ifm(linkspline) %s\n",
            (get_int("link_spline", 1) ? "true" : "false"));
     printf("set ifm(linkspecialcol) %s\n",
            get_string("link_special_colour", "blue"));
-    printf("set ifm(linkcol) %s\n",
+    printf("set ifm(linktextcol) %s\n",
            get_string("link_text_colour", "red"));
     printf("set ifm(linkfont) {%s}\n",
            get_string("link_text_fontdef", "Times 8 bold"));

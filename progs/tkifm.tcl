@@ -317,7 +317,12 @@ proc DrawMap {num} {
 	    }
 
 	    if {$oneway} {lappend cmd -arrow last}
-	    if {$special} {lappend cmd -fill $ifm(linkspecialcol)}
+
+	    if {$special} {
+		lappend cmd -fill $ifm(linkspecialcol)
+	    } else {
+		lappend cmd -fill $ifm(linkcol)
+	    }
 
 	    lappend cmd -width $ifm(linkwidth) -smooth $ifm(linkspline)
 	    eval $cmd
@@ -333,7 +338,7 @@ proc DrawMap {num} {
 		}
 
 		$c create text ${xmid}c ${ymid}c -text $text \
-			-font $ifm(linkfont) -fill $ifm(linkcol)
+			-font $ifm(linkfont) -fill $ifm(linktextcol)
 	    }
 	}
     }
