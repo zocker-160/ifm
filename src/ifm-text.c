@@ -19,14 +19,14 @@
 
 /* Item function list */
 itemfuncs text_itemfuncs = {
-    text_item_start,
+    NULL,
     text_item_entry,
     NULL
 };
 
 /* Task function list */
 taskfuncs text_taskfuncs = {
-    text_task_start,
+    NULL,
     text_task_entry,
     text_task_finish,
 };
@@ -36,19 +36,16 @@ static int total = 0;
 
 /* Item functions */
 void
-text_item_start(void)
-{
-    char *title;
-
-    title = get_string("title", NULL);
-    printf("Item list for %s\n",
-           title != NULL ? title : "Interactive Fiction game");
-}
-
-void
 text_item_entry(vhash *item)
 {
     vhash *room = vh_pget(item, "ROOM");
+    static int count = 0;
+
+    if (count++ == 0) {
+        char *title = get_string("title", NULL);
+        printf("Item list for %s\n",
+               title != NULL ? title : "Interactive Fiction game");
+    }
 
     printf("\n%s:\n", vh_sgetref(item, "DESC"));
     if (room == NULL) {
@@ -69,25 +66,22 @@ text_item_entry(vhash *item)
 
 /* Task functions */
 void
-text_task_start(void)
-{
-    char *title;
-
-    title = get_string("title", NULL);
-    printf("High-level walkthrough for %s\n",
-           title != NULL ? title : "Interactive Fiction game");
-}
-
-void
 text_task_entry(vhash *task)
 {
     vhash *room = vh_pget(task, "ROOM");
     static vhash *lastroom = NULL;
     static vhash *lastitem = NULL;
     int dist, type, score;
+    static int count = 0;
     static int flag = 0;
     char *note = NULL;
     vscalar *elt;
+
+    if (count++ == 0) {
+        char *title = get_string("title", NULL);
+        printf("High-level walkthrough for %s\n",
+               title != NULL ? title : "Interactive Fiction game");
+    }
 
     if (room != lastroom && room != NULL) {
         printf("\n%s", vh_sgetref(room, "DESC"));
@@ -110,7 +104,7 @@ text_task_entry(vhash *task)
         note = vh_sgetref(lastitem, "NOTE");
         break;
     case T_DROP:
-        if (vh_pget(task, "DATA") == lastitem)
+        if (lastroom == NULL || vh_pget(task, "DATA") == lastitem)
             note = "this item isn't used yet";
         break;
     case T_USER:
@@ -131,5 +125,5 @@ void
 text_task_finish(void)
 {
     if (total > 0)
-    printf("\nTotal score: %d\n", total);
+        printf("\nTotal score: %d\n", total);
 }

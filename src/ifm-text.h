@@ -13,9 +13,7 @@
 extern itemfuncs text_itemfuncs;
 extern taskfuncs text_taskfuncs;
 
-extern void text_item_start(void);
 extern void text_item_entry(vhash *item);
-extern void text_task_start(void);
 extern void text_task_entry(vhash *task);
 extern void text_task_finish(void);
 

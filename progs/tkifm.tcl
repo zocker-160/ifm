@@ -289,6 +289,10 @@ proc ShowItems {} {
     }
 
     eval $data
+    if {$itemlist == ""} {
+	Message "No items found"
+	return
+    }
 
     # Initialise window.
     set w .items
@@ -336,6 +340,10 @@ proc ShowTasks {} {
     }
 
     eval $data
+    if {$tasklist == ""} {
+	Message "No tasks found"
+	return
+    }
 
     # Initialise window.
     set w .tasks
