@@ -10,7 +10,7 @@ pdf: ifm.pdf
 
 ps: ifm.ps
 
-fig: example.eps advent.eps
+fig: cover.eps example.eps advent.eps
 
 # General rules.
 
@@ -69,9 +69,9 @@ install-pdf:
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr	\
-advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	\
-tkifm.txt
+EXTRA_DIST = ifm.lyx gfdl.lyx advent.cmd advent.ifm advent1.scr advent2.scr \
+advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	    \
+tkifm.txt macros.tex
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
