@@ -37,7 +37,6 @@ static char buf[BUFSIZ];
 
 /* Internal functions */
 static void add_task(vhash *task);
-static void check_cycles(void);
 static int do_task(vhash *task, int print);
 static void drop_item(vhash *item, vhash *room, vlist *until, int print);
 static void filter_tasks(void);
@@ -63,7 +62,7 @@ add_task(vhash *task)
 }
 
 /* Check task list for cyclic dependencies */
-static void
+void
 check_cycles(void)
 {
     char *before, *after, *line, *id;
@@ -73,6 +72,10 @@ check_cycles(void)
     vhash *step;
     vbuffer *b;
     vgraph *g;
+
+    /* Don't bother if no tasks */
+    if (tasklist == NULL || vl_length(tasklist) == 0)
+        return;
 
     /* Build directed graph */
     g = vg_create();
@@ -127,8 +130,8 @@ check_cycles(void)
     }
 
     count = vl_length(cycles);
-    fatal("can't solve game (%d cyclic task dependenc%s)\n%s",
-          count, (count == 1 ? "y" : "ies"), vb_get(b));
+    err("can't solve game (%d cyclic task dependenc%s)\n%s",
+        count, (count == 1 ? "y" : "ies"), vb_get(b));
 }
 
 /* Perform a task */
@@ -326,6 +329,7 @@ filter_tasks(void)
             /* But we want to */
             filter = 1;
 
+            /* Check simple non-filtering cases */
             if (vh_iget(task, "DONE") ||
                 vh_iget(task, "FINISH") ||
                 vh_iget(task, "SCORE") ||
@@ -333,6 +337,7 @@ filter_tasks(void)
                 vh_exists(task, "NEXT"))
                 filter = 0;
 
+            /* Can't filter if task allows other tasks */
             if (filter && (list = vh_pget(task, "ALLOW")) != NULL) {
                 alldone = 1;
 
@@ -346,6 +351,7 @@ filter_tasks(void)
                     filter = 0;
             }
 
+            /* Can't filter if task gets new items */
             if (filter && (list = vh_pget(task, "GET")) != NULL) {
                 alldone = 1;
                 canfilter = 1;
@@ -360,6 +366,7 @@ filter_tasks(void)
                     filter = 0;
             }
 
+            /* Can't filter if task gives new items */
             if (filter && (list = vh_pget(task, "GIVE")) != NULL) {
                 alldone = 1;
                 canfilter = 1;
@@ -374,12 +381,14 @@ filter_tasks(void)
                     filter = 0;
             }
 
+            /* Can filter get-item tasks for carried items */
             if (!vh_iget(task, "DONE") && vh_iget(task, "TYPE") == T_GET) {
                 item = vh_pget(task, "DATA");
                 canfilter = 1;
                 filter = vh_iget(item, "TAKEN");
             }
 
+            /* Filter if required */
             if (canfilter && filter) {
                 vh_istore(task, "DONE", 1);
                 filtered++;
@@ -937,9 +946,6 @@ solve_game(void)
     /* Don't bother if no tasks */
     if (tasklist == NULL || vl_length(tasklist) == 0)
         return;
-
-    /* Check for cyclic task dependencies */
-    check_cycles();
 
     /* Build initial inventory */
     vl_foreach(elt, items) {

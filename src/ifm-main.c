@@ -281,8 +281,7 @@ main(int argc, char *argv[])
 
     /* Resolve tags */
     resolve_tags();
-
-    if (ifm_errors > 0)
+    if (ifm_errors)
         return 1;
 
     /* Set up rooms */
@@ -290,8 +289,7 @@ main(int argc, char *argv[])
 
     /* Set up links */
     setup_links();
-
-    if (ifm_errors > 0)
+    if (ifm_errors)
         return 1;
 
     /* Set up room exits */
@@ -300,12 +298,18 @@ main(int argc, char *argv[])
     /* Set up sections */
     setup_sections();
 
-    /* Do task setup if required */
+    /* Solve game if required */
     if (output == O_NONE || output & O_TASKS) {
         connect_rooms();
-        setup_tasks();
+        if (ifm_errors)
+            return 1;
 
-        if (ifm_errors > 0)
+        setup_tasks();
+        if (ifm_errors)
+            return 1;
+
+        check_cycles();
+        if (ifm_errors)
             return 1;
 
         solve_game();
