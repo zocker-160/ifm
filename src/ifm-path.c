@@ -228,7 +228,7 @@ connect_rooms(void)
 int
 find_path(vhash *step, vhash *from, vhash *to)
 {
-    vhash *node, *reach, *task, *item, *istep, *tstep, *block, *room;
+    vhash *node, *reach, *task, *item, *istep, *tstep, *block;
     vlist *need, *after, *before, *rlist, *leave, *path;
     int addnode, len, nlen, blockflag = 0;
     static vqueue *visit = NULL;
@@ -518,15 +518,18 @@ find_path(vhash *step, vhash *from, vhash *to)
 vlist *
 get_path(vhash *room)
 {
+    static vlist *path = NULL;
     vhash *reach;
-    vlist *path;
 
     /* Check room is reachable */
     if (vh_iget(room, "AP_VISIT") != ap_visit)
         return NULL;
 
     /* Build path */
-    path = vl_create();
+    if (path == NULL)
+        path = vl_create();
+    else
+        vl_empty(path);
 
     while ((reach = vh_pget(room, "AP_LAST")) != NULL) {
         vl_punshift(path, reach);
@@ -540,11 +543,11 @@ get_path(vhash *room)
 void
 init_path(vhash *room)
 {
-    vhash *step, *item, *task, *taskroom;
+    vhash *step, *item, *taskroom;
     static vhash *last = NULL;
     extern vlist *tasklist;
-    int dist, len, flag;
     vlist *list, *path;
+    int len, flag;
     vscalar *elt;
 
     /* If room changed, or path modified, need update */
