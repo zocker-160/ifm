@@ -16,6 +16,7 @@ typedef struct mapfuncs_st {
     void (*map_section)(vhash *sect);
     void (*map_room)(vhash *room);
     void (*map_link)(vhash *link);
+    void (*map_join)(vhash *join);
     void (*map_endsection)(void);
     void (*map_finish)(void);
 } mapfuncs;
