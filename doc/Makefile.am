@@ -3,7 +3,7 @@
 infodir		= $(prefix)/info
 info_DATA	= ifm.info
 
-EXTRA_DIST	= ifm.pod ifm.info ifm.txt ifm.doc ifm.1 ifm.html
+EXTRA_DIST	= ifm.pod ifm.info ifm.txt ifm.doc ifm.1 ifm.html ifm.key
 
 all:		ifm.info
 
