@@ -48,12 +48,15 @@
     pagewidth pagemargin 2 mul sub 0 rlineto
     0 pageheight pagemargin 2 mul sub rlineto
     pagewidth pagemargin 2 mul sub neg 0 rlineto
-    closepath
-
-    gsave backgroundcolour selectcolour fill grestore
+    closepath backgroundcolour selectcolour fill
 
     showborder {
-	gsave bordercolour selectcolour stroke grestore
+	newpath
+	pagemargin pagemargin moveto
+	pagewidth pagemargin 2 mul sub 0 rlineto
+	0 pageheight pagemargin 2 mul sub rlineto
+	pagewidth pagemargin 2 mul sub neg 0 rlineto
+	closepath bordercolour selectcolour stroke
     } if
 
     % Draw title if required.
