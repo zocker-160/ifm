@@ -33,7 +33,7 @@ foreach $ifmfile (@ARGV) {
     open(OUT, "> $testfile") or die "Can't open $testfile: $!\n";
 
     print OUT "#! /bin/sh\n\n";
-    print OUT "$builddir/src/ifm -I$srcdir/lib $ifmargs 2>&1 ";
+    print OUT "$builddir/src/ifm -I$srcdir/lib -I$builddir/gpp $ifmargs 2>&1 ";
     print OUT "> $builddir/tests/$outfile <<END\n";
     print OUT @prog;
     print OUT "END\n\n";

@@ -12,9 +12,11 @@ test-link1.ifm test-link2.ifm test-lose.ifm test-nocmd.ifm test-nolink1.ifm \
 test-nolink2.ifm test-nopath.ifm test-note.ifm test-path.ifm		    \
 test-simple.ifm test-unsafe.ifm
 
-IFM		= $(top_srcdir)/src/ifm -I$(top_srcdir)/lib
+IFM		= $(top_builddir)/src/ifm $(ARGS)
 
-TKIFM		= wish -f $(top_srcdir)/progs/tkifm.tcl
+ARGS		= -I$(top_srcdir)/lib -I$(top_builddir)/gpp
+
+TKIFM		= $(top_builddir)/progs/tkifm
 
 TESTS		= $(SRCS:.ifm=.test)
 
