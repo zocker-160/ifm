@@ -27,21 +27,13 @@ foreach $ifmfile (@ARGV) {
     @prog = <IN>;
     close IN;
 
-    # Find output required.
-    if ($ifmfile =~ /^(.+)-/) {
-	$output = $1;
-    } else {
-	die "Can't determine output required: $ifmfile\n";
-    }
-
-    die "Invalid output requested: $ifmfile\n"
-	unless $output =~ /^(map|item|task)/;
-
     # Write test program.
+    $ifmargs = "-w -m -i -t -f raw";
+
     open(OUT, "> $testfile") or die "Can't open $testfile: $!\n";
 
     print OUT "#! /bin/sh\n\n";
-    print OUT "$builddir/src/ifm -I$srcdir/lib -w -$output -format raw 2>&1 ";
+    print OUT "$builddir/src/ifm -I$srcdir/lib $ifmargs 2>&1 ";
     print OUT "> $builddir/tests/$outfile <<END\n";
     print OUT @prog;
     print OUT "END\n\n";
@@ -51,11 +43,10 @@ foreach $ifmfile (@ARGV) {
     chmod 0775, $testfile;
 
     # Create expected results.
-    system "$ifmprog -w -$output -format raw -o $expfile $ifmfile";
+    system "$ifmprog $ifmargs -o $expfile $ifmfile";
 
-    # If task test, create verbose task list.
-    system "$ifmprog -w -$output -format text -o $listfile $ifmfile"
-	if $output =~ /^task/;
+    # Create verbose task list.
+    system "$ifmprog -w -t -format text -o $listfile $ifmfile";
 
     # Er... that's it.
     print "Created $testfile\n";

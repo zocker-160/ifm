@@ -135,14 +135,15 @@ tkifm = @tkifm@
 
 TESTS_ENVIRONMENT = SRCDIR=$(top_srcdir) BUILDDIR=$(top_builddir)
 
-SRCS = map-exit.ifm map-join1.ifm map-join2.ifm map-link1.ifm map-link2.ifm \
-map-nolink.ifm task-attr1.ifm task-attr2.ifm task-attr3.ifm		    \
-task-before1.ifm task-before2.ifm task-cmd.ifm task-do1.ifm task-do2.ifm    \
-task-do3.ifm task-drop1.ifm task-drop2.ifm task-drop3.ifm task-drop4.ifm    \
-task-finish.ifm task-follow1.ifm task-follow2.ifm task-follow3.ifm	    \
-task-give1.ifm task-give2.ifm task-keep1.ifm task-keep2.ifm task-nocmd.ifm  \
-task-leave1.ifm task-leave2.ifm task-lose.ifm task-nolink.ifm		    \
-task-nopath.ifm task-note.ifm task-path.ifm task-simple.ifm task-unsafe.ifm
+SRCS = test-attr1.ifm test-attr2.ifm test-attr3.ifm test-before1.ifm	    \
+test-before2.ifm test-cmd.ifm test-do1.ifm test-do2.ifm test-do3.ifm	    \
+test-drop1.ifm test-drop2.ifm test-drop3.ifm test-drop4.ifm test-exit.ifm   \
+test-finish.ifm test-follow1.ifm test-follow2.ifm test-follow3.ifm	    \
+test-give1.ifm test-give2.ifm test-it.ifm test-join1.ifm test-join2.ifm	    \
+test-keep1.ifm test-keep2.ifm test-leave1.ifm test-leave2.ifm		    \
+test-link1.ifm test-link2.ifm test-lose.ifm test-nocmd.ifm test-nolink1.ifm \
+test-nolink2.ifm test-nopath.ifm test-note.ifm test-path.ifm		    \
+test-simple.ifm test-unsafe.ifm
 
 
 IFM = $(top_srcdir)/src/ifm -I$(top_srcdir)/lib
