@@ -136,6 +136,8 @@ if ($wantitems) {
 	    undef $str;
 	    foreach $id (@{$item->{after}}) {
 		$task = $tasks[$id];
+		next unless $task;
+
 		$room = room($task);
 
 		if ($str) {
@@ -156,6 +158,8 @@ if ($wantitems) {
 	    undef $str;
 	    foreach $id (@{$item->{needed}}) {
 		$task = $tasks[$id];
+		next unless $task;
+
 		$room = room($task);
 
 		if ($str) {
