@@ -19,8 +19,9 @@
 /* Output drivers */
 #include "ifm-ps.h"
 #include "ifm-text.h"
-#include "ifm-raw.h"
 #include "ifm-groff.h"
+#include "ifm-tk.h"
+#include "ifm-raw.h"
 
 static struct driver_st {
     char *name, *desc;
@@ -42,17 +43,24 @@ static struct driver_st {
     },
 #endif
 
-#ifdef RAW
-    {
-        "raw", "Tab-delimited ASCII text fields",
-        NULL, &raw_itemfuncs, &raw_taskfuncs
-    },
-#endif
-
 #ifdef GROFF
     {
         "groff", "Groff with pic, tbl and -me macros",
         &groff_mapfuncs, &groff_itemfuncs, &groff_taskfuncs
+    },
+#endif
+
+#ifdef TK
+    {
+        "tk", "Tcl/Tk program commands",
+        &tk_mapfuncs, &tk_itemfuncs, &tk_taskfuncs
+    },
+#endif
+
+#ifdef RAW
+    {
+        "raw", "Tab-delimited ASCII text fields",
+        NULL, &raw_itemfuncs, &raw_taskfuncs
     },
 #endif
 };
