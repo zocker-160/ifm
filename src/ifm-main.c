@@ -335,7 +335,7 @@ main(int argc, char *argv[])
     if (info != NULL)
         show_info(info);
 
-    if (output == O_NONE)
+    if (output == O_NONE && !ifm_debug)
         printf("Syntax appears OK\n");
 
     if (output & O_MAP)
