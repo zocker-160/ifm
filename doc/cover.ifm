@@ -1,9 +1,14 @@
 # IFM manual front cover.
 
-room_text_fontsize = 14;
-item_text_fontsize = 10;
+room_size = 4.0;
+room_text_fontsize = 16;
+item_text_fontsize = 12;
 
-room "IFM"; item "Version 4.2"; item "July 2002";
+show_map_border = 1;
+map_border_colour = "grey90";
+map_background_colour = "grey90";
+
+room "IFM"; item "Version 5.0"; item "July 2002";
 
 room "Interactive"		dir e 2 s w 4 s e oneway;
 room "Fiction"			dir e oneway;
