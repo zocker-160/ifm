@@ -361,8 +361,12 @@ resolve_tags(void)
     /* Resolve room tags */
     vl_foreach(elt, rooms) {
         room = vs_pget(elt);
+        resolve_tag_list("task", vh_pget(room, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(room, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(room, "NEED"), itemtags);
+        resolve_tag_list("task", vh_pget(room, "LINK_BEFORE"), tasktags);
+        resolve_tag_list("task", vh_pget(room, "LINK_AFTER"), tasktags);
+        resolve_tag_list("item", vh_pget(room, "LINK_NEED"), itemtags);
     }
 
     /* Resolve link tags */
@@ -370,6 +374,7 @@ resolve_tags(void)
         link = vs_pget(elt);
         resolve_tag("room", vh_get(link, "FROM"), roomtags);
         resolve_tag("room", vh_get(link, "TO"), roomtags);
+        resolve_tag_list("task", vh_pget(link, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(link, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(link, "NEED"), itemtags);
     }
@@ -379,6 +384,7 @@ resolve_tags(void)
         join = vs_pget(elt);
         resolve_tag("room", vh_get(join, "FROM"), roomtags);
         resolve_tag("room", vh_get(join, "TO"), roomtags);
+        resolve_tag_list("task", vh_pget(join, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(join, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(join, "NEED"), itemtags);
     }
@@ -410,9 +416,12 @@ resolve_tags(void)
         task = vs_pget(elt);
         resolve_tag("room", vh_get(task, "IN"), roomtags);
         resolve_tag("room", vh_get(task, "GOTO"), roomtags);
+        resolve_tag("task", vh_get(task, "PREV"), tasktags);
+        resolve_tag("task", vh_get(task, "NEXT"), tasktags);
         resolve_tag_list("task", vh_pget(task, "AFTER"), tasktags);
         resolve_tag_list("item", vh_pget(task, "NEED"), itemtags);
         resolve_tag_list("item", vh_pget(task, "GET"), itemtags);
+        resolve_tag_list("item", vh_pget(task, "LOSE"), itemtags);
         vh_pstore(task, "ROOM", vh_pget(task, "IN"));
     }
 }
