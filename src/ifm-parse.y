@@ -28,6 +28,12 @@
                 list = NULL; \
         }
 
+#define ATTR(name) \
+        (implicit ? "LINK_" #name : #name)
+
+#define RESET_IT \
+        itroom = ititem = ittask = NULL
+
 #define WARN_IGNORED(attr) \
         warn("attribute `%s' ignored -- no implicit link", #attr)
 
@@ -45,6 +51,10 @@ static vhash *lastroom = NULL;  /* Last room mentioned */
 static vhash *lastitem = NULL;  /* Last item mentioned */
 static vhash *lasttask = NULL;  /* Last task mentioned */
 
+static vscalar *itroom = NULL;  /* Room referred to by 'it' */
+static vscalar *ititem = NULL;  /* Item referred to by 'it' */
+static vscalar *ittask = NULL;  /* Task referred to by 'it' */
+
 static vlist *curdirs = NULL;   /* Current direction list */
 
 static int modify;              /* Modification flag */
@@ -61,7 +71,7 @@ static int implicit;            /* Implicit-link flag */
 %token	      ROOM ITEM LINK FROM TAG TO DIR ONEWAY HIDDEN PUZZLE NOTE TASK
 %token	      AFTER NEED GET SCORE JOIN GO SPECIAL ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
-%token        LEAVE UNDEF FINISH
+%token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -146,6 +156,8 @@ room_stmt	: ROOM STRING
                                   vh_pget(curroom, "LINK_NEED"));
                         vh_pstore(link, "LEAVE",
                                   vh_pget(curroom, "LINK_LEAVE"));
+                        vh_istore(link, "LEAVEALL",
+                                  vh_iget(curroom, "LINK_LEAVEALL"));
 
                         if ((str = vh_sgetref(curroom, "TAG")) != NULL)
                             set_tag("link", str, link, linktags);
@@ -172,6 +184,7 @@ room_stmt	: ROOM STRING
                     }
 
                     lastroom = curroom;
+                    RESET_IT;
                 }
                 | ROOM ID
                 {
@@ -182,10 +195,13 @@ room_stmt	: ROOM STRING
                     }
                 }
                 room_attrs ';'
+                {
+                    RESET_IT;
+                }
 		;
 
 room_attrs	: /* empty */
-		| room_attrs room_attr
+		| room_attrs room_attr sep
 		;
 
 room_attr	: TAG ID
@@ -295,23 +311,28 @@ room_attr	: TAG ID
                 }
                 | NEED item_list
                 {
-                    char *attr = (implicit ? "LINK_NEED" : "NEED");
-                    SET_LIST(curroom, attr, curitems);
+                    SET_LIST(curroom, ATTR(NEED), curitems);
                 }
 		| BEFORE task_list
 		{
-                    char *attr = (implicit ? "LINK_BEFORE" : "BEFORE");
-                    SET_LIST(curroom, attr, curtasks);
+                    SET_LIST(curroom, ATTR(BEFORE), curtasks);
 		}
 		| AFTER task_list
 		{
-                    char *attr = (implicit ? "LINK_AFTER" : "AFTER");
-                    SET_LIST(curroom, attr, curtasks);
+                    SET_LIST(curroom, ATTR(AFTER), curtasks);
 		}
                 | LEAVE item_list
                 {
-                    char *attr = (implicit ? "LINK_LEAVE" : "LEAVE");
-                    SET_LIST(curroom, attr, curitems);
+                    SET_LIST(curroom, ATTR(LEAVE), curitems);
+                }
+                | LEAVE ALL
+                {
+                    vh_istore(curroom, ATTR(LEAVEALL), 1);
+                }
+                | LEAVE ALL EXCEPT item_list
+                {
+                    SET_LIST(curroom, ATTR(LEAVE), curitems);
+                    vh_istore(curroom, ATTR(LEAVEALL), 1);
                 }
 		| LENGTH INTEGER
 		{
@@ -347,6 +368,7 @@ item_stmt	: ITEM STRING
 
                     lastitem = curitem;
                     vl_ppush(items, curitem);
+                    RESET_IT;
 		}
                 | ITEM ID
                 {
@@ -357,10 +379,13 @@ item_stmt	: ITEM STRING
                     }
                 }
                 item_attrs ';'
+                {
+                    RESET_IT;
+                }
 		;
 
 item_attrs	: /* empty */
-		| item_attrs item_attr
+		| item_attrs item_attr sep
 		;
 
 item_attr	: TAG ID
@@ -426,6 +451,7 @@ link_stmt	: LINK room TO room
                 link_attrs ';'
 		{
                     vl_ppush(links, curlink);
+                    RESET_IT;
 		}
                 | LINK ID
                 {
@@ -436,10 +462,13 @@ link_stmt	: LINK room TO room
                     }
                 }
                 link_attrs ';'
+                {
+                    RESET_IT;
+                }
 		;
 
 link_attrs	: /* empty */
-		| link_attrs link_attr
+		| link_attrs link_attr sep
 		;
 
 link_attr	: DIR dir_list
@@ -479,6 +508,15 @@ link_attr	: DIR dir_list
                 {
                     SET_LIST(curlink, "LEAVE", curitems);
                 }
+                | LEAVE ALL
+                {
+                    vh_istore(curlink, "LEAVEALL", 1);
+                }
+                | LEAVE ALL EXCEPT item_list
+                {
+                    SET_LIST(curlink, "LEAVE", curitems);
+                    vh_istore(curlink, "LEAVEALL", 1);
+                }
 		| LENGTH INTEGER
 		{
                     vh_istore(curlink, "LEN", $2);
@@ -509,6 +547,7 @@ join_stmt	: JOIN room TO room
                 join_attrs ';'
 		{
                     vl_ppush(joins, curjoin);
+                    RESET_IT;
 		}
                 | JOIN ID
                 {
@@ -519,10 +558,13 @@ join_stmt	: JOIN room TO room
                     }
                 }
                 join_attrs ';'
+                {
+                    RESET_IT;
+                }
 		;
 
 join_attrs	: /* empty */
-		| join_attrs join_attr
+		| join_attrs join_attr sep
 		;
 
 join_attr	: GO compass
@@ -556,6 +598,15 @@ join_attr	: GO compass
                 | LEAVE item_list
                 {
                     SET_LIST(curjoin, "LEAVE", curitems);
+                }
+                | LEAVE ALL
+                {
+                    vh_istore(curjoin, "LEAVEALL", 1);
+                }
+                | LEAVE ALL EXCEPT item_list
+                {
+                    SET_LIST(curjoin, "LEAVE", curitems);
+                    vh_istore(curjoin, "LEAVEALL", 1);
                 }
 		| LENGTH INTEGER
 		{
@@ -592,6 +643,7 @@ task_stmt	: TASK STRING
 
                     lasttask = curtask;
                     vl_ppush(tasks, curtask);
+                    RESET_IT;
 		}
                 | TASK ID
                 {
@@ -602,10 +654,13 @@ task_stmt	: TASK STRING
                     }
                 }
                 task_attrs ';'
+                {
+                    RESET_IT;
+                }
 		;
 
 task_attrs	: /* empty */
-		| task_attrs task_attr
+		| task_attrs task_attr sep
 		;
 
 task_attr	: TAG ID
@@ -623,17 +678,54 @@ task_attr	: TAG ID
 		{
                     SET_LIST(curtask, "NEED", curitems);
 		}
+		| GIVE item_list
+		{
+                    SET_LIST(curtask, "GIVE", curitems);
+		}
 		| GET item_list
 		{
                     SET_LIST(curtask, "GET", curitems);
+		}
+		| DROP item_list
+		{
+                    SET_LIST(curtask, "DROP", curitems);
+		}
+		| DROP item_list IN room
+		{
+                    SET_LIST(curtask, "DROP", curitems);
+                    vh_store(curtask, "DROPROOM", $4);
+		}
+		| DROP ALL
+		{
+                    vh_istore(curtask, "DROPALL", 1);
+		}
+		| DROP ALL IN room
+		{
+                    vh_istore(curtask, "DROPALL", 1);
+                    vh_store(curtask, "DROPROOM", $4);
+		}
+		| DROP ALL EXCEPT item_list
+		{
+                    SET_LIST(curtask, "DROP", curitems);
+                    vh_istore(curtask, "DROPALL", 1);
+		}
+		| DROP ALL EXCEPT item_list IN room
+		{
+                    SET_LIST(curtask, "DROP", curitems);
+                    vh_store(curtask, "DROPROOM", $6);
+                    vh_istore(curtask, "DROPALL", 1);
+		}
+		| DROP IN room
+		{
+                    vh_store(curtask, "DROPROOM", $3);
 		}
 		| LOSE item_list
 		{
                     SET_LIST(curtask, "LOSE", curitems);
 		}
-                | GOTO ID
+                | GOTO room
                 {
-                    vh_sstore(curtask, "GOTO", $2);
+                    vh_store(curtask, "GOTO", $2);
                 }
                 | FOLLOW task
                 {
@@ -724,14 +816,21 @@ room_elt	: room
 
 room            : ID
                 {
-                    $$ = vs_screate($1);
+                    $$ = itroom = vs_screate($1);
+                }
+                | IT
+                {
+                    if (itroom == NULL)
+                        err("no room referred to by `it'");
+                    else
+                        $$ = vs_copy(itroom);
                 }
                 | LAST
                 {
                     if (lastroom == NULL)
-                        err("no last room");
+                        err("no room referred to by `last'");
                     else
-                        $$ = vs_pcreate(lastroom);
+                        $$ = itroom = vs_pcreate(lastroom);
                 }
                 ;
 
@@ -749,14 +848,21 @@ item_elt	: item
 
 item            : ID
                 {
-                    $$ = vs_screate($1);
+                    $$ = ititem = vs_screate($1);
+                }
+                | IT
+                {
+                    if (ititem == NULL)
+                        err("no item referred to by `it'");
+                    else
+                        $$ = vs_copy(ititem);
                 }
                 | LAST
                 {
                     if (lastitem == NULL)
-                        err("no last item");
+                        err("no item referred to by `last'");
                     else
-                        $$ = vs_pcreate(lastitem);
+                        $$ = ititem = vs_pcreate(lastitem);
                 }
                 ;
 
@@ -774,14 +880,21 @@ task_elt	: task
 
 task            : ID
                 {
-                    $$ = vs_screate($1);
+                    $$ = ittask = vs_screate($1);
+                }
+                | IT
+                {
+                    if (ittask == NULL)
+                        err("no task referred to by `it'");
+                    else
+                        $$ = vs_copy(ittask);
                 }
                 | LAST
                 {
                     if (lasttask == NULL)
-                        err("no last task");
+                        err("no task referred to by `last'");
                     else
-                        $$ = vs_pcreate(lasttask);
+                        $$ = ittask = vs_pcreate(lasttask);
                 }
                 ;
 
@@ -817,6 +930,10 @@ var             : INTEGER       { $$ = vs_icreate($1); }
                 | REAL          { $$ = vs_dcreate($1); }
                 | STRING        { $$ = vs_screate($1); }
                 | UNDEF         { $$ = NULL; }
+                ;
+
+sep             : ','
+                | /* empty */
                 ;
 
 %%
