@@ -8,7 +8,8 @@ task-before1.ifm task-before2.ifm task-cmd.ifm task-drop1.ifm		    \
 task-drop2.ifm task-drop3.ifm task-drop4.ifm task-finish.ifm		    \
 task-follow1.ifm task-follow2.ifm task-follow3.ifm task-give1.ifm	    \
 task-give2.ifm task-hidden.ifm task-leave1.ifm task-leave2.ifm		    \
-task-lose.ifm task-note.ifm task-path.ifm task-simple.ifm task-unsafe.ifm
+task-lose.ifm task-nolink.ifm task-note.ifm task-path.ifm task-simple.ifm   \
+task-unsafe.ifm
 
 IFM		= $(top_srcdir)/src/ifm
 
