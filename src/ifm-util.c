@@ -106,7 +106,7 @@ open_libfile(char *name)
     if ((envdir = getenv("IFM_LIB")) != NULL)
         ifmdir = envdir;
     sprintf(buf, "%s/%s", ifmdir, name);
-    if ((fp = fopen(name, "r")) != NULL)
+    if ((fp = fopen(buf, "r")) != NULL)
         return fp;
 
     /* Give up */
