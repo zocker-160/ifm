@@ -8,7 +8,7 @@ ifm_SOURCES = ifm-driver.h ifm-groff.c ifm-groff.h ifm-main.c ifm-main.h    \
 	      ifm-map.c ifm-map.h ifm-parse.y ifm-parse.h ifm-path.c	    \
 	      ifm-path.h ifm-ps.c ifm-ps.h ifm-raw.c ifm-raw.h ifm-scan.l   \
 	      ifm-task.c ifm-task.h ifm-text.c ifm-text.h ifm-tk.c ifm-tk.h \
-	      ifm-util.c ifm-util.h ifm.h
+	      ifm-util.c ifm-util.h
 
 ifm_LDADD	= -lvars
 
