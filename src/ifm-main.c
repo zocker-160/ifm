@@ -72,9 +72,10 @@ main(int argc, char *argv[])
     vlist *args;
     char *file;
 
+    v_debug_env();
+
 #ifdef DEBUG
     extern int yydebug;
-    v_debug(V_DBG_PTRS);
 #endif
 
     /* Set program name */
