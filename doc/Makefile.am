@@ -2,8 +2,6 @@
 
 docdir = $(prefix)/doc/ifm
 
-doc_DATA = ifm.pdf
-
 # Main targets.
 
 doc: fig pdf html
@@ -47,25 +45,35 @@ html: fig ifm.tex ifm.aux
 
 # Installation stuff.
 
-install-doc:
+install-doc: install-html install-pdf
+
+install-html:
 	@ if test -d $(srcdir)/$(HTML_DIR); then			\
-	   thisdir=`pwd`;						\
-	   docdir=`basename $$thisdir`;					\
-	   $(mkinstalldirs) $(docdir);					\
 	   set -x;							\
+	   $(mkinstalldirs) $(docdir);					\
 	   rm -rf $(docdir)/$(HTML_DIR);				\
 	   cp -r $(srcdir)/$(HTML_DIR) $(docdir);			\
 	fi
 
+install-pdf:
+	@ if test -f $(srcdir)/ifm.pdf; then				\
+	   set -x;							\
+	   $(mkinstalldirs) $(docdir);					\
+	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(docdir);			\
+	fi
+
 # Distribution stuff.
 
-EXTRA_DIST = ifm.pdf ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr \
-advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	   \
+EXTRA_DIST = ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr	\
+advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	\
 tkifm.txt
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
 	   cp -r $(srcdir)/$(HTML_DIR) $(distdir);			\
+	fi
+	if test -f $(srcdir)/ifm.pdf; then				\
+	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
 	fi
 
 # Cleaning stuff.

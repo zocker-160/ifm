@@ -71,8 +71,6 @@ tkifm = @tkifm@
 
 docdir = $(prefix)/doc/ifm
 
-doc_DATA = ifm.pdf
-
 # General rules.
 
 SUFFIXES = .lyx .ps .tex .aux .pdf .eps .dia
@@ -92,7 +90,7 @@ LATEX2HTML = latex2html $(HTML_DISP) $(HTML_IMAGE) $(HTML_NAV) $(HTML_FILE) $(HT
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.pdf ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	   tkifm.txt
+EXTRA_DIST = ifm.lyx advent.cmd advent.ifm advent1.scr advent2.scr	advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr map.dia	tkifm.txt
 
 
 # Cleaning stuff.
@@ -106,8 +104,6 @@ CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DATA =  $(doc_DATA)
-
 DIST_COMMON =  Makefile.am Makefile.in
 
 
@@ -125,25 +121,6 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-
-install-docDATA: $(doc_DATA)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(docdir)
-	@list='$(doc_DATA)'; for p in $$list; do \
-	  if test -f $(srcdir)/$$p; then \
-	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(docdir)/$$p"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(docdir)/$$p; \
-	  else if test -f $$p; then \
-	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(docdir)/$$p"; \
-	    $(INSTALL_DATA) $$p $(DESTDIR)$(docdir)/$$p; \
-	  fi; fi; \
-	done
-
-uninstall-docDATA:
-	@$(NORMAL_UNINSTALL)
-	list='$(doc_DATA)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(docdir)/$$p; \
-	done
 tags: TAGS
 TAGS:
 
@@ -180,7 +157,7 @@ installcheck: installcheck-am
 install-exec-am:
 install-exec: install-exec-am
 
-install-data-am: install-docDATA
+install-data-am:
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-data: install-data-am
@@ -188,14 +165,13 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-docDATA
+uninstall-am:
 uninstall: uninstall-am
-all-am: Makefile $(DATA)
+all-am: Makefile
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(docdir)
 
 
 mostlyclean-generic:
@@ -225,12 +201,12 @@ maintainer-clean-am:  maintainer-clean-generic distclean-am
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: uninstall-docDATA install-docDATA tags distdir info-am info \
-dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
-install-exec install-data-am install-data install-am install \
-uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+.PHONY: tags distdir info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
 
 # Main targets.
@@ -259,19 +235,29 @@ html: fig ifm.tex ifm.aux
 
 # Installation stuff.
 
-install-doc:
+install-doc: install-html install-pdf
+
+install-html:
 	@ if test -d $(srcdir)/$(HTML_DIR); then			\
-	   thisdir=`pwd`;						\
-	   docdir=`basename $$thisdir`;					\
-	   $(mkinstalldirs) $(docdir);					\
 	   set -x;							\
+	   $(mkinstalldirs) $(docdir);					\
 	   rm -rf $(docdir)/$(HTML_DIR);				\
 	   cp -r $(srcdir)/$(HTML_DIR) $(docdir);			\
+	fi
+
+install-pdf:
+	@ if test -f $(srcdir)/ifm.pdf; then				\
+	   set -x;							\
+	   $(mkinstalldirs) $(docdir);					\
+	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(docdir);			\
 	fi
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
 	   cp -r $(srcdir)/$(HTML_DIR) $(distdir);			\
+	fi
+	if test -f $(srcdir)/ifm.pdf; then				\
+	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
 	fi
 
 clean-doc: realclean
