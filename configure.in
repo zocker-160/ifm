@@ -39,7 +39,7 @@ dnl Checks for libraries.
 AC_CHECK_LIB(m, sin)
 
 dnl Determine what to build.
-BUILD="lib src doc tests"
+BUILD="vars src lib doc tests"
 AC_SUBST(BUILD)
 
 if test $PERL != no; then
