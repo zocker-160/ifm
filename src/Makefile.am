@@ -26,4 +26,8 @@ INCLUDES	= -DVERSION=\"$(VERSION)\" \
 		  -DSYSINIT=\"$(pkgdatadir)/$(SYS_INIT)\" \
 		  -DPS -DTEXT -DTK -DRAW -DGROFF
 
+YFLAGS		= -d
+
 LDFLAGS		= -Wl,-rpath -Wl,$(libdir)
+
+ifm-parse.h:	ifm-parse.c
