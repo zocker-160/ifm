@@ -421,7 +421,7 @@ filter_tasks(int print)
                 filtered++;
                 numfiltered++;
                 vh_istore(task, "DONE", 1);
-                solver_msg(3, "ignore task: %s (%s)",
+                solver_msg(3, "redundant task: %s (%s)",
                            vh_sgetref(task, "DESC"), reason);
             }
         }
@@ -663,6 +663,7 @@ setup_tasks(void)
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
     vlist *list, *itasks, *rlist;
     vhash *step, *istep, *oitem;
+    int flagged = 1;
     vscalar *elt;
     char *msg;
 
@@ -969,6 +970,30 @@ setup_tasks(void)
             while (step != NULL) {
                 vh_sstore(step, "UNSAFE", msg);
                 step = vh_pget(step, "PREV");
+            }
+        }
+    }
+
+    /* Propagate 'unsafe' flags for 'do' tasks */
+    while (flagged) {
+        flagged = 0;
+
+        vl_foreach(elt, tasks) {
+            task = vs_pget(elt);
+            tstep = vh_pget(task, "STEP");
+            if (vh_defined(tstep, "UNSAFE"))
+                continue;
+
+            if ((list = vh_pget(tstep, "DO")) == NULL)
+                continue;
+
+            vl_foreach(elt, list) {
+                otask = vs_pget(elt);
+                step = vh_pget(otask, "STEP");
+                if (vh_defined(step, "UNSAFE")) {
+                    vh_sstore(tstep, "UNSAFE", "does unsafe task");
+                    flagged = 1;
+                }
             }
         }
     }
