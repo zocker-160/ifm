@@ -354,7 +354,7 @@ order_tasks(void)
         } else if (tasksleft) {
             /* Hmm... we seem to be stuck */
             vlist *tmp = vl_create();
-            char *sep = "\n\t ";
+            char *sep = "\n    ";
 
             vl_foreach(elt, tasklist) {
                 step = vs_pget(elt);
@@ -362,8 +362,8 @@ order_tasks(void)
                     vl_spush(tmp, vh_sgetref(step, "DESC"));
             }
 
-            warning("can't solve game (%d tasks not done)%s%s",
-                    vl_length(tmp), sep, vl_join(tmp, sep));
+            warn("can't solve game (%d tasks not done)%s%s",
+                 vl_length(tmp), sep, vl_join(tmp, sep));
 
             vl_destroy(tmp);
             break;
@@ -453,7 +453,7 @@ int
 task_priority(vhash *room, vhash *step)
 {
     vhash *before, *taskroom, *gotoroom;
-    int priority = 1000, dist = 0, type;
+    int priority = 1000, dist = 0;
     vscalar *elt;
     vlist *prev;
 
@@ -475,7 +475,6 @@ task_priority(vhash *room, vhash *step)
         priority -= 100;
 #endif
 
-    type = vh_iget(step, "TYPE");
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
 
@@ -484,33 +483,27 @@ task_priority(vhash *room, vhash *step)
          * Task can be done anywhere, or in current room -- if it's a
          * goto-room task, you must be able to get there.
          */
-        if (type == T_GOTO) {
-            if ((dist = find_path(NULL, room, gotoroom)) > 0)
-                priority -= dist;
-            else
-                return 0;
-        }
+        if (vh_iget(step, "TYPE") == T_GOTO &&
+            (dist = find_path(NULL, room, gotoroom)) == 0)
+            return 0;
     } else {
         /*
          * Task must be done elsewhere -- there must be a path from
          * here to the task room.
          */
-        if ((dist = find_path(NULL, room, taskroom)) > 0)
-            priority -= dist;
-        else
+        if ((dist = find_path(NULL, room, taskroom)) == 0)
             return 0;
     }
 
-#if 0
     /* If no return path, lower the priority */
     if (gotoroom != NULL)
         taskroom = gotoroom;
     if (taskroom != NULL && !find_path(NULL, taskroom, room))
         priority -= 200;
-#endif
 
     vh_istore(step, "DIST", dist - 1);
-    return priority;
+
+    return priority - dist;
 }
 
 /* Create and return a new task step */
