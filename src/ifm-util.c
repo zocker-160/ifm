@@ -15,12 +15,16 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <ctype.h>
 #include <math.h>
 #include <vars.h>
 
 #include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-util.h"
+
+#define ALPHA(c) (c == '_' || isalpha(c))
+#define ALNUM(c) (c == '_' || isalnum(c))
 
 /* Direction info (same order as direction enum list) */
 struct d_info dirinfo[] = {
@@ -465,6 +469,78 @@ split_line(char *string, double ratio)
 
     vl_spush(list, buf);
     return list;
+}
+
+/* Substitute variable values in a string */
+char *
+substitute_vars(char *string)
+{
+    static vbuffer *b = NULL;
+    char *var, *cp, save;
+    int braceflag;
+    vscalar *val;
+
+    /* Initialise */
+    if (b == NULL)
+        b = vb_create();
+    else
+        vb_empty(b);
+
+    /* Scan the string */
+    cp = string;
+    while (*cp != '\0') {
+        /* If not $, just echo */
+        if (*cp != '$') {
+            vb_putc(b, *cp++);
+            continue;
+        }
+
+        /* If $$, turn it into $ */
+        if (*++cp == '$') {
+            vb_putc(b, *cp++);
+            continue;
+        }
+
+        /* If not start of variable, just echo */
+        if (!ALPHA(*cp) && *cp != '{') {
+            vb_putc(b, '$');
+            vb_putc(b, *cp++);
+            continue;
+        }
+
+        /* Find end of variable */
+        braceflag = (*cp == '{');
+        var = cp;
+        if (braceflag)
+            var++;
+
+        while (*++cp != '\0') {
+            if (braceflag && *cp == '}')
+                break;
+            if (!braceflag && !ALNUM(*cp))
+                break;
+        }
+
+        if (braceflag && *cp == '\0') {
+            /* Unterminated brace */
+            vb_puts(b, "${");
+            cp = var;
+        } else {
+            /* Get variable */
+            save = *cp;
+            *cp = '\0';
+            val = get_var(var);
+            *cp = save;
+            if (braceflag)
+                cp++;
+
+            /* Substitute it */
+            if (val != NULL)
+                vb_puts(b, vs_sget(val));
+        }
+    }
+
+    return vb_get(b);
 }
 
 /* Truncate a list of points based on a given box width and height */
