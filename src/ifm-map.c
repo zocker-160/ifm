@@ -152,7 +152,7 @@ init_map()
     vh_pstore(map, "LINKS", links);
     vh_pstore(map, "ITEMS", items);
     vh_pstore(map, "JOINS", joins);
-    vh_pstore(map, "TASKS", tasks);
+    vh_pstore(map, "TASKS", taskorder);
     vh_pstore(map, "SECTS", sects);
 
     vh_pstore(map, "RPOS", rpos);
