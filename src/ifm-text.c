@@ -110,7 +110,7 @@ text_task_entry(vhash *task)
         travel++;
         moved++;
     } else {
-        if (moved || (room != NULL && room != lastroom))
+        if (room != NULL && (moved || room != lastroom))
             printf("\n%s:\n", vh_sgetref(room, "DESC"));
         else if (!count)
             printf("\nFirstly:\n");
