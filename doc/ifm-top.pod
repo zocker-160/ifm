@@ -21,7 +21,7 @@ keeping track of your progress in an Interactive Fiction game.
 =for inf node OPERATION, Operation, How to run IFM
 
 =for inf node MAKING MAPS, Making Maps, How to create maps
-=for inf node Example Map,, Sample map to be drawn
+=for inf node Introduction to Maps, Map Intro, Introduction to maps
 =for inf node Adding Rooms,, How to add new rooms
 =for inf node Adding Links,, How to add extra links
 =for inf node Other Directions,, Setting non-compass directions

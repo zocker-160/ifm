@@ -3,9 +3,9 @@
 This section gives you a tour of the main commands for making maps.  It's
 not complete -- see L<"LANGUAGE"> for a full list of commands.
 
-=head2 Example Map
+=head2 Introduction to Maps
 
-The traditional Infocom-style way of drawing interactive fiction maps is
+The traditional Infocom-style way of drawing Interactive Fiction maps is
 the 'boxes-and-lines' method.  For example:
 
     +--------------+   +--------------+   +--------------+
@@ -22,14 +22,19 @@ the 'boxes-and-lines' method.  For example:
     |              |   |              |
     +--------------+   +--------------+
 
+This is the style of map that B<IFM> produces.  Rooms are represented as
+boxes on a square grid, and links between the rooms are drawn as lines
+connecting them.  Links emanate from rooms in any of the eight standard
+compass directions, and also follow the grid.
+
 In the following sections, we'll introduce the B<IFM> commands used to draw
-this example.
+the example map above.
 
 =head2 Adding Rooms
 
-To draw the example map, you first choose an arbitrary start location: the
-kitchen (when mapping a real game, you'd choose your actual start
-location).  To add the kitchen, just type this:
+To draw the example map from the previous section, you first choose an
+arbitrary start location: the kitchen (when mapping a real game, you'd
+choose your actual start location).  To add the kitchen, just type this:
 
     room "Kitchen";
 
@@ -56,7 +61,9 @@ to it by changing the 'kitchen' line like this:
 
 The tag name can be any name you like.  You might think that you could
 refer to the kitchen by using the name in quotes, but that would mean you
-could never have two distinct rooms with the same name.
+could never have two distinct rooms with the same name.  Another advantage
+of tags is that they can be much shorter than the real room names.  The tag
+'K' would be just as valid in the example above (though not as readable).
 
 Now you can refer to the kitchen by its tag, so you can move east from it
 into the lounge like this:
@@ -264,9 +271,9 @@ the map.  There are several ways that this could occur:
 =item *
 
 The game designer made some room links longer than others, and you haven't
-taken that into account.  To extend the length of a link, just duplicate
-the direction indicator in the 'dir' clause (e.g. 'dir e e' instead of 'dir
-e').
+taken that into account.  To extend the length of a link, just add a length
+indicator after the direction in the 'dir' clause (e.g. 'dir e 2' instead
+of 'dir e').
 
 =item *
 
