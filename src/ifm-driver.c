@@ -17,7 +17,7 @@
 #include "ifm-vars.h"
 
 #define SET_BOOL(name)     name = var_int(#name)
-#define SET_COLOUR(name)   SET_STRING(name)
+#define SET_COLOUR(name)   name = var_colour(#name)
 #define SET_REAL(name)     name = var_real(#name)
 #define SET_FONT(name)     SET_STRING(name)
 #define SET_FONTSIZE(name) name = var_real(#name) * font_scale
@@ -40,7 +40,7 @@ float map_text_fontsize, title_fontsize, font_scale, page_margin;
 float room_width, room_height, room_size, page_width, page_height;
 
 int room_border_dashed, show_items, link_dashed, show_border;
-int show_title, show_tags;
+int show_title, show_tags, link_spline;
 
 /* Set map style variables */
 void
@@ -112,6 +112,7 @@ void
 set_link_vars(void)
 {
     SET_BOOL(link_dashed);
+    SET_BOOL(link_spline);
 
     SET_COLOUR(link_colour);
     SET_COLOUR(link_text_colour);
