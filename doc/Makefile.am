@@ -18,7 +18,7 @@ HELP2MAN = help2man -N -n "$(MAN_TITLE)"
 
 # Main targets.
 
-doc: fig pdf html rtf man
+doc: fig pdf html man
 
 pdf: ifm.pdf
 

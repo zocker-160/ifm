@@ -9,6 +9,25 @@ AM_INIT_AUTOMAKE(ifm, 5.1)
 AM_CONFIG_HEADER(etc/config.h)
 AC_CONFIG_SUBDIRS(vars)
 
+dnl Check host system.
+AC_CANONICAL_HOST
+
+case $host_os in
+     *cygwin*) CYGWIN=yes;;
+     *)        CYGWIN=no;;
+esac 
+
+if test "$IFM_CYGWIN" != ""; then
+   AC_MSG_NOTICE(overriding Cygwin detection)
+   CYGWIN=yes
+fi
+
+if test $CYGWIN = yes; then
+   AC_DEFINE(CYGWIN, 1, Whether building using Cygwin on Windoze)
+fi
+
+AM_CONDITIONAL(CYGWIN, test $CYGWIN = yes)
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_YACC

@@ -54,6 +54,8 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
+CYGWIN_FALSE = @CYGWIN_FALSE@
+CYGWIN_TRUE = @CYGWIN_TRUE@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO = @ECHO@
@@ -155,19 +157,21 @@ FIG_BIN = $(top_builddir)/fig
 VARS_SRC = $(top_srcdir)/vars/src
 VARS_BIN = $(top_builddir)/vars/src
 
-ifm_LDADD = -lfig -lvars-noinst -lz @LIBS@
-
 ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
+ifm_LDADD = -lfig -lvars-noinst -lz @LIBS@
 
 AM_YFLAGS = -d -v
 
-SYSDEF = -DSYSINIT=\"ifm-init.ifm\"
+BASEPATH = $(pkgdatadir):$(pkglibdir)
 
-PATHDEF = -DIFMPATH=\"$(pkgdatadir)\"
+@CYGWIN_TRUE@INITFILE = ifm.ini
+@CYGWIN_FALSE@INITFILE = .ifmrc
+@CYGWIN_TRUE@IFMPATH = .:$(BASEPATH)
+@CYGWIN_FALSE@IFMPATH = $(BASEPATH)
 
-GPPDEF = -DGPPPATH=\"$(pkglibdir)/gpp\"
+IFMDEFS = -DSYSINIT=\"ifm-init.ifm\" -DIFMPATH=\"$(IFMPATH)\" -DPATHSEP=\":\" -DINITFILE=\"$(INITFILE)\"
 
-INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(SYSDEF) $(PATHDEF) $(GPPDEF)
+INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(IFMDEFS)
 
 
 # Add lint support.

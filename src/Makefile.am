@@ -22,19 +22,27 @@ FIG_BIN = $(top_builddir)/fig
 VARS_SRC = $(top_srcdir)/vars/src
 VARS_BIN = $(top_builddir)/vars/src
 
-ifm_LDADD = -lfig -lvars-noinst -lz @LIBS@
-
 ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
+ifm_LDADD   = -lfig -lvars-noinst -lz @LIBS@
 
 AM_YFLAGS = -d -v
 
-SYSDEF = -DSYSINIT=\"ifm-init.ifm\"
+BASEPATH = $(pkgdatadir):$(pkglibdir)
 
-PATHDEF = -DIFMPATH=\"$(pkgdatadir)\"
+if CYGWIN
+INITFILE = ifm.ini
+IFMPATH  = .:$(BASEPATH)
+else
+INITFILE = .ifmrc
+IFMPATH  = $(BASEPATH)
+endif
 
-GPPDEF = -DGPPPATH=\"$(pkglibdir)/gpp\"
+IFMDEFS  = -DSYSINIT=\"ifm-init.ifm\"
+IFMDEFS += -DIFMPATH=\"$(IFMPATH)\"
+IFMDEFS += -DPATHSEP=\":\"
+IFMDEFS += -DINITFILE=\"$(INITFILE)\"
 
-INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(SYSDEF) $(PATHDEF) $(GPPDEF)
+INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(IFMDEFS)
 
 $(bin_PROGRAMS): $(FIG_BIN)/libfig.a $(VARS_BIN)/libvars-noinst.la
 

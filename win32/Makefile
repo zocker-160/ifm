@@ -13,21 +13,14 @@ PROGDIR = $(TOPDIR)/progs
 ZIPDIR = ifm
 
 IFM = ifm.exe
-
 GPP = gpp.exe
-
 DLL = $(bindir)/cygwin1.dll
 
 FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
-
-PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/ifm2tex.pl		\
-$(PROGDIR)/ifm2dev.pl $(PROGDIR)/tkifm.tcl $(PROGDIR)/scr2ifm.pl
-
-DOCS = $(DOCDIR)/ifm.pdf $(DOCDIR)/ifm
-
-LIBS = $(LIBDIR)/*.ifm $(LIBDIR)/ifm-pro.ps $(LIBDIR)/ifm-rgb.txt
-
-MAPS = $(MAPDIR)/*.ifm $(MAPDIR)/README
+PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/*.pl $(PROGDIR)/*.tcl
+DOCS  = $(DOCDIR)/ifm.pdf $(DOCDIR)/ifm
+LIBS  = $(LIBDIR)/*.ifm $(LIBDIR)/ifm-pro.ps $(LIBDIR)/ifm-rgb.txt
+MAPS  = $(MAPDIR)/*.ifm $(MAPDIR)/README
 
 all: test
 
@@ -44,17 +37,14 @@ files:;	cp $(FILES) $(ZIPDIR)
 	done
 	cp README.win32 $(ZIPDIR)/WIN32.txt
 
-progs:;	- mkdir $(ZIPDIR)/progs
-	cp $(PROGS) $(DLL) $(ZIPDIR)/progs
-	strip $(ZIPDIR)/progs/$(IFM)
-	strip $(ZIPDIR)/progs/$(GPP)
+progs:; cp $(PROGS) $(DLL) $(ZIPDIR)
+	strip $(ZIPDIR)/$(IFM)
+	strip $(ZIPDIR)/$(GPP)
 
 docs:;	- mkdir $(ZIPDIR)/docs
 	- cp -r $(DOCS) $(ZIPDIR)/docs
-	- cp $(GPPDIR)/gpp.html $(ZIPDIR)/docs
 
-lib:;	- mkdir $(ZIPDIR)/lib
-	cp $(LIBS) $(ZIPDIR)/lib
+lib:;	cp $(LIBS) $(ZIPDIR)
 
 demos:;	- mkdir $(ZIPDIR)/demos
 	cp $(MAPS) $(ZIPDIR)/demos

@@ -54,6 +54,8 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
+CYGWIN_FALSE = @CYGWIN_FALSE@
+CYGWIN_TRUE = @CYGWIN_TRUE@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO = @ECHO@
@@ -372,7 +374,7 @@ uninstall-man: uninstall-man1
 
 # Main targets.
 
-doc: fig pdf html rtf man
+doc: fig pdf html man
 
 pdf: ifm.pdf
 
