@@ -22,11 +22,16 @@ IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib
 .lyx.tex:;	lyx --export latex $< > $@
 .ps.gv:;	gv -a4 -scale -1 -spartan $<
 .tex.aux:;	latex $<; latex $<; latex $<
-.lyx.pdf:;	tex2pdf $<
+.lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
 .ifm.fig:;	$(IFM) -m -f fig -o $@ $<
 .fig.eps:;	fig2dev -L eps $< > $@
 .fig.png:;	fig2dev -L png $< > $@
 .fig.tex:;	fig2dev -L latex $< > $@
+
+# Stuff for generating PDF.
+
+PDF_TITLE  = IFM Version $(VERSION)
+PDF_AUTHOR = Glenn Hutchings
 
 # Stuff for generating HTML.
 
@@ -36,7 +41,7 @@ HTML_TITLE = IFM Version $(VERSION)
 HTML_ADDR  = zondo@pillock.freeserve.co.uk
 HTML_DIR   = html
 HTML_DISP  = -split 5 -link 5 -show_section_numbers -html_version 4.0
-HTML_IMAGE = -no_external_images -local_icons -white -image_type gif
+HTML_IMAGE = -no_external_images -local_icons -white -image_type png
 HTML_NAV   = -next_page_in_navigation
 HTML_TEXT  = -title "$(HTML_TITLE)" -address "$(HTML_ADDR)" -font_size 12pt
 HTML_FILE  = -dir $(HTML_DIR) -mkdir 
@@ -71,7 +76,7 @@ install-pdf:
 
 EXTRA_DIST = ifm.lyx gfdl.lyx advent.cmd advent.ifm advent1.scr advent2.scr \
 advent3.scr advent4.scr advent5.scr advent6.scr advent7.scr example.ifm	    \
-tkifm.txt macros.tex
+cover.ifm tkifm.txt macros.tex
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/$(HTML_DIR); then				\
