@@ -1,6 +1,6 @@
 ## Automake template for IFM.
 
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign check-news
 
 SUBDIRS = vars src lib doc tests progs
 
