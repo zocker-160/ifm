@@ -28,7 +28,7 @@ Ifm:(ifm).) format from one or more files containing game transcripts.
 =head1 DESCRIPTION
 
 B<scr2ifm> reads one or more transcripts of an Interactive Fiction game and
-produces a map of it in B<ifm> format.  It works on Infocom-style
+produces a map of it in B<IFM> format.  It works on Infocom-style
 transcripts -- those produced by Inform- and TADS-generated games (and of
 course Infocom games themselves).  The idea is that you play your game in a
 carefree manner, without worrying about mapping anything, and after the
@@ -48,7 +48,7 @@ These are the command-line options for B<scr2ifm>:
 
 =item B<-c> F<file>
 
-Append the given file of B<ifm> and parameter commands to the end of the
+Append the given file of B<IFM> and parameter commands to the end of the
 map.  This allows you to fix various problems in the resulting map (see
 L<"FIXING PROBLEMS">).
 
@@ -64,7 +64,7 @@ L<"IFM COMMANDS">).  Default is no indentation at all.
 
 =item B<-l>
 
-Add a comment to each B<ifm> command indicating the file and line number of
+Add a comment to each B<IFM> command indicating the file and line number of
 the transcript command that generated it.
 
 =item B<-w>
@@ -112,7 +112,7 @@ L<"MAKING TRANSCRIPTS">).
 
 =item *
 
-Special B<ifm> commands that are (hopefully) ignored completely by the game
+Special B<IFM> commands that are (hopefully) ignored completely by the game
 -- see L<"IFM COMMANDS">.
 
 =back
@@ -125,7 +125,7 @@ specified with the 'title' command (see L<"IFM COMMANDS">), it is printed.
 Then, if there's more than one map section, a list of map section titles is
 printed.
 
-Next, there's a list of B<ifm> commands derived from the transcript.  Each
+Next, there's a list of B<IFM> commands derived from the transcript.  Each
 time a new room is seen, a room command is output for it.  Each room is
 given a tag name formed by the initials of each capitalized word in its
 name.  To make tags unique, the second and subsequent occurrences of a tag
@@ -148,11 +148,11 @@ If the special 'item' or 'task' commands are seen (see L<"IFM COMMANDS">),
 then an item or task command is output following the room that it appears
 in.  If an item or task hasn't been given a tag, it is assigned one.  The
 tag is made by translating all invalid tag characters in the name to
-underscores, capitalizing (to avoid clashes with B<ifm> commands) and, if
+underscores, capitalizing (to avoid clashes with B<IFM> commands) and, if
 the tag clashes with a previously-defined tag, adding a numerical suffix to
 make it unique.  For example, 'black rod' might get a tag 'Black_rod_2'.
 
-Finally, the B<ifm> commands from the file indicated by the B<-c> option
+Finally, the B<IFM> commands from the file indicated by the B<-c> option
 are echoed (if any).
 
 =head1 MAKING TRANSCRIPTS
@@ -207,10 +207,10 @@ in relation to the others.  For these games, the order in which rooms are
 visited will probably make no difference to the resulting map.  But for
 perverse games (e.g. Colossal Cave, above ground) the order of visiting
 makes a big difference.  In these cases, it's probably best to avoid trying
-to get all the connections on the map -- you'll spew forth lots of B<ifm>
+to get all the connections on the map -- you'll spew forth lots of B<IFM>
 warnings otherwise, and the map will look awful.  See L<"EXAMPLE SESSION">
 for an example.  Sometimes it's worth having a second attempt at a
-transcript, choosing different directions to go in, too see if it improves
+transcript, choosing different directions to go in, to see if it improves
 things.
 
 Another problem with mapping is that some games have these inconvenient
@@ -220,7 +220,7 @@ right!
 
 =head1 IFM COMMANDS
 
-While you're making your transcript, you can use a subset of B<ifm>
+While you're making your transcript, you can use a subset of B<IFM>
 commands to add extra things that B<scr2ifm> will recognize.  (Of course,
 the game almost certainly won't understand these commands, and will print a
 suitable indignant reply.  But that shouldn't affect the state of things.)
@@ -273,14 +273,14 @@ Delete the last declared task, if any.
 
 =back
 
-Note that B<scr2ifm> knows almost nothing about B<ifm> command syntax.  If
+Note that B<scr2ifm> knows almost nothing about B<IFM> command syntax.  If
 there's a syntax error in a command, you'll have to manually edit the
 resulting transcript (or delete the item/task and do it again).
 
 =head1 FIXING PROBLEMS
 
 The map produced by B<scr2ifm> will not be perfect in a lot of cases.  When
-running it through B<ifm> you might get warnings about overlapping rooms,
+running it through B<IFM> you might get warnings about overlapping rooms,
 or crossed link lines.  These problems are usually fixed by stretching the
 link lines of some of the rooms.  Some overlapping-room problems are caused
 by the program making a bad choice of direction to put an up/down/in/out
@@ -290,9 +290,9 @@ much between visits.
 
 You can fix most of these problems by creating a command file and
 specifying it with the B<-c> option.  There are two types of entry:
-B<scr2ifm> commands and B<ifm> commands.  In a command file, blank lines
+B<scr2ifm> commands and B<IFM> commands.  In a command file, blank lines
 and comment lines (those starting with a #) are ignored.  If a command
-isn't recognized as a B<scr2ifm> command, it's assumed to be an B<ifm>
+isn't recognized as a B<scr2ifm> command, it's assumed to be an B<IFM>
 command, and is passed straight into the output verbatim.  You can use
 these to resolve conflicts in the generated map, by stretching certain
 links or hiding them altogether.
@@ -674,7 +674,7 @@ I<and> descriptions) will simply appear as a single room.
 =item *
 
 One-way links.  These aren't detected, so you'll have to add the
-appropriate B<ifm> attribute yourself (in a command file, or by fixing the
+appropriate B<IFM> attribute yourself (in a command file, or by fixing the
 map directly).
 
 =back
