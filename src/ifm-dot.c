@@ -29,6 +29,9 @@ taskfuncs dot_taskfuncs = {
 /* Control variables */
 static int show_rooms = 0;
 static int show_orphans = 0;
+static char *graph_attr = "";
+static char *node_attr = "";
+static char *link_attr = "";
 
 /* Scribble buffer */
 static char buf[BUFSIZ];
@@ -47,6 +50,9 @@ dot_task_start(void)
     set_map_vars();
     show_rooms = var_int("task_graph_rooms");
     show_orphans = var_int("task_graph_orphans");
+    graph_attr = var_string("task_graph_attr");
+    node_attr = var_string("task_graph_node");
+    link_attr = var_string("task_graph_link");
 
     /* Get title */
     if (vh_exists(map, "TITLE"))
@@ -61,8 +67,8 @@ dot_task_start(void)
     /* Write graph header */
     printf("digraph \"%s\" {\n", title);
 
-    printf("    graph [size = \"%g,%g\", ratio = fill];\n",
-           height, width);
+    printf("    graph [size = \"%g,%g\", ratio = fill, %s];\n",
+           height, width, graph_attr);
 
     printf("    rankdir = LR;\n");
     printf("    rotate = 90;\n");
@@ -109,7 +115,7 @@ dot_task_finish(void)
     vl_destroy(nodes);
 
     /* Write nodes */
-    printf("    node [shape = box];\n");
+    printf("    node [%s];\n", node_attr);
 
     vh_foreach(name, elt, rooms) {
         list = vs_pget(elt);
@@ -149,6 +155,8 @@ dot_task_finish(void)
     }
 
     /* Write links */
+    printf("    edge [%s];\n", link_attr);
+
     vh_foreach(name, elt, rooms) {
         list = vs_pget(elt);
 
