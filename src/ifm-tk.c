@@ -29,6 +29,7 @@ mapfuncs tk_mapfuncs = {
     tk_map_room,
     tk_map_link,
     NULL,
+    NULL,
     NULL
 };
 

@@ -26,6 +26,7 @@ mapfuncs ps_mapfuncs = {
     ps_map_section,
     ps_map_room,
     ps_map_link,
+    NULL,
     ps_map_endsection,
     ps_map_finish
 };
