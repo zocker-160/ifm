@@ -53,17 +53,17 @@ fig_create_arc(vhash *parent, int subtype, float cx, float cy,
 
 /* Create a box object */
 vhash *
-fig_create_box(vhash *parent, float x1, float y1, float x2, float y2)
+fig_create_box(vhash *parent, float x, float y, float width, float height)
 {
     vhash *obj;
 
     obj = fig_create_polyline(parent, FIG_BOX);
 
-    fig_create_point(obj, x1, y1);
-    fig_create_point(obj, x2, y1);
-    fig_create_point(obj, x2, y2);
-    fig_create_point(obj, x1, y2);
-    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x, y);
+    fig_create_point(obj, x + width, y);
+    fig_create_point(obj, x + width, y + height);
+    fig_create_point(obj, x, y + height);
+    fig_create_point(obj, x, y);
 
     return obj;
 }
@@ -137,19 +137,19 @@ fig_create_object(vhash *parent, int type)
 /* Create a picture object */
 vhash *
 fig_create_picture(vhash *parent,
-                   float x1, float y1,
-                   float x2, float y2,
+                   float x, float y,
+                   float width, float height,
                    char *file)
 {
     vhash *obj;
 
     obj = fig_create_polyline(parent, FIG_PICTURE);
 
-    fig_create_point(obj, x1, y1);
-    fig_create_point(obj, x2, y1);
-    fig_create_point(obj, x2, y2);
-    fig_create_point(obj, x1, y2);
-    fig_create_point(obj, x1, y1);
+    fig_create_point(obj, x, y);
+    fig_create_point(obj, x + width, y);
+    fig_create_point(obj, x + width, y + height);
+    fig_create_point(obj, x, y + height);
+    fig_create_point(obj, x, y);
 
     vh_sstore(obj, "PICFILE", file);
 

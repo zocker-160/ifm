@@ -37,14 +37,14 @@ extern vhash *fig_create(int orient);
 extern vhash *fig_create_arc(vhash *parent, int subtype, float cx, float cy,
                              float x1, float y1, float x2, float y2, float x3,
                              float y3);
-extern vhash *fig_create_box(vhash *parent, float x1, float y1, float x2,
-                             float y2);
+extern vhash *fig_create_box(vhash *parent, float x, float y,
+                             float width, float height);
 extern vhash *fig_create_compound(vhash *parent);
 extern vhash *fig_create_ellipse(vhash *parent, int subtype);
 extern vhash *fig_create_line(vhash *parent, float x1, float y1, float x2,
                               float y2);
-extern vhash *fig_create_picture(vhash *parent, float x1, float y1, float x2,
-                                 float y2, char *file);
+extern vhash *fig_create_picture(vhash *parent, float x, float y,
+                                 float width, float height, char *file);
 extern int fig_create_point(vhash *parent, float x, float y);
 extern vhash *fig_create_polygon(vhash *parent, float x1, float y1, float x2,
                                  float y2, float x3, float y3);
