@@ -20,8 +20,8 @@
     } ifelse
 
     % Leave space for title if required.
-    show_title {
-	/pageheight pageheight title_fontsize 1.2 mul sub def
+    show_page_title {
+	/pageheight pageheight page_title_fontsize 1.2 mul sub def
     } if
 
     % Get width and height of page contents.
@@ -45,7 +45,7 @@
     pagewidth page_margin 2 mul sub neg 0 rlineto
     closepath page_background_colour selectcolour fill
 
-    show_border {
+    show_page_border {
 	newpath
 	page_margin page_margin moveto
 	pagewidth page_margin 2 mul sub 0 rlineto
@@ -55,13 +55,13 @@
     } if
 
     % Draw title if required.
-    show_title {
-	title_font title_fontsize selectfont
-	title_colour selectcolour
+    show_page_title {
+	page_title_font page_title_fontsize selectfont
+	page_title_colour selectcolour
 
 	titlestring
 	pagewidth 2 div
-	pageheight page_margin sub title_fontsize add false text
+	pageheight page_margin sub page_title_fontsize add false text
     } if
 
     % Calculate font scaling factor.
@@ -70,12 +70,36 @@
     /fontscale scalewidth scaleheight min def
 } def
 
-% Start a map section.
-/map {				% STRING X Y map
-    % Draw map title.
-    map_text_colour selectcolour
-    map_text_font map_text_fontsize selectfont
+% Display a map title
+/maptitle {			% STRING X Y maptitle
+    map_title_colour selectcolour
+    map_title_font map_title_fontsize selectfont
     pagepos false text
+} def
+
+% Draw a map border
+/mapborder {			% XMIN YMIN XMAX YMAX mapborder
+    pagepos
+    /mb-ymax exch def
+    /mb-xmax exch def
+
+    pagepos
+    /mb-ymin exch def
+    /mb-xmin exch def
+
+    newpath
+    mb-xmin mb-ymin moveto
+    mb-xmax mb-ymin lineto
+    mb-xmax mb-ymax lineto
+    mb-xmin mb-ymax lineto
+    closepath map_background_colour selectcolour fill
+
+    newpath
+    mb-xmin mb-ymin moveto
+    mb-xmax mb-ymin lineto
+    mb-xmax mb-ymax lineto
+    mb-xmin mb-ymax lineto
+    closepath map_border_colour selectcolour stroke
 } def
 
 % Draw a room. 
@@ -236,7 +260,7 @@
 		link_updown_string
  	    }{
  		link_inout_string
- 	    } ifelse ln-xmid ln-ymid pagepos page_background_colour true text
+ 	    } ifelse ln-xmid ln-ymid pagepos map_background_colour true text
  	} if
 
 	% Draw arrow if oneway.
