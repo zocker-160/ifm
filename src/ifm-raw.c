@@ -23,6 +23,7 @@
 #include "ifm-map.h"
 #include "ifm-util.h"
 #include "ifm-raw.h"
+#include "ifm-vars.h"
 
 /* Map function list */
 mapfuncs raw_mapfuncs = {
@@ -55,8 +56,8 @@ raw_map_start(void)
 {
     char *title;
 
-    if ((title = get_string("title", NULL)) != NULL)
-        printf("title: %s\n", title);
+    if (VAR_DEF("title"))
+        printf("title: %s\n", var_string("title"));
 }
 
 void

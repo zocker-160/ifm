@@ -23,6 +23,7 @@
 #include "ifm-map.h"
 #include "ifm-task.h"
 #include "ifm-util.h"
+#include "ifm-vars.h"
 #include "ifm-tk.h"
 #include "ifm-text.h"
 
@@ -62,69 +63,69 @@ void
 tk_map_start(void)
 {
     /* Set room names */
-    setup_room_names(1, get_int("show_tags", 0));
+    setup_room_names(1, var_int("show_tags"));
 
     /* Canvas variables */
     printf("set ifm(mapwidth) %d\n",
-           get_int("canvas_width", 8));
+           var_int("canvas_width"));
     printf("set ifm(mapheight) %d\n",
-           get_int("canvas_height", 6));
+           var_int("canvas_height"));
     printf("set ifm(mapcol) %s\n",
-           get_string("canvas_background_colour", "wheat"));
+           var_string("canvas_background_colour"));
 
     /* Room variables */
     printf("set ifm(roomsize) %g\n",
-           get_real("room_size", 3.0));
+           var_real("room_size"));
     printf("set ifm(roomwidth) %g\n",
-           get_real("room_width", 0.8));
+           var_real("room_width"));
     printf("set ifm(roomheight) %g\n",
-           get_real("room_height", 0.65));
+           var_real("room_height"));
     printf("set ifm(roomlinewidth) %g\n",
-           get_real("room_border_width", 1.0));
+           var_real("room_border_width"));
     printf("set ifm(roomshadow) %g\n",
-           get_real("room_shadow_size", 0.0));
+           var_real("room_shadow_size"));
     printf("set ifm(roomfont) {%s}\n",
-           get_string("room_text_fontdef", "Times 10 bold"));
+           var_string("room_text_fontdef"));
     printf("set ifm(puzzlecol) %s\n",
-           get_string("room_puzzle_colour", "grey"));
+           var_string("room_puzzle_colour"));
     printf("set ifm(roomtextcol) %s\n",
-           get_string("room_text_colour", "black"));
+           var_string("room_text_colour"));
     printf("set ifm(bordercol) %s\n",
-           get_string("room_border_colour", "black"));
+           var_string("room_border_colour"));
     printf("set ifm(roomcol) %s\n",
-           get_string("room_colour", "white"));
+           var_string("room_colour"));
     printf("set ifm(shadowcol) %s\n",
-           get_string("room_shadow_colour", "grey30"));
+           var_string("room_shadow_colour"));
     printf("set ifm(exitwidth) %g\n",
-           get_real("room_exit_width", 1.0));
+           var_real("room_exit_width"));
     printf("set ifm(exitcol) %s\n",
-           get_string("room_exit_colour", "black"));
+           var_string("room_exit_colour"));
 
     /* Item variables */
     printf("set ifm(showitems) %d\n",
-           get_int("show_items", 0));
+           var_int("show_items"));
     printf("set ifm(itemfont) {%s}\n",
-           get_string("item_text_fontdef", "Times 8 italic"));
+           var_string("item_text_fontdef"));
     printf("set ifm(itemcol) {%s}\n",
-           get_string("item_text_colour", "black"));
+           var_string("item_text_colour"));
 
     /* Link variables */
     printf("set ifm(linkcol) %s\n",
-           get_string("link_colour", "black"));
+           var_string("link_colour"));
     printf("set ifm(linkwidth) %g\n",
-           get_real("link_line_width", 1.0));
+           var_real("link_line_width"));
     printf("set ifm(linkspline) %s\n",
-           (get_int("link_spline", 1) ? "true" : "false"));
+           (var_int("link_spline") ? "true" : "false"));
     printf("set ifm(linkspecialcol) %s\n",
-           get_string("link_special_colour", "blue"));
+           var_string("link_special_colour"));
     printf("set ifm(linktextcol) %s\n",
-           get_string("link_text_colour", "red"));
+           var_string("link_text_colour"));
     printf("set ifm(linkfont) {%s}\n",
-           get_string("link_text_fontdef", "Times 8 bold"));
+           var_string("link_text_fontdef"));
     printf("set ifm(linkupdown) {%s}\n",
-           get_string("link_updown_string", "U/D"));
+           var_string("link_updown_string"));
     printf("set ifm(linkinout) {%s}\n",
-           get_string("link_inout_string", "I/O"));
+           var_string("link_inout_string"));
 }
 
 void

@@ -23,7 +23,7 @@
 #include "ifm-map.h"
 #include "ifm-task.h"
 #include "ifm-util.h"
-
+#include "ifm-vars.h"
 #include "ifm-text.h"
 
 /* Item function list */
@@ -56,9 +56,10 @@ text_item_entry(vhash *item)
     vscalar *elt;
 
     if (count++ == 0) {
-        char *title = get_string("title", NULL);
-        printf("Item list for %s\n",
-               title != NULL ? title : "Interactive Fiction game");
+        char *title = "Interactive Fiction game";
+        if (VAR_DEF("title"))
+            title = var_string("title");
+        printf("Item list for %s\n", title);
     }
 
     printf("\n%s:\n", vh_sgetref(item, "DESC"));
@@ -94,9 +95,10 @@ text_task_entry(vhash *task)
     vscalar *elt;
 
     if (count == 0) {
-        char *title = get_string("title", NULL);
-        printf("High-level walkthrough for %s\n",
-               title != NULL ? title : "Interactive Fiction game");
+        char *title = "Interactive Fiction game";
+        if (VAR_DEF("title"))
+            title = var_string("title");
+        printf("High-level walkthrough for %s\n", title);
     }
 
     type = vh_iget(task, "TYPE");
