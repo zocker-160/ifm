@@ -25,27 +25,31 @@
   "Regexp matching direction names in IFM mode.")
 
 (defconst ifm-special-regexp
-  (regexp-opt '("endstyle" "style" "title" "map" "include" "start" "finish"
-		"safe" "ignore" "require")
-	      'words)
+  (regexp-opt '("endstyle" "style" "title" "map" "start" "finish" "safe"
+		"ignore" "require") 'words)
   "Regexp matching special keywords in IFM mode.")
 
 (defconst ifm-builtin-regexp
-  (regexp-opt '("all" "any" "it" "last" "none" "undef")
-	      'words)
+  (regexp-opt '("all" "any" "it" "last" "none" "undef") 'words)
   "Regexp matching builtin names in IFM mode.")
 
 (defconst ifm-keyword-regexp
   (regexp-opt '("after" "before" "cmd" "d" "down" "dir" "drop" "except"
 		"exit" "follow" "from" "get" "give" "go" "goto" "hidden"
-		"in" "item" "join" "keep" "leave" "length" "link" "lose"
-		"lost" "need" "nolink" "nopath" "note" "oneway" "out"
-		"score" "tag" "task" "to" "u" "up" "until" "with")
-	      'words)
+		"ignore" "in" "item" "join" "keep" "leave" "length" "link"
+		"lose" "lost" "need" "nodrop" "nolink" "nopath" "note"
+		"oneway" "out" "score" "tag" "task" "to" "u" "up" "until"
+		"with") 'words)
   "Regexp matching general keywords in IFM mode.")
 
+(defconst ifm-preprocessor-regexp
+  (regexp-opt '("%include" "%define" "%defeval" "%if" "%ifdef" "%undef"
+		"%ifndef" "%ifeq" "%ifneq" "%else" "%endif" "%eval"
+		"%exec" "defined") 'words)
+  "Regexp matching preprocessor directives in IFM mode.")
+
 (defconst ifm-obsolete-regexp
-  (regexp-opt '("given" "puzzle" "special" "times") 'words)
+  (regexp-opt '("given" "times") 'words)
   "Regexp matching obsolete keywords in IFM mode.")
 
 (defconst ifm-font-lock-keywords
@@ -57,6 +61,7 @@
    (cons ifm-direction-regexp font-lock-variable-name-face)
    (cons ifm-keyword-regexp font-lock-keyword-face)
    (cons ifm-builtin-regexp font-lock-builtin-face)
+   (cons ifm-preprocessor-regexp font-lock-builtin-face)
    (cons ifm-obsolete-regexp font-lock-warning-face)
    )
   "Font-lock keywords in IFM mode.")
