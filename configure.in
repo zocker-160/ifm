@@ -3,8 +3,7 @@ AC_INIT(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(config)
 
 AM_INIT_AUTOMAKE(ifm, 3.1)
-AM_CONFIG_HEADER(config.h)
-AM_CYGWIN32
+AM_CONFIG_HEADER(config/config.h)
 AM_WITH_DMALLOC
 
 dnl Checks for programs.
@@ -50,6 +49,9 @@ fi
 if test $WISH != no; then
 	BUILD="$BUILD tkifm"
 fi
+
+dnl Check for executable suffix.
+AM_EXEEXT
 
 dnl Add common Makefile rules.
 common_rules=$srcdir/config/Makefile.add
