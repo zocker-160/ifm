@@ -25,9 +25,9 @@ extern int get_papersize(char *pagesize, float *width, float *height);
 extern void indent(int num);
 extern void obsolete(char *old, char *new);
 extern FILE *open_file(char *file, int libflag, int required);
-extern int pack_sections(int xmax, int ymax, int border);
+extern int pack_sections(int xmax, int ymax);
 extern void put_string(char *fmt, ...);
-extern void setup_room_names(int jflag, int tflag);
+extern void setup_room_names(void);
 extern vlist *split_line(char *string, double ratio);
 extern void truncate_points(vlist *x, vlist *y, double wid, double ht);
 

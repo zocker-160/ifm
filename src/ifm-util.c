@@ -11,6 +11,7 @@
 #include <math.h>
 #include <vars.h>
 
+#include "ifm-driver.h"
 #include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-util.h"
@@ -171,9 +172,10 @@ open_file(char *file, int libflag, int required)
 
 /* Pack sections onto virtual pages */
 int
-pack_sections(int xmax, int ymax, int border)
+pack_sections(int xmax, int ymax)
 {
     int pos, packed, x1, y1, x2, y2, xo, yo, num, xlen, ylen;
+    int spacing = var_int("map_section_spacing");
     vlist *pages, *newpages, *psects, *opsects;
     double xo1, yo1, xo2, yo2, r1, r2, ratio;
     int v1, v2, rflag, xc1, yc1, xc2, yc2;
@@ -232,14 +234,14 @@ pack_sections(int xmax, int ymax, int border)
             y2 = vh_iget(p2, "YLEN");
 
             /* Try combining pages in X direction */
-            xc1 = x1 + x2 + border;
+            xc1 = x1 + x2 + spacing;
             yc1 = V_MAX(y1, y2);
             v1 = (xc1 <= xmax && yc1 <= ymax);
             r1 = (double) xc1 / yc1;
 
             /* Try combining pages in Y direction */
             xc2 = V_MAX(x1, x2);
-            yc2 = y1 + y2 + border;
+            yc2 = y1 + y2 + spacing;
             v2 = (xc2 <= xmax && yc2 <= ymax);
             r2 = (double) xc2 / yc2;
 
@@ -267,7 +269,7 @@ pack_sections(int xmax, int ymax, int border)
             if (v1) {
                 vh_istore(page, "XLEN", xc1);
                 vh_istore(page, "YLEN", yc1);
-                xo2 = x1 + border;
+                xo2 = x1 + spacing;
 
                 if (y1 < y2)
                     yo1 = (yc1 - y1) / 2;
@@ -278,7 +280,7 @@ pack_sections(int xmax, int ymax, int border)
             if (v2) {
                 vh_istore(page, "XLEN", xc2);
                 vh_istore(page, "YLEN", yc2);
-                yo1 = y2 + border;
+                yo1 = y2 + spacing;
 
                 if (x1 < x2)
                     xo1 = (xc2 - x1) / 2;
@@ -357,15 +359,15 @@ put_string(char *fmt, ...)
 
 /* Set up room names */
 void
-setup_room_names(int jflag, int tflag)
+setup_room_names(void)
 {
+    char tag[10], *name, *jstyle = var_string("join_format");
     vhash *room, *join, *from, *to;
-    char tag[10], *name;
     int jnum = 0;
     vscalar *elt;
 
-    /* Add join numbers if required */
-    if (jflag) {
+    /* Indicate joins if required */
+    if (var_int("show_joins")) {
         vl_foreach(elt, joins) {
             join = vs_pget(elt);
             if (vh_iget(join, "HIDDEN"))
@@ -374,7 +376,13 @@ setup_room_names(int jflag, int tflag)
             from = vh_pget(join, "FROM");
             to = vh_pget(join, "TO");
 
-            sprintf(tag, " (%d)", ++jnum);
+            if (*jstyle == 'n') {
+                jnum++;
+                sprintf(tag, " (%d)", jnum);
+            } else {
+                sprintf(tag, " (%c)", 'A' + jnum);
+                jnum++;
+            }
 
             name = vh_sgetref(from, "RDESC");
             if (strlen(name) == 0)
@@ -400,7 +408,7 @@ setup_room_names(int jflag, int tflag)
     }
 
     /* Add tag names if required */
-    if (tflag) {
+    if (show_tags) {
         vl_foreach(elt, rooms) {
             room = vs_pget(elt);
             if (vh_exists(room, "TAG")) {
