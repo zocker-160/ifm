@@ -73,7 +73,6 @@ room_text_font = "Times-Bold";
 room_text_fontsize = 10;
 room_text_fontdef = "Times 10 bold";
 fig room_text_font = "Times Bold";
-fig room_text_fontsize = 16;
 
 # Whether to append room tag names to room descriptions.  If so,
 # they are appended in square brackets, like [this].
@@ -229,6 +228,10 @@ keep_unused_items = 1;
 
 # Whether to treat all tasks as safe (reckless mode!).
 all_tasks_safe = 0;
+
+# Whether to print game solver info messages (helps with figuring
+# out what it's up to).
+solver_messages = 0;
 
 ##################################################################
 # Aliases
