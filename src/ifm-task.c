@@ -267,7 +267,7 @@ order_tasks(void)
     vscalar *elt;
 
     /* Don't bother if no tasks */
-    if (vl_length(tasklist) == 0)
+    if (tasklist == NULL || vl_length(tasklist) == 0)
         return;
 
     /* Build initial inventory */
