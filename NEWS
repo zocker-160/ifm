@@ -1,16 +1,19 @@
 ****************************************************************************
-* Version 5.0                                                     Nov 2002 *
+* Version 5.0                                                  19 Jan 2003 *
 ****************************************************************************
 
 Additions
 =========
 
 * New map output: Fig format, suitable for viewing or editing with Xfig, or
-  exporting to other formats.  There's a couple of new utility programs
-  which make use of this: ifm2dev, which pipes IFM output through fig2dev
-  repeatedly to write each map section to its own file, and ifm2tex, which
-  converts the Fig files to EPS and includes them in a LaTeX document
-  together with tables of items and tasks.
+  exporting to other formats.
+
+* New utility program: ifm2dev, which pipes IFM output in Fig format
+  through fig2dev repeatedly to write each map section to its own file.
+
+* New utility program: ifm2tex, which converts Fig files to EPS and
+  includes them in a LaTeX document together with tables of items and
+  tasks.
 
 * New task output: graphviz (dot) format, which dumps a task dependency
   graph.
