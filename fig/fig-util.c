@@ -100,6 +100,18 @@ fig_calc_bbox(vhash *object)
     return 1;
 }
 
+/* Print a debugging message */
+void
+fig_debug(char *fmt, ...)
+{
+    char buf[BUFSIZ];
+
+    if (getenv("FIG_DEBUG") != NULL) {
+        V_VPRINT(buf, fmt);
+        fprintf(stderr, "Fig: %s\n", buf);
+    }
+}
+
 /* Print a fatal error and die */
 void
 fig_fatal(char *fmt, ...)
@@ -109,6 +121,24 @@ fig_fatal(char *fmt, ...)
     V_VPRINT(buf, fmt);
     fprintf(stderr, "Fig fatal: %s\n", buf);
     exit(2);
+}
+
+/* Get an attribute of an object */
+vscalar *
+fig_get_attr(vhash *object, char *attr)
+{
+    vhash *parent;
+
+    while (!vh_exists(object, attr) &&
+           (parent = vh_pget(object, "PARENT")) != NULL)
+        object = parent;
+
+#if 0
+    if (!vh_exists(object, attr))
+        fig_fatal("no such attribute: %s", attr);
+#endif
+
+    return vh_get(object, attr);
 }
 
 /* Get the root figure of an object */

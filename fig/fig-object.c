@@ -45,6 +45,14 @@ fig_create(int units, float scale)
     vh_sstore(obj, "UNITS", uname);
     vh_dstore(obj, "SCALE", scale);
 
+    vh_istore(obj, "PENCOLOUR", -1);
+    vh_istore(obj, "FILLCOLOUR", -1);
+    vh_istore(obj, "LINEWIDTH", 1);
+
+    fig_set_depth(obj, 100);
+    fig_set_justify(obj, FIG_JUSTIFY_CENTRE);
+    fig_set_arrowstyle(obj, FIG_CLOSED, FIG_FILLED, 1.0, 4.0, 8.0);
+
     return obj;
 }
 
@@ -125,16 +133,7 @@ fig_create_object(vhash *parent, int type)
     vhash *obj;
 
     obj = vh_create();
-
     vh_istore(obj, "TYPE", type);
-
-    vh_istore(obj, "PENCOLOUR", -1);
-    vh_istore(obj, "FILLCOLOUR", -1);
-    vh_istore(obj, "THICKNESS", 1);
-
-    fig_set_depth(obj, 100);
-    fig_set_justify(obj, FIG_JUSTIFY_CENTRE);
-    fig_set_arrowstyle(obj, FIG_CLOSED, FIG_FILLED, 1.0, 4.0, 8.0);
 
     if (parent != NULL) {
         if ((objects = vh_pget(parent, "OBJECTS")) == NULL) {
@@ -265,10 +264,83 @@ fig_create_text(vhash *parent, float x, float y, char *fmt, ...)
 
     vh_fstore(obj, "WIDTH", strlen(buf) * FIG_TEXT_WSCALE * scale);
     vh_fstore(obj, "HEIGHT", 10.0 * FIG_TEXT_HSCALE * scale);
+    vh_fstore(obj, "ANGLE", 0.0);
 
     vh_istore(obj, "X", (int) (x * scale * SCALE));
     vh_istore(obj, "Y", (int) (y * scale * SCALE));
 
+    return obj;
+}
+
+/* Create text that fits in a box */
+vhash *
+fig_create_textbox(vhash *parent,
+                   char *font, float fontsize, int justify,
+                   float x, float y, float width, float height,
+                   char *fmt, ...)
+{
+    vhash *figure = fig_get_figure(parent);
+#if 1
+    float scale = vh_dget(figure, "SCALE") * SCALE;
+#else
+    float scale = SCALE;
+#endif
+
+    float xt, yt, textwidth, textheight, linegap, offset;
+    int i, nrows, ncols;
+    vhash *obj, *text;
+    vlist *lines;
+
+    V_VPRINT(buf, fmt);
+
+    /* Reduce font size until it fits the box */
+    while (1) {
+        linegap = fontsize * FIG_TEXT_HSCALE * 1.1;
+        ncols = width * scale / (FIG_TEXT_WSCALE * fontsize);
+        lines = vl_filltext(buf, ncols);
+        nrows = vl_length(lines);
+
+        fig_debug("trying fontsize %g: %d rows, %d cols",
+                  fontsize, nrows, ncols);
+
+        fig_value(nrows * linegap);
+        fig_value(height * scale);
+
+        if (nrows * linegap <= height * scale)
+            break;
+
+        if (fontsize <= 4)
+            break;
+
+        fontsize--;
+        vl_destroy(lines);
+    }
+
+    /* Create text objects */
+    obj = fig_create_compound(parent);
+
+    switch (justify) {
+    case FIG_JUSTIFY_LEFT:
+        xt = x;
+        break;
+    case FIG_JUSTIFY_CENTRE:
+        xt = x + width / 2;
+        break;
+    case FIG_JUSTIFY_RIGHT:
+        xt = x + width;
+        break;
+    }
+
+    for (i = 0; i < nrows; i++) {
+        offset = i + 0.7 - nrows / 2.0;
+        yt = y + height / 2;
+        yt += (offset * linegap) / scale;
+        text = fig_create_text(obj, xt, yt, "%s", vl_sgetref(lines, i));
+        fig_set_font(text, font, fontsize);
+        fig_set_justify(text, justify);
+    }
+
+    vl_destroy(lines);
     return obj;
 }
 

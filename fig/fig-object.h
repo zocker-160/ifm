@@ -52,6 +52,9 @@ extern vhash *fig_create_polyline(vhash *parent, int subtype);
 extern vhash *fig_create_spline(vhash *parent, int subtype);
 extern vhash *fig_create_text(vhash *parent, float x, float y, char *fmt,
                               ...);
+extern vhash *fig_create_textbox(vhash *parent, char *font, float fontsize,
+                                 int justify, float x, float y, float width,
+                                 float height, char *fmt, ...);
 extern void fig_destroy(vhash *figure);
 
 #endif

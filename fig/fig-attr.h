@@ -7,8 +7,8 @@
 
 #define FIG_RESOLUTION 1200
 
-#define FIG_TEXT_WSCALE 10
-#define FIG_TEXT_HSCALE 10
+#define FIG_TEXT_WSCALE 6.2
+#define FIG_TEXT_HSCALE 11.25
 
 #define FIG_UNDEF -1
 
@@ -59,12 +59,13 @@ extern void fig_set_arrowstyle(vhash *object, int type, int style,
                                float thick, float width, float height);
 extern void fig_set_colour(vhash *object, float r, float g, float b);
 extern void fig_set_depth(vhash *object, int depth);
-extern void fig_set_fillcolour(vhash *object, int r, int g, int b);
+extern void fig_set_fillcolour(vhash *object, float r, float g, float b);
 extern void fig_set_fillstyle(vhash *object, int style);
 extern void fig_set_font(vhash *object, char *font, float fontsize);
 extern void fig_set_joinstyle(vhash *object, int style);
 extern void fig_set_justify(vhash *object, int justify);
 extern void fig_set_linestyle(vhash *object, int style);
+extern void fig_set_linewidth(vhash *object, int width);
 extern void fig_set_name(vhash *object, char *fmt, ...);
 extern void fig_set_orientation(vhash *figure, int orient);
 extern void fig_set_papersize(vhash *figure, char *size);

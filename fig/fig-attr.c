@@ -131,7 +131,7 @@ fig_set_depth(vhash *object, int depth)
 
 /* Set the fill colour of an object */
 void
-fig_set_fillcolour(vhash *object, int r, int g, int b)
+fig_set_fillcolour(vhash *object, float r, float g, float b)
 {
     int id = fig_lookup_colour(object, r, g, b);
     vh_istore(object, "FILLCOLOUR", id);
@@ -149,9 +149,12 @@ fig_set_fillstyle(vhash *object, int style)
 void
 fig_set_font(vhash *object, char *font, float fontsize)
 {
+    vhash *figure = fig_get_figure(object);
+    float scale = vh_dget(figure, "SCALE");
+
     vh_istore(object, "FONT", fig_lookup_font(font));
-    vh_fstore(object, "FONTSIZE", fontsize);
-    vh_fstore(object, "HEIGHT", fontsize * FIG_TEXT_HSCALE);
+    vh_fstore(object, "FONTSIZE", fontsize * scale);
+    vh_fstore(object, "HEIGHT", fontsize * FIG_TEXT_HSCALE * scale);
 }
 
 /* Set the join style of an object */
@@ -173,6 +176,13 @@ void
 fig_set_linestyle(vhash *object, int style)
 {
     vh_istore(object, "LINESTYLE", style);
+}
+
+/* Set the line width of an object */
+void
+fig_set_linewidth(vhash *object, int width)
+{
+    vh_istore(object, "LINEWIDTH", width);
 }
 
 /* Set the name of an object */
