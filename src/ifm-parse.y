@@ -17,8 +17,19 @@
 #include "ifm-task.h"
 #include "ifm-util.h"
 
+#define SET_LIST(object, attr, list) \
+        vlist *l = vh_pget(object, attr); \
+        if (l == NULL) { \
+                vh_pstore(object, attr, list); \
+                list = NULL; \
+        } else { \
+                vl_append(l, list); \
+                vl_destroy(list); \
+                list = NULL; \
+        }
+
 #define WARN_IGNORED(attr) \
-    warn("attribute `%s' ignored -- no `dir' link", #attr)
+        warn("attribute `%s' ignored -- no `dir' link", #attr)
 %}
 
 %union {
@@ -205,39 +216,27 @@ room_attr	: TAG IDENT
 		}
                 | NEED item_list
                 {
-                    if (vh_exists(curroom, "DIR"))
-                        vh_pstore(curroom, "LINK_NEED", curitems);
-                    else
-                        vh_pstore(curroom, "NEED", curitems);
-
-                    curitems = NULL;
+                    char *attr = (vh_exists(curroom, "DIR") ?
+                                  "LINK_NEED" : "NEED");
+                    SET_LIST(curroom, attr, curitems);
                 }
 		| BEFORE task_list
 		{
-                    if (vh_exists(curroom, "DIR"))
-                        vh_pstore(curroom, "LINK_BEFORE", curtasks);
-                    else
-                        vh_pstore(curroom, "BEFORE", curtasks);
-
-                    curtasks = NULL;
+                    char *attr = (vh_exists(curroom, "DIR") ?
+                                  "LINK_BEFORE" : "BEFORE");
+                    SET_LIST(curroom, attr, curtasks);
 		}
 		| AFTER task_list
 		{
-                    if (vh_exists(curroom, "DIR"))
-                        vh_pstore(curroom, "LINK_AFTER", curtasks);
-                    else
-                        vh_pstore(curroom, "AFTER", curtasks);
-
-                    curtasks = NULL;
+                    char *attr = (vh_exists(curroom, "DIR") ?
+                                  "LINK_AFTER" : "AFTER");
+                    SET_LIST(curroom, attr, curtasks);
 		}
                 | LEAVE item_list
                 {
-                    if (vh_exists(curroom, "DIR"))
-                        vh_pstore(curroom, "LINK_LEAVE", curitems);
-                    else
-                        vh_pstore(curroom, "LEAVE", curitems);
-
-                    curitems = NULL;
+                    char *attr = (vh_exists(curroom, "DIR") ?
+                                  "LINK_LEAVE" : "LEAVE");
+                    SET_LIST(curroom, attr, curitems);
                 }
 		| LENGTH INTEGER
 		{
@@ -309,18 +308,15 @@ item_attr	: TAG IDENT
 		}
                 | NEED item_list
                 {
-                    vh_pstore(curitem, "NEED", curitems);
-                    curitems = NULL;
+                    SET_LIST(curitem, "NEED", curitems);
                 }
                 | BEFORE task_list
                 {
-                    vh_pstore(curitem, "BEFORE", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curitem, "BEFORE", curtasks);
                 }
                 | AFTER task_list
                 {
-                    vh_pstore(curitem, "AFTER", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curitem, "AFTER", curtasks);
                 }
 		| SCORE INTEGER
 		{
@@ -367,23 +363,19 @@ link_attr	: DIR dir_list
 		}
                 | NEED item_list
                 {
-                    vh_pstore(curlink, "NEED", curitems);
-                    curitems = NULL;
+                    SET_LIST(curlink, "NEED", curitems);
                 }
 		| BEFORE task_list
 		{
-                    vh_pstore(curlink, "BEFORE", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curlink, "BEFORE", curtasks);
 		}
 		| AFTER task_list
 		{
-                    vh_pstore(curlink, "AFTER", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curlink, "AFTER", curtasks);
 		}
                 | LEAVE item_list
                 {
-                    vh_pstore(curlink, "LEAVE", curitems);
-                    curitems = NULL;
+                    SET_LIST(curlink, "LEAVE", curitems);
                 }
 		| LENGTH INTEGER
 		{
@@ -428,23 +420,19 @@ join_attr	: GO go_flag
 		}
                 | NEED item_list
                 {
-                    vh_pstore(curjoin, "NEED", curitems);
-                    curitems = NULL;
+                    SET_LIST(curjoin, "NEED", curitems);
                 }
 		| BEFORE task_list
 		{
-                    vh_pstore(curjoin, "BEFORE", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curjoin, "BEFORE", curtasks);
 		}
 		| AFTER task_list
 		{
-                    vh_pstore(curjoin, "AFTER", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curjoin, "AFTER", curtasks);
 		}
                 | LEAVE item_list
                 {
-                    vh_pstore(curjoin, "LEAVE", curitems);
-                    curitems = NULL;
+                    SET_LIST(curjoin, "LEAVE", curitems);
                 }
 		| LENGTH INTEGER
 		{
@@ -486,23 +474,19 @@ task_attr	: TAG IDENT
 		}
 		| AFTER task_list
 		{
-                    vh_pstore(curtask, "AFTER", curtasks);
-                    curtasks = NULL;
+                    SET_LIST(curtask, "AFTER", curtasks);
 		}
 		| NEED item_list
 		{
-                    vh_pstore(curtask, "NEED", curitems);
-                    curitems = NULL;
+                    SET_LIST(curtask, "NEED", curitems);
 		}
 		| GET item_list
 		{
-                    vh_pstore(curtask, "GET", curitems);
-                    curitems = NULL;
+                    SET_LIST(curtask, "GET", curitems);
 		}
 		| LOSE item_list
 		{
-                    vh_pstore(curtask, "LOSE", curitems);
-                    curitems = NULL;
+                    SET_LIST(curtask, "LOSE", curitems);
 		}
                 | GOTO IDENT
                 {
