@@ -1,70 +1,4 @@
-% Start of IFM PostScript prolog.
-
-% Useful definitions.
-/cm {2.54 72 div mul} def
-/debug true def
-/degree {} def
-/inch {72 mul} def
-/max {2 copy gt {} {exch} ifelse pop} def
-/min {2 copy lt {} {exch} ifelse pop} def
-/mm {25.4 72 div mul} def
-/percent {100 div mul} def
-/point {} def
-
-/msg {				% MESSAGE msg
-    debug { print (\n) print } { pop } ifelse
-} bind def
-
-/val {				% MESSAGE VALUE val
-    debug { exch print == } { pop pop } ifelse
-} bind def
-
-/selectfont {			% FONT SIZE selectfont
-    /currentfontsize exch def
-    findfont currentfontsize scalefont setfont
-} bind def
-
-% Fonts.
-/titlefont /Times-Bold def
-/titlefontsize 14 def
-/textfont /Times-Roman def
-/textfontsize 10 def
-
-% Desired map size.
-/realmapwidth 8 def
-/realmapheight 12 def
-
-% Page dimensions.
-/realpagewidth 8.3 inch def
-/realpageheight 11.7 inch def
-/pagemargin 0.5 inch def
-
-% Room dimensions (relative).
-/roomwidth 0.8 def
-/roomheight 0.65 def
-
-% Convert to page coordinates.
-/pagepos {			% X Y pagepos PX PY
-    0.5 add boxsize mul heightoffset add exch
-    0.5 add boxsize mul widthoffset add exch
-} def
-
-% Unused.
-/pagecoords {
-    widthoffset heightoffset translate
-    boxsize dup scale
-} def
-
-% Draw centred text.
-/centredtext {			% STRING X Y centredtext
-    gsave
-	translate		% move to text centre
-	dup stringwidth		% get string dimensions
-	pop neg 2 div		% set offsets
-	currentfontsize neg 2 div
-	moveto show		% draw it
-    grestore
-} bind def
+% Default IFM PostScript prolog.
 
 % Start a new page.
 /beginpage {			% WIDTH HEIGHT ROTFLAG beginpage
@@ -72,31 +6,31 @@
 
     % Page orientation.
     {
-	/pagewidth realpageheight def
-	/pageheight realpagewidth def
-	/mapwidth realmapheight def
-	/mapheight realmapwidth def
+	/pagewidth origpageheight def
+	/pageheight origpagewidth def
+	/mapwidth origmapheight def
+	/mapheight origmapwidth def
 	90 rotate
 	0 pageheight neg translate
     } {
-	/pagewidth realpagewidth def
-	/pageheight realpageheight def
-	/mapwidth realmapwidth def
-	/mapheight realmapheight def
+	/pagewidth origpagewidth def
+	/pageheight origpageheight def
+	/mapwidth origmapwidth def
+	/mapheight origmapheight def
     } ifelse
 
     % Get width and height of page contents.
-    /height exch def
-    /width exch def
+    /bp-height exch def
+    /bp-width exch def
 
     % Calculate box size.
-    /boxx pagewidth pagemargin 2 mul sub mapwidth width max div def
-    /boxy pageheight pagemargin 2 mul sub mapheight height max div def
-    /boxsize boxx boxy min def
+    /bp-boxx pagewidth pagemargin 2 mul sub mapwidth bp-width max div def
+    /bp-boxy pageheight pagemargin 2 mul sub mapheight bp-height max div def
+    /boxsize bp-boxx bp-boxy min def
 
     % Calculate page offsets.
-    /widthoffset pagewidth width boxsize mul sub 2 div def
-    /heightoffset pageheight height boxsize mul sub 2 div def
+    /widthoffset pagewidth bp-width boxsize mul sub 2 div def
+    /heightoffset pageheight bp-height boxsize mul sub 2 div def
 
     % Put border around page.
     newpath
@@ -107,29 +41,28 @@
     closepath stroke
 
     % Calculate font scaling factor.
-    /scalewidth mapwidth dup width max div def
-    /scaleheight mapheight dup height max div def
+    /scalewidth mapwidth dup bp-width max div def
+    /scaleheight mapheight dup bp-height max div def
     /fontscale scalewidth scaleheight min def
 } def
 
 % Start a map section.
-/map {				% TITLE X Y map
+/map {				% STRING X Y map
     % Draw map title.
     titlefont titlefontsize selectfont
     pagepos centredtext
-
-    % Set text font.
-    textfont textfontsize fontscale mul selectfont
 } def
 
 % Draw a room. 
-/room {				% TEXT X Y room
-    % Copy coordinates for text.
+/room {				% STRING X Y room
+    % Convert and save arguments.
     pagepos
-    2 copy
+    /rm-ypos exch def
+    /rm-xpos exch def
+    /rm-string exch def
 
     % Move to top right corner of box.
-    newpath moveto
+    newpath rm-xpos rm-ypos moveto
     boxsize roomwidth 2 div mul
     boxsize roomheight 2 div mul
     rmoveto
@@ -141,21 +74,19 @@
     closepath
 
     % Fill it.
-    gsave 1 setgray fill grestore
-    stroke
+    gsave roomshading setgray fill grestore stroke
 
-    % Draw text.
-    centredtext
+    % Draw room text.
+    roomfont roomfontsize fontscale mul selectfont
+    rm-string rm-xpos rm-ypos
+    boxsize roomwidth mul
+    boxsize roomheight mul
+    boxtext
 } def
 
 % Draw a link.
-/link {				% [ X Y ... ] link
+/link {				% [ X Y ... ] ONEWAY SPECIAL link
     
-} def
-
-% Draw some text.
-/text {				% TEXT X Y text
-
 } def
 
 % End a page.
@@ -164,4 +95,202 @@
     showpage
 } def
 
-% End of IFM PostScript prolog.
+% Draw some text in a box.
+/boxtext {			% STRING X Y WIDTH HEIGHT text
+    % Save arguments.
+    /bt-height exch def
+    /bt-width exch def
+    /bt-ypos exch def
+    /bt-xpos exch def
+
+    % Get text lines.
+    bt-width bt-height splittext
+    /bt-factor exch 1 textmargin sub mul def
+    /bt-lines exch def
+    /bt-numlines bt-lines length def
+
+    gsave
+	% Move to centre of box.
+	bt-xpos bt-ypos translate
+
+	% Draw box around text if required.
+	debug {
+	    newpath
+	    bt-width 2 div bt-height 2 div moveto
+	    bt-width neg 0 rlineto
+	    0 bt-height neg rlineto
+	    bt-width 0 rlineto
+	    closepath stroke
+	} if
+
+	% Scale box.
+	bt-factor dup scale
+
+	% Draw each line.
+	/bt-linegap currentfontsize textspacing mul def
+	/bt-lineheight currentfontsize bt-linegap add def
+	/bt-textheight bt-numlines bt-lineheight mul bt-linegap sub def
+
+	0 1 bt-numlines 1 sub {
+	    % Get string.
+	    dup bt-lines exch get
+
+	    % Get its Y offset.
+	    exch bt-numlines 1 sub exch sub 0.5 add bt-lineheight mul 
+	    bt-textheight 2 div sub
+
+	    % Draw it.
+	    0 exch centredtext
+	} for
+    grestore
+} def
+
+% Split a string into pieces for filling.
+/splittext {			% STRING WIDTH HEIGHT split LINES FACTOR
+    % Save arguments.
+    /st-height exch def
+    /st-width exch def
+    /st-str exch def
+
+    % Build pieces.
+    /st-lines [
+	st-str st-width {} breakline
+    ] def
+
+    % Set scale factor.
+    /st-factor 1 def
+
+    % See if it needs squishing widthwise.
+    st-lines {
+        stringwidth pop st-width exch div st-factor min /st-factor exch def
+    } forall
+
+    % Ditto heightwise.
+    st-lines length
+    textspacing 1 add mul
+    currentfontsize mul
+    st-height exch div st-factor min /st-factor exch def
+
+    st-lines st-factor
+} def
+
+% Line breaking algorithm (program 12 from Adobe Cookbook).
+/breakline {			% STRING WIDTH PROC breakline
+    /bl-proc exch def
+    /bl-linewidth exch def
+    addspace /bl-textstring exch def
+
+    % Get width of a space in current font.
+    /bl-breakwidth ( ) stringwidth pop def
+
+    % Typeset width of the current line.
+    /bl-curwidth 0 def
+
+    % Index of the most recent space encountered in the text.
+    /bl-lastwordbreak 0 def
+
+    % Index of the first character on the current line.
+    /bl-startchar 0 def
+
+    % Remaining text.
+    /bl-restoftext bl-textstring def
+
+    % Break into lines.
+    {
+	% Find next word.
+	bl-restoftext ( ) search {
+	    /bl-nextword exch def pop
+	    /bl-restoftext exch def
+	    /bl-wordwidth bl-nextword stringwidth pop def
+
+	    % If next word won't fit, process current line (if any)
+	    % and start a new one.  If it will, tag it on.
+	    bl-curwidth bl-wordwidth add bl-linewidth gt {
+		bl-lastwordbreak 0 gt {
+		    bl-textstring bl-startchar
+		    bl-lastwordbreak bl-startchar sub
+		    getinterval bl-proc
+		} if
+
+		/bl-startchar bl-lastwordbreak def
+		/bl-curwidth bl-wordwidth bl-breakwidth add def
+	    }{
+		/bl-curwidth bl-curwidth bl-wordwidth add bl-breakwidth add def
+	    } ifelse
+
+	    % Mark last word break.
+	    /bl-lastwordbreak bl-lastwordbreak bl-nextword length add 1 add def
+	}{
+	    pop exit
+	} ifelse
+    } loop
+
+    % Process the last line.
+    /bl-lastchar bl-textstring length def
+    bl-textstring bl-startchar bl-lastchar bl-startchar sub getinterval bl-proc
+} bind def
+
+% Draw centred text.
+/centredtext {			% STRING X Y centredtext
+    gsave
+	translate		% move to text centre
+	dup stringwidth		% get string dimensions
+	pop neg 2 div currentfontsize 2 div neg % set offsets
+	moveto show		% draw it
+    grestore
+} bind def
+
+% Add trailing space to a string.
+/addspace {			% STRING addspace STRING
+    dup length 1 add string /as-str exch def
+    dup as-str exch 0 exch putinterval
+    length as-str exch 32 put as-str
+} def
+
+% Select a font.
+/selectfont {			% FONT SIZE selectfont
+    /currentfontsize exch def
+    findfont currentfontsize scalefont setfont
+} bind def
+
+% Convert to page coordinates.
+/pagepos {			% X Y pagepos PX PY
+    0.5 add boxsize mul heightoffset add exch
+    0.5 add boxsize mul widthoffset add exch
+} def
+
+% Unused.
+/pagecoords {
+    boxsize dup scale
+    widthoffset heightoffset translate
+} def
+
+% Print stack if debugging.
+/stack {			% MESSAGE stack
+    debug { (*** ) print print ( ***\n) print pstack } { pop } ifelse
+} bind def
+
+% Print a debugging message.
+/msg {				% MESSAGE msg
+    debug { print (\n) print } { pop } ifelse
+} bind def
+
+% Print a value if debugging.
+/val {				% MESSAGE VALUE val
+    debug { exch print == } { pop pop } ifelse
+} bind def
+
+% Standard definitions.
+/cm {2.54 72 div mul} def
+/debug true def
+/degree {} def
+/inch {72 mul} def
+/max {2 copy gt {} {exch} ifelse pop} def
+/min {2 copy lt {} {exch} ifelse pop} def
+/mm {25.4 72 div mul} def
+/percent {100 div mul} def
+/point {} def
+
+% Control variables.
+/textspacing 0.1 def
+/textmargin 0.1 def
