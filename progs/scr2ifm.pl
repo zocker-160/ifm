@@ -19,13 +19,8 @@ use Getopt::Std;
 	    "w" => "e", "se" => "nw", "nw" => "se", "in" => "out",
 	    "out" => "in", "up" => "down", "down" => "up");
 
-# Clockwise-direction mapping.
-%cwmap = ("n" => "ne", "ne" => "e", "e" => "se", "se" => "s", "s" => "sw",
-	  "sw" => "w", "w" => "nw", "nw" => "n");
-
-# Anticlockwise-direction mapping.
-%acwmap = ("n" => "nw", "nw" => "w", "w" => "sw", "sw" => "s", "s" => "se",
-	   "se" => "e", "e" => "ne", "ne" => "n");
+# Direction list in order of positioning preference.
+@dirlist = ("n", "s", "e", "w", "ne", "se", "sw", "nw");
 
 # List of transcript moves (hash entries).
 @moves = ();
@@ -33,11 +28,8 @@ use Getopt::Std;
 # Room tag -> room data mapping.
 %roommap = ();
 
-# Room name -> list-of-room-tags mapping.
-%namemap = ();
-
-# Room description -> list-of-room-tags mapping.
-%descmap = ();
+# Linked rooms -> link data mapping.
+%linkmap = ();
 
 # List of IFM rooms.
 @rooms = ();
@@ -45,20 +37,30 @@ use Getopt::Std;
 # List of IFM links.
 @links = ();
 
-# Default regexps.
-$re_prompt = '^>\s*';
-$re_look = '^L(OOK)?';
-$re_end = '^UNSCRIPT';
+# Default room name recognition parameters.
+$name_maxwords = 8;
+$name_maxuncap = 3;
+$name_invalid = '[.!?]';
+
+# Default room description recognition parameters.
+$desc_minwords = 20;
+
+# Default command regexps.
+$cmd_prompt = '^>\s*';
+$cmd_look = '^L(OOK)?';
+$cmd_end = '^UNSCRIPT';
+$cmd_ignore = '^UNDO';
+$cmd_invalid = '^RE(START|STORE)';
 
 ### Stage 1 -- parse arguments and read input.
 
 # Parse arguments.
-&getopts('hi:o:t:v') or die "Type `$0 -h' for help\n";
+&getopts('c:dhlo:t:vw') or die "Type `$0 -h' for help\n";
 &usage if $opt_h;
 
-# Read extra IFM commands if required.
-if ($opt_i) {
-    open(IFM, $opt_i) or die "Can't open $opt_i: $!\n";
+# Read IFM command file if required.
+if ($opt_c) {
+    open(IFM, $opt_c) or die "Can't open $opt_c: $!\n";
     @ifmcmds = <IFM>;
     close IFM;
 }
@@ -70,23 +72,26 @@ if ($opt_o) {
 
 # Skip input until first prompt.
 while (<>) {
-    last if /$re_prompt/o;
+    last if /$cmd_prompt/o;
 }
 
-# Read prompt/command/reply blocks.
+# Read command/reply blocks.
+&verbose(1, "Reading transcript...");
+
 while (1) {
     # Get command.
-    s/$re_prompt//o;
+    s/$cmd_prompt//o;
     chop($cmd = uc $_);
     $cmd =~ s/\s+$//;
+    $line = $.;
 
     # Check for end of script.
-    last if $cmd =~ /$re_end/o;
+    last if $cmd =~ /$cmd_end/o;
 
     # Read reply.
     $reply = [];
     while (<>) {
-	last if /$re_prompt/o;
+	last if /$cmd_prompt/o;
 	chop;
 	push(@$reply, $_);
     }
@@ -95,30 +100,46 @@ while (1) {
     $move = {};
     $move->{CMD} = $cmd;
     $move->{REPLY} = $reply;
+    $move->{LINE} = $line;
     push(@moves, $move);
 
     last if eof;
 }
 
-### Stage 2 -- scan moves for those which mark or change location.
+### Stage 2 -- scan moves for those which mark or change room.
+
+&verbose(1, "Scanning for movement commands...");
 
 foreach $move (@moves) {
     undef $roomflag;
     undef $descflag;
+    undef $desc;
+
+    &error("invalid transcript command: %s", $move->{CMD})
+	if $move->{CMD} =~ /$cmd_invalid/o;
+
+    next if $move->{CMD} =~ /$cmd_ignore/o;
 
     for (@{$move->{REPLY}}) {
 	$blank = /^\s*$/;
 
-	# Check for location title.
-	if (!$roomflag && !$blank && &location($_)) {
+	# Check for room name.
+	if (!$roomflag && !$blank && &roomname($_)) {
 	    $roomflag++;
 	    $name = $_;
 	    next;
 	}
 
+	# If got room name, decide if there's a blank line between
+	# it and the description.
+	$desc_gap = $blank if $roomflag && !defined $desc_gap;
+
+	# If there isn't a blank line, but this line is, then there's
+	# no description.
+	last if $roomflag && !$desc_gap && $blank;
+
 	# Check for room description.
 	if ($roomflag && !$blank) {
-	    undef $desc unless $descflag;
 	    $desc .= "# " . $_ . "\n";
 	    $descflag++;
 	    next;
@@ -132,30 +153,36 @@ foreach $move (@moves) {
     if ($roomflag) {
 	$move->{ROOM} = $name;
 	$move->{DESC} = $desc if $desc;
-	$move->{LOOK} = 1 if $move->{CMD} =~ /$re_look/o;
+	$move->{LOOK} = 1 if $move->{CMD} =~ /$cmd_look/o;
+
+	&warning("room `%s' verbose description is missing", $name)
+	    if !$desc && !$roomwarn{$name}++;
     }
 }
 
 ### Stage 3 -- Build IFM room and link lists.
 
+&verbose(1, "Building rooms and links...");
+
 foreach $move (@moves) {
     $name = $move->{ROOM};
     $desc = $move->{DESC};
+    $line = $move->{LINE};
 
     # Skip it if no room is listed.
     next unless $name;
 
     # If it's a LOOK command, or we don't know where we are yet,
-    # set current location.
+    # set current room.
     if ($move->{LOOK} || !$here) {
-	$here = &newroom($name, $desc) unless $here;
+	$here = &newroom($line, $name, $desc) unless $here;
 	next;
     }
 
     # Otherwise, assume we moved in some way.  Try to find the new room.
     $there = &findroom($name, $desc);
 
-    # If the new location looks like this one, do nothing.
+    # If the new room looks like this one, do nothing.
     next if $there eq $here;
 
     # Get the movement direction.
@@ -179,18 +206,19 @@ foreach $move (@moves) {
 
     if (!$there) {
 	# Unvisited -- new room.
-	$here = &newroom($name, $desc, $dir, $here, $go, $cmd);
+	$here = &newroom($line, $name, $desc, $dir, $here, $go, $cmd);
     } else {
 	# Visited before -- new link.
-	&newlink($here, $there, $dir, $go, $cmd);
+	&newlink($line, $here, $there, $dir, $go, $cmd);
 	$here = $there;
     }
 }
 
 ### Stage 4 -- Write IFM output.
 
+&verbose(1, "Writing output...");
+
 print "## IFM map created from a transcript by $0\n";
-print "## You will probably need to edit this further!\n";
 
 print "\ntitle \"$opt_t\";\n" if $opt_t;
 
@@ -199,6 +227,7 @@ print "\n## Rooms generated by transcript.\n";
 foreach $room (@rooms) {
     $name = $room->{NAME};
     $desc = $room->{DESC};
+    $line = $room->{LINE};
     $tag = $room->{TAG};
     $dir = $room->{DIR};
     $from = $room->{FROM};
@@ -212,9 +241,11 @@ foreach $room (@rooms) {
     print " go $go" if $go;
     print " cmd \"$cmd\"" if $cmd;
 
-    print ";\n";
+    print ";";
+    print " # Line $line" if $opt_l;
+    print "\n";
 
-    print $desc, "\n" if $opt_v && $desc;
+    print $desc if $opt_d && $desc;
 }
 
 print "\n## Extra links generated by transcript.\n" if @links > 0;
@@ -223,6 +254,7 @@ foreach $link (@links) {
     $from = $link->{FROM};
     $to = $link->{TO};
     $tag = $link->{TAG};
+    $line = $link->{LINE};
     $dir = $link->{DIR};
     $go = $link->{GO};
     $cmd = $link->{CMD};
@@ -233,28 +265,30 @@ foreach $link (@links) {
     print " go $go" if $go;
     print " cmd \"$cmd\"" if $cmd;
 
-    print ";\n";
+    print ";";
+    print " # Line $line" if $opt_l;
+    print "\n";
 }
 
 if (@ifmcmds > 0) {
-    print "\n## Included IFM commands.\n";
+    print "\n## Customization commands.\n";
     print @ifmcmds;
 }
 
-# Return whether a text line looks like a location title.
-sub location {
+# Return whether a text line looks like a room name.
+sub roomname {
     my $line = shift;
 
     # Quick check for invalid chars.
-    return 0 if $line =~ /[.!?]/;
+    return 0 if $line =~ /$name_invalid/o;
 
     # Check word count.
     my @words = split(' ', $line);
-    return 0 if @words > 8;
+    return 0 if @words > $name_maxwords;
 
     # Check uncapitalized words.
     for (@words) {
-	return 0 if /^[a-z]/ && length() > 3;
+	return 0 if /^[a-z]/ && length() > $name_maxuncap;
     }
 
     return 1;
@@ -262,7 +296,7 @@ sub location {
 
 # Add a new room to the room list.
 sub newroom {
-    my ($name, $desc, $dir, $from, $go, $cmd) = @_;
+    my ($line, $name, $desc, $dir, $from, $go, $cmd) = @_;
     my $tag = &maketag($name);
 
     my $room = {};
@@ -270,6 +304,8 @@ sub newroom {
 
     $room->{NAME} = $name;
     $room->{DESC} = $desc;
+    $room->{LINE} = $line;
+    $room->{WORDS} = [ split(' ', $desc) ];
     $room->{TAG} = $tag;
 
     $room->{DIR} = $dir if $dir;
@@ -279,68 +315,138 @@ sub newroom {
 
     $roommap{$tag} = $room;
 
-    push(@{$namemap{$name}}, $tag);
-    push(@{$descmap{$desc}}, $tag);
-
-    $roommap{$from}{$dir} = $tag if $from && $dir;
+    if ($from && $dir) {
+	&moveroom($from, $dir);
+	$roommap{$from}{$dir} = $tag;
+	$linkmap{$from}{$tag} = $room;
+    }
 
     return $tag;
 }
 
 # Add a new link to the link list if required.
 sub newlink {
-    my ($from, $to, $dir, $go, $cmd) = @_;
+    my ($line, $from, $to, $dir, $go, $cmd) = @_;
+    my $link;
 
-    # Check link doesn't already exist.
-    return if $roommap{$from}{$dir} eq $to;
+    if ($link = $linkmap{$from}{$to}) {
+	# Link this way exists already -- do nothing.
+    } elsif ($link = $linkmap{$to}{$from}) {
+	# Opposite link exists -- see if it needs modifying.
+	unless ($link->{MODIFIED}++) {
+	    my $odir = $link->{DIR};
+	    my $rdir = $rdirmap{$dir};
+	    $link->{DIR} .= " " . $rdir
+		unless $rdir eq $odir || $link->{GO} || $go;
+	    $link->{GO} = $rdirmap{$go} if $go && !$link->{GO};
+	    $link->{CMD} = $go if $cmd && !$link->{CMD};
+	}
+    } else {
+	# No link exists -- create new one.
+	$link = {};
+	push(@links, $link);
 
-    # Check reverse link doesn't exist.
-    my $rdir = $rdirmap{$dir};
-    return if $roommap{$to}{$rdir} eq $from;
+	$link->{FROM} = $from;
+	$link->{TO} = $to;
+	$link->{TAG} = $from . "_" . $to;
+	$link->{LINE} = $line;
+	$link->{DIR} = $dir if $dir;
+	$link->{GO} = $go if $go;
+	$link->{CMD} = $cmd if $cmd;
 
-    # Add new link.
-    my $link = {};
-    push(@links, $link);
-
-    $link->{FROM} = $from;
-    $link->{TO} = $to;
-    $link->{TAG} = $from . "_" . $to;
-    $link->{DIR} = $dir if $dir;
-    $link->{GO} = $go if $go;
-    $link->{CMD} = $cmd if $cmd;
-
-    $roommap{$from}{$dir} = $to;
+	&moveroom($from, $dir);
+	$roommap{$from}{$dir} = $to;
+	$linkmap{$from}{$to} = $link;
+    }
 }
 
-# Return room tag given a name and description.
+# Find a room and return its tag given a name and description.
 sub findroom {
     my ($name, $desc) = @_;
-    my $list;
+    my ($score, $best, $bestscore);
+    my (@words, $match, $room, $i);
 
-    # Prefer to decide by description.
-    if ($desc) {
-	$list = $descmap{$desc};
-	for (@$list) {
-	    return $_ if $name eq $roommap{$_}{NAME};
+    foreach $room (@rooms) {
+	undef $score;
+
+	if ($desc) {
+	    # We have a description -- try exact match first.
+	    $score += 10 if $room->{DESC} eq $desc;
+
+	    # Try substring match.
+	    $score += 5 if index($room->{DESC}, $desc) >= 0;
+
+	    # If still no luck, try first N words.
+	    unless ($score) {
+		$match = 1;
+		@words = split(' ', $desc) unless @words;
+
+		foreach $i (1 .. $desc_minwords) {
+		    if ($words[$i] ne $room->{WORDS}->[$i]) {
+			undef $match;
+			last;
+		    }
+		}
+
+		$score += 2 if $match;
+	    }
+	} else {
+	    # Just the name -- not so good.
+	    $score += 1 if $room->{NAME} eq $name;
 	}
+
+	next if $score <= $bestscore;
+	$bestscore = $score;
+	$best = $room->{TAG};
     }
 
-    $list = $namemap{$name};
-    return $list->[0] if $list;
-
-    return undef;
+    return $best;
 }
 
-# Return room that a link links to.
-sub findlink {
-    my ($tag, $dir) = @_;
-    return $roomtag{$tag}{$dir};
+# Move an up/down/in/out room if required.
+sub moveroom {
+    my ($from, $dir) = @_;
+
+    # Check there's a room there.
+    my $to = $roommap{$from}{$dir};
+    return unless $to;
+
+    # Check it's up/down/in/out.
+    my $room = $roommap{$to};
+    if ($room->{GO}) {
+	# Put room in another direction.
+	$dir = &choosedir($from);
+	$roommap{$from}{$dir} = $to;
+	$room->{DIR} = $dir;
+    } else {
+	# Warn about identical exits.
+	$room = $roommap{$from};
+	&warning("room `%s' has multiple exits (%s)",
+		 $room->{NAME}, uc $dir);
+    }
 }
 
 # Choose a direction to represent up/down/in/out.
 sub choosedir {
-    # At the moment, do something pig-ignorant.
-    return "e";
+    my $room = shift;
+    my ($best, $bestscore, $score, $rdir, $dir);
+
+    foreach $dir (@dirlist) {
+	$rdir = $rdirmap{$dir};
+
+	$score = 0;
+	$score++ unless $roommap{$room}{$dir};
+	$score++ unless $roommap{$room}{$rdir};
+	next if defined $bestscore && $score <= $bestscore;
+
+	$bestscore = $score;
+	$best = $dir;
+    }
+
+    &warning("no up/down/in/out direction left for room `%s'",
+	     $room->{NAME}) unless $bestscore;
+
+    return $best;
 }
 
 # Make a room tag from its name.
@@ -364,13 +470,75 @@ sub maketag {
     return $tag;
 }
 
+# Print a verbose message.
+sub verbose {
+    return unless $opt_v;
+
+    my $level = shift;
+    my $fmt = shift;
+
+    print STDERR "   " x ($level - 1) if $level;
+    printf STDERR $fmt, @_;
+    print STDERR "\n";
+}
+
+# Print a warning.
+sub warning {
+    return if $opt_w;
+
+    my $fmt = shift;
+    print STDERR "$0: warning: ";
+    printf STDERR $fmt, @_;
+    print STDERR "\n";
+}
+
+# Print an error and exit.
+sub error {
+    my $fmt = shift;
+    print STDERR "$0: error: ";
+    printf STDERR $fmt, @_;
+    print STDERR "\n";
+    exit 1;
+}
+
 # Print a usage message and exit.
 sub usage {
     print "Usage: $0 [options] [file]\n\n";
     print "   -t title       add a title\n";
-    print "   -i file        include ifm commands from file\n";
+    print "   -c file        add ifm commands from file\n";
     print "   -o file        write to given file\n";
-    print "   -v             verbose mode\n";
+    print "   -l             print line number comments\n";
+    print "   -d             print room description comments\n";
+    print "   -v             be verbose about things\n";
+    print "   -w             don't print warnings\n";
 
     exit 0;
 }
+
+=head1 NAME
+
+scr2ifm -- convert game transcript to IFM format
+
+=head1 SYNOPSIS
+
+scr2ifm [options] [file]
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=over 4
+
+=back
+
+=head1 RESTRICTIONS
+
+=head1 SEE ALSO
+
+ifm(1)
+
+=head1 AUTHOR
+
+Glenn Hutchings
+
+=cut
