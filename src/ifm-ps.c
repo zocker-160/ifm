@@ -27,6 +27,21 @@ mapfuncs ps_mapfuncs = {
     ps_map_finish
 };
 
+/* Standard paper sizes */
+static struct paper_st {
+    char *name;
+    double width, height;
+} paper_sizes[] = {
+    "A3",       11.69,  16.54,
+    "A4",       8.27,   11.69,
+    "A",        8.5,    11.0,
+    "B",        11.0,   17.0,
+    "C",        17.0,   22.0,
+    "Legal",    8.5,    14.0,
+    "Letter",   8.5,    11.0,
+    NULL,       0.0,    0.0
+};
+
 /* Internal variables */
 static int ps_pagenum = 0;      /* Current page */
 static double ps_xoff;          /* Current X offset */
@@ -45,8 +60,10 @@ void
 ps_map_start(void)
 {
     int ylen, c, num_pages, width, height;
-    char *title, tag[10];
+    char *title, tag[10], *pagesize;
+    double page_width, page_height;
     vscalar *elt;
+    int i, found;
     vhash *sect;
     FILE *fp;
 
@@ -83,9 +100,27 @@ ps_map_start(void)
         putchar(c);
     fclose(fp);
 
+    /* Get paper size */
+    pagesize = get_string("page_size", "A4");
+
+    for (i = 0, found = 0; paper_sizes[i].name != NULL; i++) {
+        if (!strcasecmp(pagesize, paper_sizes[i].name)) {
+            page_width = paper_sizes[i].width;
+            page_height = paper_sizes[i].height;
+            found = 1;
+        }
+    }
+    
+    if (!found)
+        warn("invalid page size: %s", pagesize);
+
+    /* Allow override */
+    page_width = get_real("page_width", page_width);
+    page_height = get_real("page_height", page_height);
+
     /* Print variables */
-    printf("/origpagewidth %g inch def\n", get_real("page_width", 8.3));
-    printf("/origpageheight %g inch def\n", get_real("page_height", 11.7));
+    printf("/origpagewidth %g inch def\n", page_width);
+    printf("/origpageheight %g inch def\n", page_height);
     printf("/pagemargin %g inch def\n", get_real("page_margin", 0.7));
 
     printf("/origmapwidth %d def\n", width);
