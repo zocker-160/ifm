@@ -48,6 +48,7 @@ INTEGER         {DIGIT}+
 REAL		{DIGIT}*\.{DIGIT}+
 ALNUM		{LETTER}|{DIGIT}
 ID		{LETTER}{ALNUM}*
+VAR             \${ID}
 
 %%
 
@@ -196,6 +197,11 @@ ID		{LETTER}{ALNUM}*
 		    return ID;
 		}
 
+{VAR}		{
+		    yylval.sval = v_strdup(&yytext[1]);
+		    return VAR;
+		}
+
 {REAL}          {
                     yylval.dval = atof(yytext);
 		    return REAL;
@@ -205,6 +211,8 @@ ID		{LETTER}{ALNUM}*
 		    yylval.ival = atoi(yytext);
 		    return INTEGER;
 		}
+
+"=="            { return ALIAS; }
 
 .		{ return yytext[0]; }
 
