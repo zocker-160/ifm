@@ -4,8 +4,8 @@ TESTS_ENVIRONMENT = SRCDIR=$(top_srcdir) BUILDDIR=$(top_builddir)
 
 SRCS = map-exit.ifm map-join1.ifm map-join2.ifm map-link1.ifm map-link2.ifm \
 map-nolink.ifm task-attr1.ifm task-attr2.ifm task-attr3.ifm		    \
-task-before1.ifm task-before2.ifm task-cmd.ifm task-drop1.ifm		    \
-task-drop2.ifm task-drop3.ifm task-drop4.ifm task-finish.ifm		    \
+task-before1.ifm task-before2.ifm task-cmd.ifm task-do1.ifm task-do2.ifm    \
+task-drop1.ifm task-drop2.ifm task-drop3.ifm task-drop4.ifm task-finish.ifm \
 task-follow1.ifm task-follow2.ifm task-follow3.ifm task-give1.ifm	    \
 task-give2.ifm task-keep1.ifm task-keep2.ifm task-nocmd.ifm task-leave1.ifm \
 task-leave2.ifm task-lose.ifm task-nolink.ifm task-nopath.ifm task-note.ifm \
