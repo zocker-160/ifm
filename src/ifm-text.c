@@ -122,8 +122,12 @@ text_task_entry(vhash *task)
         printf("   %s\n", vh_sgetref(task, "DESC"));
 
         if (cmds != NULL) {
-            vl_foreach(elt, cmds)
-                printf("      cmd: %s\n", vs_sgetref(elt));
+            if (vl_length(cmds) > 0) {
+                vl_foreach(elt, cmds)
+                    printf("      cmd: %s\n", vs_sgetref(elt));
+            } else {
+                printf("      no action required\n");
+            }
         }
 
         moved = 0;

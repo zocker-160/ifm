@@ -439,8 +439,6 @@ print_tasks(void)
     if (func->task_entry != NULL) {
         vl_foreach(elt, tasks) {
             task = vs_pget(elt);
-            if (vh_iget(task, "HIDDEN"))
-                continue;
             (*func->task_entry)(task);
         }
     }
