@@ -316,13 +316,11 @@ room_attr	: TAG ID
 		{
                     vscalar *elt;
                     vhash *link;
-                    char *tag;
 
                     vl_foreach(elt, currooms) {
-                        tag = vs_sgetref(elt);
                         link = vh_create();
                         vh_pstore(link, "FROM", curobj);
-                        vh_sstore(link, "TO", tag);
+                        vh_store(link, "TO", vs_copy(elt));
                         vl_ppush(links, link);
                     }
 
@@ -333,13 +331,11 @@ room_attr	: TAG ID
 		{
                     vscalar *elt;
                     vhash *join;
-                    char *tag;
 
                     vl_foreach(elt, currooms) {
-                        tag = vs_sgetref(elt);
                         join = vh_create();
                         vh_pstore(join, "FROM", curobj);
-                        vh_sstore(join, "TO", tag);
+                        vh_store(join, "TO", vs_copy(elt));
                         vl_ppush(joins, join);
                     }
 
