@@ -106,20 +106,25 @@ static int ifm_fmt = F_NONE;
 /* Output format name */
 char *ifm_format = NULL;
 
+/* List of map sections to output */
+static vlist *sections = NULL;
+
 /* Parse function */
 extern void yyparse();
 
 /* Debugging flag */
 int ifm_debug = 0;
 
-/* Local functions */
+/* Internal functions */
 static void print_map(void);
 static void print_items(void);
 static void print_tasks(void);
 static int itemsort(vscalar **ip1, vscalar **ip2);
+static vlist *parse_list(char *list);
 static void print_version(void);
 static int select_format(char *str, int output);
 static void show_info(char *type);
+static void show_maps(void);
 static void show_path(void);
 static void usage(void);
 
@@ -128,6 +133,7 @@ static struct show_st {
     char *name, *desc;
     void (*func)(void);
 } showopts[] = {
+    { "maps", "Show map sections",      show_maps },
     { "path", "Show file search path",  show_path },
     { "vars", "Show defined variables", var_list },
     { NULL,   NULL,                NULL }
@@ -137,8 +143,8 @@ static struct show_st {
 int
 main(int argc, char *argv[])
 {
+    char *env, *file, *info = NULL, *spec;
     int output = O_NONE, initfile = 1;
-    char *env, *file, *info = NULL;
     vlist *args, *list;
     vscalar *elt;
     vhash *opts;
@@ -158,7 +164,9 @@ main(int argc, char *argv[])
     progname = argv[0];
 
     /* Define options */
-    v_option('m', "map", V_OPT_FLAG, NULL,
+    v_optgroup("Output options:");
+
+    v_option('m', "map", V_OPT_OPTARG, "sections",
              "Select map output");
 
     v_option('i', "items", V_OPT_FLAG, NULL,
@@ -173,14 +181,13 @@ main(int argc, char *argv[])
     v_option('o', "output", V_OPT_ARG, "file",
              "Write output to file");
 
+    v_optgroup("Other options:");
+
     v_option('w', "nowarn", V_OPT_FLAG, NULL,
              "Don't print warnings");
 
     v_option('d', "debug", V_OPT_FLAG, NULL,
              "Print debugging information");
-
-    v_option('s', "show", V_OPT_ARG, "type",
-             "Show program information");
 
     v_option('I', "include", V_OPT_LIST, "dir",
              "Prepend directory to search path");
@@ -188,7 +195,12 @@ main(int argc, char *argv[])
     v_option('\0', "noinit", V_OPT_FLAG, NULL,
              "Don't read personal init file");
 
-    v_option('\0', "version", V_OPT_FLAG, NULL,
+    v_optgroup("Information options:");
+
+    v_option('s', "show", V_OPT_ARG, "type",
+             "Show information");
+
+    v_option('v', "version", V_OPT_FLAG, NULL,
              "Print program version");
 
     v_option('h', "help", V_OPT_FLAG, NULL,
@@ -214,8 +226,12 @@ main(int argc, char *argv[])
         while (vl_length(list) > 0)
             vl_sunshift(ifm_search, vl_spop(list));
 
-    if (vh_exists(opts, "map"))
+    if (vh_exists(opts, "map")) {
         output |= O_MAP;
+        spec = vh_sgetref(opts, "map");
+        if (strlen(spec) > 0 && (sections = parse_list(spec)) == NULL)
+            fatal("invalid map section spec: %s", spec);
+    }
 
     if (vh_exists(opts, "items"))
         output |= O_ITEMS;
@@ -365,17 +381,26 @@ print_map(void)
     vhash *sect, *room, *link, *join;
     vlist *sects, *list;
     vscalar *elt;
+    int num = 1;
 
     if (func == NULL)
         fatal("no map driver for %s output", drv.name);
 
+    sects = vh_pget(map, "SECTS");
+    vl_foreach(elt, sects) {    
+        sect = vs_pget(elt);
+        if (sections != NULL && !vl_iget(sections, num++))
+            vh_istore(sect, "NOPRINT", 1);
+    }
+
     if (func->map_start != NULL)
         (*func->map_start)();
 
-    sects = vh_pget(map, "SECTS");
-
     vl_foreach(elt, sects) {
         sect = vs_pget(elt);
+
+        if (vh_iget(sect, "NOPRINT"))
+            continue;
 
         if (func->map_section != NULL)
             (*func->map_section)(sect);
@@ -510,6 +535,38 @@ parse_input(char *file, int libflag, int required)
     strcpy(ifm_input, "");
 
     return (ifm_errors == 0);
+}
+
+/* Parse a list argument into a list of flags */
+static vlist *
+parse_list(char *list)
+{
+    int flag, i, min, max;
+    vlist *parts, *flags;
+    vscalar *elt;
+    char *part;
+
+    flags = vl_create();
+    parts = vl_split(list, ",");
+
+    vl_foreach(elt, parts) {
+        part = vs_sgetref(elt);
+        if (strchr(part, '-') != NULL) {
+            if (sscanf(part, "%d-%d", &min, &max) < 2)
+                return NULL;
+            if (min < 0 || max < 0 || min > max)
+                return NULL;
+            for (i = min; i <= max; i++)
+                vl_istore(flags, i, 1);
+        } else {
+            if (sscanf(part, "%d", &flag) < 1)
+                return NULL;
+            vl_istore(flags, flag, 1);
+        }
+    }
+
+    vl_destroy(parts);
+    return flags;
 }
 
 /* Item sort function */
@@ -690,6 +747,29 @@ show_info(char *type)
 
     (*showopts[match].func)();
     exit(0);
+}
+
+/* Print map sections */
+static void
+show_maps(void)
+{
+    vscalar *elt;
+    char *title;
+    vhash *sect;
+    int num = 1;
+
+    vl_foreach(elt, sects) {
+        sect = vs_pget(elt);
+
+        if (vh_exists(sect, "TITLE")) {
+            title = vh_sgetref(sect, "TITLE");
+        } else {
+            sprintf(buf, "Map section %d", num);
+            title = buf;
+        }
+
+        printf("%d\t%s\n", num++, title);
+    }
 }
 
 /* Print file search path */
