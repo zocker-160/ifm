@@ -35,4 +35,6 @@ room "Room with Many Items" dir s;
 
 room "Room with a Bendy Link" dir se e n e ne;
 
-room "Room with an Updown Link" dir s go down;
+room "Room with an Updown Link" dir s 2 go down;
+
+room "Room with an In-out Link" dir w go in;
