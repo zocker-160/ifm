@@ -85,6 +85,7 @@ do_task(vhash *task, int print)
     case T_DROP:
         item = vh_pget(task, "DATA");
         vh_istore(item, "TAKEN", 0);
+        DEBUG1(3, "drop item: %s", vh_sgetref(item, "DESC"));
         if (vh_iget(item, "LOST"))
             print = 0;
 
@@ -157,7 +158,6 @@ do_task(vhash *task, int print)
 
         vl_foreach(elt, list) {
             item = vs_pget(elt);
-            DEBUG1(3, "drop item: %s", vh_sgetref(item, "DESC"));
             drop_item(item, room, until, 0);
         }
     }
