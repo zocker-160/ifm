@@ -164,6 +164,14 @@ item_attr	: TAG IDENT
 		{
 		    set_item_attr("KEEP", "1");
 		}
+                | NEED item_list
+                {
+                    set_item_items();
+                }
+                | AFTER task_list
+                {
+                    set_item_after();
+                }
 		| SCORE INTEGER
 		{
 		    sprintf(buf, "%d", $2);

@@ -383,6 +383,9 @@ resolve_tags(void)
     vl_foreach(elt, items) {
         item = vs_pget(elt);
         resolve_tag("room", vh_get(item, "IN"), roomtags);
+        resolve_tag_list("task", vh_pget(item, "AFTER"), tasktags);
+        resolve_tag_list("item", vh_pget(item, "NEED"), itemtags);
+
         room = vh_pget(item, "IN");
 
         if (room != NULL) {

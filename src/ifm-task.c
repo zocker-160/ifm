@@ -28,8 +28,6 @@ add_task(void)
     if (vh_iget(curtask, "NOROOM")) {
         vh_pstore(curtask, "IN", NULL);
     } else if (!vh_exists(curtask, "IN")) {
-        if (lastroom == NULL)
-            err("no last room");
         vh_pstore(curtask, "IN", lastroom);
     }
 
@@ -60,17 +58,8 @@ build_tasks(void)
 {
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
     vlist *list, *itasks, *rlist;
-    vhash *step;
+    vhash *step, *istep, *oitem;
     vscalar *elt;
-
-    /* Create 'get item' steps, and mention scored objects */
-    vl_foreach(elt, items) {
-        item = vs_pget(elt);
-        step = task_step(T_GET, item);
-        vh_pstore(item, "STEP", step);
-        if (vh_iget(item, "SCORE") > 0)
-            task_pair(step, step);
-    }
 
     /* Create 'goto room' steps, and mention scored rooms */
     vl_foreach(elt, rooms) {
@@ -78,6 +67,15 @@ build_tasks(void)
         step = task_step(T_GOTO, room);
         vh_pstore(room, "STEP", step);
         if (vh_iget(room, "SCORE") > 0)
+            task_pair(step, step);
+    }
+
+    /* Create 'get item' steps, and mention scored items */
+    vl_foreach(elt, items) {
+        item = vs_pget(elt);
+        step = task_step(T_GET, item);
+        vh_pstore(item, "STEP", step);
+        if (vh_iget(item, "SCORE") > 0)
             task_pair(step, step);
     }
 
@@ -90,7 +88,7 @@ build_tasks(void)
             task_pair(step, step);
     }
 
-    /* Add required task pairs */
+    /* Add prerequisites for doing tasks */
     vl_foreach(elt, tasks) {
         task = vs_pget(elt);
         tstep = vh_pget(task, "STEP");
@@ -106,7 +104,7 @@ build_tasks(void)
                     task_pair(get, tstep);
                 }
 
-                /* Record tasks for this item */
+                /* Record dependent tasks for this item */
                 itasks = vh_pget(item, "TASKS");
                 if (itasks == NULL) {
                     itasks = vl_create();
@@ -136,6 +134,43 @@ build_tasks(void)
                 otask = vs_pget(elt);
                 after = vh_pget(otask, "STEP");
                 task_pair(after, tstep);
+            }
+        }
+    }
+
+    /* Add prerequisites for getting items */
+    vl_foreach(elt, items) {
+        item = vs_pget(elt);
+        istep = vh_pget(item, "STEP");
+
+        /* Must get required items before getting it */
+        list = vh_pget(item, "NEED");
+        if (list != NULL) {
+            vl_foreach(elt, list) {
+                oitem = vs_pget(elt);
+                room = vh_pget(oitem, "ROOM");
+                if (room != NULL) {
+                    get = vh_pget(oitem, "STEP");
+                    task_pair(get, istep);
+                }
+
+                /* Record dependent tasks for this item */
+                itasks = vh_pget(oitem, "TASKS");
+                if (itasks == NULL) {
+                    itasks = vl_create();
+                    vh_pstore(oitem, "TASKS", itasks);
+                }
+                vl_ppush(itasks, istep);
+            }
+        }
+
+        /* Required tasks must be done before getting it */
+        list = vh_pget(item, "AFTER");
+        if (list != NULL) {
+            vl_foreach(elt, list) {
+                task = vs_pget(elt);
+                step = vh_pget(task, "STEP");
+                task_pair(step, istep);
             }
         }
     }
@@ -232,7 +267,7 @@ order_tasks(void)
     vscalar *elt;
 
     /* Don't bother if no tasks */
-    if (vl_length(tasks) == 0)
+    if (vl_length(tasklist) == 0)
         return;
 
     /* Build initial inventory */
