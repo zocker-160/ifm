@@ -1,5 +1,5 @@
 ****************************************************************************
-* Version 4.2                                                   April 2001 *
+* Version 4.2                                                     May 2002 *
 ****************************************************************************
 
 Additions
@@ -8,12 +8,22 @@ Additions
 * New 'keep with' and 'keep until' syntax for items, allowing items to be
   kept until certain tasks are done or certain other items are dropped.
 
+* New task and item 'ignore' attribute, indicating that these things should
+  be ignored when finding a solution (which in most cases will not be
+  complete).
+
+* New task output: graphviz (dot) format, which dumps a task dependency
+  graph.
+
 Changes
 =======
 
 * Changed implicit-link style behaviour -- the 'style' clause on a room now
   applies to both the room and the implicit link, so it's now independent
   of its position relative to the 'dir' clause.
+
+* Documentation is now distributed in HTML and PDF formats, instead of GNU
+  Info.
 
 Bug fixes
 =========

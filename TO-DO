@@ -2,14 +2,14 @@
 
 ** Next distribution
 
-Update IFM web page address.
+Document new stuff.
 
-Upgrade to new vars version (and test!).
+Add vars to control dot output.
 
 Fix etags in progs dir.
 
 Task text output: merge multiple identical tasks into one, with (%d times)
-appended.  Also, convert all command output to uppercase.
+appended.
 
 Maybe prepend $(pkgdatadir)/site-ifm directory to search path, to allow for
 customization.  Create that dir when installing.
@@ -103,9 +103,7 @@ inventory management.
 
 ** Tasks
 
-How about 'keep until <task>' clause?  Generalizes the 'keep' into
-something more useful.  Good for containers.  Also, 'keep with <item>'
-clause, so that item is kept until another item is dropped.
+How about 'after all' on tasks, which means 'do it last'?
 
 How about inventory max-carried stuff?  Need to give each item a
 'drop-priority' number (if two equal, use order of declaration) and a
