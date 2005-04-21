@@ -17,16 +17,19 @@ GPP = gpp.exe
 DLL = $(bindir)/cygwin1.dll
 
 FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
-PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/*.pl $(PROGDIR)/*.tcl
+PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/*.pl
 DOCS  = $(DOCDIR)/ifm.pdf $(DOCDIR)/ifm
 LIBS  = $(LIBDIR)/*.ifm $(LIBDIR)/ifm-pro.ps $(LIBDIR)/ifm-rgb.txt
 MAPS  = $(MAPDIR)/*.ifm $(MAPDIR)/README
+
+CTEXT = $(PROGDIR)/ctext/ctext.tcl
+TKIFM = $(PROGDIR)/tkifm.tcl
 
 all: test
 
 test:; $(MAKE) IFM=ifm GPP=gpp DLL="" zip
 
-zip: init files progs docs lib demos final
+zip: init files progs tkifm docs lib demos final
 
 init:;	rm -rf $(ZIPDIR)
 	mkdir $(ZIPDIR)
@@ -40,6 +43,8 @@ files:;	cp $(FILES) $(ZIPDIR)
 progs:; cp $(PROGS) $(DLL) $(ZIPDIR)
 	strip $(ZIPDIR)/$(IFM)
 	strip $(ZIPDIR)/$(GPP)
+
+tkifm:; cat $(CTEXT) $(TKIFM) > $(ZIPDIR)/tkifm.tcl
 
 docs:;	- mkdir $(ZIPDIR)/docs
 	- cp -r $(DOCS) $(ZIPDIR)/docs
