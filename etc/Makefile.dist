@@ -6,7 +6,7 @@ all:	make conf
 
 make:;	autoheader
 	aclocal
-	automake -v
+	automake
 
 conf:;	autoconf
 	./configure $(ARGS)
