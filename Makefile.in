@@ -90,6 +90,9 @@ RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+VARS_CFLAGS = @VARS_CFLAGS@
+VARS_CONFIG = @VARS_CONFIG@
+VARS_LIBS = @VARS_LIBS@
 VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
@@ -135,7 +138,7 @@ tkifm = @tkifm@
 
 AUTOMAKE_OPTIONS = foreign check-news
 
-SUBDIRS = vars fig gpp src lib doc progs demos tests
+SUBDIRS = fig gpp src lib doc progs demos tests
 
 EXTRA_DIRS = etc contrib win32
 

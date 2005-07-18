@@ -1,11 +1,11 @@
 dnl Configuration template for IFM.
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(ifm, 5.1, zondo@pillock.freeserve.co.uk)
+AC_INIT(ifm, 5.2, zondo@pillock.freeserve.co.uk)
 AC_CONFIG_SRCDIR(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(etc)
 
-AM_INIT_AUTOMAKE(ifm, 5.1)
+AM_INIT_AUTOMAKE(ifm, 5.2)
 AM_CONFIG_HEADER(etc/config.h)
 AC_CONFIG_SUBDIRS(vars)
 
@@ -40,7 +40,19 @@ AM_PROG_LIBTOOL
 dnl Checks for header files.
 AC_HEADER_STDC
 
-dnl Checks for libraries.
+dnl Check for Vars library.
+AC_PATH_PROG(VARS_CONFIG, vars-config, no)
+
+if test $VARS_CONFIG != no; then
+   VARS_CFLAGS="`$VARS_CONFIG --cflags`"
+   AC_SUBST(VARS_CFLAGS)
+   VARS_LIBS="`$VARS_CONFIG --libs`"
+   AC_SUBST(VARS_LIBS)
+else
+   AC_MSG_ERROR(can't find Vars library)
+fi
+
+dnl Checks for other libraries.
 AC_CHECK_LIB(m, sin)
 
 dnl Check for wish.
@@ -72,12 +84,6 @@ if test $PERL = no; then
    ifm2tex=
    scr2ifm=
 fi
-
-dnl Check whether to install vars library.
-AC_ARG_ENABLE(vars-install,
-AC_HELP_STRING(--enable-vars-install, install vars support library),
-VARS_INSTALL=$enableval, VARS_INSTALL=no)
-export VARS_INSTALL
 
 dnl Write Makefiles.
 AC_OUTPUT(

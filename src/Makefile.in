@@ -90,6 +90,9 @@ RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+VARS_CFLAGS = @VARS_CFLAGS@
+VARS_CONFIG = @VARS_CONFIG@
+VARS_LIBS = @VARS_LIBS@
 VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
@@ -154,11 +157,8 @@ EXTRA_DIST = ifm-parse.c ifm-scan.c
 FIG_SRC = $(top_srcdir)/fig
 FIG_BIN = $(top_builddir)/fig
 
-VARS_SRC = $(top_srcdir)/vars/src
-VARS_BIN = $(top_builddir)/vars/src
-
-ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
-ifm_LDADD = -lfig -lvars-noinst -lz @LIBS@
+ifm_LDFLAGS = -L$(FIG_BIN)
+ifm_LDADD = -lfig $(VARS_LIBS) @LIBS@
 
 AM_YFLAGS = -d -v
 
@@ -171,7 +171,7 @@ BASEPATH = $(pkgdatadir):$(pkglibdir)
 
 IFMDEFS = -DSYSINIT=\"ifm-init.ifm\" -DIFMPATH=\"$(IFMPATH)\" -DPATHSEP=\":\" -DINITFILE=\"$(INITFILE)\"
 
-INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(IFMDEFS)
+INCLUDES = -I$(FIG_SRC) $(VARS_CFLAGS) $(IFMDEFS)
 
 
 # Add lint support.
@@ -561,7 +561,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 	uninstall-am uninstall-binPROGRAMS uninstall-info-am
 
 
-$(bin_PROGRAMS): $(FIG_BIN)/libfig.a $(VARS_BIN)/libvars-noinst.la
+$(bin_PROGRAMS): $(FIG_BIN)/libfig.a
 
 ifm-parse.h: ifm-parse.c
 

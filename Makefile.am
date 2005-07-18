@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign check-news
 
-SUBDIRS = vars fig gpp src lib doc progs demos tests
+SUBDIRS = fig gpp src lib doc progs demos tests
 
 EXTRA_DIRS = etc contrib win32
 

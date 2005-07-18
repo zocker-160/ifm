@@ -19,11 +19,8 @@ EXTRA_DIST = ifm-parse.c ifm-scan.c
 FIG_SRC = $(top_srcdir)/fig
 FIG_BIN = $(top_builddir)/fig
 
-VARS_SRC = $(top_srcdir)/vars/src
-VARS_BIN = $(top_builddir)/vars/src
-
-ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
-ifm_LDADD   = -lfig -lvars-noinst -lz @LIBS@
+ifm_LDFLAGS = -L$(FIG_BIN)
+ifm_LDADD   = -lfig $(VARS_LIBS) @LIBS@
 
 AM_YFLAGS = -d -v
 
@@ -42,9 +39,9 @@ IFMDEFS += -DIFMPATH=\"$(IFMPATH)\"
 IFMDEFS += -DPATHSEP=\":\"
 IFMDEFS += -DINITFILE=\"$(INITFILE)\"
 
-INCLUDES = -I$(FIG_SRC) -I$(VARS_SRC) $(IFMDEFS)
+INCLUDES = -I$(FIG_SRC) $(VARS_CFLAGS) $(IFMDEFS)
 
-$(bin_PROGRAMS): $(FIG_BIN)/libfig.a $(VARS_BIN)/libvars-noinst.la
+$(bin_PROGRAMS): $(FIG_BIN)/libfig.a
 
 ifm-parse.h: ifm-parse.c
 
