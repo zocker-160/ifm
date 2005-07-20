@@ -148,7 +148,7 @@ man_MANS = ifm.1
 
 
 # Programs.
-IFM = $(top_srcdir)/src/ifm
+IFM = $(top_srcdir)/src/ifm -s version="$(VERSION)"
 IFMCMD = $(IFM) -I $(top_srcdir)/lib
 HELP2MAN = help2man -N -n "$(MAN_TITLE)"
 
