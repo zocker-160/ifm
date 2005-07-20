@@ -219,7 +219,7 @@ fig_map_section(vhash *sect)
                                   FIG_JUSTIFY_CENTRE,
                                   MAPX(x), MAPY(y),
                                   width, height,
-                                  "%s", vh_sgetref(sect, "TITLE"));
+                                  "%s", var_subst(vh_sgetref(sect, "TITLE")));
         fig_set_depth(text, FIG_TITLE_DEPTH);
         set_colour(text, map_title_colour);
     }
@@ -300,7 +300,7 @@ fig_map_room(vhash *room)
                                   MAPY(yp - yborder),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder),
-                                  "%s", vh_sgetref(room, "RDESC"));
+                                  "%s", var_subst(vh_sgetref(room, "RDESC")));
 
         fig_set_depth(text, FIG_TEXT_DEPTH);
         set_colour(text, room_text_colour);
@@ -312,7 +312,7 @@ fig_map_room(vhash *room)
                                   MAPY(yp - yborder),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder) / 2,
-                                  "%s", vh_sgetref(room, "RDESC"));
+                                  "%s", var_subst(vh_sgetref(room, "RDESC")));
 
         fig_set_depth(text, FIG_TEXT_DEPTH);
         set_colour(text, room_text_colour);
@@ -324,7 +324,7 @@ fig_map_room(vhash *room)
                                   MAPY(yp - yborder - 0.3),
                                   width * (1 - 2 * xborder),
                                   height * (1 - 2 * yborder) / 2,
-                                  "%s", itemlist);            
+                                  "%s", var_subst(itemlist));
 
         fig_set_depth(text, FIG_TEXT_DEPTH);
         set_colour(text, item_text_colour);
@@ -412,7 +412,8 @@ fig_map_link(vhash *link)
         yp += 0.5 - room_height;
 
         str = updown ? link_updown_string : link_inout_string;
-        text = fig_create_text(fig_section, MAPX(xp), MAPY(yp), str);
+        text = fig_create_text(fig_section, MAPX(xp), MAPY(yp),
+                               var_subst(str));
 
         fig_set_font(text, link_text_font, link_text_fontsize);
         fig_set_depth(text, FIG_LINK_DEPTH);
