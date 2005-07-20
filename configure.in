@@ -52,9 +52,6 @@ else
    AC_MSG_ERROR(can't find Vars library)
 fi
 
-dnl Checks for other libraries.
-AC_CHECK_LIB(m, sin)
-
 dnl Check for wish.
 AC_PATH_PROGS(WISH, wish8.0 wish80 wish, no)
 
