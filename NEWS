@@ -1,8 +1,18 @@
 ****************************************************************************
-* Version 5.2                                                  23 Jun 2005 *
+* Version 5.2                                                  19 Jul 2005 *
 ****************************************************************************
 
-Er... not much here yet.
+Additions
+=========
+
+* New program in the 'contrib' directory: asciimapper.  This is a tool to
+  create IFM maps from ASCII art maps, contributed by Elijah Griffin.
+
+Bug fixes
+=========
+
+* A crash when trying to print an error message about cyclic task
+  dependencies has been fixed.
 
 ****************************************************************************
 * Version 5.1                                                  30 Nov 2004 *
