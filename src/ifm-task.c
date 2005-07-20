@@ -87,7 +87,9 @@ check_cycles(void)
     }
 
     /* Cycles found -- give error and die */
+    V_BUF_INIT;
     cycles = vg_tsort_cycles();
+
     vl_foreach(elt, cycles) {
         list = vs_pget(elt);
         vl_foreach(elt, list) {
