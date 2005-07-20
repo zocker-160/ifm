@@ -8,10 +8,10 @@ show_map_border = 1;
 map_border_colour = "grey90";
 map_background_colour = "grey90";
 
-room "IFM"; item "Version 5.1"; item "December 2004";
+room "IFM"; item "Version $version";
 
-room "Interactive"		dir e 2 s w 4 s e oneway;
+room "Interactive"		dir w 2 s e oneway;
 room "Fiction"			dir e oneway;
 room "Mapper"			dir e oneway;
 
-room "by Glenn Hutchings"	dir e s w 3 s 2 e 2 n w oneway;
+room "by Glenn Hutchings"	dir e s w 2 oneway;
