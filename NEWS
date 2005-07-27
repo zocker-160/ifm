@@ -1,5 +1,5 @@
 ****************************************************************************
-* Version 5.2                                                  19 Jul 2005 *
+* Version 5.2                                                  27 Jul 2005 *
 ****************************************************************************
 
 Additions
@@ -7,6 +7,13 @@ Additions
 
 * New program in the 'contrib' directory: asciimapper.  This is a tool to
   create IFM maps from ASCII art maps, contributed by Elijah Griffin.
+
+Changes
+=======
+
+* The Vars library is no longer distributed with IFM.  You must grab and
+  install it separately (see the README file for more details).  This is to
+  reduce the package size.
 
 Bug fixes
 =========

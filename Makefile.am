@@ -1,6 +1,8 @@
 ## Automake template for IFM.
 
-AUTOMAKE_OPTIONS = foreign check-news
+AUTOMAKE_OPTIONS = check-news
+
+ACLOCAL_AMFLAGS = -I etc
 
 SUBDIRS = fig gpp src lib doc progs demos tests
 

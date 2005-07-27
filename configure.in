@@ -5,9 +5,8 @@ AC_INIT(ifm, 5.2, zondo@pillock.freeserve.co.uk)
 AC_CONFIG_SRCDIR(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(etc)
 
-AM_INIT_AUTOMAKE(ifm, 5.2)
+AM_INIT_AUTOMAKE(foreign)
 AM_CONFIG_HEADER(etc/config.h)
-AC_CONFIG_SUBDIRS(vars)
 
 dnl Check host system.
 AC_CANONICAL_HOST
@@ -33,7 +32,6 @@ AC_PROG_CC
 AC_PROG_YACC
 AM_PROG_LEX
 AC_PROG_INSTALL
-AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 AM_PROG_LIBTOOL
 
@@ -41,16 +39,7 @@ dnl Checks for header files.
 AC_HEADER_STDC
 
 dnl Check for Vars library.
-AC_PATH_PROG(VARS_CONFIG, vars-config, no)
-
-if test $VARS_CONFIG != no; then
-   VARS_CFLAGS="`$VARS_CONFIG --cflags`"
-   AC_SUBST(VARS_CFLAGS)
-   VARS_LIBS="`$VARS_CONFIG --libs`"
-   AC_SUBST(VARS_LIBS)
-else
-   AC_MSG_ERROR(can't find Vars library)
-fi
+AM_CONFIG_LIB(Vars, VARS, vars-config, 2.6)
 
 dnl Check for wish.
 AC_PATH_PROGS(WISH, wish8.0 wish80 wish, no)
