@@ -20,20 +20,19 @@ IFM can write hardcopy maps directly to PostScript, suitable for printing
 or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
-Installation
+Building IFM
 ************
 
-The INSTALL file has general installation instructions, but basically it
-boils down to:
+IFM requires the Vars library to be installed.  You can get it at:
+
+    http://www.freewebtown.com/zondo/programs
+
+See the file INSTALL for installation details.  But it basically boils down
+to:
 
     ./configure
     make
     make install
-
-You will need to install the Vars library (a separate package) before
-building IFM.  You can get it from:
-
-    http://www.freewebtown.com/zondo/programs
 
 Existing IFM Maps
 *****************

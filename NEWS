@@ -11,15 +11,17 @@ Additions
 Changes
 =======
 
-* The Vars library is no longer distributed with IFM.  You must grab and
-  install it separately (see the README file for more details).  This is to
-  reduce the package size.
+* To reduce package size, the Vars library which IFM uses is no longer
+  bundled with IFM.  You must install it separately, before building IFM.
+  See the README file for where to get it.
 
 Bug fixes
 =========
 
 * A crash when trying to print an error message about cyclic task
   dependencies has been fixed.
+
+* Variable substitution is now done in FIG output too.
 
 ****************************************************************************
 * Version 5.1                                                  30 Nov 2004 *
