@@ -1,4 +1,4 @@
-dnl AM_CONFIG_LIB(NAME, PREFIX, PROG, [REQUIRED])
+dnl AM_CONFIG_LIB(NAME, PREFIX, PROG, [REQUIRED [, ERRMSG]])
 dnl 
 dnl Test for library using lib-config.  If config file found:
 dnl 
@@ -34,6 +34,10 @@ if test $$2_CONFIG != no; then
    $2_LIBS="`$$2_CONFIG --libs`"
    AC_SUBST($2_LIBS)
 elif test -n "$4"; then
-   AC_MSG_ERROR(can't find $1 library)
+   if test -z "$5"; then
+      AC_MSG_ERROR(can't find $1 library)
+   else
+      AC_MSG_ERROR($5)
+   fi
 fi
 ])
