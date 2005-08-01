@@ -20,9 +20,6 @@ dist-config:
 dist-extra:
 	for dir in $(EXTRA_DIRS); do					\
 	   cp -frp $(top_srcdir)/$$dir $(distdir);			\
-	   rm -rf $(distdir)/$$dir/CVS;					\
-	   rm -f $(distdir)/$$dir/.cvsignore;				\
-	   rm -f $(distdir)/$$dir/*~;					\
 	done
 
 dist-header:
@@ -39,6 +36,9 @@ dist-touch:
 	done
 
 dist-cleanup:
+	find $(distdir) -type d -name CVS | xargs rm -rf
+	find $(distdir) -type f -name '*~' | xargs rm -f
+	find $(distdir) -type f -name .cvsignore | xargs rm -f
 	rm -f $(distdir)/etc/config.h
 	rm -f $(distdir)/etc/stamp-h*
 
