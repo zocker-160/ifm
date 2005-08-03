@@ -2,11 +2,13 @@
 
 import sys
 
-(MAP, ROOM, ITEM, LINK, TASK) = range(5)
+types = (SECT, ROOM, ITEM, LINK, JOIN, TASK) = range(6)
 
 class IFMError(RuntimeError): pass
 
 class Dir:
+    "An IFM direction."
+
     def __init__(self, name):
         self.name = name
 
@@ -29,74 +31,129 @@ d = down = Dir("down")
 in_ = Dir("in")
 out = Dir("out")
 
-class Object:
-    _objects = {}
-    _tags = {}
+class Map:
+    "An IFM map."
 
-    def __init__(self, type, name = None):
-        self.type = type
+    def __init__(self, title = None):
+        self._title = title.replace('"', r'\"')
+        self._objects = {}
+        for type in types:
+            self._objects[type] = []
 
-        if name:
-            self.name = name.replace('"', r'\"')
+    def section(self, name):
+        s = Section(name)
+        self._add(SECT, s)
+        return s
 
-        # Add to object list if required.
-        olist = Object.objects(type)
-        if self not in olist:
-            olist.append(self)
+    def room(self, name):
+        r = Room(name)
+        self._add(ROOM, r)
+        return r
 
-        # Assign number.
-        self.number = self.count(type)
+    def link(self, room1, room2):
+        l = Link(room1, room2)
+        self._add(LINK, l)
+        return l
 
-    @staticmethod
-    def objects(type):
-        "Return a list of objects of a given type."
-        return Object._objects.setdefault(type, [])
+    def join(self, room1, room2):
+        j = Join(room1, room2)
+        self._add(JOIN, j)
+        return j
 
-    @staticmethod
-    def count(type):
-        "Return the number of objects of a given type."
-        return len(Object.objects(type))
+    def item(self, name):
+        i = Item(name)
+        self._add(ITEM, i)
+        return i
 
-    @staticmethod
-    def last(type):
-        "Return the last object created of a given type."
-        olist = Object.objects(type)
+    def task(self, name):
+        t = Task(name)
+        self._add(TASK, t)
+        return t
+
+    def _add(self, type, obj):
+        self._objects[type].append(obj)
+        obj._map = self
+
+        if type in (ROOM, ITEM, TASK):
+            obj._section = self.last(SECT)
+
+        if type in (ITEM, TASK):
+            obj._room = self.last(ROOM)
+
+    def last(self, type):
+        olist = self._objects[type]
 
         if len(olist) > 0:
             return olist[-1]
 
         return None
 
-class Map(Object):
-    def __init__(self, name):
-        Object.__init__(self, MAP, name)
+    def write(self, fp = sys.stdout):
+        "Write IFM map to specified stream."
 
-    def write(self, fp):
-        fp.write("\nmap \"%s\";\n" % self.name)
+        # Write title.
+        fp.write("# IFM map created by IFM python module.\n");
 
-class MapObject(Object):
+        if self._title:
+            fp.write("\ntitle \"%s\";\n" % self._title)
+
+        # Write non-room items and tasks.
+        for type in (ITEM, TASK):
+            count = 0
+            for obj in self._objects[type]:
+                if obj.room is not None:
+                    continue
+
+                if count == 0:
+                    fp.write("\n")
+
+                obj.write(fp)
+                count += 1
+
+        # Write each map section.
+        for section in self._objects[SECT]:
+            self._write_section(section, fp)
+
+        self._write_section(None, fp)
+
+        # Write explicit links and joins.
+        for type in (LINK, JOIN):
+            for obj in self._objects[type]:
+                obj.write(fp)
+
+    def _write_section(self, section, fp):
+        # Write a map section.
+        if section:
+            section.write(fp)
+
+        for room in self._objects[ROOM]:
+            if room._section is section:
+                room.write(fp)
+            else:
+                continue
+
+            for type in (ITEM, TASK):
+                for obj in self._objects[type]:
+                    if obj._room is room:
+                        obj.write(fp)
+
+class MapObject:
     "An object which is drawn on the map."
 
-    def __init__(self, type):
-        Object.__init__(self, type)
-
-        self.section = Object.last(MAP)
-        self.fromroom = None
-        self.dirs = []
+    def __init__(self):
+        self._fromroom = None
+        self._dirs = []
         self._go = None
         self._oneway = 0
 
-        if not self.section:
-            raise IFMError, "no Map defined"
-
     def dir(self, *dirs):
         "Add one or more directions."
-        self.dirs.extend(dirs)
+        self._dirs.extend(dirs)
         return self
 
     def from_(self, room):
         "Set the 'from' room."
-        self.fromroom = room
+        self._fromroom = room
         return self
 
     def go(self, dir):
@@ -110,164 +167,172 @@ class MapObject(Object):
         return self
 
     def write(self, fp):
-        if self.dirs:
-            dirs = map(str, self.dirs)
+        if self._dirs:
+            dirs = [str(x) for x in self._dirs]
             fp.write(" dir " + " ".join(dirs))
-            if self.fromroom:
-                fp.write(" from " + self.fromroom.tag)
+            if self._fromroom:
+                fp.write(" from " + self._fromroom._tag)
 
         if self._go:
             fp.write(" go " + str(self._go))
 
-class NamedObject(Object):
+class TagObject:
     "An object which has a name."
 
-    def __init__(self, type, name):
-        Object.__init__(self, type, name)
-        self.notes = []
+    # Assigned tags.
+    _tags = {}
 
-        # Create object tag.
-        if type is ITEM:
-            prefix = name.replace(" ", "_")
-        else:
-            prefix = "".join([w[0] for w in name.split()]).upper()
+    def __init__(self, name, tagprefix):
+        self._name = name.replace('"', r'\"')
+        self._notes = []
 
-        count = 1
-        self.tag = prefix
-        while Object._tags.has_key(self.tag):
-            count += 1
-            self.tag = prefix + str(count)
+        if tagprefix:
+            count = 1
+            self._tag = tagprefix
 
-        Object._tags[self.tag] = self
+            while TagObject._tags.has_key(self._tag):
+                count += 1
+                self._tag = tagprefix + str(count)
+
+            TagObject._tags[self._tag] = self
 
     def note(self, *notes):
         "Add one or more notes to the object."
         for note in notes:
-            self.notes.append(note.replace('"', r'\"'))
+            self._notes.append(note.replace('"', r'\"'))
 
         return self
 
     def write(self, fp):
-        fp.write(" tag %s" % self.tag)
+        fp.write(" tag %s" % self._tag)
 
-class RoomObject(NamedObject):
+class RoomObject(TagObject):
     "An object that appears in a room."
 
-    def __init__(self, type, name):
-        NamedObject.__init__(self, type, name)
-        self._room = Object.last(ROOM)
+    def __init__(self, name, longtag = 1):
+        prefix = name.replace(" ", "_")
+        TagObject.__init__(self, name, prefix)
 
     def room(self, room):
         "Set the initial room."
         self._room = room
         return self
 
-class Room(MapObject, NamedObject):
-    def __init__(self, name):
-        NamedObject.__init__(self, ROOM, name)
-        MapObject.__init__(self, ROOM)
-        self.links = []
-        self.exits = []
+class LinkObject(MapObject):
+    "An object which links to others on the map."
 
-    def link(self, *rooms):
-        "Link the room to one or more others."
-        self.links.extend(rooms)
-        return self
-
-    def exit(self, *dirs):
-        "Mark one or more room exits."
-        self.exits.extend(dirs)
-        return self
-
-    def write(self, fp):
-        fp.write("\nroom \"%s\"" % self.name)
-        NamedObject.write(self, fp)
-        MapObject.write(self, fp)
-
-        if self.links:
-            fp.write(" link")
-            for link in self.links:
-                fp.write(" " + link.tag)
-
-        if self.exits:
-            fp.write(" exit " + " ".join(map(str, self.exits)))
-
-        fp.write(";\n")
-
-class Link(MapObject):
-    def __init__(self, room1, room2):
-        MapObject.__init__(self, LINK)
+    def __init__(self, room1, room2, cmd):
+        MapObject.__init__(self)
+        self._cmd = cmd
         self._from = room1
         self._to = room2
 
     def write(self, fp):
-        fp.write("\nlink %s to %s" % (self._from.tag, self._to.tag))
+        fp.write("\n%s %s to %s" % (self._cmd, self._from._tag, self._to._tag))
         MapObject.write(self, fp)
         fp.write(";\n")
 
-class Item(RoomObject):
+class Section(TagObject):
+    "A map section."
+
     def __init__(self, name):
-        RoomObject.__init__(self, ITEM, name)
+        TagObject.__init__(self, name, None)
 
     def write(self, fp):
-        fp.write("  item \"%s\"" % self.name)
-        NamedObject.write(self, fp)
+        fp.write("\nmap \"%s\";\n" % self._name)
+
+class Room(TagObject, MapObject):
+    def __init__(self, name):
+        prefix = "".join([w[0] for w in name.split()]).upper()
+        TagObject.__init__(self, name, prefix)
+        MapObject.__init__(self)
+        self._links = []
+        self._joins = []
+        self._exits = []
+
+    def link(self, *rooms):
+        "Link the room to one or more others."
+        self._links.extend(rooms)
+        return self
+
+    def join(self, *rooms):
+        "Join the room to one or more others."
+        self._joins.extend(rooms)
+        return self
+
+    def exit(self, *dirs):
+        "Mark one or more room exits."
+        self._exits.extend(dirs)
+        return self
+
+    def write(self, fp):
+        fp.write("\nroom \"%s\"" % self._name)
+        TagObject.write(self, fp)
+        MapObject.write(self, fp)
+
+        if self._links:
+            fp.write(" link")
+            for link in self._links:
+                fp.write(" " + link._tag)
+
+        if self._joins:
+            fp.write(" join")
+            for join in self._joins:
+                fp.write(" " + join._tag)
+
+        if self._exits:
+            fp.write(" exit " + " ".join([str(x) for x in self._exits]))
+
+        fp.write(";\n")
+
+class Link(LinkObject):
+    def __init__(self, room1, room2):
+        LinkObject.__init__(self, room1, room2, "link")
+
+class Join(LinkObject):
+    def __init__(self, room1, room2):
+        LinkObject.__init__(self, room1, room2, "join")
+
+    def dir(self, *dirs):
+        raise IFMError, "'dir' not available for joins"
+
+    def from_(self, room):
+        raise IFMError, "'from_' not available for joins"
+
+class Item(RoomObject):
+    def __init__(self, name):
+        RoomObject.__init__(self, name)
+
+    def write(self, fp):
+        fp.write("  item \"%s\"" % self._name)
+        TagObject.write(self, fp)
         fp.write(";\n")
 
 class Task(RoomObject):
     def __init__(self, name):
-        RoomObject.__init__(self, TASK, name)
-
-def ifm_write(fp = sys.stdout, title = None):
-    "Write IFM map to specified stream."
-
-    # Write title.
-    fp.write("# IFM map created by IFM python module.\n");
-
-    if title:
-        fp.write("\ntitle \"%s\";\n" % title.replace('"', r'\"'))
-
-    # Write non-room items and tasks.
-    for type in (ITEM, TASK):
-        for obj in Object.objects(type):
-            if obj._room is None:
-                obj.write(fp)
-
-    # Write each map section.
-    for section in Object.objects(MAP):
-        section.write(fp)
-        for room in Object.objects(ROOM):
-            if room.section is section:
-                room.write(fp)
-                for type in (ITEM, TASK):
-                    for obj in Object.objects(type):
-                        if obj._room is room:
-                            obj.write(fp)
-
-        for obj in Object.objects(LINK):
-            obj.write(fp)
+        RoomObject.__init__(self, name)
 
 if __name__ == "__main__":
-    Map("Example Map")
+    map = Map("Example Map")
 
-    Item("tongs")
+    kitchen = map.room("Kitchen").exit(s)
+    map.item("spoon").note("Stirs tea")
+    map.item("sink")
+    map.item("monkey")
 
-    kitchen = Room("Kitchen").exit(s)
-    Item("spoon").note("Stirs tea")
-    Item("sink")
-    Item("monkey")
-
-    Room("Garage").dir(s).go(d)
-    wrench = Item("monkey wrench")
+    map.room("Garage").dir(s).go(d)
+    wrench = map.item("monkey wrench")
     wrench.note("For wrenching monkey out of sink")
 
-    lounge = Room("Lounge").dir(e).from_(kitchen)
-    Item("TV set")
+    lounge = map.room("Lounge").dir(e).from_(kitchen)
+    map.item("TV set")
 
-    diner = Room("Dining Room").dir(s).link(kitchen)
-    Item("table")
-    Item("chair")
+    diner = map.room("Dining map.room").dir(s).link(kitchen)
+    map.item("table")
+    map.item("chair")
 
-    Room("Study").dir(e, n).from_(lounge).oneway()
+    map.room("Study").dir(e, n).from_(lounge).oneway()
 
-    ifm_write()
+    map.join(diner, lounge)
+
+    map.write()
