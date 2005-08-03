@@ -1,5 +1,6 @@
 # IFM module for python, by me.  Needs work.
 
+import os
 import sys
 
 types = (SECT, ROOM, ITEM, LINK, JOIN, TASK) = range(6)
@@ -88,6 +89,31 @@ class Map:
 
         return None
 
+    def edit(self, prog = "tkifm"):
+        "Edit IFM map."
+
+        tmp = os.tempnam(None, "ifm-")
+
+        fp = file(tmp, "w")
+        self.write(fp)
+        fp.close()
+
+        os.system("%s %s" % (prog, tmp))
+        os.unlink(tmp)
+
+    def show(self, prog = "gv"):
+        "Show PostScript IFM map."
+
+        tmp = os.tempnam(None, "ifm-")
+
+        fp = os.popen("ifm -m -o %s" % tmp, "w")
+        fp.write("page_rotate = 0;\n")
+        self.write(fp)
+        fp.close()
+
+        os.system("%s %s" % (prog, tmp))
+        os.unlink(tmp)
+
     def write(self, fp = sys.stdout):
         "Write IFM map to specified stream."
 
@@ -175,6 +201,9 @@ class MapObject:
 
         if self._go:
             fp.write(" go " + str(self._go))
+
+        if self._oneway:
+            fp.write(" oneway")
 
 class TagObject:
     "An object which has a name."
@@ -327,12 +356,10 @@ if __name__ == "__main__":
     lounge = map.room("Lounge").dir(e).from_(kitchen)
     map.item("TV set")
 
-    diner = map.room("Dining map.room").dir(s).link(kitchen)
+    diner = map.room("Dining room").dir(s).link(kitchen)
     map.item("table")
     map.item("chair")
 
-    map.room("Study").dir(e, n).from_(lounge).oneway()
+    map.room("Study").dir(e, n).oneway()
 
-    map.join(diner, lounge)
-
-    map.write()
+    map.show()
