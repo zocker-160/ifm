@@ -7,36 +7,15 @@ types = (SECT, ROOM, ITEM, LINK, JOIN, TASK) = range(6)
 
 class IFMError(RuntimeError): pass
 
-class Dir:
-    "An IFM direction."
-
-    def __init__(self, name):
-        self.name = name
-
-    def __str__(self):
-        return self.name
-
-n = north = Dir("n")
-e = east  = Dir("e")
-s = south = Dir("s")
-w = west  = Dir("w")
-
-ne = northeast = Dir("ne")
-se = southeast = Dir("se")
-sw = southwest = Dir("sw")
-nw = northwest = Dir("nw")
-
-u = up   = Dir("up")
-d = down = Dir("down")
-
-in_ = Dir("in")
-out = Dir("out")
-
 class Map:
     "An IFM map."
 
     def __init__(self, title = None):
-        self._title = title.replace('"', r'\"')
+        if title:
+            self._title = title.replace('"', r'\"')
+        else:
+            self._title = None
+
         self._objects = {}
         for type in types:
             self._objects[type] = []
@@ -92,7 +71,7 @@ class Map:
     def edit(self, prog = "tkifm"):
         "Edit IFM map."
 
-        tmp = os.tempnam(None, "ifm-")
+        tmp = self._tmpfile()
 
         fp = file(tmp, "w")
         self.write(fp)
@@ -104,7 +83,7 @@ class Map:
     def show(self, prog = "gv"):
         "Show PostScript IFM map."
 
-        tmp = os.tempnam(None, "ifm-")
+        tmp = self._tmpfile()
 
         fp = os.popen("ifm -m -o %s" % tmp, "w")
         fp.write("page_rotate = 0;\n")
@@ -162,6 +141,12 @@ class Map:
                 for obj in self._objects[type]:
                     if obj._room is room:
                         obj.write(fp)
+
+    def _tmpfile(self):
+        import tempfile
+        (fd, name) = tempfile.mkstemp()
+        os.close(fd)
+        return name
 
 class MapObject:
     "An object which is drawn on the map."
@@ -341,6 +326,31 @@ class Task(RoomObject):
     def __init__(self, name):
         RoomObject.__init__(self, name)
 
+class Dir:
+    "An IFM direction."
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+n = north = Dir("n")
+e = east  = Dir("e")
+s = south = Dir("s")
+w = west  = Dir("w")
+
+ne = northeast = Dir("ne")
+se = southeast = Dir("se")
+sw = southwest = Dir("sw")
+nw = northwest = Dir("nw")
+
+u = up   = Dir("up")
+d = down = Dir("down")
+
+in_ = Dir("in")
+out = Dir("out")
+
 if __name__ == "__main__":
     map = Map("Example Map")
 
@@ -362,4 +372,4 @@ if __name__ == "__main__":
 
     map.room("Study").dir(e, n).oneway()
 
-    map.show()
+    map.show("ggv")
