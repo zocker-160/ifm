@@ -3,12 +3,12 @@
 import os
 import sys
 
-types = (SECT, ROOM, ITEM, LINK, JOIN, TASK) = range(6)
-
 class IFMError(RuntimeError): pass
 
 class Map:
     "An IFM map."
+
+    _types = (SECT, ROOM, ITEM, LINK, JOIN, TASK) = range(6)
 
     def __init__(self, title = None):
         if title:
@@ -17,7 +17,7 @@ class Map:
             self._title = None
 
         self._objects = {}
-        for type in types:
+        for type in Map._types:
             self._objects[type] = []
 
     def section(self, name):
@@ -27,38 +27,38 @@ class Map:
 
     def room(self, name):
         r = Room(name)
-        self._add(ROOM, r)
+        self._add(Map.ROOM, r)
         return r
 
     def link(self, room1, room2):
         l = Link(room1, room2)
-        self._add(LINK, l)
+        self._add(Map.LINK, l)
         return l
 
     def join(self, room1, room2):
         j = Join(room1, room2)
-        self._add(JOIN, j)
+        self._add(Map.JOIN, j)
         return j
 
     def item(self, name):
         i = Item(name)
-        self._add(ITEM, i)
+        self._add(Map.ITEM, i)
         return i
 
     def task(self, name):
         t = Task(name)
-        self._add(TASK, t)
+        self._add(Map.TASK, t)
         return t
 
     def _add(self, type, obj):
         self._objects[type].append(obj)
         obj._map = self
 
-        if type in (ROOM, ITEM, TASK):
-            obj._section = self.last(SECT)
+        if type in (Map.ROOM, Map.ITEM, Map.TASK):
+            obj._section = self.last(Map.SECT)
 
-        if type in (ITEM, TASK):
-            obj._room = self.last(ROOM)
+        if type in (Map.ITEM, Map.TASK):
+            obj._room = self.last(Map.ROOM)
 
     def last(self, type):
         olist = self._objects[type]
@@ -103,7 +103,7 @@ class Map:
             fp.write("\ntitle \"%s\";\n" % self._title)
 
         # Write non-room items and tasks.
-        for type in (ITEM, TASK):
+        for type in (Map.ITEM, Map.TASK):
             count = 0
             for obj in self._objects[type]:
                 if obj.room is not None:
@@ -116,13 +116,13 @@ class Map:
                 count += 1
 
         # Write each map section.
-        for section in self._objects[SECT]:
+        for section in self._objects[Map.SECT]:
             self._write_section(section, fp)
 
         self._write_section(None, fp)
 
         # Write explicit links and joins.
-        for type in (LINK, JOIN):
+        for type in (Map.LINK, Map.JOIN):
             for obj in self._objects[type]:
                 obj.write(fp)
 
@@ -131,13 +131,13 @@ class Map:
         if section:
             section.write(fp)
 
-        for room in self._objects[ROOM]:
+        for room in self._objects[Map.ROOM]:
             if room._section is section:
                 room.write(fp)
             else:
                 continue
 
-            for type in (ITEM, TASK):
+            for type in (Map.ITEM, Map.TASK):
                 for obj in self._objects[type]:
                     if obj._room is room:
                         obj.write(fp)
@@ -372,4 +372,4 @@ if __name__ == "__main__":
 
     map.room("Study").dir(e, n).oneway()
 
-    map.show("ggv")
+    map.show("gs -q -dBATCH -dNOPAUSE -sOutputFile=out.ps -")
