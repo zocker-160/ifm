@@ -1,4 +1,10 @@
-# IFM module for python, by me.  Needs work.
+# IFM module for python.
+
+# TODO:
+
+# Variable settings.
+# Rest of syntax.
+# Styles.
 
 import os
 import sys
@@ -106,7 +112,7 @@ class Map:
         for type in (Map.ITEM, Map.TASK):
             count = 0
             for obj in self._objects[type]:
-                if obj.room is not None:
+                if obj._room is not None:
                     continue
 
                 if count == 0:
@@ -152,7 +158,7 @@ class MapObject:
     "An object which is drawn on the map."
 
     def __init__(self):
-        self._fromroom = None
+        self._from = None
         self._dirs = []
         self._go = None
         self._oneway = 0
@@ -164,7 +170,7 @@ class MapObject:
 
     def from_(self, room):
         "Set the 'from' room."
-        self._fromroom = room
+        self._from = room
         return self
 
     def go(self, dir):
@@ -181,8 +187,8 @@ class MapObject:
         if self._dirs:
             dirs = [str(x) for x in self._dirs]
             fp.write(" dir " + " ".join(dirs))
-            if self._fromroom:
-                fp.write(" from " + self._fromroom._tag)
+            if self._from:
+                fp.write(" from " + self._from._tag)
 
         if self._go:
             fp.write(" go " + str(self._go))
@@ -190,15 +196,51 @@ class MapObject:
         if self._oneway:
             fp.write(" oneway")
 
-class TagObject:
+class TaskObject:
+    "An object having task attributes."
+
+    def __init__(self):
+        self._before = []
+        self._after = []
+        self._need = []
+
+    def before(self, *tasks):
+        self._before.extend(tasks)
+
+    def after(self, *tasks):
+        self._after.extend(tasks)
+
+    def need(self, *items):
+        self._need.extend(items)
+
+    def write(self, fp):
+        if self._before:
+            fp.write(" before")
+            for task in self._before:
+                fp.write(" " + task._tag)
+
+        if self._after:
+            fp.write(" after")
+            for task in self._after:
+                fp.write(" " + task._tag)
+
+        if self._need:
+            fp.write(" need")
+            for item in self._need:
+                fp.write(" " + item._tag)
+
+class TagObject(TaskObject):
     "An object which has a name."
 
     # Assigned tags.
     _tags = {}
 
     def __init__(self, name, tagprefix):
+        TaskObject.__init__(self)
+
         self._name = name.replace('"', r'\"')
         self._notes = []
+        self._ignore = 0
 
         if tagprefix:
             count = 1
@@ -217,26 +259,39 @@ class TagObject:
 
         return self
 
+    def ignore(self):
+        self._ignore = 1
+
     def write(self, fp):
+        TaskObject.write(self, fp)
         fp.write(" tag %s" % self._tag)
 
+        if self._ignore:
+            fp.write(" ignore");
+
+        # FINISH ME.
+        if self._notes:
+            pass
+
 class RoomObject(TagObject):
-    "An object that appears in a room."
+    "An thing that appears in a room."
 
     def __init__(self, name, longtag = 1):
         prefix = name.replace(" ", "_")
         TagObject.__init__(self, name, prefix)
 
-    def room(self, room):
+    def in_(self, room):
         "Set the initial room."
         self._room = room
         return self
 
-class LinkObject(MapObject):
+class LinkObject(MapObject, TaskObject):
     "An object which links to others on the map."
 
     def __init__(self, room1, room2, cmd):
         MapObject.__init__(self)
+        TaskObject.__init__(self)
+
         self._cmd = cmd
         self._from = room1
         self._to = room2
@@ -244,6 +299,7 @@ class LinkObject(MapObject):
     def write(self, fp):
         fp.write("\n%s %s to %s" % (self._cmd, self._from._tag, self._to._tag))
         MapObject.write(self, fp)
+        TaskObject.write(self, fp)
         fp.write(";\n")
 
 class Section(TagObject):
@@ -260,9 +316,15 @@ class Room(TagObject, MapObject):
         prefix = "".join([w[0] for w in name.split()]).upper()
         TagObject.__init__(self, name, prefix)
         MapObject.__init__(self)
+
         self._links = []
         self._joins = []
         self._exits = []
+        self._nolink = 0
+        self._nopath = 0
+        self._nodrop = 0
+        self._start = 0
+        self._finish = 0
 
     def link(self, *rooms):
         "Link the room to one or more others."
@@ -278,6 +340,21 @@ class Room(TagObject, MapObject):
         "Mark one or more room exits."
         self._exits.extend(dirs)
         return self
+
+    def nolink(self):
+        self._nolink = 1
+
+    def nopath(self):
+        self._nopath = 1
+
+    def nodrop(self):
+        self._nodrop = 1
+
+    def start(self):
+        self._start = 1
+
+    def finish(self):
+        self._finish = 1
 
     def write(self, fp):
         fp.write("\nroom \"%s\"" % self._name)
@@ -296,6 +373,21 @@ class Room(TagObject, MapObject):
 
         if self._exits:
             fp.write(" exit " + " ".join([str(x) for x in self._exits]))
+
+        if self._nolink:
+            fp.write(" nolink")
+
+        if self._nopath:
+            fp.write(" nopath")
+
+        if self._nodrop:
+            fp.write(" nodrop")
+
+        if self._start:
+            fp.write(" start")
+
+        if self._finish:
+            fp.write(" finish")
 
         fp.write(";\n")
 
@@ -319,12 +411,15 @@ class Item(RoomObject):
 
     def write(self, fp):
         fp.write("  item \"%s\"" % self._name)
-        TagObject.write(self, fp)
+        RoomObject.write(self, fp)
         fp.write(";\n")
 
 class Task(RoomObject):
     def __init__(self, name):
         RoomObject.__init__(self, name)
+
+    def in_any(self):
+        self._room = None
 
 class Dir:
     "An IFM direction."
@@ -372,4 +467,5 @@ if __name__ == "__main__":
 
     map.room("Study").dir(e, n).oneway()
 
-    map.show("gs -q -dBATCH -dNOPAUSE -sOutputFile=out.ps -")
+    map.write()
+    #map.show("gs -q -dBATCH -dNOPAUSE -sOutputFile=out.ps -")
