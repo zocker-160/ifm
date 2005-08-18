@@ -17,6 +17,3 @@ rec2scr		Perl script which invokes the dumb-frotz interpreter
 		(available from the IF archive) to non-interactively
 		convert a recording of game commands into a transcript.
 		Very useful for testing the recording output from IFM.
-
-ifm.py		Experimental Python interface to IFM.  Nowhere near in a
-		fit state yet.
