@@ -1,18 +1,29 @@
-dnl Configuration template for IFM.
-
 dnl Process this file with autoconf to produce a configure script.
+
+dnl Initialize autoconf.
 AC_INIT(ifm, 5.2, zondo@pillock.freeserve.co.uk)
 AC_CONFIG_SRCDIR(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(etc)
 
+dnl Initialize automake.
 AM_INIT_AUTOMAKE(foreign)
-AM_CONFIG_HEADER(etc/config.h)
 
 dnl Check for Vars library.
 AM_CONFIG_LIB(Vars, VARS, vars-config, 2.6,
 the Vars library is required -- get it from www.freewebtown.com/zondo/programs)
 
-dnl Check host system.
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_YACC
+AM_PROG_LEX
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+
+dnl Checks for header files.
+AC_HEADER_STDC
+
+dnl Check for cygwin.
 AC_CANONICAL_HOST
 
 case $host_os in
@@ -30,17 +41,6 @@ if test $CYGWIN = yes; then
 fi
 
 AM_CONDITIONAL(CYGWIN, test $CYGWIN = yes)
-
-dnl Checks for programs.
-AC_PROG_CC
-AC_PROG_YACC
-AM_PROG_LEX
-AC_PROG_INSTALL
-AC_PROG_MAKE_SET
-AC_PROG_LIBTOOL
-
-dnl Checks for header files.
-AC_HEADER_STDC
 
 dnl Check for wish.
 AC_PATH_PROGS(WISH, wish8.0 wish80 wish, no)
