@@ -1,5 +1,5 @@
 ****************************************************************************
-* Version 5.2                                                  27 Jul 2005 *
+* Version 5.2                                                   8 Sep 2005 *
 ****************************************************************************
 
 Additions
@@ -8,8 +8,15 @@ Additions
 * New program in the 'contrib' directory: asciimapper.  This is a tool to
   create IFM maps from ASCII art maps, contributed by Elijah Griffin.
 
+* There's a new -errors option, which controls the maximum number of errors
+  printed before giving up.
+
 Changes
 =======
+
+* Several unused features which added needless complexity have been
+  removed.  These are: preprocessing by gpp, expressions for real/integer
+  values, and variable interpolation.
 
 * To reduce package size, the Vars library which IFM uses is no longer
   bundled with IFM.  You must install it separately, before building IFM.
@@ -20,8 +27,6 @@ Bug fixes
 
 * A crash when trying to print an error message about cyclic task
   dependencies has been fixed.
-
-* Variable substitution is now done in FIG output too.
 
 ****************************************************************************
 * Version 5.1                                                  30 Nov 2004 *
