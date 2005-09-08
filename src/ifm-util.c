@@ -347,7 +347,7 @@ put_string(char *fmt, ...)
     char *str;
 
     V_BUF_FMT(fmt, str);
-    fputs(var_subst(str), stdout);
+    fputs(str, stdout);
 }
 
 /* Set up room names */

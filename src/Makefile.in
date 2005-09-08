@@ -57,11 +57,10 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = ifm-dot.$(OBJEXT) ifm-driver.$(OBJEXT) \
-	ifm-fig.$(OBJEXT) ifm-gpp.$(OBJEXT) ifm-main.$(OBJEXT) \
-	ifm-map.$(OBJEXT) ifm-path.$(OBJEXT) ifm-ps.$(OBJEXT) \
-	ifm-raw.$(OBJEXT) ifm-rec.$(OBJEXT) ifm-task.$(OBJEXT) \
-	ifm-text.$(OBJEXT) ifm-tk.$(OBJEXT) ifm-util.$(OBJEXT) \
-	ifm-vars.$(OBJEXT)
+	ifm-fig.$(OBJEXT) ifm-main.$(OBJEXT) ifm-map.$(OBJEXT) \
+	ifm-path.$(OBJEXT) ifm-ps.$(OBJEXT) ifm-raw.$(OBJEXT) \
+	ifm-rec.$(OBJEXT) ifm-task.$(OBJEXT) ifm-text.$(OBJEXT) \
+	ifm-tk.$(OBJEXT) ifm-util.$(OBJEXT) ifm-vars.$(OBJEXT)
 am__objects_2 = ifm-parse.$(OBJEXT) ifm-scan.$(OBJEXT)
 am__objects_3 =
 am_ifm_OBJECTS = $(am__objects_1) $(am__objects_2) $(am__objects_3)
@@ -200,14 +199,14 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
-SRCS = ifm-dot.c ifm-driver.c ifm-fig.c ifm-gpp.c ifm-main.c ifm-map.c	\
-ifm-path.c ifm-ps.c ifm-raw.c ifm-rec.c ifm-task.c ifm-text.c ifm-tk.c	\
-ifm-util.c ifm-vars.c
+SRCS = ifm-dot.c ifm-driver.c ifm-fig.c ifm-main.c ifm-map.c ifm-path.c	\
+ifm-ps.c ifm-raw.c ifm-rec.c ifm-task.c ifm-text.c ifm-tk.c ifm-util.c	\
+ifm-vars.c
 
 NOLINT_SRCS = ifm-parse.y ifm-scan.l
-HDRS = ifm-dot.h ifm-driver.h ifm-fig.h ifm-gpp.h ifm-main.h ifm-map.h	  \
-ifm-parse.h ifm-path.h ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h \
-ifm-tk.h ifm-util.h ifm-vars.h
+HDRS = ifm-dot.h ifm-driver.h ifm-fig.h ifm-main.h ifm-map.h ifm-parse.h \
+ifm-path.h ifm-ps.h ifm-raw.h ifm-rec.h ifm-task.h ifm-text.h ifm-tk.h	 \
+ifm-util.h ifm-vars.h
 
 ifm_SOURCES = $(SRCS) $(NOLINT_SRCS) $(HDRS)
 EXTRA_DIST = ifm-parse.c ifm-scan.c
@@ -313,7 +312,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-dot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-fig.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-gpp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-map.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifm-parse.Po@am__quote@

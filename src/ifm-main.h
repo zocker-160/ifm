@@ -11,7 +11,6 @@ extern vlist *ifm_styles;
 
 /* Advertised functions */
 extern int parse_input(char *file, int libflag, int required);
-extern void switch_file(char *file, int line, int flag);
 extern void yyerror(char *msg);
 extern void err(char *fmt, ...);
 extern void warn(char *fmt, ...);

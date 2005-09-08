@@ -42,13 +42,6 @@
 		"with") 'words)
   "Regexp matching general keywords in IFM mode.")
 
-(defconst ifm-preprocessor-regexp
-  (regexp-opt '("%include" "%define" "%defeval" "%if" "%ifdef" "%undef"
-		"%ifndef" "%ifeq" "%ifneq" "%else" "%endif" "%eval"
-		"%1" "%2" "%3" "%4" "%5" "%6" "%7" "%8" "%9"
-		"%exec" "defined") 'words)
-  "Regexp matching preprocessor directives in IFM mode.")
-
 (defconst ifm-obsolete-regexp
   (regexp-opt '("given" "times") 'words)
   "Regexp matching obsolete keywords in IFM mode.")
@@ -62,7 +55,6 @@
    (cons ifm-direction-regexp font-lock-variable-name-face)
    (cons ifm-keyword-regexp font-lock-keyword-face)
    (cons ifm-builtin-regexp font-lock-builtin-face)
-   (cons ifm-preprocessor-regexp font-lock-builtin-face)
    (cons ifm-obsolete-regexp font-lock-warning-face)
    )
   "Font-lock keywords in IFM mode.")
@@ -86,15 +78,18 @@ before doing anything else."
   (setq comment-end "")
   (setq comment-column 0)
   (setq comment-start-skip "#[ \t]*")
+
   ;; Become the current major mode.
   (setq major-mode 'ifm-mode)
   (setq mode-name "IFM")
+
   ;; Activate syntax table.
   (if ifm-mode-syntax-table
       nil
     (setq ifm-mode-syntax-table (make-syntax-table))
     (modify-syntax-entry ?_ "w" ifm-mode-syntax-table))
   (set-syntax-table ifm-mode-syntax-table)
+
   ;; Activate keymap.
   (use-local-map ifm-mode-map)
   (run-hooks 'ifm-mode-hook))

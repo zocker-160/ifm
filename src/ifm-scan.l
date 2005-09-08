@@ -19,9 +19,6 @@
 
 /* Internal string buffer */
 static vbuffer *sbuf = NULL;
-
-/* Internal functions */
-static void parse_prep_line(char *str);
 %}
 
 LETTER		[A-Za-z_]
@@ -34,12 +31,7 @@ VAR             \${ID}
 
 %%
 
-^\#line.* {
-    /* Preprocessor line */
-    parse_prep_line(yytext);
-}
-
-#.* /* Ignore other comments */
+#.* /* Ignore comments */
 
 [ \t\f\r]+ /* Strip whitespace */
 
@@ -174,11 +166,6 @@ VAR             \${ID}
     return ID;
 }
 
-{VAR} {
-    yylval.sval = v_strdup(&yytext[1]);
-    return VAR;
-}
-
 {REAL} {
     yylval.dval = atof(yytext);
     return REAL;
@@ -192,24 +179,3 @@ VAR             \${ID}
 . { return yytext[0]; }
 
 %%
-
-/* Parse a preprocessor line */
-static void
-parse_prep_line(char *str)
-{
-    int flag, line;
-    vlist *tokens;
-    char *file;
-
-    tokens = vl_split(str, " \t\"");
-    if (vl_length(tokens) >= 2) {
-        line = vl_iget(tokens, 1) - 1;
-        file = vl_sgetref(tokens, 2);
-        flag = vl_iget(tokens, 3);
-        vl_destroy(tokens);
-    } else {
-        return;
-    }
-
-    switch_file(file, line, flag);
-}

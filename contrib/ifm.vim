@@ -1,14 +1,10 @@
 " IFM syntax file
 " Language: Interactive Fiction Mapper
 " Maintainer: Dave Chapeskie <dchapes@ddm.wox.org>
-" $Id$
 "
 " Note:  This is my first attempt at doing vim syntax highlighting,
 "        if there is a better way of doing any of this please e-mail me.
-" Note:  This is for version 5.0 of IFM.
-" TODO: handle using "$variable_name" where strings or numbers are expected
-" TODO: handle "$variable_name" and "${variable_name}" within strings
-" TODO: handle expressions
+" Note:  This is for version 5.2 of IFM.
 
 " Remove any old syntax stuff hanging around
 syntax clear
@@ -32,28 +28,6 @@ syntax region ifmLinkStatement	end=";" matchgroup=ifmStatement start="\<link\>" 
 syntax region ifmJoinStatement	end=";" matchgroup=ifmStatement start="\<join\>" contains=ifmError,ifmComment,ifmString,ifmJoinOpt,ifmTagOpt,ifmDirOpt,ifmGoOpt,ifmLengthOpt
 syntax region ifmStyleStatement	end=";" matchgroup=ifmStatement start="\<style\>" contains=ifmId,ifmComment
 syntax region ifmEndStyleStatement	end=";" matchgroup=ifmStatement start="\<endstyle\>" contains=ifmId,ifmComment
-
-" GPP preprocessor statements
-syntax region ifmIncludeStatement	end="$" matchgroup=ifmStatement start="^%include\>" contains=ifmString,ifmComment
-syntax region ifmDefineStatement	end="$" matchgroup=ifmStatement start="^%define\>" contains=ifmId,ifmString,ifmComment
-syntax region ifmDefevalStatement	end="$" matchgroup=ifmStatement start="^%defeval\>" contains=ifmId,ifmString,ifmComment
-syntax region ifmUndefStatement		end="$" matchgroup=ifmStatement start="^%undef\>" contains=ifmId,ifmComment
-syntax region ifmIfStatement		end="$" matchgroup=ifmStatement start="^%if\>" contains=ifmString,ifmComment
-syntax region ifmIfdefStatement		end="$" matchgroup=ifmStatement start="^%ifdef\>" contains=ifmId,ifmComment
-syntax region ifmIfndefStatement	end="$" matchgroup=ifmStatement start="^%ifndef\>" contains=ifmId,ifmComment
-syntax region ifmIfeqStatement		end="$" matchgroup=ifmStatement start="^%ifeq\>" contains=ifmId,ifmComment
-syntax region ifmIfneqStatement		end="$" matchgroup=ifmStatement start="^%ifneq\>" contains=ifmId,ifmComment
-syntax region ifmElseStatement		end="$" matchgroup=ifmStatement start="^%else\>" contains=ifmComment
-syntax region ifmEndifStatement		end="$" matchgroup=ifmStatement start="^%endif\>" contains=ifmComment
-syntax region ifmExecStatement		end="$" matchgroup=ifmStatement start="^%exec\>" contains=ifmString,ifmComment
-syntax region ifmEvalStatement		end="$" matchgroup=ifmStatement start="^%eval\>" contains=ifmString,ifmComment
-syntax region ifmModeStatement		end="$" matchgroup=ifmStatement start="^%mode\>" contains=ifmGPPMode,ifmString,ifmComment
-" TODO: highlight these pre-defined preprocessor macros
-syntax keyword ifmMacro IFM_VERSION IFM_FORMAT
-
-syntax keyword ifmGPPMode contained push pop save restore standard user meta
-syntax keyword ifmGPPMode contained quote comment nocomment string nostring
-syntax keyword ifmGPPMode contained preservelf charset
 
 " Comments
 syntax match ifmComment "#.*" contains=ifmTodo
@@ -146,7 +120,6 @@ if !exists("did_ifm_syntax_inits")
   highlight link ifmExitOpt	ifmKeyword
   highlight link ifmDirFromOpt	ifmKeyword
   highlight link ifmFromOpt	ifmKeyword
-  highlight link ifmGPPMode	ifmKeyword
   highlight link ifmKeyword	Type
   highlight link ifmGoDir	Constant
   highlight link ifmDirFromInt	ifmDirFrom

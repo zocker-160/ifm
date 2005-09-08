@@ -4,7 +4,9 @@ AUTOMAKE_OPTIONS = check-news
 
 ACLOCAL_AMFLAGS = -I etc
 
-SUBDIRS = fig gpp src lib doc progs demos tests
+SUBDIRS = fig src lib doc progs demos tests
+
+EXTRA_DIST = ANNOUNCE
 
 EXTRA_DIRS = etc contrib win32
 

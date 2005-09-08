@@ -13,7 +13,6 @@
 #include <vars.h>
 
 #include "ifm-driver.h"
-#include "ifm-gpp.h"
 #include "ifm-main.h"
 #include "ifm-map.h"
 #include "ifm-path.h"
@@ -21,18 +20,15 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-/* Output types */
-#define O_NONE  0x0             /* No output */
-#define O_MAP   0x1             /* Map */
-#define O_ITEMS 0x2             /* Item list */
-#define O_TASKS 0x4             /* Task list */
-
-/* Max. errors before aborting */
-#define MAX_ERRORS 10
+/* Whether any output is required */
+#define OUTPUT (write_map || write_items || write_tasks)
 
 char *ifm_format = NULL;        /* Output format name */
-
 int line_number;                /* Current line number */
+
+int write_map = 0;              /* Whether to write map */
+int write_items = 0;            /* Whether to write item list */
+int write_tasks = 0;            /* Whether to write task list */
 
 vlist *ifm_search = NULL;       /* Search path */
 vlist *ifm_styles = NULL;       /* Global styles */
@@ -42,15 +38,15 @@ static char ifm_input[BUFSIZ];  /* Input filename */
 
 static int ifm_driver = -1;     /* Output driver ID */
 static int ifm_errors = 0;      /* No. of errors */
-static int prep_only = 0;       /* Whether to only preprocess */
-static int warning_flag = 1;    /* Whether to print warnings */
+static int nowarn = 0;          /* Whether to suppress warnings */
+static int max_errors = 10;     /* Print this many errors before abort */
 
 static vlist *sections = NULL;  /* List of map sections to output */
 
 /* Internal functions */
 static void message(char *type, char *msg);
 static void print_version(void);
-static int select_format(char *str, int output);
+static int select_format(char *str);
 static void show_info(char *type);
 static void show_maps(void);
 static void show_path(void);
@@ -71,9 +67,9 @@ static struct show_st {
 int
 main(int argc, char *argv[])
 {
-    char *env, *file, *info = NULL, *spec, *fmt = NULL, *home;
-    int output = O_NONE, initfile = 1;
-    vlist *args, *list;
+    char *env, *file = NULL, *info = NULL, *spec, *format = NULL, *home;
+    vlist *args, *list, *include = NULL, *vars = NULL;
+    int noinit = 0, version = 0, help = 0, debug = 0;
     vscalar *elt;
     vhash *opts;
     V_BUF_DECL;
@@ -97,96 +93,73 @@ main(int argc, char *argv[])
     v_option('m', "map", V_OPT_OPTARG, "sections",
              "Select map output");
 
-    v_option('i', "items", V_OPT_FLAG, NULL,
-             "Select item output");
+    v_option_flag('i', "items", &write_items,
+                  "Select item output");
 
-    v_option('t', "tasks", V_OPT_FLAG, NULL,
-             "Select task output");
+    v_option_flag('t', "tasks", &write_tasks,
+                  "Select task output");
 
-    v_option('f', "format", V_OPT_ARG, "fmt",
-             "Select output format");
+    v_option_string('f', "format", "name", &format,
+                    "Select output format");
 
-    v_option('o', "output", V_OPT_ARG, "file",
-             "Write output to file");
+    v_option_string('o', "output", "file", &file,
+                    "Write output to specified file");
 
     v_optgroup("Auxiliary options:");
 
-    v_option('S', "style", V_OPT_LIST, "name",
-             "Push a style onto the style list");
+    v_option_list('I', NULL, "dir", &include,
+                  "Prepend directory to search path");
 
-    v_option('s', "set", V_OPT_LIST, "var=val",
-             "Set a customization variable");
+    v_option_list('S', "style", "name", &ifm_styles,
+                  "Push a style onto the style list");
 
-    v_option('w', "nowarn", V_OPT_FLAG, NULL,
-             "Don't print warnings");
+    v_option_list('s', "set", "var=val", &vars,
+                  "Set a customization variable");
 
-    v_option('\0', "noinit", V_OPT_FLAG, NULL,
-             "Don't read personal init file");
+    v_option_flag('\0', "noinit", &noinit,
+                  "Don't read personal init file");
 
-    v_optgroup("Preprocessor options:");
+    v_option_flag('w', "nowarn", &nowarn,
+                  "Don't print warnings");
 
-    v_option('D', NULL, V_OPT_LIST, "var[=val]",
-             "Define a preprocessor symbol");
-
-    v_option('I', NULL, V_OPT_LIST, "dir",
-             "Prepend directory to search path");
-
-    v_option('P', NULL, V_OPT_FLAG, NULL,
-             "Just preprocess input");
+    v_option_int('e', "errors", "num", &max_errors,
+                 "Print this many errors before giving up (default: %d)",
+                 max_errors);
 
     v_optgroup("Information options:");
 
-    v_option('\0', "show", V_OPT_ARG, "type",
-             "Show information");
+    v_option_string('\0', "show", "type", &info,
+                    "Show information");
 
-    v_option('v', "version", V_OPT_FLAG, NULL,
-             "Print program version");
+    v_option_flag('v', "version", &version,
+                  "Print program version");
 
-    v_option('h', "help", V_OPT_FLAG, NULL,
-             "This help message");
+    v_option_flag('h', "help", &help,
+                  "This help message");
 
-    v_option('\0', "DEBUG", V_OPT_ARG, "flag", NULL);
+    v_option_int('\0', "DEBUG", "flag", &debug, NULL);
 
     /* Parse command-line arguments */
     if ((opts = vh_getopt(argc, argv)) == NULL)
         v_die("Type '%s -help' for help", progname);
 
-    if (vh_exists(opts, "help"))
+    if (help)
         usage();
 
-    if (vh_exists(opts, "version")) {
+    if (version)
         print_version();
-        return 0;
-    }
 
     if (vh_exists(opts, "map")) {
-        output |= O_MAP;
+        write_map = 1;
         spec = vh_sgetref(opts, "map");
         if (strlen(spec) > 0 && (sections = vl_parse_list(spec)) == NULL)
             fatal("invalid map section spec: %s", spec);
     }
 
-    if (vh_exists(opts, "items"))
-        output |= O_ITEMS;
+    if (format != NULL)
+        ifm_driver = select_format(format);
 
-    if (vh_exists(opts, "tasks"))
-        output |= O_TASKS;
-
-    if (vh_exists(opts, "format")) {
-        fmt = vh_sgetref(opts, "format");
-        ifm_driver = select_format(fmt, 0);
-    }
-
-    if (vh_exists(opts, "nowarn"))
-        warning_flag = 0;
-
-    if (vh_exists(opts, "noinit"))
-        initfile = 0;
-
-    if (vh_exists(opts, "show"))
-        info = vh_sgetref(opts, "show");
-
-    if ((ifm_styles = vh_pget(opts, "style")) != NULL) {
+    if (ifm_styles != NULL) {
         vl_foreach(elt, ifm_styles)
             ref_style(vs_sgetref(elt));
     }
@@ -200,50 +173,20 @@ main(int argc, char *argv[])
             vl_sunshift(ifm_search, vl_spop(list));
     }
 
-    if ((list = vh_pget(opts, "I")) != NULL)
-        while (vl_length(list) > 0)
-            vl_sunshift(ifm_search, vl_spop(list));
-
-    /* Set up preprocessor */
-    gpp_init();
-    if (ifm_errors)
-        return 1;
-
-    vl_foreach(elt, ifm_search)
-        gpp_include(vs_sgetref(elt));
-
-    if ((list = vh_pget(opts, "D")) != NULL) {
-        vl_foreach(elt, list)
-            gpp_define(vs_sgetref(elt), NULL);
-    }
-
-    gpp_define("IFM_VERSION", VERSION);
-
-    if (fmt != NULL)
-        gpp_define("IFM_FORMAT", fmt);
-
-    prep_only = vh_iget(opts, "P");
+    if (include != NULL)
+        while (vl_length(include) > 0)
+            vl_sunshift(ifm_search, vl_spop(include));
 
     /* Set internal debugging options */
-    switch (vh_iget(opts, "DEBUG")) {
-
 #ifdef FLEX_DEBUG
-    case 1:
+    if (debug == 1)
         yy_flex_debug = 1;
-        break;
 #endif
 
 #ifdef BISON_DEBUG
-    case 2:
+    if (debug == 2)
         yydebug = 1;
-        break;
 #endif
-
-    default:
-        break;
-    }
-
-    debug("gpp command: %s", gpp_command());
 
     /* Initialise map stuff */
     init_map();
@@ -253,7 +196,7 @@ main(int argc, char *argv[])
         return 1;
 
     /* Parse personal init file if available */
-    if (initfile) {
+    if (!noinit) {
         home = getenv("HOME");
         V_BUF_SET2("%s/%s", home != NULL ? home : ".", INITFILE);
         if (!parse_input(V_BUF_VAL, 0, 0))
@@ -261,7 +204,7 @@ main(int argc, char *argv[])
     }
 
     /* Parse input files (or stdin) */
-    args = vh_pget(opts, "ARGS");
+    args = v_getargs(opts);
     if (vl_length(args) > 0) {
         vl_foreach(elt, args) {
             file = vs_sgetref(elt);
@@ -271,10 +214,6 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    /* That's it if only preprocessing */
-    if (prep_only)
-        return 0;
-
     /* Load style definitions */
     set_style_list(ifm_styles);
     load_styles();
@@ -282,9 +221,9 @@ main(int argc, char *argv[])
         return 1;
 
     /* Set any variables from command line */
-    if ((list = vh_pget(opts, "set")) != NULL) {
+    if (vars != NULL) {
         char *cp;
-        vl_foreach(elt, list) {
+        vl_foreach(elt, vars) {
             spec = vs_sgetref(elt);
             if ((cp = strchr(spec, '=')) != NULL) {
                 *cp++ = '\0';
@@ -294,8 +233,8 @@ main(int argc, char *argv[])
     }
 
     /* Set output format if not already specified */
-    if (output != O_NONE && ifm_driver < 0)
-        ifm_driver = select_format(NULL, output);
+    if (OUTPUT && ifm_driver < 0)
+        ifm_driver = select_format(NULL);
 
     /* Open output file if required */
     if (vh_exists(opts, "output")) {
@@ -334,7 +273,7 @@ main(int argc, char *argv[])
         return 1;
 
     /* Solve game if required */
-    if (output == O_NONE || output & O_TASKS) {
+    if (!OUTPUT || write_tasks) {
         check_cycles();
         if (!ifm_errors)
             solve_game();
@@ -348,16 +287,16 @@ main(int argc, char *argv[])
 
     /* Just show info if required */
     if (info == NULL) {
-        if (output == O_NONE && !TASK_VERBOSE)
+        if (!OUTPUT && !TASK_VERBOSE)
             printf("Syntax appears OK\n");
 
-        if (output & O_MAP)
+        if (write_map)
             print_map(ifm_driver, sections);
 
-        if (output & O_ITEMS)
+        if (write_items)
             print_items(ifm_driver);
 
-        if (output & O_TASKS)
+        if (write_tasks)
             print_tasks(ifm_driver);
     } else {
         show_info(info);
@@ -399,18 +338,17 @@ parse_input(char *file, int libflag, int required)
     line_number = 1;
     ifm_errors = 0;
 
-    yyin = gpp_open(path);
+    if (path == NULL)
+        yyin = stdin;
+    else if ((yyin = fopen(path, "r")) == NULL)
+        fatal("can't read '%s'", path);
 
-    if (prep_only) {
-        while ((c = fgetc(yyin)) != EOF)
-            putchar(c);
-    } else {
-        if (parses++)
-            yyrestart(yyin);
-        yyparse();
-    }
+    if (parses++)
+        yyrestart(yyin);
 
-    gpp_close(yyin);
+    yyparse();
+
+    fclose(yyin);
     line_number = 0;
     strcpy(ifm_input, "");
 
@@ -419,7 +357,7 @@ parse_input(char *file, int libflag, int required)
 
 /* Select an output format */
 static int
-select_format(char *str, int output)
+select_format(char *str)
 {
     int i, match, nmatch = 0, len = 0;
 
@@ -428,17 +366,14 @@ select_format(char *str, int output)
 
     for (i = 0; drivers[i].name != NULL; i++) {
         if (str == NULL) {
-            if (output & O_MAP)
-                if (drivers[i].mfunc != NULL)
-                    return i;
+            if (write_map && drivers[i].mfunc != NULL)
+                return i;
 
-            if (output & O_ITEMS)
-                if (drivers[i].ifunc != NULL)
-                    return i;
+            if (write_items && drivers[i].ifunc != NULL)
+                return i;
 
-            if (output & O_TASKS)
-                if (drivers[i].tfunc != NULL)
-                    return i;
+            if (write_tasks && drivers[i].tfunc != NULL)
+                return i;
         } else {
             if (strcmp(drivers[i].name, str) == 0)
                 return i;
@@ -458,26 +393,6 @@ select_format(char *str, int output)
         fatal("ambiguous output format: %s", str);
 
     return match;
-}
-
-/* Switch to new input file */
-void
-switch_file(char *file, int line, int flag)
-{
-    strcpy(ifm_input, file);
-    line_number = line;
-
-    switch (flag) {
-    case 0:
-        debug("switching to file: %s, line %d", file, line);
-        break;
-    case 1:
-        debug("including file: %s, line %d", file, line);
-        break;
-    case 2:
-        debug("returning to file: %s, line %d", file, line);
-        break;
-    }
 }
 
 /* Parser-called parse error */
@@ -506,7 +421,7 @@ err(char *fmt, ...)
 
     if (func == NULL) {
         message("error", msg);
-        if (ifm_errors >= MAX_ERRORS)
+        if (max_errors > 0 && ifm_errors >= max_errors)
             fatal("too many errors.  Goodbye!");
     } else {
         func->error(ifm_input, line_number, msg);
@@ -521,18 +436,17 @@ warn(char *fmt, ...)
     V_BUF_DECL;
     char *msg;
 
-    if (!warning_flag)
-        return;
+    if (!nowarn) {
+        V_BUF_FMT(fmt, msg);
 
-    V_BUF_FMT(fmt, msg);
+        if (ifm_driver >= 0)
+            func = drivers[ifm_driver].efunc;
 
-    if (ifm_driver >= 0)
-        func = drivers[ifm_driver].efunc;
-
-    if (func == NULL)
-        message("warning", msg);
-    else
-        func->warning(ifm_input, line_number, msg);
+        if (func == NULL)
+            message("warning", msg);
+        else
+            func->warning(ifm_input, line_number, msg);
+    }
 }
 
 /* Give a debugging message */
@@ -575,7 +489,7 @@ fatal(char *fmt, ...)
     exit(1);
 }
 
-/* Print program version */
+/* Print program version and exit */
 static void
 print_version(void)
 {
@@ -595,6 +509,8 @@ print_version(void)
     printf("You should have received a copy of the GNU General Public License\n");
     printf("along with this program; if not, write to the Free Software\n");
     printf("Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n");
+
+    exit(0);
 }
 
 /* Show some information */

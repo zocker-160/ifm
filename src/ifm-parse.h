@@ -73,9 +73,6 @@ typedef union {
 #define	REAL	323
 #define	STRING	324
 #define	ID	325
-#define	VAR	326
-#define	PLUS	327
-#define	MINUS	328
 
 
 extern YYSTYPE yylval;

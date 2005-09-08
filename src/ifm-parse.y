@@ -86,18 +86,12 @@ static int instyle = 0;         /* Set variable in different style? */
 
 %token <ival> INTEGER
 %token <dval> REAL
-%token <sval> STRING ID VAR
+%token <sval> STRING ID
 
 %type  <ival> compass otherdir integer
 %type  <sval> string string_repeat
 %type  <vval> room item task
 %type  <dval> exp
-
-%right        '='
-%left	      '+' '-'
-%left	      '*' '/' '%'
-%left	      PLUS MINUS
-%right	      '^'
 
 %expect 1
 
@@ -1147,23 +1141,12 @@ otherdir	: IN            { $$ = D_IN;   }
 
 exp             : INTEGER               { $$ = $1; }
                 | REAL                  { $$ = $1; }
-                | VAR                   { $$ = var_real($1); }
-                | '+' exp %prec PLUS    { $$ = $2; }
-                | '-' exp %prec MINUS   { $$ = -$2; }
-                | exp '+' exp           { $$ = $1 + $3; }
-                | exp '-' exp           { $$ = $1 - $3; }
-                | exp '*' exp           { $$ = $1 * $3; }
-                | exp '/' exp           { $$ = $1 / $3; }
-                | exp '^' exp           { $$ = pow($1, $3); }
-                | exp '%' exp           { $$ = fmod($1, $3); }
-                | '(' exp ')'           { $$ = $2; }
                 ;
 
 integer         : exp                   { $$ = (int) $1; }
                 ;
 
 string          : STRING                { $$ = $1; }
-                | VAR                   { $$ = var_string($1); }
                 ;
 
 string_repeat   : string

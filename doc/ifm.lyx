@@ -1356,7 +1356,7 @@ keep_unused_items
  to zero.
  In that case, useless items will be dropped as soon as possible.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -2388,16 +2388,6 @@ stdin
  should be read at that point.
 \layout Standard
 
-Before IFM sees any input, it's passed through a preprocessor, in a similar
- manner to C programs.
- See Section 
-\begin_inset LatexCommand \ref{sec:preprocessor}
-
-\end_inset 
-
- for more details.
-\layout Standard
-
 If any of the 
 \family typewriter 
 -map
@@ -2444,7 +2434,7 @@ prologue
 Here's a summary of the command-line options (which can be abbreviated),
  starting with the output options:
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2465,7 +2455,7 @@ Draw a map of the game.
  would print map sections 1, 3, 4 and 5.
  If the list isn't specified, all sections are printed.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2474,7 +2464,7 @@ Draw a map of the game.
 \family default 
  Print a list of items which appear in the game.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2483,7 +2473,7 @@ Draw a map of the game.
 \family default 
  Print a list of tasks required to solve the game.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2500,7 +2490,7 @@ FORMAT
 \newline 
 Specify the output format.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2520,7 +2510,21 @@ Write to the specified file, instead of stdout.
 
 Next comes the auxiliary options:
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
+
+
+\family typewriter 
+-I,\SpecialChar ~
+-include\SpecialChar ~
+DIR
+\family default 
+ \SpecialChar ~
+
+\newline 
+Prepend the specified directory to the library and include file search path.
+ This option may be repeated.
+\layout List
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2540,7 +2544,7 @@ Set a global style.
  for more details.
  This option may be repeated.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2555,7 +2559,15 @@ Set a customization variable.
  This overrides any settings in the input files.
  This option may be repeated.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
+
+
+\family typewriter 
+-noinit
+\family default 
+ Don't read your personal init file.
+\layout List
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
@@ -2564,47 +2576,19 @@ Set a customization variable.
 \family default 
  Don't print warnings.
 \layout List
-\labelwidthstring MMMMMMM
+\labelwidthstring MMMMMMMMM
 
 
 \family typewriter 
--noinit
-\family default 
- Don't read your personal init file.
-\layout Standard
-
-These are the preprocessor options:
-\layout List
-\labelwidthstring MMMMMMM
-
-
-\family typewriter 
--I,\SpecialChar ~
--include\SpecialChar ~
-DIR
+-e,\SpecialChar ~
+-errors\SpecialChar ~
+NUM
 \family default 
  \SpecialChar ~
 
 \newline 
-Prepend the specified directory to the library and include file search path.
- This option may be repeated.
-\layout List
-\labelwidthstring MMMMMMM
-
-
-\family typewriter 
--Dvar[=val]
-\family default 
- Define a preprocessor symbol.
- This option may be repeated.
-\layout List
-\labelwidthstring MMMMMMM
-
-
-\family typewriter 
--P
-\family default 
- Just show the results of preprocessing the input.
+Print this many errors before aborting (default: 10).
+ If set to zero, print all errors.
 \layout Standard
 
 Finally, here are the information options:
@@ -3436,7 +3420,7 @@ scope
 \begin_inset Float table
 placement htbp
 wide false
-collapsed false
+collapsed true
 
 \layout Standard
 \align center 
@@ -3637,76 +3621,6 @@ Predefined styles
 \end_inset 
 
 
-\layout Subsection
-
-Backward Compatibility
-\layout Standard
-
-If you have any existing IFM maps created with previous versions of IFM,
- you may find that some of them don't work properly any more.
- That's because some old IFM features have been replaced with better ones;
- here's a list of the problems you may encounter.
-\layout Itemize
-
-The old 
-\family typewriter 
-puzzle
-\family default 
- and 
-\family typewriter 
-special
-\family default 
- attributes have been removed.
- You must use the corresponding styles instead---see Section 
-\begin_inset LatexCommand \ref{sec:style-defs}
-
-\end_inset 
-
-.
-\layout Itemize
-
-Include files are now included with 
-\family typewriter 
-%include
-\family default 
-, not 
-\family typewriter 
-include
-\family default 
-.
- This is because IFM now uses a separate preprocessor to manage included
- files; see Section 
-\begin_inset LatexCommand \ref{sec:preprocessor}
-
-\end_inset 
-
- for details.
-\layout Itemize
-
-The old concept of 
-\begin_inset Quotes eld
-\end_inset 
-
-aliases
-\begin_inset Quotes erd
-\end_inset 
-
- has been removed.
- You can get the same effect by using 
-\family typewriter 
-%define
-\family default 
----again, see Section 
-\begin_inset LatexCommand \ref{sec:preprocessor}
-
-\end_inset 
-
-.
- If you used any old aliased variables, you must now include the file 
-\family typewriter 
-ifm-compat.ifm
-\family default 
- to fix things.
 \layout Section
 \pagebreak_top 
 Language
@@ -3783,24 +3697,6 @@ Rod"
 
 You can continue strings on several lines---a newline-and-whitespace sequence
  is translated into a single space, just like in TADS and Inform.
-\layout Standard
-
-Note that dollars (
-\family typewriter 
-$
-\family default 
-) are special inside strings---they mark the start of a variable substitution.
- See Section 
-\begin_inset LatexCommand \ref{sec:variables}
-
-\end_inset 
-
- for details.
- If you want a literal dollar symbol in a string, use 
-\family typewriter 
-$$
-\family default 
-.
 \end_deeper 
 \layout List
 \labelwidthstring MMMMMMM
@@ -5698,50 +5594,6 @@ undef
 \end_inset 
 
 ).
-\layout Standard
-
-You can use the value of a defined variable anywhere in the input where
- a number or string is expected, by prefixing it with a dollar (
-\family typewriter 
-$
-\family default 
-) symbol.
-\layout Standard
-
-All strings that are printed by IFM output formats undergo variable substitution
----that is, parts of the string which look like variable references get
- the value of the variable inserted.
- If you want a literal 
-\family typewriter 
-$
-\family default 
- inside a string, use 
-\family typewriter 
-$$
-\family default 
-.
- If you want substitution to be performed on a variable that is cuddled
- up to other text that looks like part of the variable name, you must surround
- it with twiddly brackets, like 
-\family typewriter 
-${this}
-\family default 
-.
- Note that variable substitution only happens when the string is output---this
- happens after all other processing, so it is the final value of the variable
- that will be substituted.
-\layout Standard
-
-Some output formats use variables so that you can customize them.
- They expect certain variables to be defined, and give an error if they
- aren't.
- The default values for these variables are set in the initialization file---see
- Section 
-\begin_inset LatexCommand \ref{sec:output-variables}
-
-\end_inset 
-
-.
 \layout Subsection
 
 Styles
@@ -5820,458 +5672,6 @@ If a style is referenced by an object but not defined anywhere in the input,
  suffix to the style name.
  If the file is not found, or it does not define the required style, a warning
  is given.
-\layout Subsection
-
-Expressions
-\begin_inset LatexCommand \label{sec:expressions}
-
-\end_inset 
-
-
-\layout Standard
-
-Whenever a number is expected in IFM input, you can supply an arithmetic
- expression.
- An expression can be a number or a variable value, or a combination using
- the following constructs (in order of precedence):
-\layout Standard
-\added_space_top medskip \added_space_bottom medskip \align center 
-
-\begin_inset  Tabular
-<lyxtabular version="3" rows="9" columns="2">
-<features>
-<column alignment="center" valignment="top" width="0pt">
-<column alignment="left" valignment="top" width="0pt">
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-( expr )
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-parentheses
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-expr ^ expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-exponentiation
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-+ expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-unary plus
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-- expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-unary minus
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-expr * expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-multiply
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-expr / expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-divide
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-expr % expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-remainder
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-expr + expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-addition
-\end_inset 
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-
-\family typewriter 
-expr - expr
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-subtraction
-\end_inset 
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset 
-
-
-\layout Standard
-
-Note that in expressions, all variables are treated as numeric.
- If a variable is set to be a string and is then used in an expression,
- its numeric value will be read from the string.
- For most strings, this will be zero.
- This means that if you want to set a string variable to be exactly equal
- to another variable, you can't say something like
-\layout LyX-Code
-
-string_var = $other_string_var;
-\layout Standard
-
-because the right hand side is an expression, which is treated as numeric.
- The way to do it is to use variable substitution in strings:
-\layout LyX-Code
-
-string_var = "$other_string_var";
-\layout Subsection
-
-Preprocessor
-\begin_inset LatexCommand \label{sec:preprocessor}
-
-\end_inset 
-
-
-\layout Standard
-
-Before IFM sees any input, it is 
-\begin_inset Quotes eld
-\end_inset 
-
-preprocessed
-\begin_inset Quotes erd
-\end_inset 
-
----special preprocessing directives are acted upon and removed.
- This allows you to include other files, define macros, and process the
- input conditionally.
-\layout Standard
-
-The preprocessing directives all begin with a percent symbol and must be
- at the start of a line.
- Some of the available preprocessing directives are:
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-IFM implements preprocessing using 
-\emph on 
-gpp
-\emph default 
-, the Generic Preprocessor.
- The full set of preprocessing directives can be found in the documentation
- for 
-\emph on 
-gpp
-\emph default 
-, supplied with IFM.
-\end_inset 
-
-
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%include\SpecialChar ~
-"filename"
-\family default 
- Include the specified file.
- A directory search is done to find the file, using the IFM search path
- (which can be modified via the 
-\family typewriter 
--I
-\family default 
- command line option, or the 
-\family typewriter 
-IFMPATH
-\family default 
- environment variable).
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%define\SpecialChar ~
-ID\SpecialChar ~
-VALUE
-\family default 
- Define macro 
-\family typewriter 
-ID
-\family default 
- to expand to the value 
-\family typewriter 
-VALUE
-\family default 
-.
- If 
-\family typewriter 
-VALUE
-\family default 
- is not supplied, 
-\family typewriter 
-ID
-\family default 
- is defined with no value.
- For example:
-\begin_deeper 
-\layout LyX-Code
-
-%define revealed            hidden after last
-\layout Standard
-
-A macro can also have arguments, indicated in parentheses after 
-\family typewriter 
-ID
-\family default 
-.
- For example:
-\layout LyX-Code
-
-%define revealed_by(task)   hidden after task
-\end_deeper 
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%undef\SpecialChar ~
-ID
-\family default 
- Remove any existing definition of 
-\family typewriter 
-ID
-\family default 
-.
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%ifdef\SpecialChar ~
-ID
-\family default 
- Begin a conditional block.
- The following text is evaluated only if 
-\family typewriter 
-ID
-\family default 
- is defined, until an 
-\family typewriter 
-%else
-\family default 
- or 
-\family typewriter 
-%endif
-\family default 
- is encountered.
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%ifndef\SpecialChar ~
-ID
-\family default 
- Begin a conditional block, like 
-\family typewriter 
-%ifdef
-\family default 
-, but the sense of the test is reversed.
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%else
-\family default 
- This toggles the logical value of the current conditional block.
-\layout List
-\labelwidthstring MMMMMMMMMMMMM
-
-
-\family typewriter 
-%endif
-\family default 
- This ends a conditional block.
-\layout Standard
-
-A few macros are predefined and available to all input:
-\layout List
-\labelwidthstring MMMMMMMMMM
-
-
-\family typewriter 
-IFM_VERSION
-\family default 
- The current version of IFM.
-\layout List
-\labelwidthstring MMMMMMMMMM
-
-
-\family typewriter 
-IFM_FORMAT
-\family default 
- If defined, this is the requested output format (e.g.\SpecialChar ~
-
-\family typewriter 
-ps
-\family default 
-, 
-\family typewriter 
-fig
-\family default 
-).
-\layout Standard
-
-IFM also comes with a few predefined include files for you to use:
-\layout List
-\labelwidthstring MMMMMMMMMMM
-
-
-\family typewriter 
-ifm-color.ifm
-\family default 
- Contains 
-\family typewriter 
-%define
-\family default 
-'s to allow some US variable spellings.
-\layout List
-\labelwidthstring MMMMMMMMMMM
-
-
-\family typewriter 
-ifm-compat.ifm
-\family default 
- Contains 
-\family typewriter 
-%define
-\family default 
-'s for backward compatibility with some old variable names.
 \layout Section
 \pagebreak_top 
 Diagnostics

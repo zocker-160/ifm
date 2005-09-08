@@ -44,7 +44,6 @@ rec_task_entry(vhash *task)
 static void
 putline(char *str)
 {
-    str = var_subst(str);
     while (*str != '\0')
         putchar(toupper(*str++));
     putchar('\n');

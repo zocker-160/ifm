@@ -23,6 +23,5 @@ extern void var_list(void);
 extern double var_real(char *id);
 extern void var_set(char *driver, char *id, vscalar *val);
 extern char *var_string(char *id);
-extern char *var_subst(char *string);
 
 #endif
