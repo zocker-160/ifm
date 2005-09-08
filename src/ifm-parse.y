@@ -88,10 +88,10 @@ static int instyle = 0;         /* Set variable in different style? */
 %token <dval> REAL
 %token <sval> STRING ID
 
-%type  <ival> compass otherdir integer
-%type  <sval> string string_repeat
+%type  <ival> compass otherdir
+%type  <sval> strings
 %type  <vval> room item task
-%type  <dval> exp
+%type  <dval> number
 
 %expect 1
 
@@ -120,17 +120,17 @@ stmt		: ctrl_stmt
 /* Control commands
 /************************************************************************/
 
-ctrl_stmt       : TITLE string ';'
+ctrl_stmt       : TITLE STRING ';'
                 {
                     vh_sstore(map, "TITLE", $2);
                 }
-                | MAP string ';'
+                | MAP STRING ';'
                 {
                     if (sectnames == NULL)
                         sectnames = vl_create();
                     vl_spush(sectnames, $2);
                 }
-                | REQUIRE exp ';'
+                | REQUIRE number ';'
                 {
                     float version;
                     sscanf(VERSION, "%f", &version);
@@ -144,7 +144,7 @@ ctrl_stmt       : TITLE string ';'
 /* Rooms
 /************************************************************************/
 
-room_stmt	: ROOM string
+room_stmt	: ROOM STRING
 		{
                     curobj = vh_create();
 		    vh_sstore(curobj, "DESC", $2);
@@ -395,30 +395,30 @@ room_attr	: TAG ID
                         SET_LIST(curobj, ATTR(LEAVE), curitems);
                     vh_istore(curobj, ATTR(LEAVEALL), allflag);
                 }
-		| LENGTH integer
+		| LENGTH INTEGER
 		{
                     vh_istore(curobj, "LEN", $2);
 		}
-		| SCORE integer
+		| SCORE INTEGER
 		{
                     vh_istore(curobj, "SCORE", $2);
 		}
-                | CMD string_repeat
+                | CMD strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", $2);
                 }
-                | CMD TO string_repeat
+                | CMD TO strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", $3);
                 }
-                | CMD FROM string_repeat
+                | CMD FROM strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "FROM_CMD", $3);
                 }
-		| NOTE string
+		| NOTE STRING
 		{
                     add_attr(curobj, "NOTE", $2);
 		}
@@ -464,7 +464,7 @@ room            : ID
 /* Items
 /************************************************************************/
 
-item_stmt	: ITEM string
+item_stmt	: ITEM STRING
                 {
                     curobj = vh_create();
                     vh_sstore(curobj, "DESC", $2);
@@ -510,7 +510,7 @@ item_attr	: TAG ID
 		{
                     vh_store(curobj, "IN", $2);
 		}
-		| NOTE string
+		| NOTE STRING
 		{
                     add_attr(curobj, "NOTE", $2);
 		}
@@ -555,7 +555,7 @@ item_attr	: TAG ID
                 {
                     SET_LIST(curobj, "AFTER", curtasks);
                 }
-		| SCORE integer
+		| SCORE INTEGER
 		{
                     vh_istore(curobj, "SCORE", $2);
 		}
@@ -680,21 +680,21 @@ link_attr	: DIR dir_list
                         SET_LIST(curobj, "LEAVE", curitems);
                     vh_istore(curobj, "LEAVEALL", allflag);
                 }
-		| LENGTH integer
+		| LENGTH INTEGER
 		{
                     vh_istore(curobj, "LEN", $2);
 		}
-                | CMD string_repeat
+                | CMD strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", $2);
                 }
-                | CMD TO string_repeat
+                | CMD TO strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", $3);
                 }
-                | CMD FROM string_repeat
+                | CMD FROM strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "FROM_CMD", $3);
@@ -782,21 +782,21 @@ join_attr	: GO compass
                         SET_LIST(curobj, "LEAVE", curitems);
                     vh_istore(curobj, "LEAVEALL", allflag);
                 }
-		| LENGTH integer
+		| LENGTH INTEGER
 		{
                     vh_istore(curobj, "LEN", $2);
 		}
-                | CMD string_repeat
+                | CMD strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", $2);
                 }
-                | CMD TO string_repeat
+                | CMD TO strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", $3);
                 }
-                | CMD FROM string_repeat
+                | CMD FROM strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "FROM_CMD", $3);
@@ -815,7 +815,7 @@ join_attr	: GO compass
 /* Tasks
 /************************************************************************/
 
-task_stmt	: TASK string
+task_stmt	: TASK STRING
                 {
                     curobj = vh_create();
                     vh_sstore(curobj, "DESC", $2);
@@ -947,7 +947,7 @@ task_attr	: TAG ID
                 {
                     vh_istore(curobj, "SAFE", 1);
                 }
-		| SCORE integer
+		| SCORE INTEGER
 		{
                     vh_istore(curobj, "SCORE", $2);
 		}
@@ -955,7 +955,7 @@ task_attr	: TAG ID
                 {
                     vh_istore(curobj, "FINISH", 1);
                 }
-                | CMD string_repeat
+                | CMD strings
                 {
                     while (repeat-- > 0)
                         add_attr(curobj, "CMD", $2);
@@ -964,7 +964,7 @@ task_attr	: TAG ID
                 {
                     add_attr(curobj, "CMD", NULL);
                 }
-		| NOTE string
+		| NOTE STRING
 		{
                     add_attr(curobj, "NOTE", $2);
 		}
@@ -1018,11 +1018,11 @@ vars_stmt       : set_var
                 }
                 ;
 
-set_var         : ID '=' exp in_style ';'
+set_var         : ID '=' number in_style ';'
                 {
                     var_set(NULL, $1, vs_dcreate($3));
                 }
-                | ID ID '=' exp in_style ';'
+                | ID ID '=' number in_style ';'
                 {
                     var_set($1, $2, vs_dcreate($4));
                     obsolete("variable assignment", "dotted notation");
@@ -1098,7 +1098,7 @@ dir_elt		: compass
                         curdirs = vl_create();
                     vl_ipush(curdirs, $1);
 		}
-                | compass integer
+                | compass INTEGER
                 {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -1107,7 +1107,7 @@ dir_elt		: compass
                     while ($2-- > 0)
                         vl_ipush(curdirs, $1);
                 }
-                | compass TIMES integer /* obsolete */
+                | compass TIMES INTEGER /* obsolete */
                 {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -1136,32 +1136,26 @@ otherdir	: IN            { $$ = D_IN;   }
 		;
 
 /************************************************************************/
-/* Expressions
+/* Numbers and strings
 /************************************************************************/
 
-exp             : INTEGER               { $$ = $1; }
+number          : INTEGER               { $$ = $1; }
                 | REAL                  { $$ = $1; }
                 ;
 
-integer         : exp                   { $$ = (int) $1; }
-                ;
-
-string          : STRING                { $$ = $1; }
-                ;
-
-string_repeat   : string
+strings         : STRING
                 {
                     $$ = $1;
                     repeat = 1;
                 }
-                | string integer
+                | STRING INTEGER
                 {
                     $$ = $1;
                     repeat = $2;
                     if ($2 <= 0)
                         err("invalid repeat count");
                 }
-                | string TIMES integer /* obsolete */
+                | STRING TIMES INTEGER /* obsolete */
                 {
                     $$ = $1;
                     repeat = $3;
