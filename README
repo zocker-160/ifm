@@ -23,12 +23,13 @@ edited using Xfig, or converted into many other formats.
 Building IFM
 ************
 
-IFM requires the Vars library to be installed.  You can get it at:
+IFM requires the Vars library (also written by me) to be installed.  You
+can get it at:
 
     http://www.freewebtown.com/zondo/programs
 
-See the file INSTALL for installation details.  But it basically boils down
-to:
+After that, see the file INSTALL for installation details.  But it
+basically boils down to:
 
     ./configure
     make
