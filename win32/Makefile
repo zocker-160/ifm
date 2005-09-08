@@ -6,18 +6,16 @@ TOPDIR = ..
 SRCDIR = $(TOPDIR)/src
 LIBDIR = $(TOPDIR)/lib
 DOCDIR = $(TOPDIR)/doc
-GPPDIR = $(TOPDIR)/gpp
 MAPDIR = $(TOPDIR)/demos
 PROGDIR = $(TOPDIR)/progs
 
 ZIPDIR = ifm
 
 IFM = ifm.exe
-GPP = gpp.exe
 DLL = $(bindir)/cygwin1.dll
 
 FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
-PROGS = $(SRCDIR)/$(IFM) $(GPPDIR)/$(GPP) $(PROGDIR)/*.pl
+PROGS = $(SRCDIR)/$(IFM) $(PROGDIR)/*.pl
 DOCS  = $(DOCDIR)/ifm.pdf $(DOCDIR)/ifm
 LIBS  = $(LIBDIR)/*.ifm $(LIBDIR)/ifm-pro.ps $(LIBDIR)/ifm-rgb.txt
 MAPS  = $(MAPDIR)/*.ifm $(MAPDIR)/README
@@ -27,7 +25,7 @@ TKIFM = $(PROGDIR)/tkifm.tcl
 
 all: test
 
-test:; $(MAKE) IFM=ifm GPP=gpp DLL="" zip
+test:; $(MAKE) IFM=ifm DLL="" zip
 
 zip: init files progs tkifm docs lib demos final
 
@@ -42,7 +40,6 @@ files:;	cp $(FILES) $(ZIPDIR)
 
 progs:; cp $(PROGS) $(DLL) $(ZIPDIR)
 	strip $(ZIPDIR)/$(IFM)
-	strip $(ZIPDIR)/$(GPP)
 
 tkifm:; cat $(CTEXT) $(TKIFM) > $(ZIPDIR)/tkifm.tcl
 
