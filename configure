@@ -1718,7 +1718,7 @@ am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 
 
 
-if test `perl -e '
+ac_result=`perl -e '
 sub canonical {
     $str = shift;
     $str =~ s/\D+/./g;
@@ -1728,7 +1728,10 @@ sub canonical {
 $actual = canonical(shift);
 $required = canonical(shift);
 
-print $required <= $actual ? "yes" : "no";'  ` = no; then
+print $required <= $actual ? "yes" : "no";
+'   2> /dev/null`
+
+if test "$ac_result" = "no"; then
    { { echo "$as_me:$LINENO: error: version  or greater is required" >&5
 echo "$as_me: error: version  or greater is required" >&2;}
    { (exit 1); exit 1; }; }
@@ -1786,7 +1789,7 @@ echo $ECHO_N "checking for Vars - version >= 2.6... $ECHO_C" >&6
       echo "$as_me:$LINENO: result: $VARS_VERSION" >&5
 echo "${ECHO_T}$VARS_VERSION" >&6
 
-if test `perl -e '
+ac_result=`perl -e '
 sub canonical {
     $str = shift;
     $str =~ s/\D+/./g;
@@ -1796,7 +1799,10 @@ sub canonical {
 $actual = canonical(shift);
 $required = canonical(shift);
 
-print $required <= $actual ? "yes" : "no";' $VARS_VERSION 2.6` = no; then
+print $required <= $actual ? "yes" : "no";
+' $VARS_VERSION 2.6 2> /dev/null`
+
+if test "$ac_result" = "no"; then
    { { echo "$as_me:$LINENO: error: Vars library version 2.6 or greater is required" >&5
 echo "$as_me: error: Vars library version 2.6 or greater is required" >&2;}
    { (exit 1); exit 1; }; }
