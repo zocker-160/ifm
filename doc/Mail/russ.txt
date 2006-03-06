@@ -1,0 +1,69 @@
+From russ@nfr.net Thu Feb 03 08:38:24 2000
+Received: from finch-punt-12.mail.demon.net by hunting2.demon.co.uk with SMTP
+	id AA176 ; Thu, 03 Feb 100 08:38:21 GMT
+Received: from punt-1.mail.demon.net by mailstore for zondo@hunting2.demon.co.uk
+          id 949515231:10:20050:341; Wed, 02 Feb 2000 18:13:51 GMT
+Received: from mail.provalue.net ([208.204.44.28]) by punt-1.mail.demon.net
+           id aa1103471; 2 Feb 2000 17:36 GMT
+Received: from hugin [63.77.22.194] by mail.provalue.net
+  (SMTPD32-6.00) id A9D640110; Wed, 02 Feb 2000 11:31:02 -0600
+Message-ID: <001601bf6da4$27d1fac0$c2164d3f@nightfall.com>
+From: "Russ Smith" <russ@nfr.net>
+To: "Dave Chapeskie" <dchapes@ddm.on.ca>
+Cc: <zondo@hunting2.demon.co.uk>
+References: <000501bf6c68$3ae2bd80$c2164d3f@nightfall.com> <20000202110926.44564@ddm.on.ca> <004001bf6d9d$4aff4680$c2164d3f@nightfall.com> <20000202115332.54373@ddm.on.ca>
+Subject: Re: Another Wishbringer IFM -- do as you please with it. :)
+Date: Wed, 2 Feb 2000 11:36:08 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Status: R
+
+> Sure, no problem.  It's been a while since I've done anything with IFM
+> so I may be a little rusty however.
+
+Mostly, I've been trying to figure out how to solve two problems:
+
+1. The limited light source problem (eg Zork lantern)
+2. The time limit problem (eg getting food in Planetfall)
+
+They aren't unrelated, but the limited light source is more specific -- ie,
+it could
+be solved by making sure the light source was only turned on when it was
+needed.
+This has turned out to not be so easy. :)
+
+The time limit problem can be kludged around by ordering tasks with 'after'
+clauses,
+but it's a hassle to find every loose item and say "after get_food" to make
+sure the
+task engine doesn't go on an inventory collecting pass and starve. :)
+
+There's also carrying capacity, but that's addressed in the docs (by way of
+saying
+you're out of luck).  I think if you could specify "leave item" on tasks and
+items as
+well as rooms, links and joins you could pull some interesting stunts (I
+mention this
+since I'm cc-ing Glenn, bwa ha).
+
+I'll go on a binge of reading what people have done on your page, Dave, and
+hopefully I'll pick up some good tricks, but anyway, if you have any
+insights on
+the above, I'd be thrilled to hear them.  Eventually I'll just stop fooling
+with old
+Infocom games and get back to Christminster. :)
+
+Glenn, if you're listening, great idea, great program, curse you for
+creating a hole
+into which I can sink my time. :)
+
+-R
+
+
+
