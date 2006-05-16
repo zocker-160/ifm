@@ -40,7 +40,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/etc/Makefile.common
+	$(srcdir)/cover.ifm.in $(top_srcdir)/etc/Makefile.common
 subdir = doc
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
@@ -48,7 +48,7 @@ am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = cover.ifm
 SOURCES =
 DIST_SOURCES =
 man1dir = $(mandir)/man1
@@ -170,7 +170,7 @@ SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex .rtf
 # Distribution stuff.
 EXTRA_DIST = ifm.1 ifm.man ifm.lyx gfdl.lyx advent.cmd advent.ifm	\
 advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr	\
-advent7.scr example.ifm cover.ifm tkifm.txt macros.tex
+advent7.scr example.ifm tkifm.txt macros.tex
 
 
 # Cleaning stuff.
@@ -210,6 +210,8 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+cover.ifm: $(top_builddir)/config.status $(srcdir)/cover.ifm.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 uninstall-info-am:
 install-man1: $(man1_MANS) $(man_MANS)
 	@$(NORMAL_INSTALL)

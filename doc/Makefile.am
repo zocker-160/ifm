@@ -88,7 +88,7 @@ $(ifmdocdir):
 
 EXTRA_DIST = ifm.1 ifm.man ifm.lyx gfdl.lyx advent.cmd advent.ifm	\
 advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr	\
-advent7.scr example.ifm cover.ifm tkifm.txt macros.tex
+advent7.scr example.ifm tkifm.txt macros.tex
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(srcdir)/ifm; then					\
