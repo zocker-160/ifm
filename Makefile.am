@@ -26,7 +26,7 @@ dist-extra:
 
 dist-header:
 	addheader=$(top_srcdir)/etc/add-header;				\
-	for dir in src lib progs; do					\
+	for dir in fig src lib progs; do				\
 	   if test -f $$addheader; then					\
 	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir;		\
 	   fi;								\

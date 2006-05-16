@@ -357,7 +357,7 @@ distdir: $(DISTFILES)
 	esac
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/etc
+	$(mkdir_p) $(distdir)/doc $(distdir)/etc
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -611,7 +611,7 @@ dist-extra:
 
 dist-header:
 	addheader=$(top_srcdir)/etc/add-header;				\
-	for dir in src lib progs; do					\
+	for dir in fig src lib progs; do				\
 	   if test -f $$addheader; then					\
 	      $$addheader $(top_srcdir)/etc $(distdir)/$$dir;		\
 	   fi;								\
