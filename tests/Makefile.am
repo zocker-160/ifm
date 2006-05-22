@@ -14,7 +14,7 @@ test-simple.ifm test-unsafe.ifm
 
 IFM		= $(top_builddir)/src/ifm $(ARGS)
 
-ARGS		= -I$(top_srcdir)/lib -I$(top_builddir)/gpp
+ARGS		= -I$(top_srcdir)/lib
 
 TKIFM		= $(top_builddir)/progs/tkifm
 
