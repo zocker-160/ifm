@@ -11,4 +11,4 @@ task "Disable the alarm" after trigger_alarm tag disable_alarm;
 room "Bank Entrance" tag Entrance dir e from Vault before trigger_alarm;
 task "Escape with the diamond" need diamond;
 
-join Vault to Entrance after disable_alarm hidden;
+join Vault to Entrance after disable_alarm hidden go w;

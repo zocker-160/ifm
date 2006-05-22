@@ -2,8 +2,6 @@
 
 ** General
 
-BUG: task-attr2 test -- need thing, shurely?
-
 BUG: order matters with -S option.  Try -S reckless -S verbose in different
 order -- only 1 takes effect.
 

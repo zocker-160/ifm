@@ -64,7 +64,7 @@ cmd: N
 task: 10
 name: Move to Bank Entrance
 room: 2
-cmd: ?
+cmd: W
 
 task: 7
 name: Escape with the diamond
