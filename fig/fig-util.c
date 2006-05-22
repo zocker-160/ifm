@@ -128,11 +128,11 @@ fig_calc_bbox(vhash *object)
 void
 fig_debug(char *fmt, ...)
 {
-    char buf[BUFSIZ];
+    char *str;
 
     if (getenv("FIG_DEBUG") != NULL) {
-        V_VPRINT(buf, fmt);
-        fprintf(stderr, "Fig: %s\n", buf);
+        V_ALLOCA_FMT(str, fmt);
+        fprintf(stderr, "Fig: %s\n", str);
     }
 }
 

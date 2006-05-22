@@ -45,9 +45,6 @@ static char *fontlist[] = {
     NULL
 };
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static int fig_lookup_colour(vhash *object, float r, float g, float b);
 static int fig_lookup_font(char *name);
@@ -185,8 +182,9 @@ fig_set_linewidth(vhash *object, int width)
 void
 fig_set_name(vhash *object, char *fmt, ...)
 {
-    V_VPRINT(buf, fmt);
-    vh_sstore(object, "NAME", buf);
+    char *str;
+    V_ALLOCA_FMT(str, fmt);
+    vh_sstore(object, "NAME", str);
 }
 
 /* Set the orientation of a figure */

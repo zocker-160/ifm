@@ -9,9 +9,6 @@
 
 #define SCALE FIG_RESOLUTION
 
-/* Scribble buffer */
-static char buf[BUFSIZ];
-
 /* Internal functions */
 static vhash *fig_create_object(vhash *parent, int type);
 
@@ -257,11 +254,12 @@ fig_create_text(vhash *parent, float x, float y, char *fmt, ...)
     vhash *figure = fig_get_figure(parent);
     float scale = vh_dget(figure, "SCALE") * SCALE;
     vhash *obj;
+    char *str;
 
     obj = fig_create_object(parent, FIG_TEXT);
 
-    V_VPRINT(buf, fmt);
-    vh_sstore(obj, "TEXT", buf);
+    V_ALLOCA_FMT(str, fmt);
+    vh_sstore(obj, "TEXT", str);
 
     vh_istore(obj, "X", (int) (x * scale));
     vh_istore(obj, "Y", (int) (y * scale));
@@ -283,15 +281,16 @@ fig_create_textbox(vhash *parent,
     int i, nrows, ncols, count;
     vhash *obj, *text;
     vlist *lines;
+    char *str;
 
-    V_VPRINT(buf, fmt);
+    V_ALLOCA_FMT(str, fmt);
 
     /* Reduce font size until it fits the box */
     while (1) {
         linegap = 1 * fontsize / (POINTS_PER_INCH * scale);
         ncols = 2.2 * scale * width * POINTS_PER_INCH / fontsize;
 
-        lines = vl_filltext(buf, ncols);
+        lines = vl_filltext(str, ncols);
         nrows = vl_length(lines);
 
         ncols = 0;
@@ -329,7 +328,7 @@ fig_create_textbox(vhash *parent,
         break;
     }
 
-    lines = vl_filltext(buf, ncols);
+    lines = vl_filltext(str, ncols);
     nrows = vl_length(lines);
 
     for (i = 0; i < nrows; i++) {
