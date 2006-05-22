@@ -165,9 +165,6 @@ proc MainWindow {} {
 	-bg $ifm(editbackground) -insertofftime 0 \
 	-insertbackground red
 
-    bind $t <3> "$t scan mark %x %y"
-    bind $t <B3-Motion> "$t scan dragto %x %y"
-
     scrollbar $s -command "$t yview"
 
     pack .edit -expand yes -fill both
@@ -258,8 +255,8 @@ proc DrawMap {num} {
     scrollbar $f.xscroll -command "$c xview" -orient horiz
     scrollbar $f.yscroll -command "$c yview"
 
-    bind $c <3> "$c scan mark %x %y"
-    bind $c <B3-Motion> "$c scan dragto %x %y"
+    bind $c <1> "$c scan mark %x %y"
+    bind $c <B1-Motion> "$c scan dragto %x %y"
 
     grid $c -in $f -row 0 -column 0 \
 	    -rowspan 1 -columnspan 1 -sticky nsew
@@ -581,9 +578,6 @@ proc TextWindow {title w text width height} {
 
     $t insert end $text
     $t configure -state disabled
-
-    bind $t <3> "$t scan mark %x %y"
-    bind $t <B3-Motion> "$t scan dragto %x %y"
 
     # Add 'dismiss' button.
     set b $w.bye
