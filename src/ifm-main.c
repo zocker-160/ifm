@@ -123,8 +123,7 @@ main(int argc, char *argv[])
                   "Don't print warnings");
 
     v_option_int('e', "errors", "num", &max_errors,
-                 "Print this many errors before giving up (default: %d)",
-                 max_errors);
+                 "Max errors before giving up (default: %d)", max_errors);
 
     v_optgroup("Information options:");
 
