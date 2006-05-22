@@ -178,12 +178,12 @@ main(int argc, char *argv[])
 
     /* Set internal debugging options */
 #ifdef FLEX_DEBUG
-    if (debug == 1)
+    if (debug & 1)
         yy_flex_debug = 1;
 #endif
 
 #ifdef BISON_DEBUG
-    if (debug == 2)
+    if (debug & 2)
         yydebug = 1;
 #endif
 
