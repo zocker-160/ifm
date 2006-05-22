@@ -249,6 +249,7 @@ room_stmt	: ROOM STRING
                 }
                 | ROOM ID
                 {
+                    implicit = 0;
                     modify = 1;
                     if ((curobj = vh_pget(roomtags, $2)) == NULL) {
                         err("room tag '%s' not yet defined", $2);
