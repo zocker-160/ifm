@@ -23,8 +23,9 @@ edited using Xfig, or converted into many other formats.
 Building IFM
 ************
 
-IFM requires the Vars library (also written by me) to be installed.  You
-can get it at:
+To build IFM from source, either on Linux or Windows under Cygwin, you'll
+need the Vars library (also written by me) to be installed.  You can get it
+at:
 
     http://www.freewebtown.com/zondo/programs
 
@@ -99,6 +100,15 @@ scr2ifm in combination with IFM does a much better job.
 Feedback on how well it does (or not) would be appreciated.  scr2ifm has
 been tested on several different types of transcript (Infocom, Inform,
 TADS, Magnetic Scrolls), but is probably still far from bullet-proof.
+
+Related Programs
+****************
+
+IFMapper is a graphical mapping tool written by Gonzalo Garramuno
+(ggarra@advance.dsl.com.ar), and has the ability to read and write IFM
+maps.  You can find IFMapper at
+
+     http://www.rubyforge.org/projects/ifmapper
 
 Finally...
 **********
