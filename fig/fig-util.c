@@ -140,10 +140,10 @@ fig_debug(char *fmt, ...)
 void
 fig_fatal(char *fmt, ...)
 {
-    char buf[BUFSIZ];
+    char *str;
 
-    V_VPRINT(buf, fmt);
-    fprintf(stderr, "Fig fatal: %s\n", buf);
+    V_ALLOCA_FMT(str, fmt);
+    fprintf(stderr, "Fig fatal: %s\n", str);
     exit(2);
 }
 
