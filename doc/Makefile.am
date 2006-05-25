@@ -112,7 +112,7 @@ htmlclean:; rm -rf ifm $(CLEAN_TEX)
 
 # Other stuff.
 
-test:; opera `pwd`/ifm/index.htm
+test:; mozilla `pwd`/ifm/index.htm
 
 distclean-local: clean-doc
 
