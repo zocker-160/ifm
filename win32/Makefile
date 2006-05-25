@@ -1,7 +1,5 @@
 # Makefile for building Win32 distribution.
 
-bindir = /bin
-
 TOPDIR = ..
 SRCDIR = $(TOPDIR)/src
 LIBDIR = $(TOPDIR)/lib
@@ -12,10 +10,10 @@ PROGDIR = $(TOPDIR)/progs
 ZIPDIR = ifm
 
 IFM = ifm.exe
-DLL = $(bindir)/cygwin1.dll
+DLL = /bin/cygwin1.dll
 
 FILES = $(TOPDIR)/README $(TOPDIR)/NEWS $(TOPDIR)/COPYING
-PROGS = $(SRCDIR)/$(IFM) $(PROGDIR)/*.pl
+PROGS = $(PROGDIR)/*.pl
 DOCS  = $(DOCDIR)/ifm.pdf $(DOCDIR)/ifm
 LIBS  = $(LIBDIR)/*.ifm $(LIBDIR)/ifm-pro.ps $(LIBDIR)/ifm-rgb.txt
 MAPS  = $(MAPDIR)/*.ifm $(MAPDIR)/README
@@ -27,7 +25,7 @@ all: test
 
 test:; $(MAKE) IFM=ifm DLL="" zip
 
-zip: init files progs tkifm docs lib demos final
+zip: init files progs docs lib demos final
 
 init:;	rm -rf $(ZIPDIR)
 	mkdir $(ZIPDIR)
@@ -38,10 +36,11 @@ files:;	cp $(FILES) $(ZIPDIR)
 	done
 	cp README.win32 $(ZIPDIR)/WIN32.txt
 
-progs:; cp $(PROGS) $(DLL) $(ZIPDIR)
+progs:; cp $(SRCDIR)/$(IFM) $(DLL) $(ZIPDIR)
 	strip $(ZIPDIR)/$(IFM)
-
-tkifm:; cat $(CTEXT) $(TKIFM) > $(ZIPDIR)/tkifm.tcl
+	- mkdir $(ZIPDIR)/progs
+	cp $(PROGS) $(ZIPDIR)/progs
+	cat $(CTEXT) $(TKIFM) > $(ZIPDIR)/progs/tkifm.tcl
 
 docs:;	- mkdir $(ZIPDIR)/docs
 	- cp -r $(DOCS) $(ZIPDIR)/docs
