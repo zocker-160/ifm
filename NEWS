@@ -1,5 +1,5 @@
 ****************************************************************************
-* Version 5.2                                                   8 Sep 2005 *
+* Version 5.2                                                  25 May 2006 *
 ****************************************************************************
 
 Additions
@@ -16,7 +16,7 @@ Changes
 
 * Several unused features which added needless complexity have been
   removed.  These are: preprocessing by gpp, expressions for real/integer
-  values, and variable interpolation.
+  values, and variable interpolation in strings.
 
 * To reduce package size, the Vars library which IFM uses is no longer
   bundled with IFM.  You must install it separately, before building IFM.
@@ -24,6 +24,8 @@ Changes
 
 Bug fixes
 =========
+
+* A bug with modification of room attributes has been fixed.
 
 * A crash when trying to print an error message about cyclic task
   dependencies has been fixed.
