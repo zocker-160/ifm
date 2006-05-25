@@ -17,3 +17,6 @@ rec2scr		Perl script which invokes the dumb-frotz interpreter
 		(available from the IF archive) to non-interactively
 		convert a recording of game commands into a transcript.
 		Very useful for testing the recording output from IFM.
+
+ifmpp		A preprocessor for any old IFM maps that made use of the
+		gpp directives.
