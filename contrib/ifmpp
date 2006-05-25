@@ -1,0 +1,11 @@
+#! /bin/sh
+
+# IFM preprocessor using gpp.
+
+exec gpp \
+	-n -U "" "" "(" "," ")" "(" ")" "%" "" \
+	-M "\n%\w" "\n" " " " " "\n" "" ""     \
+	+c "#" "\n" +c "\\\n" ""	       \
+	+s "\"" "\"" "\\"		       \
+	-includemarker "#line % \"%\" %"       \
+	"$@"
