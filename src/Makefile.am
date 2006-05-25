@@ -24,7 +24,7 @@ ifm_LDADD   = -lfig $(VARS_LIBS) @LIBS@
 
 AM_YFLAGS = -d -v
 
-BASEPATH = $(pkgdatadir):$(pkglibdir)
+BASEPATH = $(pkgdatadir)
 
 if CYGWIN
 INITFILE = ifm.ini
