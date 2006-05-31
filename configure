@@ -1782,9 +1782,9 @@ fi
 HAVE_VARS=
 if test $VARS_CONFIG != no; then
    # Check version if required.
-   if test -n "2.8" && test 2.8 != yes; then
-      echo "$as_me:$LINENO: checking for Vars - version >= 2.8" >&5
-echo $ECHO_N "checking for Vars - version >= 2.8... $ECHO_C" >&6
+   if test -n "3.0" && test 3.0 != yes; then
+      echo "$as_me:$LINENO: checking for Vars - version >= 3.0" >&5
+echo $ECHO_N "checking for Vars - version >= 3.0... $ECHO_C" >&6
       VARS_VERSION=`$VARS_CONFIG --version`
       echo "$as_me:$LINENO: result: $VARS_VERSION" >&5
 echo "${ECHO_T}$VARS_VERSION" >&6
@@ -1800,11 +1800,11 @@ $actual = canonical(shift);
 $required = canonical(shift);
 
 print $required <= $actual ? "yes" : "no";
-' $VARS_VERSION 2.8 2> /dev/null`
+' $VARS_VERSION 3.0 2> /dev/null`
 
 if test "$ac_result" = "no"; then
-   { { echo "$as_me:$LINENO: error: Vars library version 2.8 or greater is required" >&5
-echo "$as_me: error: Vars library version 2.8 or greater is required" >&2;}
+   { { echo "$as_me:$LINENO: error: Vars library version 3.0 or greater is required" >&5
+echo "$as_me: error: Vars library version 3.0 or greater is required" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -1825,7 +1825,7 @@ _ACEOF
    # Set LIBS.
    VARS_LIBS="`$VARS_CONFIG --libs`"
 
-elif test -n "2.8"; then
+elif test -n "3.0"; then
    if test -z "the Vars library is required -- get it from www.freewebtown.com/zondo/programs"; then
       { { echo "$as_me:$LINENO: error: can't find Vars library" >&5
 echo "$as_me: error: can't find Vars library" >&2;}

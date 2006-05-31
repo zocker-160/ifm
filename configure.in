@@ -9,7 +9,7 @@ dnl Initialize automake.
 AM_INIT_AUTOMAKE(foreign)
 
 dnl Check for Vars library.
-AM_CONFIG_LIB(Vars, VARS, vars-config, 2.8,
+AM_CONFIG_LIB(Vars, VARS, vars-config, 3.0,
 the Vars library is required -- get it from www.freewebtown.com/zondo/programs)
 
 dnl Checks for programs.
