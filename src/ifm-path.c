@@ -462,7 +462,7 @@ init_path(vhash *room)
     }
 
     /* Sort tasks according to distance */
-    vl_sort_inplace(tasklist, sort_tasks);
+    vl_sort(tasklist, sort_tasks);
 
     if (TASK_VERBOSE) {
         vhash *room;

@@ -139,7 +139,7 @@ main(int argc, char *argv[])
     v_option_int('\0', "DEBUG", "flag", &debug, NULL);
 
     /* Parse command-line arguments */
-    if ((opts = vh_getopt(argc, argv)) == NULL)
+    if ((opts = v_getopts(argc, argv)) == NULL)
         v_die("Type '%s -help' for help", progname);
 
     if (help)

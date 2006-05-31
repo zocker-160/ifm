@@ -383,7 +383,8 @@ var_print(vhash *vars, char *style)
         val = vh_get(vars, name);
 
         switch (vs_type(val)) {
-        case V_STRING:
+
+        case V_TYPE_STRING:
             sval = vs_sgetref(val);
             putchar('"');
 
@@ -395,6 +396,7 @@ var_print(vhash *vars, char *style)
 
             putchar('"');
             break;
+
         default:
             printf("%s", vs_sget(val));
             break;

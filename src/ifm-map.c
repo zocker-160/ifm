@@ -107,7 +107,7 @@ resolve_tag(char *type, vscalar *elt, vhash *table)
     if (elt == NULL)
         return;
 
-    if (vs_type(elt) != V_STRING)
+    if (vs_type(elt) != V_TYPE_STRING)
         return;
 
     tag = vs_sgetref(elt);
