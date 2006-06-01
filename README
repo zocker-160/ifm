@@ -42,7 +42,7 @@ Existing IFM Maps
 Dave Chapeskie (dchapes@ddm.wox.org) has set up a web page of IFM maps, in
 source and PostScript format, at
 
-      //www.sentex.net/~dchapes/ifm
+      http://www.sentex.net/~dchapes/ifm
 
 At the moment it contains maps of a few Infocom and Inform games.  Some are
 complete, others not quite.  A few have tasks set up so that a walkthrough
@@ -51,7 +51,7 @@ can be made.
 If you produce any maps worthy of distribution, or more complete versions
 of those already there, he will be glad to add them to his page.
 
-In addition, the 'maps' subdirectory contains some demonstration maps that
+In addition, the 'demos' subdirectory contains some demonstration maps that
 don't give away secrets from real games.
 
 Extra IFM Programs
