@@ -14,7 +14,7 @@ man_MANS = ifm.1
 
 IFM      = $(top_srcdir)/src/ifm -s version="$(VERSION)"
 IFMCMD   = $(IFM) -I $(top_srcdir)/lib
-HELP2MAN = help2man -N -n "$(MAN_TITLE)"
+HELP2MAN = $(top_srcdir)/etc/missing --run help2man -N -n "$(MAN_TITLE)"
 
 # Main targets.
 
