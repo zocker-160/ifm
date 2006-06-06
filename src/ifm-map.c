@@ -125,13 +125,13 @@ resolve_tag(char *type, vscalar *elt, vhash *table)
 static void
 resolve_tag_list(char *type, vlist *list, vhash *table)
 {
-    vscalar *elt;
+    viter iter;
 
     if (list == NULL)
         return;
 
-    vl_foreach(elt, list)
-        resolve_tag(type, elt, table);
+    v_iterate(list, iter)
+        resolve_tag(type, vl_iter_val(iter), table);
 }
 
 /* Resolve all tags */
@@ -140,11 +140,11 @@ resolve_tags(void)
 {
     vhash *room, *item, *link, *join, *task;
     vlist *list;
-    vscalar *elt;
+    viter iter;
 
     /* Resolve room tags */
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
+    v_iterate(rooms, iter) {
+        room = vl_iter_pval(iter);
 
         resolve_tag_list("task", vh_pget(room, "BEFORE"), tasktags);
         resolve_tag_list("task", vh_pget(room, "AFTER"), tasktags);
@@ -157,8 +157,8 @@ resolve_tags(void)
     }
 
     /* Resolve link tags */
-    vl_foreach(elt, links) {
-        link = vs_pget(elt);
+    v_iterate(links, iter) {
+        link = vl_iter_pval(iter);
 
         resolve_tag("room", vh_get(link, "FROM"), roomtags);
         resolve_tag("room", vh_get(link, "TO"), roomtags);
@@ -169,8 +169,8 @@ resolve_tags(void)
     }
 
     /* Resolve join tags */
-    vl_foreach(elt, joins) {
-        join = vs_pget(elt);
+    v_iterate(joins, iter) {
+        join = vl_iter_pval(iter);
 
         resolve_tag("room", vh_get(join, "FROM"), roomtags);
         resolve_tag("room", vh_get(join, "TO"), roomtags);
@@ -181,8 +181,8 @@ resolve_tags(void)
     }
 
     /* Resolve item tags and build room item lists */
-    vl_foreach(elt, items) {
-        item = vs_pget(elt);
+    v_iterate(items, iter) {
+        item = vl_iter_pval(iter);
 
         resolve_tag("room", vh_get(item, "IN"), roomtags);
         resolve_tag_list("task", vh_pget(item, "BEFORE"), tasktags);
@@ -207,8 +207,8 @@ resolve_tags(void)
     }
 
     /* Resolve task tags */
-    vl_foreach(elt, tasks) {
-        task = vs_pget(elt);
+    v_iterate(tasks, iter) {
+        task = vl_iter_pval(iter);
 
         resolve_tag("room", vh_get(task, "IN"), roomtags);
         resolve_tag("room", vh_get(task, "GOTO"), roomtags);
@@ -284,18 +284,19 @@ setup_exits(void)
     vhash *room, *flags;
     int x, y, num, dir;
     vlist *ex, *ey;
-    vscalar *elt;
+    viter i, j;
     char *tag;
 
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
+    v_iterate(rooms, i) {
+        room = vl_iter_pval(i);
         flags = vh_pget(room, "EXIT");
         if (flags == NULL)
             continue;
 
         ex = ey = NULL;
-        vh_foreach(tag, elt, flags) {
-            num = vs_iget(elt);
+        v_iterate(flags, j) {
+            tag = vh_iter_key(j);
+            num = vh_iter_ival(j);
 
             if (num < 0) {
                 if (ex == NULL) {
@@ -330,13 +331,15 @@ setup_links(void)
     vhash *link, *from, *to, *other, *sect;
     vlist *dirs, *xpos, *ypos, *list;
     char *fname, *tname;
-    vscalar *elt;
+    viter i, j;
 
     /* Build coordinate list for each link */
-    vl_foreach(elt, links) {
-	link = vs_pget(elt);
+    v_iterate(links, i) {
+	link = vl_iter_pval(i);
+
         if (vh_iget(link, "HIDDEN"))
             continue;
+
         if (vh_iget(link, "NOLINK"))
             continue;
 
@@ -404,8 +407,9 @@ setup_links(void)
         if ((dirs = vh_pget(link, "DIR")) != NULL) {
             ndirs = vl_length(dirs);
 
-            vl_foreach(elt, dirs) {
-                dir = vs_iget(elt);
+            v_iterate(dirs, j) {
+                dir = vl_iter_ival(j);
+
                 xoff = dirinfo[dir].xoff;
                 yoff = dirinfo[dir].yoff;
 
@@ -489,10 +493,11 @@ setup_rooms(void)
     vhash *base, *room, *link, *near, *other, *sect;
     int nfound, x, y, dir, num;
     vlist *list, *dirs;
-    vscalar *elt;
+    viter i, j, k;
 
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, i) {
+        sect = vl_iter_pval(i);
+
         num = vh_iget(sect, "NUM");
         list = vh_pget(sect, "ROOMS");
 
@@ -504,12 +509,15 @@ setup_rooms(void)
         do {
 	    nfound = 0;
 
-	    vl_foreach(elt, list) {
-		room = vs_pget(elt);
+	    v_iterate(list, j) {
+		room = vl_iter_pval(j);
+
                 if (vh_exists(room, "X"))
 		    continue;
+
 		if ((link = vh_pget(room, "LINK")) == NULL)
                     continue;
+
                 near = vh_pget(link, "FROM");
                 if (!vh_exists(near, "X"))
 		    continue;
@@ -518,8 +526,8 @@ setup_rooms(void)
 		y = vh_iget(near, "Y");
 
 		dirs = vh_pget(link, "DIR");
-		vl_foreach(elt, dirs) {
-		    dir = vs_iget(elt);
+		v_iterate(dirs, k) {
+		    dir = vl_iter_ival(k);
 		    x += dirinfo[dir].xoff;
 		    y += dirinfo[dir].yoff;
 		}
@@ -540,14 +548,14 @@ setup_rooms(void)
 void
 setup_sections(void)
 {
-    int minx, miny, maxx, maxy, x, y, first, i;
+    int minx, miny, maxx, maxy, x, y, first, pos;
     vhash *sect, *room, *link;
     vlist *list, *xpos, *ypos;
-    vscalar *elt;
+    viter i, j, k;
     char *title;
 
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, i) {
+        sect = vl_iter_pval(i);
 
         /* Set title */
         if (sectnames != NULL && vl_length(sectnames) > 0) {
@@ -558,8 +566,9 @@ setup_sections(void)
         /* Find width and length of section */
         first = 1;
         list = vh_pget(sect, "ROOMS");
-        vl_foreach(elt, list) {
-            room = vs_pget(elt);
+        v_iterate(list, j) {
+            room = vl_iter_pval(j);
+
             x = vh_iget(room, "X");
             y = vh_iget(room, "Y");
 
@@ -576,19 +585,19 @@ setup_sections(void)
         }
 
         list = vh_pget(sect, "LINKS");
-        vl_foreach(elt, list) {
-            link = vs_pget(elt);
+        v_iterate(list, j) {
+            link = vl_iter_pval(j);
 
             xpos = vh_pget(link, "X");
-            vl_foreach(elt, xpos) {
-                x = vs_iget(elt);
+            v_iterate(xpos, k) {
+                x = vl_iter_ival(k);
                 minx = V_MIN(minx, x);
                 maxx = V_MAX(maxx, x);
             }
 
             ypos = vh_pget(link, "Y");
-            vl_foreach(elt, ypos) {
-                y = vs_iget(elt);
+            v_iterate(ypos, k) {
+                y = vl_iter_ival(k);
                 miny = V_MIN(miny, y);
                 maxy = V_MAX(maxy, y);
             }
@@ -599,8 +608,8 @@ setup_sections(void)
 
         /* Normalize all coordinates */
         list = vh_pget(sect, "ROOMS");
-        vl_foreach(elt, list) {
-            room = vs_pget(elt);
+        v_iterate(list, j) {
+            room = vl_iter_pval(j);
             x = vh_iget(room, "X");
             y = vh_iget(room, "Y");
             vh_istore(room, "X", x - minx);
@@ -608,19 +617,19 @@ setup_sections(void)
         }
 
         list = vh_pget(sect, "LINKS");
-        vl_foreach(elt, list) {
-            link = vs_pget(elt);
+        v_iterate(list, j) {
+            link = vl_iter_pval(j);
 
             xpos = vh_pget(link, "X");
-            for (i = 0; i < vl_length(xpos); i++) {
-                x = vl_iget(xpos, i);
-                vl_istore(xpos, i, x - minx);
+            for (pos = 0; pos < vl_length(xpos); pos++) {
+                x = vl_iget(xpos, pos);
+                vl_istore(xpos, pos, x - minx);
             }
 
             ypos = vh_pget(link, "Y");
-            for (i = 0; i < vl_length(ypos); i++) {
-                y = vl_iget(ypos, i);
-                vl_istore(ypos, i, y - miny);
+            for (pos = 0; pos < vl_length(ypos); pos++) {
+                y = vl_iget(ypos, pos);
+                vl_istore(ypos, pos, y - miny);
             }
         }
     }

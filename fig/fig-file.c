@@ -37,8 +37,7 @@ fig_write_figure(vhash *figure, FILE *fp)
     int orient = fig_get_ival(figure, "ORIENTATION");
     vlist *objects;
     vhash *colours;
-    vscalar *elt;
-    char *key;
+    viter iter;
 
     /* Calculate bounding box */
     fig_calc_bbox(figure);
@@ -56,13 +55,15 @@ fig_write_figure(vhash *figure, FILE *fp)
 
     /* Write colour table entries (if any) */
     if ((colours = vh_pget(figure, "COLOURS")) != NULL)
-        vh_foreach(key, elt, colours)
-            fprintf(fp, "%d %d %s\n", FIG_COLOUR, vs_iget(elt), key);
+        v_iterate(colours, iter)
+            fprintf(fp, "%d %d %s\n", FIG_COLOUR,
+                    vh_iter_ival(iter),
+                    vh_iter_key(iter));
 
     /* Write objects */
     if ((objects = vh_pget(figure, "OBJECTS")) != NULL)
-        vl_foreach(elt, objects)
-            fig_write_object(vs_pget(elt), fp);
+        v_iterate(objects, iter)
+            fig_write_object(vl_iter_pval(iter), fp);
 }
 
 /* Write an object to a stream */
@@ -73,7 +74,7 @@ fig_write_object(vhash *object, FILE *fp)
     float style_val = 1.0, width, height;
     int i, font_flags = 4, direction = 0;
     vlist *objects, *xp, *yp, *shape;
-    vscalar *elt;
+    viter iter;
 
     type = vh_iget(object, "TYPE");
     subtype = vh_iget(object, "SUBTYPE");
@@ -200,8 +201,8 @@ fig_write_object(vhash *object, FILE *fp)
         fprintf(fp, "%d\n", fig_get_ival(object, "YMIN"));
 
         if ((objects = vh_pget(object, "OBJECTS")) != NULL)
-            vl_foreach(elt, objects)
-                fig_write_object(vs_pget(elt), fp);
+            v_iterate(objects, iter)
+                fig_write_object(vl_iter_pval(iter), fp);
 
         fprintf(fp, "-6\n");
         break;

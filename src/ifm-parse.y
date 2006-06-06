@@ -309,11 +309,11 @@ room_attr	: TAG ID
 		}
 		| EXIT dir_list
 		{
-                    vscalar *elt;
+                    viter iter;
                     int dir;
 
-                    vl_foreach(elt, curdirs) {
-                        dir = vs_iget(elt);
+                    v_iterate(curdirs, iter) {
+                        dir = vl_iter_ival(iter);
                         room_exit(curobj, dirinfo[dir].xoff,
                                   dirinfo[dir].yoff, 1);
                     }
@@ -324,8 +324,10 @@ room_attr	: TAG ID
 		{
                     vscalar *elt;
                     vhash *link;
+                    viter iter;
 
-                    vl_foreach(elt, currooms) {
+                    v_iterate(currooms, iter) {
+                        elt = vl_iter_val(iter);
                         link = vh_create();
                         vh_pstore(link, "FROM", curobj);
                         vh_store(link, "TO", vs_copy(elt));
@@ -339,8 +341,10 @@ room_attr	: TAG ID
 		{
                     vscalar *elt;
                     vhash *join;
+                    viter iter;
 
-                    vl_foreach(elt, currooms) {
+                    v_iterate(currooms, iter) {
+                        elt = vl_iter_val(iter);
                         join = vh_create();
                         vh_pstore(join, "FROM", curobj);
                         vh_store(join, "TO", vs_copy(elt));

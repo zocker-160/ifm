@@ -80,17 +80,17 @@ current_styles(void)
 void
 load_styles(void)
 {
-    vscalar *elt;
     vlist *list;
     V_BUF_DECL;
     char *name;
+    viter iter;
 
     if (rstyles == NULL)
         return;
 
     list = vh_keys(rstyles);
-    vl_foreach(elt, list) {
-        name = vs_sgetref(elt);
+    v_iterate(list, iter) {
+        name = vl_iter_svalref(iter);
         if (vh_exists(styles, name))
             continue;
 
@@ -335,10 +335,10 @@ var_int(char *id)
 void
 var_list(void)
 {
-    vscalar *elt;
     vhash *svars;
     vlist *slist;
     char *style;
+    viter iter;
 
     INIT_VARS;
 
@@ -350,8 +350,8 @@ var_list(void)
     /* Style variables */
     slist = vh_sortkeys(styles, NULL);
 
-    vl_foreach(elt, slist) {
-        style = vs_sgetref(elt);
+    v_iterate(slist, iter) {
+        style = vl_iter_svalref(iter);
         svars = vh_pget(styles, style);
         if (svars != NULL)
             var_print(svars, style);
@@ -364,9 +364,10 @@ var_list(void)
 static void
 var_print(vhash *vars, char *style)
 {
-    vscalar *elt, *val;
     char *name, *sval;
     vlist *names;
+    vscalar *val;
+    viter iter;
 
     names = vh_sortkeys(vars, NULL);
 
@@ -377,8 +378,8 @@ var_print(vhash *vars, char *style)
     else
         printf("# General variables.\n");
 
-    vl_foreach(elt, names) {
-        name = vs_sgetref(elt);
+    v_iterate(names, iter) {
+        name = vl_iter_svalref(iter);
         printf("%s = ", name);
         val = vh_get(vars, name);
 

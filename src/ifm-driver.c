@@ -186,15 +186,15 @@ print_map(int dnum, vlist *sections)
 
     vhash *sect, *room, *link, *join;
     vlist *sects, *list;
-    vscalar *elt;
     int num = 1;
+    viter i, j;
 
     if (func == NULL)
         fatal("no map driver for %s output", drv.name);
 
     sects = vh_pget(map, "SECTS");
-    vl_foreach(elt, sects) {    
-        sect = vs_pget(elt);
+    v_iterate(sects, i) {    
+        sect = vl_iter_pval(i);
         if (sections != NULL && !vl_iget(sections, num++))
             vh_istore(sect, "NOPRINT", 1);
     }
@@ -204,8 +204,8 @@ print_map(int dnum, vlist *sections)
     if (func->map_start != NULL)
         func->map_start();
 
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, i) {
+        sect = vl_iter_pval(i);
 
         if (vh_iget(sect, "NOPRINT"))
             continue;
@@ -215,8 +215,8 @@ print_map(int dnum, vlist *sections)
 
         if (func->map_room != NULL) {
             list = vh_pget(sect, "ROOMS");
-            vl_foreach(elt, list) {
-                room = vs_pget(elt);
+            v_iterate(list, j) {
+                room = vl_iter_pval(j);
                 set_style_list(vh_pget(room, "STYLE"));
                 set_room_vars();
                 func->map_room(room);
@@ -225,8 +225,8 @@ print_map(int dnum, vlist *sections)
 
         if (func->map_link != NULL) {
             list = vh_pget(sect, "LINKS");
-            vl_foreach(elt, list) {
-                link = vs_pget(elt);
+            v_iterate(list, j) {
+                link = vl_iter_pval(j);
 
                 if (vh_iget(link, "HIDDEN"))
                     continue;
@@ -248,14 +248,12 @@ print_map(int dnum, vlist *sections)
         func->map_finish();
 
     if (func->map_join != NULL) {
-        vl_foreach(elt, joins) {
-            join = vs_pget(elt);
-
-            if (vh_iget(join, "HIDDEN"))
-                continue;
-
-            set_style_list(vh_pget(join, "STYLE"));
-            func->map_join(join);
+        v_iterate(joins, i) {
+            join = vl_iter_pval(i);
+            if (!vh_iget(join, "HIDDEN")) {
+                set_style_list(vh_pget(join, "STYLE"));
+                func->map_join(join);
+            }
         }
     }
 }
@@ -267,8 +265,8 @@ print_items(int dnum)
     driver drv = drivers[dnum];
     itemfuncs *func = drv.ifunc;
     vlist *items, *sorted;
-    vscalar *elt;
     vhash *item;
+    viter iter;
 
     items = vh_pget(map, "ITEMS");
 
@@ -281,8 +279,8 @@ print_items(int dnum)
     if (func->item_entry != NULL) {
         sorted = vl_sort(items, itemsort);
 
-        vl_foreach(elt, sorted) {
-            item = vs_pget(elt);
+        v_iterate(sorted, iter) {
+            item = vl_iter_pval(iter);
             set_style_list(vh_pget(item, "STYLE"));
             func->item_entry(item);
         }
@@ -300,9 +298,9 @@ print_tasks(int dnum)
 {
     driver drv = drivers[dnum];
     taskfuncs *func = drv.tfunc;
-    vscalar *elt;
     vlist *tasks;
     vhash *task;
+    viter iter;
 
     tasks = vh_pget(map, "TASKS");
 
@@ -313,8 +311,8 @@ print_tasks(int dnum)
         func->task_start();
 
     if (func->task_entry != NULL) {
-        vl_foreach(elt, tasks) {
-            task = vs_pget(elt);
+        v_iterate(tasks, iter) {
+            task = vl_iter_pval(iter);
             set_style_list(vh_pget(task, "STYLE"));
             func->task_entry(task);
         }

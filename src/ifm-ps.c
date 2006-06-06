@@ -77,8 +77,8 @@ ps_map_start(void)
 {
     int ylen, c, num_pages, width, height;
     char *title, *prolog, *file;
-    vscalar *elt;
     vhash *sect;
+    viter iter;
     FILE *fp;
 
     /* Locate prolog file */
@@ -87,8 +87,8 @@ ps_map_start(void)
         fatal("can't find PostScript prolog '%s'", file);
 
     /* Allow title space for sections with titles */
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, iter) {
+        sect = vl_iter_pval(iter);
         if (show_map_title && vh_exists(sect, "TITLE")) {
             ylen = vh_iget(sect, "YLEN");
             vh_istore(sect, "YLEN", ylen + 1);
@@ -241,19 +241,20 @@ ps_map_room(vhash *room)
     /* Write item list (if any) */
     items = vh_pget(room, "ITEMS");
     if (items != NULL && vl_length(items) > 0) {
-        vscalar *elt;
         vhash *item;
         vlist *list;
+        viter iter;
 
         list = vl_create();
-        vl_foreach(elt, items) {
-            item = vs_pget(elt);
+        v_iterate(items, iter) {
+            item = vl_iter_pval(iter);
             if (!vh_iget(item, "HIDDEN"))
                 vl_spush(list, vh_sgetref(item, "DESC"));
         }
 
         if (vl_length(list) > 0)
             itemlist = vl_join(list, ", ");
+
         vl_destroy(list);
     }
 

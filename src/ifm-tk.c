@@ -126,7 +126,7 @@ tk_map_room(vhash *room)
     vlist *items, *ex, *ey;
     char *itemlist = NULL;
     int x, y, xoff, yoff;
-    vscalar *elt;
+    viter iter;
 
     /* Room style variables */
     tk_print_room_vars();
@@ -138,14 +138,15 @@ tk_map_room(vhash *room)
         vlist *list;
 
         list = vl_create();
-        vl_foreach(elt, items) {
-            item = vs_pget(elt);
+        v_iterate(items, iter) {
+            item = vl_iter_pval(iter);
             if (!vh_iget(item, "HIDDEN"))
                 vl_spush(list, vh_sgetref(item, "DESC"));
         }
 
         if (vl_length(list) > 0)
             itemlist = vl_join(list, ", ");
+
         vl_destroy(list);
     }
 

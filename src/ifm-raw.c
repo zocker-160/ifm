@@ -97,7 +97,7 @@ raw_map_link(vhash *link)
 {
     vlist *x, *y, *cmds;
     vhash *from, *to;
-    vscalar *elt;
+    viter iter;
     int go;
 
     from = vh_pget(link, "FROM");
@@ -117,8 +117,8 @@ raw_map_link(vhash *link)
         printf("go: %s\n", dirinfo[go].sname);
 
     if ((cmds = vh_pget(link, "CMD")) != NULL) {
-        vl_foreach(elt, cmds)
-            put_string("cmd: %s\n", vs_sgetref(elt));
+        v_iterate(cmds, iter)
+            put_string("cmd: %s\n", vl_iter_svalref(iter));
     }
 }
 
@@ -126,8 +126,8 @@ void
 raw_map_join(vhash *join)
 {
     vhash *from, *to;
-    vscalar *elt;
     vlist *cmds;
+    viter iter;
     int go;
 
     from = vh_pget(join, "FROM");
@@ -142,8 +142,8 @@ raw_map_join(vhash *join)
         printf("go: %s\n", dirinfo[go].sname);
 
     if ((cmds = vh_pget(join, "CMD")) != NULL) {
-        vl_foreach(elt, cmds)
-            put_string("cmd: %s\n", vs_sgetref(elt));
+        v_iterate(cmds, iter)
+            put_string("cmd: %s\n", vl_iter_svalref(iter));
     }
 }
 
@@ -155,8 +155,8 @@ raw_item_entry(vhash *item)
     vhash *room = vh_pget(item, "ROOM");
     int score = vh_iget(item, "SCORE");
     vhash *task, *reach;
-    vscalar *elt;
     vlist *list;
+    viter iter;
 
     printf("\nitem: %d\n", vh_iget(item, "ID"));
     put_string("name: %s\n", vh_sgetref(item, "DESC"));
@@ -180,29 +180,29 @@ raw_item_entry(vhash *item)
         printf("finish: 1\n");
 
     if ((list = vh_pget(item, "RTASKS")) != NULL) {
-        vl_foreach(elt, list) {
-            task = vs_pget(elt);
+        v_iterate(list, iter) {
+            task = vl_iter_pval(iter);
             printf("after: %d\n", vh_iget(task, "ID"));
         }
     }
 
     if ((list = vh_pget(item, "TASKS")) != NULL) {
-        vl_foreach(elt, list) {
-            task = vs_pget(elt);
+        v_iterate(list, iter) {
+            task = vl_iter_pval(iter);
             printf("needed: %d\n", vh_iget(task, "ID"));
         }
     }
 
     if ((list = vh_pget(item, "NROOMS")) != NULL) {
-        vl_foreach(elt, list) {
-            room = vs_pget(elt);
+        v_iterate(list, iter) {
+            room = vl_iter_pval(iter);
             printf("enter: %d\n", vh_iget(room, "ID"));
         }
     }
 
     if ((list = vh_pget(item, "NLINKS")) != NULL) {
-        vl_foreach(elt, list) {
-            reach = vs_pget(elt);
+        v_iterate(list, iter) {
+            reach = vl_iter_pval(iter);
             room = vh_pget(reach, "FROM");
             printf("move: %d", vh_iget(room, "ID"));
             room = vh_pget(reach, "TO");
@@ -211,8 +211,8 @@ raw_item_entry(vhash *item)
     }
 
     if (notes != NULL) {
-        vl_foreach(elt, notes)
-            put_string("note: %s\n", vs_sgetref(elt));
+        v_iterate(notes, iter)
+            put_string("note: %s\n", vl_iter_svalref(iter));
     }
 }
 
@@ -224,7 +224,7 @@ raw_task_entry(vhash *task)
     vhash *room = vh_pget(task, "ROOM");
     vlist *cmds = vh_pget(task, "CMD");
     int score = vh_iget(task, "SCORE");
-    vscalar *elt;
+    viter iter;
 
     printf("\ntask: %d\n", vh_iget(task, "ID"));
     put_string("name: %s\n", vh_sgetref(task, "DESC"));
@@ -236,15 +236,15 @@ raw_task_entry(vhash *task)
         printf("room: %d\n", vh_iget(room, "ID"));
 
     if (cmds != NULL) {
-        vl_foreach(elt, cmds)
-            put_string("cmd: %s\n", vs_sgetref(elt));
+        v_iterate(cmds, iter)
+            put_string("cmd: %s\n", vl_iter_svalref(iter));
     }
 
     if (score > 0)
         printf("score: %d\n", score);
 
     if (notes != NULL) {
-        vl_foreach(elt, notes)
-            put_string("note: %s\n", vs_sgetref(elt));
+        v_iterate(notes, iter)
+            put_string("note: %s\n", vl_iter_svalref(iter));
     }
 }

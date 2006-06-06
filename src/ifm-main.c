@@ -70,9 +70,9 @@ main(int argc, char *argv[])
     char *env, *file = NULL, *info = NULL, *spec, *format = NULL, *home;
     vlist *args, *list, *include = NULL, *vars = NULL;
     int noinit = 0, version = 0, help = 0, debug = 0;
-    vscalar *elt;
     vhash *opts;
     V_BUF_DECL;
+    viter iter;
 
 #ifdef BISON_DEBUG
     extern int yydebug;
@@ -159,8 +159,8 @@ main(int argc, char *argv[])
         ifm_driver = select_format(format);
 
     if (ifm_styles != NULL) {
-        vl_foreach(elt, ifm_styles)
-            ref_style(vs_sgetref(elt));
+        v_iterate(ifm_styles, iter)
+            ref_style(vl_iter_svalref(iter));
     }
 
     /* Set search path */
@@ -205,8 +205,8 @@ main(int argc, char *argv[])
     /* Parse input files (or stdin) */
     args = v_getargs(opts);
     if (vl_length(args) > 0) {
-        vl_foreach(elt, args) {
-            file = vs_sgetref(elt);
+        v_iterate(args, iter) {
+            file = vl_iter_svalref(iter);
             parse_input(file, 0, 1);
         }
     } else if (info == NULL && !parse_input(NULL, 0, 1)) {
@@ -222,8 +222,8 @@ main(int argc, char *argv[])
     /* Set any variables from command line */
     if (vars != NULL) {
         char *cp;
-        vl_foreach(elt, vars) {
-            spec = vs_sgetref(elt);
+        v_iterate(vars, iter) {
+            spec = vl_iter_svalref(iter);
             if ((cp = strchr(spec, '=')) != NULL) {
                 *cp++ = '\0';
                 var_set(NULL, spec, vs_screate(cp));
@@ -540,9 +540,9 @@ show_maps(void)
 {
     int num = 1, xlen, ylen;
     vlist *rooms;
-    vscalar *elt;
     char *title;
     vhash *sect;
+    viter iter;
     V_BUF_DECL;
 
     set_map_vars();
@@ -550,8 +550,8 @@ show_maps(void)
     printf("%s\t%s\t%s\t%s\t%s\n",
            "No.", "Rooms", "Width", "Height", "Name");
 
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, iter) {
+        sect = vl_iter_pval(iter);
 
         if (vh_exists(sect, "TITLE"))
             title = vh_sgetref(sect, "TITLE");

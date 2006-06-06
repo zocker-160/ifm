@@ -65,11 +65,11 @@ fig_map_start(void)
     float ratio, tmp, scale = 1.0, xscale, yscale;
     int ylen, width, height, orient;
     vhash *sect, *box;
-    vscalar *elt;
+    viter iter;
 
     /* Allow title space for sections with titles */
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, iter) {
+        sect = vl_iter_pval(iter);
         if (show_map_title && vh_exists(sect, "TITLE")) {
             ylen = vh_iget(sect, "YLEN");
             vh_istore(sect, "YLEN", ylen + 1);
@@ -119,12 +119,11 @@ fig_map_start(void)
     }
 
     /* Find map size from first section that's output */
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, iter) {
+        sect = vl_iter_pval(iter);
         if (!vh_iget(sect, "NOPRINT")) {
             width = vh_iget(sect, "PXLEN");
             height = vh_iget(sect, "PYLEN");
-            vl_break(sects);
             break;
         }
     }
@@ -275,19 +274,20 @@ fig_map_room(vhash *room)
     /* Get item list (if any) */
     items = vh_pget(room, "ITEMS");
     if (items != NULL && vl_length(items) > 0) {
-        vscalar *elt;
         vhash *item;
         vlist *list;
+        viter iter;
 
         list = vl_create();
-        vl_foreach(elt, items) {
-            item = vs_pget(elt);
+        v_iterate(items, iter) {
+            item = vl_iter_pval(iter);
             if (!vh_iget(item, "HIDDEN"))
                 vl_spush(list, vh_sgetref(item, "DESC"));
         }
 
         if (vl_length(list) > 0)
             itemlist = vl_join(list, ", ");
+
         vl_destroy(list);
     }
 

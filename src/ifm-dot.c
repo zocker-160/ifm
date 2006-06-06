@@ -79,7 +79,7 @@ dot_task_finish(void)
     vhash *step, *room, *rooms;
     char *node, *name;
     int cluster = 0;
-    vscalar *elt;
+    viter i, j, k;
     V_BUF_DECL;
     vgraph *g;
 
@@ -90,8 +90,8 @@ dot_task_finish(void)
     rooms = vh_create();
     nodes = vg_node_list(g);
 
-    vl_foreach(elt, nodes) {
-        node = vs_sgetref(elt);
+    v_iterate(nodes, i) {
+        node = vl_iter_svalref(i);
         if (!show_orphans && vg_node_links(g, node, NULL, NULL) == 0)
             continue;
 
@@ -115,8 +115,9 @@ dot_task_finish(void)
     /* Write nodes */
     printf("    node [%s];\n", node_attr);
 
-    vh_foreach(name, elt, rooms) {
-        list = vs_pget(elt);
+    v_iterate(rooms, i) {
+        name = vh_iter_key(i);
+        list = vh_iter_pval(i);
 
         if (show_rooms) {
             if (strlen(name) > 0) {
@@ -129,8 +130,8 @@ dot_task_finish(void)
             }
         }
 
-        vl_foreach(elt, list) {
-            node = vs_sgetref(elt);            
+        v_iterate(list, j) {
+            node = vl_iter_svalref(j);
             step = vg_node_pget(g, node);
             printf("    ");
 
@@ -155,14 +156,15 @@ dot_task_finish(void)
     /* Write links */
     printf("    edge [%s];\n", link_attr);
 
-    vh_foreach(name, elt, rooms) {
-        list = vs_pget(elt);
+    v_iterate(rooms, i) {
+        name = vh_iter_key(i);
+        list = vh_iter_pval(i);
 
-        vl_foreach(elt, list) {
-            node = vs_sgetref(elt);
+        v_iterate(list, j) {
+            node = vl_iter_svalref(j);
             tolist = vg_node_to(g, node);
-            vl_foreach(elt, tolist)
-                printf("    %s -> %s;\n", node, vs_sgetref(elt));
+            v_iterate(tolist, k)
+                printf("    %s -> %s;\n", node, vl_iter_svalref(k));
         }
     }
 

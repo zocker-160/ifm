@@ -68,3 +68,5 @@ $(LINTDEFS)
 lint:; $(LINTCMD) $(DEFS) $(INCLUDES) $(SRCS)
 
 include $(top_srcdir)/etc/Makefile.common
+
+CLEANFILES = *.output

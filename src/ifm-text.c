@@ -46,10 +46,10 @@ text_item_entry(vhash *item)
     vlist *notes = vh_pget(item, "NOTE");
     vhash *room, *task, *reach;
     static int count = 0;
-    vscalar *elt;
     vlist *list;
     char *title;
     V_BUF_DECL;
+    viter iter;
 
     if (count++ == 0) {
         if (vh_exists(map, "TITLE"))
@@ -80,8 +80,8 @@ text_item_entry(vhash *item)
 
     if ((list = vh_pget(item, "RTASKS")) != NULL) {
         printf("   obtained after:\n");
-        vl_foreach(elt, list) {
-            task = vs_pget(elt);
+        v_iterate(list, iter) {
+            task = vl_iter_pval(iter);
             if ((room = vh_pget(task, "ROOM")) == NULL)
                 V_BUF_SET(vh_sgetref(task, "DESC"));
             else
@@ -94,8 +94,8 @@ text_item_entry(vhash *item)
 
     if ((list = vh_pget(item, "TASKS")) != NULL) {
         printf("   needed for:\n");
-        vl_foreach(elt, list) {
-            task = vs_pget(elt);
+        v_iterate(list, iter) {
+            task = vl_iter_pval(iter);
             if ((room = vh_pget(task, "ROOM")) == NULL)
                 V_BUF_SET(vh_sgetref(task, "DESC"));
             else
@@ -108,16 +108,16 @@ text_item_entry(vhash *item)
 
     if ((list = vh_pget(item, "NROOMS")) != NULL) {
         printf("   needed to enter:\n");
-        vl_foreach(elt, list) {
-            room = vs_pget(elt);
+        v_iterate(list, iter) {
+            room = vl_iter_pval(iter);
             put_string("      %s\n", vh_sgetref(room, "DESC"));
         }
     }
 
     if ((list = vh_pget(item, "NLINKS")) != NULL) {
         printf("   needed to move:\n");
-        vl_foreach(elt, list) {
-            reach = vs_pget(elt);
+        v_iterate(list, iter) {
+            reach = vl_iter_pval(iter);
             room = vh_pget(reach, "FROM");
             put_string("      %s to", vh_sgetref(room, "DESC"));
             room = vh_pget(reach, "TO");
@@ -126,8 +126,8 @@ text_item_entry(vhash *item)
     }
 
     if (notes != NULL) {
-        vl_foreach(elt, notes)
-            put_string("   note: %s\n", vs_sgetref(elt));
+        v_iterate(notes, iter)
+            put_string("   note: %s\n", vl_iter_svalref(iter));
     }
 }
 
@@ -143,9 +143,9 @@ text_task_entry(vhash *task)
     static int moved = 0;
     static int count = 0;
     int type, score;
-    vscalar *elt;
     vhash *otask;
     char *title;
+    viter iter;
 
     if (count == 0) {
         if (vh_exists(map, "TITLE"))
@@ -160,13 +160,15 @@ text_task_entry(vhash *task)
     if (type == T_MOVE) {
         if (count == 0)
             put_string("\nStart: %s\n", vh_sgetref(startroom, "DESC"));
+
         if (!moved)
             printf("\n");
+
         put_string("%s", vh_sgetref(task, "DESC"));
         if (cmds != NULL)
             put_string(" (%s)", vl_join(cmds, ". "));
-        printf("\n");
 
+        printf("\n");
         travel++;
         moved++;
     } else {
@@ -179,8 +181,8 @@ text_task_entry(vhash *task)
 
         if (cmds != NULL) {
             if (vl_length(cmds) > 0) {
-                vl_foreach(elt, cmds)
-                    put_string("      cmd: %s\n", vs_sgetref(elt));
+                v_iterate(cmds, iter)
+                    put_string("      cmd: %s\n", vl_iter_svalref(iter));
             } else {
                 printf("      no action required\n");
             }
@@ -190,10 +192,12 @@ text_task_entry(vhash *task)
     }
 
     if (triggers != NULL) {
-        vl_foreach(elt, triggers) {
-            otask = vs_pget(elt);
+        v_iterate(triggers, iter) {
+            otask = vl_iter_pval(iter);
+
             if (type != T_MOVE)
                 printf("   ");
+
             put_string("   also does: %s\n", vh_sgetref(otask, "DESC"));
         }
     }
@@ -201,19 +205,22 @@ text_task_entry(vhash *task)
     if ((score = vh_iget(task, "SCORE")) > 0) {
         if (type != T_MOVE)
             printf("   ");
+
         printf("   score: %d\n", score);
     }
 
     if (notes != NULL) {
-        vl_foreach(elt, notes) {
+        v_iterate(notes, iter) {
             if (type != T_MOVE)
                 printf("   ");
-            put_string("   note: %s\n", vs_sgetref(elt));
+
+            put_string("   note: %s\n", vl_iter_svalref(iter));
         }
     }
 
     if (room != NULL)
         lastroom = room;
+
     total += score;
     count++;
 }

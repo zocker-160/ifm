@@ -15,7 +15,7 @@ fig_calc_bbox(vhash *object)
     vlist *objects, *xp, *yp;
     vhash *obj, *figure;
     float fontsize;
-    vscalar *elt;
+    viter iter;
     char *text;
 
     type = vh_iget(object, "TYPE");
@@ -27,8 +27,8 @@ fig_calc_bbox(vhash *object)
         if ((objects = vh_pget(object, "OBJECTS")) == NULL)
             return 0;
 
-        vl_foreach(elt, objects) {
-            obj = vs_pget(elt);
+        v_iterate(objects, iter) {
+            obj = vl_iter_pval(iter);
             if (!fig_calc_bbox(obj))
                 continue;
 

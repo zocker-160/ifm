@@ -30,12 +30,12 @@ static void putline(char *str);
 void
 rec_task_entry(vhash *task)
 {
-    vscalar *elt;
     vlist *cmds;
+    viter iter;
 
     if ((cmds = vh_pget(task, "CMD")) != NULL) {
-        vl_foreach(elt, cmds)
-            putline(vs_sgetref(elt));
+        v_iterate(cmds, iter)
+            putline(vl_iter_svalref(iter));
     } else {
         putline(vh_sgetref(task, "DESC"));
     }
@@ -46,5 +46,6 @@ putline(char *str)
 {
     while (*str != '\0')
         putchar(toupper(*str++));
+
     putchar('\n');
 }

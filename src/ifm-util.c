@@ -89,16 +89,14 @@ add_list(vhash *obj, char *attr, vhash *thing)
 char *
 find_file(char *name)
 {
-    vscalar *elt;
     V_BUF_DECL;
     char *path;
+    viter iter;
 
-    vl_foreach(elt, ifm_search) {
-        path = V_BUF_SET2("%s/%s", vs_sgetref(elt), name);
-        if (v_exists(path)) {
-            vl_break(ifm_search);
+    v_iterate(ifm_search, iter) {
+        path = V_BUF_SET2("%s/%s", vl_iter_svalref(iter), name);
+        if (v_exists(path))
             return path;
-        }
     }
 
     return NULL;
@@ -170,12 +168,12 @@ pack_sections(int xmax, int ymax)
     double xo1, yo1, xo2, yo2, r1, r2, ratio;
     int v1, v2, rflag, xc1, yc1, xc2, yc2;
     vhash *page, *sect, *p1, *p2;
-    vscalar *elt;
+    viter i, j;
 
     /* Initialise -- one section per page */
     pages = vl_create();
-    vl_foreach(elt, sects) {
-        sect = vs_pget(elt);
+    v_iterate(sects, i) {
+        sect = vl_iter_pval(i);
         if (vh_iget(sect, "NOPRINT"))
             continue;
 
@@ -280,21 +278,25 @@ pack_sections(int xmax, int ymax)
 
             /* Copy sections to new page, updating offsets */
             opsects = vh_pget(p1, "SECTS");
-            vl_foreach(elt, opsects) {
-                sect = vs_pget(elt);
+            v_iterate(opsects, j) {
+                sect = vl_iter_pval(j);
                 vl_ppush(psects, sect);
+
                 xo = vh_iget(sect, "XOFF");
                 vh_dstore(sect, "XOFF", xo + xo1);
+
                 yo = vh_iget(sect, "YOFF");
                 vh_dstore(sect, "YOFF", yo + yo1);
             }
 
             opsects = vh_pget(p2, "SECTS");
-            vl_foreach(elt, opsects) {
-                sect = vs_pget(elt);
+            v_iterate(opsects, j) {
+                sect = vl_iter_pval(j);
                 vl_ppush(psects, sect);
+
                 xo = vh_iget(sect, "XOFF");
                 vh_dstore(sect, "XOFF", xo + xo2);
+
                 yo = vh_iget(sect, "YOFF");
                 vh_dstore(sect, "YOFF", yo + yo2);
             }
@@ -316,16 +318,18 @@ pack_sections(int xmax, int ymax)
 
     /* Give each section its page info and clean up */
     num = 0;
-    vl_foreach(elt, pages) {
-        page = vs_pget(elt);
+    v_iterate(pages, i) {
+        page = vl_iter_pval(i);
+
         psects = vh_pget(page, "SECTS");
         xlen = vh_iget(page, "XLEN");
         ylen = vh_iget(page, "YLEN");
         rflag = vh_iget(page, "ROTATE");
 
         num++;
-        vl_foreach(elt, psects) {
-            sect = vs_pget(elt);
+        v_iterate(psects, j) {
+            sect = vl_iter_pval(j);
+
             vh_istore(sect, "PAGE", num);
             vh_istore(sect, "PXLEN", xlen);
             vh_istore(sect, "PYLEN", ylen);
@@ -357,13 +361,13 @@ setup_room_names(void)
     char tag[10], *name, *jstyle = var_string("join_format");
     vhash *room, *join, *from, *to;
     int jnum = 0;
-    vscalar *elt;
     V_BUF_DECL;
+    viter iter;
 
     /* Indicate joins if required */
     if (var_int("show_joins")) {
-        vl_foreach(elt, joins) {
-            join = vs_pget(elt);
+        v_iterate(joins, iter) {
+            join = vl_iter_pval(iter);
             if (vh_iget(join, "HIDDEN"))
                 continue;
 
@@ -397,16 +401,16 @@ setup_room_names(void)
     }
 
     /* Set room names of rooms that don't have one yet */
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
+    v_iterate(rooms, iter) {
+        room = vl_iter_pval(iter);
         if (!vh_exists(room, "RDESC"))
             vh_sstore(room, "RDESC", vh_sgetref(room, "DESC"));
     }
 
     /* Add tag names if required */
     if (show_tags) {
-        vl_foreach(elt, rooms) {
-            room = vs_pget(elt);
+        v_iterate(rooms, iter) {
+            room = vl_iter_pval(iter);
             if (vh_exists(room, "TAG")) {
                 V_BUF_SET2("%s [%s]",
                            vh_sgetref(room, "RDESC"),

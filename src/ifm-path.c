@@ -55,7 +55,7 @@ connect_rooms(void)
     vhash *room, *link, *join, *reach, *from, *to;
     vlist *cmdfrom, *cmdto, *list;
     char *cmd, id[10];
-    vscalar *elt;
+    viter iter;
 
     solver_msg(0, "Connecting rooms...");
 
@@ -63,18 +63,20 @@ connect_rooms(void)
     graph = vg_create();
 
     /* Create room nodes */
-    vl_foreach(elt, rooms) {
-        room = vs_pget(elt);
+    v_iterate(rooms, iter) {
+        room = vl_iter_pval(iter);
         sprintf(id, "R%d", ++num);
         vh_sstore(room, "NODE", id);
         vg_node_pstore(graph, id, room);
     }
 
     /* Build link connections */
-    vl_foreach(elt, links) {
-        link = vs_pget(elt);
+    v_iterate(links, iter) {
+        link = vl_iter_pval(iter);
+
         if (vh_iget(link, "NOLINK"))
             continue;
+
         if (vh_iget(link, "NOPATH"))
             continue;
 
@@ -170,8 +172,8 @@ connect_rooms(void)
     }
 
     /* Build join connections */
-    vl_foreach(elt, joins) {
-        join = vs_pget(elt);
+    v_iterate(joins, iter) {
+        join = vl_iter_pval(iter);
         if (vh_iget(join, "NOPATH"))
             continue;
 
@@ -338,7 +340,7 @@ get_path(vhash *step, vhash *room)
     char *node, *next;
     int i, len, found;
     vhash *reach;
-    vscalar *elt;
+    viter iter;
 
     /* Build path */
     list = vh_pget(step, "PATH");
@@ -364,8 +366,8 @@ get_path(vhash *step, vhash *room)
         rlist = vg_link_pget(graph, node, next);
         found = 0;
 
-        vl_foreach(elt, rlist) {
-            reach = vs_pget(elt);
+        v_iterate(rlist, iter) {
+            reach = vl_iter_pval(iter);
             if (!found && vh_iget(reach, "USE")) {
                 vl_ppush(path, reach);
                 found++;
@@ -385,9 +387,9 @@ init_path(vhash *room)
 {
     vhash *step, *item, *taskroom;
     int len, blockable, offset;
-    vscalar *elt;
     vlist *list;
     double dist;
+    viter i, j;
 
     /* Only need update if room changed, or path modified */
     if (room == path_room && !path_modify)
@@ -397,8 +399,8 @@ init_path(vhash *room)
     path_modify = 0;
 
     /* Deal with tasks that need droppable items */
-    vl_foreach(elt, tasklist) {
-        step = vs_pget(elt);
+    v_iterate(tasklist, i) {
+        step = vl_iter_pval(i);
         if (vh_iget(step, "DONE"))
             continue;
 
@@ -409,10 +411,12 @@ init_path(vhash *room)
             continue;
 
         blockable = 0;
-        vl_foreach(elt, list) {
-            item = vs_pget(elt);
+        v_iterate(list, j) {
+            item = vl_iter_pval(j);
+
             if (!vh_iget(item, "TAKEN"))
                 continue;
+
             if (!vh_iget(item, "LEAVE"))
                 continue;
 
@@ -445,8 +449,8 @@ init_path(vhash *room)
     solver_msg(2, "updated path cache (max dist %g)", dist);
 
     /* Record distance of each task */
-    vl_foreach(elt, tasklist) {
-        step = vs_pget(elt);
+    v_iterate(tasklist, i) {
+        step = vl_iter_pval(i);
 
         if (vh_iget(step, "BLOCK"))
             len = vh_iget(step, "SORT");
@@ -467,8 +471,8 @@ init_path(vhash *room)
     if (TASK_VERBOSE) {
         vhash *room;
 
-        vl_foreach(elt, tasklist) {
-            step = vs_pget(elt);
+        v_iterate(tasklist, i) {
+            step = vl_iter_pval(i);
 
             if (vh_iget(step, "DONE") || vh_iget(step, "IGNORED"))
                 continue;
@@ -493,9 +497,9 @@ static void
 link_rooms(vhash *from, vhash *to, vhash *reach)
 {
     char *fnode, *tnode;
-    vscalar *elt;
     vlist *list;
     vhash *relt;
+    viter iter;
     int len;
 
     fnode = vh_sgetref(from, "NODE");
@@ -509,8 +513,8 @@ link_rooms(vhash *from, vhash *to, vhash *reach)
 
     /* Check lengths agree (unfortunate limitation) */
     len = vh_iget(reach, "LEN");
-    vl_foreach(elt, list) {
-        relt = vs_pget(elt);
+    v_iterate(list, iter) {
+        relt = vl_iter_pval(iter);
         if (len != vh_iget(relt, "LEN"))
             err("links between '%s' and '%s' have differing lengths",
                 vh_sgetref(from, "DESC"), vh_sgetref(to, "DESC"));
@@ -546,7 +550,7 @@ reachable_rooms(vhash *room)
     static vlist *list = NULL;
     vlist *rlist, *tlist;
     char *node, *next;
-    vscalar *elt;
+    viter i, j;
 
     if (list == NULL)
         list = vl_create();
@@ -556,11 +560,11 @@ reachable_rooms(vhash *room)
     node = NODE(room);
     tlist = vg_node_to(graph, node);
 
-    vl_foreach(elt, tlist) {
-        next = vs_sgetref(elt);
+    v_iterate(tlist, i) {
+        next = vl_iter_svalref(i);
         rlist = vg_link_pget(graph, node, next);
-        vl_foreach(elt, rlist)
-            vl_ppush(list, vs_pget(elt));
+        v_iterate(rlist, j)
+            vl_ppush(list, vl_iter_pval(j));
     }
 
     vl_destroy(tlist);
@@ -601,20 +605,20 @@ use_link(char *fnode, char *tnode, vscalar *s)
 {
     vhash *reach, *item, *task, *tstep, *block, *room;
     vlist *list, *rlist;
-    vscalar *elt;
+    viter i, j;
     int flag;
 
     /* Loop over all reach elements of this link */
     rlist = vs_pget(s);
-    vl_foreach(elt, rlist) {
-        reach = vs_pget(elt);
+    v_iterate(rlist, i) {
+        reach = vl_iter_pval(i);
         vh_istore(reach, "USE", 0);
         flag = 1;
 
         /* Check items needed by task don't have to be left */
         if (path_task != NULL && (list = vh_pget(reach, "LEAVE")) != NULL) {
-            vl_foreach(elt, list) {
-                item = vs_pget(elt);
+            v_iterate(list, j) {
+                item = vl_iter_pval(j);
                 block = vh_pget(item, "BLOCK");
                 if (block != NULL && block == path_task) {
                     if (TASK_VERBOSE) {
@@ -625,7 +629,6 @@ use_link(char *fnode, char *tnode, vscalar *s)
                                vh_sgetref(item, "DESC"));
                     }
 
-                    vl_break(list);
                     flag = 0;
                     break;
                 }
@@ -637,8 +640,8 @@ use_link(char *fnode, char *tnode, vscalar *s)
 
         /* Check required items have been obtained */
         if ((list = vh_pget(reach, "NEED")) != NULL) {
-            vl_foreach(elt, list) {
-                item = vs_pget(elt);
+            v_iterate(list, j) {
+                item = vl_iter_pval(j);
                 if (!vh_iget(item, "TAKEN")) {
                     if (TASK_VERBOSE) {
                         indent(4 - vg_caching());
@@ -648,7 +651,6 @@ use_link(char *fnode, char *tnode, vscalar *s)
                                vh_sgetref(item, "DESC"));
                     }
 
-                    vl_break(list);
                     flag = 0;
                     break;
                 }
@@ -660,8 +662,8 @@ use_link(char *fnode, char *tnode, vscalar *s)
 
         /* Check status of required tasks */
         if ((list = vh_pget(reach, "BEFORE")) != NULL) {
-            vl_foreach(elt, list) {
-                task = vs_pget(elt);
+            v_iterate(list, j) {
+                task = vl_iter_pval(j);
                 tstep = vh_pget(task, "STEP");
                 if (vh_iget(tstep, "DONE")) {
                     if (TASK_VERBOSE) {
@@ -672,7 +674,6 @@ use_link(char *fnode, char *tnode, vscalar *s)
                                vh_sgetref(task, "DESC"));
                     }
 
-                    vl_break(list);
                     flag = 0;
                     break;
                 }
@@ -683,8 +684,8 @@ use_link(char *fnode, char *tnode, vscalar *s)
         }
 
         if ((list = vh_pget(reach, "AFTER")) != NULL) {
-            vl_foreach(elt, list) {
-                task = vs_pget(elt);
+            v_iterate(list, j) {
+                task = vl_iter_pval(j);
                 tstep = vh_pget(task, "STEP");
                 if (!vh_iget(tstep, "DONE")) {
                     if (TASK_VERBOSE) {
@@ -695,7 +696,6 @@ use_link(char *fnode, char *tnode, vscalar *s)
                                vh_sgetref(task, "DESC"));
                     }
 
-                    vl_break(list);
                     flag = 0;
                     break;
                 }
@@ -707,7 +707,6 @@ use_link(char *fnode, char *tnode, vscalar *s)
 
         /* Flag it as usable */
         vh_istore(reach, "USE", 1);
-        vl_break(rlist);
         return 1;
     }
 
@@ -719,15 +718,15 @@ static int
 use_node(char *node, vscalar *s, double dist)
 {
     vhash *room, *item, *task, *tstep, *block;
-    vscalar *elt;
     vlist *list;
+    viter iter;
 
     room = vs_pget(s);
 
     /* Check items needed by task don't have to be left */
     if (path_task != NULL && (list = vh_pget(room, "LEAVE")) != NULL) {
-        vl_foreach(elt, list) {
-            item = vs_pget(elt);
+        v_iterate(list, iter) {
+            item = vl_iter_pval(iter);
             block = vh_pget(item, "BLOCK");
             if (block != NULL && block == path_task) {
                 if (TASK_VERBOSE) {
@@ -737,7 +736,6 @@ use_node(char *node, vscalar *s, double dist)
                            vh_sgetref(item, "DESC"));
                 }
 
-                vl_break(list);
                 return 0;
             }
         }
@@ -745,8 +743,8 @@ use_node(char *node, vscalar *s, double dist)
 
     /* Check for required items */
     if ((list = vh_pget(room, "NEED")) != NULL) {
-        vl_foreach(elt, list) {
-            item = vs_pget(elt);
+        v_iterate(list, iter) {
+            item = vl_iter_pval(iter);
             if (!vh_iget(item, "TAKEN")) {
                 if (TASK_VERBOSE) {
                     indent(4 - vg_caching());
@@ -755,7 +753,6 @@ use_node(char *node, vscalar *s, double dist)
                            vh_sgetref(item, "DESC"));
                 }
 
-                vl_break(list);
                 return 0;
             }
         }
@@ -763,8 +760,8 @@ use_node(char *node, vscalar *s, double dist)
 
     /* Check status of required tasks */
     if ((list = vh_pget(room, "BEFORE")) != NULL) {
-        vl_foreach(elt, list) {
-            task = vs_pget(elt);
+        v_iterate(list, iter) {
+            task = vl_iter_pval(iter);
             tstep = vh_pget(task, "STEP");
             if (vh_iget(tstep, "DONE")) {
                 if (TASK_VERBOSE) {
@@ -774,15 +771,14 @@ use_node(char *node, vscalar *s, double dist)
                            vh_sgetref(task, "DESC"));
                 }
 
-                vl_break(list);
                 return 0;
             }
         }
     }
 
     if ((list = vh_pget(room, "AFTER")) != NULL) {
-        vl_foreach(elt, list) {
-            task = vs_pget(elt);
+        v_iterate(list, iter) {
+            task = vl_iter_pval(iter);
             tstep = vh_pget(task, "STEP");
             if (!vh_iget(tstep, "DONE")) {
                 if (TASK_VERBOSE) {
@@ -792,7 +788,6 @@ use_node(char *node, vscalar *s, double dist)
                            vh_sgetref(task, "DESC"));
                 }
 
-                vl_break(list);
                 return 0;
             }
         }
