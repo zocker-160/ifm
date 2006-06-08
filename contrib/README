@@ -6,7 +6,7 @@ asciimapper     Tool to create IFM maps from ASCII art maps, contributed by
 
 ifm.vim	        Support for IFM syntax colouring in vim (a vi clone),
 		contributed by Dave Chapeskie (dchapes@ddm.on.ca).  This
-		has been partially updated for version 5.0 of IFM, but
+		has been partially updated for version 5.x of IFM, but
 		isn't yet complete.
 
 ifm-mode.el	GNU Emacs IFM mode.  This is a really bare-bones major
@@ -19,4 +19,7 @@ rec2scr		Perl script which invokes the dumb-frotz interpreter
 		Very useful for testing the recording output from IFM.
 
 ifmpp		A preprocessor for any old IFM maps that made use of the
-		gpp directives.
+		gpp directives.  Needs gpp installed.
+
+chess.pl	Perl script to write a chess board in IFM format.  One of
+		the precursors to asciimapper (see above).
