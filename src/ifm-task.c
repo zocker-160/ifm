@@ -1364,7 +1364,9 @@ warn_failure(void)
     V_BUF_SET1("   final location:\n      %s\n",
                vh_sgetref(location, "DESC"));
 
-    keys = vh_sortkeys(reasons, NULL);
+    keys = vh_keys(reasons);
+    vl_sort(keys, NULL);
+
     v_iterate(keys, iter) {
         reason = vl_iter_svalref(iter);
         list = vh_pget(reasons, reason);
@@ -1374,6 +1376,8 @@ warn_failure(void)
         v_iterate(list, iter)
             V_BUF_ADD1("      %s\n", vl_iter_svalref(iter));
     }
+
+    vl_destroy(keys);
 
     /* Print it */
     warn("can't solve game (%d task%s not done)\n%s",

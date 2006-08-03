@@ -89,6 +89,8 @@ load_styles(void)
         return;
 
     list = vh_keys(rstyles);
+    vl_sort(list, NULL);
+
     v_iterate(list, iter) {
         name = vl_iter_svalref(iter);
         if (vh_exists(styles, name))
@@ -348,7 +350,7 @@ var_list(void)
     var_print(nvars, NULL);
 
     /* Style variables */
-    slist = vh_sortkeys(styles, NULL);
+    slist = vh_keys(styles);
 
     v_iterate(slist, iter) {
         style = vl_iter_svalref(iter);
@@ -369,7 +371,8 @@ var_print(vhash *vars, char *style)
     vscalar *val;
     viter iter;
 
-    names = vh_sortkeys(vars, NULL);
+    names = vh_keys(vars);
+    vl_sort(names, NULL);
 
     printf("\n");
 
