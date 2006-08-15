@@ -16,7 +16,7 @@ INCLUDES = $(VARS_CFLAGS)
 
 testfig_SOURCES = testfig.c
 testfig_LDFLAGS = $(VARS_LIBS)
-testfig_LDADD = libfig.a -lvars-noinst -lm
+testfig_LDADD = libfig.a -lvars -lm
 
 test: testfig
 	./testfig | tee test.fig
