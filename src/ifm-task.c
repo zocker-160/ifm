@@ -52,6 +52,7 @@ static void add_task(vhash *task);
 static int do_task(vhash *task, int print, int recurse);
 static void drop_item(vhash *item, vhash *room, vlist *until, int print);
 static void filter_tasks(int print);
+static vhash *first_task(vhash *step);
 static void goto_room(vhash *task);
 static void invert_items(vhash *obj, char *attr);
 static vhash *new_task(int type, vhash *data);
@@ -446,6 +447,22 @@ filter_tasks(int print)
         modify_path(print);
 }
 
+/* Return first task in a task's follow-chain */
+static vhash *
+first_task(vhash *step)
+{
+    vhash *first, *prev;
+
+    if ((first = vh_pget(step, "PREV")) != NULL) {
+        while ((prev = vh_pget(first, "PREV")) != NULL)
+            first = prev;
+    } else {
+        first = step;
+    }
+
+    return first;
+}
+
 /* Move to a room to do something */
 static void
 goto_room(vhash *task)
@@ -615,24 +632,24 @@ order_tasks(vhash *before, vhash *after)
     add_task(before);
     add_task(after);
 
-    /* If they're the same, there's no ordering */
-    if (before == after)
-        return;
+    if (before != after) {
+        /* The 'before' task allows the 'after' one to be done */
+        add_list(before, "ALLOW", after);
 
-    /* The 'before' task allows the 'after' one to be done */
-    add_list(before, "ALLOW", after);
+        /* The 'after' task (and previous ones in its follow-chain)
+         * depends on the 'before' one */
+        while (after != NULL) {
+            if (after != before) {
+                add_list(after, "DEPEND", before);
+                solver_msg(2, "task order: do '%s' before '%s'",
+                           vh_sgetref(before, "DESC"),
+                           vh_sgetref(after, "DESC"));
+            }
 
-    do {
-        if (after != before) {
-            depend = vh_pget(after, "DEPEND");
-            vl_ppush(depend, before);
-            solver_msg(2, "task order: do '%s' before '%s'",
-                       vh_sgetref(before, "DESC"),
-                       vh_sgetref(after, "DESC"));
+            if ((after = vh_pget(after, "PREV")) == start)
+                break;
         }
-
-        after = vh_pget(after, "PREV");
-    } while (after != NULL && after != start);
+    }
 }
 
 /* Return a task required by a given task, if any */
@@ -660,7 +677,7 @@ void
 setup_tasks(void)
 {
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
-    vhash *step, *istep, *oitem, *tfirst, *tprev;
+    vhash *step, *istep, *oitem, *first;
     vlist *list, *itasks, *rlist;
     int flagged = 1;
     viter i, j, k;
@@ -876,14 +893,7 @@ setup_tasks(void)
     v_iterate(tasks, i) {
         task = vl_iter_pval(i);
         tstep = vh_pget(task, "STEP");
-
-        /* Find first task in follow-chain */
-        if ((tfirst = vh_pget(tstep, "PREV")) != NULL) {
-            while ((tprev = vh_pget(tfirst, "PREV")) != NULL)
-                tfirst = tprev;
-        } else {
-            tfirst = tstep;
-        }
+        first = first_task(tstep);
 
         /* Invert task 'drop' list if dropping all */
         if (vh_iget(task, "DROPALL"))
@@ -900,7 +910,7 @@ setup_tasks(void)
                     order_tasks(get, tstep);
                 }
 
-                add_list(item, "TASKS", tfirst);
+                add_list(item, "TASKS", first);
             }
         }
 
