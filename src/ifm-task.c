@@ -17,6 +17,14 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
+#define MOVETO(room) do {                               \
+    location = room;                                    \
+    if (location != NULL)                               \
+        location_desc = vh_sgetref(location, "DESC");   \
+    else                                                \
+        location_desc = "nowhere";                      \
+} while (0)
+
 /* Task step attributes */
 static char *taskattr[] = {
     "TAG", "STYLE", "CMD", "DROPALL", "HIDDEN", "DO", "DROP", "DROPROOM",
@@ -33,6 +41,7 @@ vlist *tasklist = NULL;
 
 /* Current location */
 static vhash *location = NULL;
+static char *location_desc = "nowhere";
 
 /* Control variables */
 static int all_tasks_safe = 0;
@@ -257,7 +266,7 @@ do_task(vhash *task, int print, int recurse)
     /* Teleport to new location if required */
     if ((room = vh_pget(task, "GOTO")) != NULL) {
         solver_msg(2, "goto room: %s", vh_sgetref(room, "DESC"));
-        location = room;
+        MOVETO(room);
     }
 
     /* Flag path modification if required */
@@ -272,7 +281,7 @@ do_task(vhash *task, int print, int recurse)
     if (vh_iget(task, "FINISH"))
         return 0;
 
-    if (vh_iget(location, "FINISH"))
+    if (location != NULL && vh_iget(location, "FINISH"))
         return 0;
 
     return 1;
@@ -494,7 +503,7 @@ goto_room(vhash *task)
         last = room;
     }
 
-    location = room;
+    MOVETO(room);
 }
 
 /* Invert an item list if required */
@@ -1019,19 +1028,21 @@ solve_game(void)
     }
 
     /* Process task list */
-    location = startroom;
+    MOVETO(startroom);
     next = NULL;
 
     solver_msg(0, "\nSolving game...");
 
     do {
-        solver_msg(1, "Location: %s", vh_sgetref(location, "DESC"));
+        solver_msg(1, "Location: %s", location_desc);
 
         /* Initialise path searches from this room */
-        init_path(location);
+        if (location != NULL)
+            init_path(location);
 
         /* Check for dropping unneeded items */
-        if (next == NULL && !vh_iget(location, "NODROP")) {
+        if (next == NULL &&
+            (location == NULL || !vh_iget(location, "NODROP"))) {
             while (1) {
                 count = 0;
 
@@ -1204,10 +1215,9 @@ task_status(vhash *room, vhash *step)
     taskroom = vh_pget(step, "ROOM");
     gotoroom = vh_pget(step, "GOTO");
 
-    if (taskroom != NULL && taskroom != room) {
+    if (taskroom != NULL && room != NULL && taskroom != room)
         if ((len = find_path(step, room, taskroom)) == NOPATH)
             return TS_INVALID;
-    }
 
     /* See whether task is safe */
     if (vh_exists(step, "SAFE")) {
