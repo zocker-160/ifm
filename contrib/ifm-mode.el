@@ -1,7 +1,7 @@
 ;;; ifm-mode.el --- IFM editing commands for Emacs.
-
-;;; Written by Glenn Hutchings (zondo42@googlemail.com)
-;;; Enhanced by Lee Bigelow (ligelowbee@yahoo.com)
+;;; 
+;;; Originally written by Glenn Hutchings (zondo42@googlemail.com).
+;;; Improved using code and ideas from Lee Bigelow (ligelowbee@yahoo.com).
 
 (defvar ifm-program "ifm"
   "*IFM program to run.")
@@ -20,9 +20,10 @@
 (unless ifm-mode-map
   (setq ifm-mode-map (make-sparse-keymap))
   (define-key ifm-mode-map "\t" 'indent-relative)
-  (define-key ifm-mode-map "\C-c\C-c" 'ifm-show-maps)
-  (define-key ifm-mode-map "\C-c\C-t" 'ifm-show-tasks)
-  (define-key ifm-mode-map "\C-c\C-i" 'ifm-show-items))
+  (define-key ifm-mode-map "\C-c\C-c" 'ifm-check-syntax)
+  (define-key ifm-mode-map "\C-c\C-m" 'ifm-show-maps)
+  (define-key ifm-mode-map "\C-c\C-i" 'ifm-show-items)
+  (define-key ifm-mode-map "\C-c\C-t" 'ifm-show-tasks))
 
 (defconst ifm-structure-regexp
   (regexp-opt '("room") 'words)
@@ -78,14 +79,13 @@ PostScript viewer to view the maps.
 \\{ifm-mode-map}
 
 The PostScript viewer used is controlled by the 'ifm-postscript-viewer'
-variable.  When the viewer is running, it tries to watch the generated
-PostScript file for changes, so if you invoke \\[ifm-make-ps-map] again the
-file will be redisplayed.
+variable.
 
 Calling this function invokes the function(s) listed in \"ifm-mode-hook\"
 before doing anything else."
   (interactive)
   (kill-all-local-variables)
+
   (setq comment-start "# ")
   (setq comment-end "")
   (setq comment-column 0)
@@ -106,32 +106,46 @@ before doing anything else."
   (use-local-map ifm-mode-map)
   (run-hooks 'ifm-mode-hook))
 
-(defun ifm-show-maps ()
-  "Display IFM maps in a PostScript viewer."
-  (interactive)
+(defun ifm-show-maps (arg)
+  "Display IFM maps in a PostScript viewer.
+With prefix arg, write maps to PostScript file instead."
+  (interactive "P")
 
-  ;; Generate PostScript in a buffer.
-  (ifm-check)
-  (ifm-run "-map" " *ifm map*" t)
+  (let ((file (ifm-get-filename "PostScript file: " ".ps" arg)))
+    ;; Write PostScript to file.
+    (ifm-check)
+    (ifm-run "-map" " *ifm map*" file)
 
-  ;; Feed it to viewer.
-  (save-excursion
-    (set-buffer " *ifm map*")
-    (let ((proc (start-process "PostScript viewer"
-			       nil ifm-postscript-viewer "-")))
-      (process-send-region proc (point-min) (point-max)))))
+    ;; Feed it to viewer if required.
+    (unless arg
+      (start-process "PostScript viewer" nil ifm-postscript-viewer file))))
 
-(defun ifm-show-items ()
-  "Show IFM item list in another window."
-  (interactive)
+(defun ifm-show-items (arg)
+  "Show IFM item list in another window.
+With prefix arg, write item list to file instead."
+  (interactive "P")
   (ifm-check)
   (ifm-run "-items" "*IFM items*"))
 
-(defun ifm-show-tasks ()
-  "Show IFM task list in another window."
-  (interactive)
+(defun ifm-show-tasks (arg)
+  "Show IFM task list in another window.
+With prefix arg, write item list to file instead."
+  (interactive "P")
   (ifm-check)
   (ifm-run "-tasks" "*IFM tasks*"))
+
+(defun ifm-get-filename (prompt suffix arg)
+  "Get filename to write IFM output to."
+  (let* ((dirname (file-name-directory (buffer-file-name)))
+	 (bufname (file-name-nondirectory (buffer-file-name)))
+	 (name (if bufname
+		   (file-name-sans-extension bufname)
+		 "untitled"))
+	 (filename (concat name suffix))
+	 (path (concat temporary-file-directory filename)))
+    (if arg
+	(read-string prompt (concat dirname filename))
+      (concat temporary-file-directory filename))))
 
 (defun ifm-check-syntax ()
   "Check syntax of IFM input in the current buffer."
@@ -149,6 +163,7 @@ before doing anything else."
 	(msg nil))
     (save-excursion
       (set-buffer " *ifm check*")
+      (goto-char (point-min))
       (if (string-match "error: .+line \\([0-9]+\\): \\(.+\\)" (buffer-string))
 	  (progn
 	    (setq line (string-to-int (substring (buffer-string)
@@ -163,8 +178,11 @@ before doing anything else."
 	  (goto-line line)
 	  (error "IFM error on line %d: %s" line msg)))))
 
-(defun ifm-run (arg buf &optional noswitch)
-  "Run IFM with the argument ARG and display output in buffer BUF."
+(defun ifm-run (arg buf &optional file)
+  "Run IFM on the current buffer.
+Invoke it with the argument ARG and display output in buffer BUF.
+If optional FILE is a string, write output to it.  Otherwise, display
+results in a view window."
   ;; Kill any existing buffer.
   (if (get-buffer buf)
       (kill-buffer buf))
@@ -172,10 +190,14 @@ before doing anything else."
   ;; Run IFM on current buffer.
   (call-process-region (point-min) (point-max) ifm-program nil buf t arg)
 
-  ;; Switch to new buffer if required.
-  (unless noswitch
-    (view-buffer buf)
-    (goto-char (point-min))))
+  ;; Write or display buffer.
+  (if (stringp file)
+      (save-excursion
+	(set-buffer buf)
+	(write-region (point-min) (point-max) file nil 'novisit))
+    (unless file
+      (view-buffer buf)
+      (goto-char (point-min)))))
 
 (defun ifm-mode-after-find-file ()
   (when (string-match "\\.ifm$" (buffer-file-name))
@@ -189,61 +211,3 @@ before doing anything else."
 		      (setq font-lock-defaults '(ifm-font-lock-keywords t)))))
 
 (provide 'ifm-mode)
-
-;;; Lee's stuff
-
-(defun ifm-syntax-errors ()
-  "Return line number of the first syntax error, or nil if none."
-  (save-buffer)
-  (shell-command (concat "ifm -f tk " (buffer-file-name)) "*ifm check*")
-  (save-excursion
-   (set-buffer "*ifm check*")
-   (string-match "GotoLine \\([0-9]+\\).*" (buffer-string))
-   (if (match-beginning 1)
-       (string-to-int (substring (buffer-string) 
-                                 (match-beginning 1) (match-end 1)))
-     0)))
-
-(defun ifm-make-ps-map ()
-  "Create or update PostScript rendering of map."
-  (interactive)
-  (let ((error-line (ifm-syntax-errors))
-         (bfname (buffer-file-name)) 
-         (psfname (concat (buffer-file-name) ".ps")) )
-    (if (> error-line 0)
-          (goto-line error-line)
-      (shell-command (concat "ifm -m -o " psfname " " bfname)))))
-
-(defun ifm-make-item-list ()
-  "Create or update item list file."
-  (interactive)
-  (let ((error-line (ifm-syntax-errors)) 
-        (bfname (buffer-file-name)) 
-        (ifname (concat (buffer-file-name) ".items.txt")))
-    (if (> error-line 0)
-        (goto-line error-line)
-      (shell-command (concat "ifm -i -o " ifname " " bfname))
-      (view-file-other-window ifname))))
-
-(defun ifm-make-task-list ()
-  "Create or update task list file."
-  (interactive)
-  (let ((error-line (ifm-syntax-errors)) 
-        (bfname (buffer-file-name)) 
-        (tfname (concat (buffer-file-name) ".tasks.txt")))
-    (if (> error-line 0)
-        (goto-line error-line)
-      (shell-command (concat "ifm -t -o " tfname " " bfname))
-      (view-file-other-window tfname))))
-
-(defun ifm-start-viewer ()
-  "Start PostScript viewer to view and watch the rendered map." 
-  (interactive)
-  (let ((error-line (ifm-syntax-errors)) 
-        (psfname (concat (buffer-file-name) ".ps")) )
-    (if (> error-line 0)
-        (goto-line error-line)
-      (if (file-exists-p psfname)
-          (shell-command (concat ifm-postscript-viewer psfname " &"))
-        (ifm-make-ps-map)
-        (shell-command (concat ifm-postscript-viewer psfname " &"))))))
