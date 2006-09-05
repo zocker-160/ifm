@@ -651,8 +651,8 @@ void
 setup_tasks(void)
 {
     vhash *task, *otask, *get, *after, *item, *tstep, *room, *reach;
+    vhash *step, *istep, *oitem, *tfirst, *tprev;
     vlist *list, *itasks, *rlist;
-    vhash *step, *istep, *oitem;
     int flagged = 1;
     viter i, j, k;
     char *msg;
@@ -868,11 +868,19 @@ setup_tasks(void)
         task = vl_iter_pval(i);
         tstep = vh_pget(task, "STEP");
 
+        /* Find first task in follow-chain */
+        if ((tfirst = vh_pget(tstep, "PREV")) != NULL) {
+            while ((tprev = vh_pget(tfirst, "PREV")) != NULL)
+                tfirst = tprev;
+        } else {
+            tfirst = tstep;
+        }
+
         /* Invert task 'drop' list if dropping all */
         if (vh_iget(task, "DROPALL"))
             invert_items(tstep, "DROP");
 
-        /* Must get required items before doing this task */
+        /* Must get required items before doing first task in follow-chain */
         if ((list = vh_pget(task, "NEED")) != NULL) {
             v_iterate(list, j) {
                 item = vl_iter_pval(j);
@@ -883,7 +891,7 @@ setup_tasks(void)
                     order_tasks(get, tstep);
                 }
 
-                add_list(item, "TASKS", tstep);
+                add_list(item, "TASKS", tfirst);
             }
         }
 
