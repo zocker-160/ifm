@@ -111,9 +111,9 @@ before doing anything else."
 With prefix arg, write maps to PostScript file instead."
   (interactive "P")
 
-  (let ((file (ifm-get-filename "PostScript file: " ".ps" arg)))
+  (ifm-check)
+  (let ((file (ifm-get-filename "PostScript file" ".ps" arg)))
     ;; Write PostScript to file.
-    (ifm-check)
     (ifm-run "-map" " *ifm map*" file)
 
     ;; Feed it to viewer if required.
@@ -125,14 +125,22 @@ With prefix arg, write maps to PostScript file instead."
 With prefix arg, write item list to file instead."
   (interactive "P")
   (ifm-check)
-  (ifm-run "-items" "*IFM items*"))
+
+  (let ((file (if arg
+		  (ifm-get-filename "Item list file" "-items.txt" arg)
+		nil)))
+    (ifm-run "-items" "*IFM items*" file)))
 
 (defun ifm-show-tasks (arg)
   "Show IFM task list in another window.
 With prefix arg, write item list to file instead."
   (interactive "P")
   (ifm-check)
-  (ifm-run "-tasks" "*IFM tasks*"))
+
+  (let ((file (if arg
+		  (ifm-get-filename "Task list file" "-tasks.txt" arg)
+		nil)))
+    (ifm-run "-tasks" "*IFM tasks*" file)))
 
 (defun ifm-get-filename (prompt suffix arg)
   "Get filename to write IFM output to."
@@ -144,7 +152,8 @@ With prefix arg, write item list to file instead."
 	 (filename (concat name suffix))
 	 (path (concat temporary-file-directory filename)))
     (if arg
-	(read-string prompt (concat dirname filename))
+	(read-file-name (concat prompt " (default " filename "): ")
+			dirname filename)
       (concat temporary-file-directory filename))))
 
 (defun ifm-check-syntax ()
