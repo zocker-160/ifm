@@ -306,9 +306,6 @@ uninstall-am: uninstall-info-am
 	uninstall-info-am
 
 
-prep: ruins.ifm
-	$(IFM) -P $<
-
 ps fig: maptest.ifm
 	$(IFM) -f $@ -m -o maptest.$@ $<
 
