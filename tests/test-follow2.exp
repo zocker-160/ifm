@@ -34,7 +34,7 @@ item: 1
 name: tongs
 tag: tongs
 room: 1
-needed: 7
+needed: 5
 
 task: 3
 name: Get hammer
