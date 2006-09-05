@@ -17,10 +17,16 @@
 #include "ifm-util.h"
 #include "ifm-vars.h"
 
-#define TS_INVALID 0
-#define TS_IGNORED 1
-#define TS_UNSAFE  2
-#define TS_SAFE    3
+/* Task step attributes */
+static char *taskattr[] = {
+    "TAG", "STYLE", "CMD", "DROPALL", "HIDDEN", "DO", "DROP", "DROPROOM",
+    "DROPUNTIL", "GET", "GIVE", "GOTO", "LOSE", "NEED", NULL
+};
+
+/* Task step flags */
+enum {
+    TS_INVALID, TS_IGNORED, TS_UNSAFE, TS_SAFE
+};
 
 /* Task step list */
 vlist *tasklist = NULL;
@@ -45,18 +51,17 @@ static int task_status(vhash *room, vhash *step);
 static int want_item(vhash *item);
 static void warn_failure(void);
 
-/* Add a task to the task list */
+/* Add a task to the task list (if not already there) */
 static void
 add_task(vhash *task)
 {
-    if (vh_exists(task, "DEPEND"))
-        return;
+    if (!vh_exists(task, "DEPEND")) {
+        if (tasklist == NULL)
+            tasklist = vl_create();
 
-    if (tasklist == NULL)
-        tasklist = vl_create();
-
-    vl_ppush(tasklist, task);
-    vh_pstore(task, "DEPEND", vl_create());
+        vl_ppush(tasklist, task);
+        vh_pstore(task, "DEPEND", vl_create());
+    }
 }
 
 /* Check task list for cyclic dependencies */
@@ -530,15 +535,15 @@ static vhash *
 new_task(int type, vhash *data)
 {
     char *desc = vh_sgetref(data, "DESC");
-    int score = vh_iget(data, "SCORE");
+    int i, score = vh_iget(data, "SCORE");
     static int taskid = 0;
     vhash *room, *step;
+    vscalar *val;
     V_BUF_DECL;
 
     step = vh_create();
     vh_istore(step, "TYPE", type);
-    if (data != NULL)
-        vh_pstore(step, "DATA", data);
+    vh_pstore(step, "DATA", data);
 
     switch (type) {
     case T_MOVE:
@@ -562,26 +567,10 @@ new_task(int type, vhash *data)
         V_BUF_SET(desc);
         room = vh_pget(data, "ROOM");
 
-        if (vh_exists(data, "TAG"))
-            vh_sstore(step, "TAG", vh_sgetref(data, "TAG"));
+        for (i = 0; taskattr[i] != NULL; i++)
+            if ((val = vh_get(data, taskattr[i])) != NULL)
+                vh_store(step, taskattr[i], vs_copy(val));
 
-        if (vh_exists(data, "STYLE"))
-            vh_pstore(step, "STYLE", vh_pget(data, "STYLE"));
-
-        if (vh_exists(data, "CMD"))
-            vh_pstore(step, "CMD", vh_pget(data, "CMD"));
-
-        vh_istore(step, "DROPALL", vh_iget(data, "DROPALL"));
-        vh_istore(step, "HIDDEN", vh_iget(data, "HIDDEN"));
-        vh_pstore(step, "DO", vh_pget(data, "DO"));
-        vh_pstore(step, "DROP", vh_pget(data, "DROP"));
-        vh_pstore(step, "DROPROOM", vh_pget(data, "DROPROOM"));
-        vh_pstore(step, "DROPUNTIL", vh_pget(data, "DROPUNTIL"));
-        vh_pstore(step, "GET", vh_pget(data, "GET"));
-        vh_pstore(step, "GIVE", vh_pget(data, "GIVE"));
-        vh_pstore(step, "GOTO", vh_pget(data, "GOTO"));
-        vh_pstore(step, "LOSE", vh_pget(data, "LOSE"));
-        vh_pstore(step, "NEED", vh_pget(data, "NEED"));
         break;
     default:
         fatal("internal: unknown task type");
@@ -613,18 +602,16 @@ order_tasks(vhash *before, vhash *after)
     vlist *allow, *depend;
     vhash *start = after;
 
+    /* Add the tasks */
     add_task(before);
     add_task(after);
 
+    /* If they're the same, there's no ordering */
     if (before == after)
         return;
 
-    if ((allow = vh_pget(before, "ALLOW")) == NULL) {
-        allow = vl_create();
-        vh_pstore(before, "ALLOW", allow);
-    }
-
-    vl_ppush(allow, after);
+    /* The 'before' task allows the 'after' one to be done */
+    add_list(before, "ALLOW", after);
 
     do {
         if (after != before) {
@@ -647,13 +634,13 @@ require_task(vhash *step)
     vlist *depend;
     viter iter;
 
-    if ((depend = vh_pget(step, "DEPEND")) != NULL) {
-        v_iterate(depend, iter) {
-            before = vl_iter_pval(iter);
-            if (!vh_iget(before, "DONE")) {
-                return before;
-            }
-        }
+    if ((depend = vh_pget(step, "DEPEND")) == NULL)
+        return NULL;
+
+    v_iterate(depend, iter) {
+        before = vl_iter_pval(iter);
+        if (!vh_iget(before, "DONE"))
+            return before;
     }
 
     return NULL;
@@ -710,6 +697,7 @@ setup_tasks(void)
             if (vh_exists(step, "NEXT") && vh_pget(step, "NEXT") != tstep)
                 err("more than one task needs to follow '%s' immediately",
                     vh_sgetref(otask, "DESC"));
+
             order_tasks(step, tstep);
             vh_pstore(step, "NEXT", tstep);
             vh_pstore(tstep, "PREV", step);
@@ -890,8 +878,7 @@ setup_tasks(void)
                 item = vl_iter_pval(j);
                 vh_istore(item, "USED", 1);
 
-                room = vh_pget(item, "ROOM");
-                if (room != NULL) {
+                if ((room = vh_pget(item, "ROOM")) != NULL) {
                     get = vh_pget(item, "STEP");
                     order_tasks(get, tstep);
                 }
@@ -904,8 +891,7 @@ setup_tasks(void)
         if ((list = vh_pget(task, "GET")) != NULL) {
             v_iterate(list, j) {
                 item = vl_iter_pval(j);
-                room = vh_pget(item, "ROOM");
-                if (room != NULL) {
+                if ((room = vh_pget(item, "ROOM")) != NULL) {
                     get = vh_pget(item, "STEP");
                     add_list(item, "RTASKS", tstep);
                     order_tasks(tstep, get);
@@ -916,8 +902,7 @@ setup_tasks(void)
         if ((list = vh_pget(task, "GIVE")) != NULL) {
             v_iterate(list, j) {
                 item = vl_iter_pval(j);
-                room = vh_pget(item, "ROOM");
-                if (room != NULL) {
+                if ((room = vh_pget(item, "ROOM")) != NULL) {
                     get = vh_pget(item, "STEP");
                     add_list(item, "RTASKS", tstep);
                     order_tasks(tstep, get);
@@ -1281,9 +1266,8 @@ want_item(vhash *item)
     if ((kitems = vh_pget(item, "KEEP_WITH")) != NULL) {
         v_iterate(kitems, iter) {
             kitem = vl_iter_pval(iter);
-            if (!vh_exists(kitem, "TAKEN") || vh_iget(kitem, "TAKEN")) {
+            if (!vh_exists(kitem, "TAKEN") || vh_iget(kitem, "TAKEN"))
                 return 1;
-            }
         }
     }
 
@@ -1292,9 +1276,8 @@ want_item(vhash *item)
         v_iterate(tasks, iter) {
             task = vl_iter_pval(iter);
             step = vh_pget(task, "STEP");
-            if (!vh_iget(step, "DONE")) {
+            if (!vh_iget(step, "DONE"))
                 return 1;
-            }
         }
     }
 
@@ -1302,9 +1285,8 @@ want_item(vhash *item)
     if ((tasks = vh_pget(item, "TASKS")) != NULL) {
         v_iterate(tasks, iter) {
             task = vl_iter_pval(iter);
-            if (!vh_iget(task, "DONE")) {
+            if (!vh_iget(task, "DONE"))
                 return 1;
-            }
         }
     }
 
