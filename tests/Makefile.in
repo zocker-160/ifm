@@ -151,15 +151,15 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
 TESTS_ENVIRONMENT = SRCDIR=$(top_srcdir) BUILDDIR=$(top_builddir)
-SRCS = test-attr1.ifm test-attr2.ifm test-attr3.ifm test-before1.ifm	    \
-test-before2.ifm test-cmd.ifm test-do1.ifm test-do2.ifm test-do3.ifm	    \
-test-drop1.ifm test-drop2.ifm test-drop3.ifm test-drop4.ifm test-exit.ifm   \
-test-finish.ifm test-follow1.ifm test-follow2.ifm test-follow3.ifm	    \
-test-give1.ifm test-give2.ifm test-it.ifm test-join1.ifm test-join2.ifm	    \
-test-keep1.ifm test-keep2.ifm test-leave1.ifm test-leave2.ifm		    \
-test-link1.ifm test-link2.ifm test-lose.ifm test-nocmd.ifm test-nolink1.ifm \
-test-nolink2.ifm test-nopath.ifm test-note.ifm test-path.ifm		    \
-test-simple.ifm test-unsafe.ifm
+SRCS = test-attr1.ifm test-attr2.ifm test-attr3.ifm test-before1.ifm	   \
+test-before2.ifm test-cmd.ifm test-do1.ifm test-do2.ifm test-do3.ifm	   \
+test-drop1.ifm test-drop2.ifm test-drop3.ifm test-drop4.ifm test-exit.ifm  \
+test-finish.ifm test-follow1.ifm test-follow2.ifm test-follow3.ifm	   \
+test-follow4.ifm test-give1.ifm test-give2.ifm test-it.ifm test-join1.ifm  \
+test-join2.ifm test-keep1.ifm test-keep2.ifm test-leave1.ifm		   \
+test-leave2.ifm test-link1.ifm test-link2.ifm test-lose.ifm test-nocmd.ifm \
+test-nolink1.ifm test-nolink2.ifm test-nopath.ifm test-noroom.ifm	   \
+test-note.ifm test-path.ifm test-simple.ifm test-unsafe.ifm
 
 IFM = $(top_builddir)/src/ifm $(ARGS)
 ARGS = -I$(top_srcdir)/lib
