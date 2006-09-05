@@ -1,6 +1,6 @@
 #! /bin/sh
 
-$BUILDDIR/src/ifm -I$SRCDIR/lib -I$BUILDDIR/gpp -w -m -i -t -f raw 2>&1 > $BUILDDIR/tests/test-do1.out <<END
+$BUILDDIR/src/ifm -I$SRCDIR/lib -w -m -i -t -f raw 2>&1 > $BUILDDIR/tests/test-do1.out <<END
 # Test of task 'do' keyword.
 
 room "Room 1";

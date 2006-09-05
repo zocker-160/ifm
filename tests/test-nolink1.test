@@ -1,6 +1,6 @@
 #! /bin/sh
 
-$BUILDDIR/src/ifm -I$SRCDIR/lib -I$BUILDDIR/gpp -w -m -i -t -f raw 2>&1 > $BUILDDIR/tests/test-nolink1.out <<END
+$BUILDDIR/src/ifm -I$SRCDIR/lib -w -m -i -t -f raw 2>&1 > $BUILDDIR/tests/test-nolink1.out <<END
 # Test of map nolink attr.
 
 room "Room 1" tag R1;
