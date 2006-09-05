@@ -626,7 +626,8 @@ static void
 order_tasks(vhash *before, vhash *after)
 {
     vlist *allow, *depend;
-    vhash *start = after;
+    int count = 0;
+    vhash *step;
 
     /* Add the tasks */
     add_task(before);
@@ -638,15 +639,16 @@ order_tasks(vhash *before, vhash *after)
 
         /* The 'after' task (and previous ones in its follow-chain)
          * depends on the 'before' one */
-        while (after != NULL) {
-            if (after != before) {
-                add_list(after, "DEPEND", before);
+        for (step = after; step != NULL; step = vh_pget(step, "PREV")) {
+            if (step != before) {
+                add_list(step, "DEPEND", before);
                 solver_msg(2, "task order: do '%s' before '%s'",
                            vh_sgetref(before, "DESC"),
-                           vh_sgetref(after, "DESC"));
+                           vh_sgetref(step, "DESC"));
             }
 
-            if ((after = vh_pget(after, "PREV")) == start)
+            /* Infinite-loop paranoia check */
+            if (step == after && count++ > 0)
                 break;
         }
     }
