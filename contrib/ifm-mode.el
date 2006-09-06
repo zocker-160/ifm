@@ -27,9 +27,9 @@
 
 ;; Commentary:
 
-;; Major mode for editing Interactive Fiction Mapper (IFM) maps.
-;; The latest version is always available from IFM source code at:
-;; www.freewebtown.com/zondo/programs
+;; Major mode for editing Interactive Fiction Mapper (IFM) maps.  To enable
+;; it, put (require 'ifm-mode) in your .emacs file and make sure this file
+;; is in your lisp search path.
 
 ;; Change Log:
 
@@ -266,14 +266,15 @@ With prefix arg, write item list to file instead."
 
 (defun ifm-check ()
   "Run IFM and check for syntax errors."
-  ;; Run IFM in another buffer.
-  (ifm-run " *ifm check*" nil nil)
-
-  ;; Scan it for errors.
   (let ((line nil)
-	(msg nil))
+	(msg nil)
+	(buf " *ifm check*"))
+    ;; Run IFM in another buffer.
+    (ifm-run buf nil nil)
+
+    ;; Scan it for errors.
     (save-excursion
-      (set-buffer " *ifm check*")
+      (set-buffer buf)
       (goto-char (point-min))
       (if (string-match "error: .+line \\([0-9]+\\): \\(.+\\)" (buffer-string))
 	  (progn
@@ -301,12 +302,14 @@ VIEW is non-nil.  Pass ARGS to IFM."
   (apply 'call-process-region (point-min) (point-max)
 	 ifm-program nil buf t args)
 
-  ;; Write or display buffer.
+  ;; Write to file if required.
   (when file
       (save-excursion
 	(set-buffer buf)
-	(write-region (point-min) (point-max) file nil 'novisit)))
+	(write-region (point-min) (point-max) file nil 'novisit))
+      (message "Wrote %s" file))
 
+  ;; Display buffer if required.
   (when view
     (view-buffer buf)
     (bury-buffer buf)
