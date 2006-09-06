@@ -25,13 +25,13 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-;;; Commentary:
+;; Commentary:
 
 ;; Major mode for editing Interactive Fiction Mapper (IFM) maps.
 ;; The latest version is always available from IFM source code at:
 ;; www.freewebtown.com/zondo/programs
 
-;;; Change Log:
+;; Change Log:
 
 ;; Version 0.1 - 19 Apr 2001
 ;;   * First version.
@@ -42,11 +42,12 @@
 ;; Version 0.3 - 6 Sep 2006
 ;;   * Merge in code from Lee Bigelow <ligelowbee@yahoo.com> to do syntax
 ;;     checking and display maps, items and tasks.
+;;   * Add commands to display variables and map sections.
+;;   * Add customization group and variables.
 
 ;;; TODO:
 
 ;; Menus.
-;; Support for gv -watch.
 
 (defgroup ifm nil
   "Major mode for editing IFM Interactive Fiction Maps."
@@ -63,7 +64,7 @@
   :group 'ifm
   :type 'string)
 
-(defcustom ifm-viewer-args "-spartan -watch"
+(defcustom ifm-viewer-args "-spartan"
   "Extra arguments to invoke PostScript viewer with."
   :group 'ifm
   :type 'string)
@@ -136,14 +137,12 @@
 
 As well as highlighting the IFM syntax, this mode can run IFM to
 automatically generate the maps, item lists and task lists, and run a
-PostScript viewer to view the maps.
+PostScript viewer to view the maps.  You can set up the viewer to
+automatically watch for changes; see `ifm-show-maps' for more details.
 
 \\{ifm-mode-map}
 
-The PostScript viewer used is controlled by the 'ifm-viewer'
-variable.
-
-Calling this function invokes the function(s) listed in \"ifm-mode-hook\"
+Calling this function invokes the function(s) listed in `ifm-mode-hook'
 before doing anything else."
   (interactive)
   (kill-all-local-variables)
@@ -170,7 +169,14 @@ before doing anything else."
 
 (defun ifm-show-maps (arg)
   "Display IFM maps in a PostScript viewer.
-With prefix arg, write maps to PostScript file instead."
+With prefix arg, write maps to PostScript file instead.
+
+When viewing maps, a temporary file is written.  Then, if a viewer is not
+running, one is started (the program defined by `ifm-viewer').  Otherwise,
+nothing more is done.  If the PostScript viewer has the ability to watch
+files for changes (as does 'gv' for example) you can add the command-line
+argument to enable that in `ifm-viewer-args'.  For 'gv', that is either
+'-watch' or '--watch' depending on the program version."
   (interactive "P")
 
   (ifm-check)
