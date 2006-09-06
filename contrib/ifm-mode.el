@@ -70,7 +70,7 @@
   :group 'ifm
   :type 'string)
 
-(defcustom ifm-viewer-args "-spartan"
+(defcustom ifm-viewer-args ""
   "Extra arguments to invoke PostScript viewer with."
   :group 'ifm
   :type 'string)
