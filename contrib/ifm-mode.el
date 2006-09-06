@@ -45,9 +45,15 @@
 ;;   * Add commands to display variables and map sections.
 ;;   * Add customization group and variables.
 
-;;; TODO:
+;; TODO:
 
-;; Menus.
+;; Add display of user-selected map sections only.  Maybe scan map section
+;; output for section names at startup and add them to the menu, for just
+;; displaying that section.
+
+;; Code:
+
+(require 'easymenu)
 
 (defgroup ifm nil
   "Major mode for editing IFM Interactive Fiction Maps."
@@ -132,6 +138,17 @@
    (cons ifm-obsolete-regexp font-lock-warning-face))
   "Font-lock keywords in IFM mode.")
 
+(easy-menu-define ifm-mode-menu ifm-mode-map "IFM mode menu"
+ '("IFM"
+   ["Check syntax"            ifm-check-syntax t]
+   "---"
+   ["Show maps"               ifm-show-maps t]
+   ["Show items"              ifm-show-items t]
+   ["Show tasks"              ifm-show-tasks t]
+   "---"
+   ["Show map sections"       ifm-show-sections t]
+   ["Show variables"          ifm-show-vars t]))
+
 (defun ifm-mode ()
   "Major mode for editing Interactive Fiction maps in IFM format.
 
@@ -165,6 +182,12 @@ before doing anything else."
 
   ;; Activate keymap.
   (use-local-map ifm-mode-map)
+
+  ;; Set up font lock.
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults '(ifm-font-lock-keywords t))
+
+  ;; Run startup hooks.
   (run-hooks 'ifm-mode-hook))
 
 (defun ifm-show-maps (arg)
@@ -294,10 +317,5 @@ VIEW is non-nil.  Pass ARGS to IFM."
     (ifm-mode)))
 
 (add-hook 'find-file-hooks 'ifm-mode-after-find-file)
-
-(add-hook 'ifm-mode-hook
-	  (function (lambda ()
-		      (make-local-variable 'font-lock-defaults)
-		      (setq font-lock-defaults '(ifm-font-lock-keywords t)))))
 
 (provide 'ifm-mode)
