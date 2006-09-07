@@ -9,9 +9,9 @@ ifm.vim	        Support for IFM syntax colouring in vim (a vi clone),
 		has been partially updated for version 5.x of IFM, but
 		isn't yet complete.
 
-ifm-mode.el	GNU Emacs IFM mode.  This is a really bare-bones major
-		mode at the moment, and only exists so that syntax
-		highlighting can work on it.
+ifm-mode.el	GNU Emacs IFM mode, version 0.3.  Has syntax colouring and
+		checking, commands to display maps, items and tasks, and a
+		mode menu.
 
 rec2scr		Perl script which invokes the dumb-frotz interpreter
 		(available from the IF archive) to non-interactively
