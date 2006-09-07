@@ -1,15 +1,19 @@
 ****************************************************************************
-* Version 5.2                                                  25 May 2006 *
+* Version 5.2                                                   7 Sep 2006 *
 ****************************************************************************
 
 Additions
 =========
 
+* There's a new -errors option, which controls the maximum number of errors
+  printed before giving up.
+
 * New program in the 'contrib' directory: asciimapper.  This is a tool to
   create IFM maps from ASCII art maps, contributed by Elijah Griffin.
 
-* There's a new -errors option, which controls the maximum number of errors
-  printed before giving up.
+* The GNU Emacs ifm-mode.el in the 'contrib' directory has new commands to
+  display maps, items and tasks and various other things.  Based on an
+  initial version contributed by Lee Bigelow.
 
 Changes
 =======
@@ -25,7 +29,13 @@ Changes
 Bug fixes
 =========
 
+* An obscure bug has been fixed which involved the 'follow' and 'need'
+  attributes combined.  This caused some valid task orderings to be flagged
+  as cycles.
+
 * A bug with modification of room attributes has been fixed.
+
+* Don't crash when trying to solve game and there are no rooms.
 
 * A crash when trying to print an error message about cyclic task
   dependencies has been fixed.
