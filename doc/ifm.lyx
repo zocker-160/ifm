@@ -834,8 +834,7 @@ map
 \end_layout
 
 \begin_layout Standard
-In rare circumstances (e.g.\InsetSpace ~
-a three-dimensional maze) you may need to have
+In rare circumstances (e.g., a three-dimensional maze) you may need to have
  rooms on the same map section which are not connected to each other.
  The room 
 \family typewriter
@@ -2411,7 +2410,7 @@ ignore
  This means that anything dependent on those tasks or items will not be
  done either.
  The game will very probably be unsolvable as a result, unless you've ignored
- an unused item, or ignored a task that's done via a 
+ an unused item, or ignored a task that's done elsewhere via a 
 \family typewriter
 do
 \family default
@@ -7064,8 +7063,7 @@ ifm2tex [-m] [-i] [-t] [-- ifm-options] file
 The options indicate which combinations of things you want output (maps,
  items or tasks).
  Several files are written, whose names depend on the prefix of the input
- file (i.e.\InsetSpace ~
-minus its 
+ file (i.e., minus its 
 \family typewriter
 .ifm
 \family default
