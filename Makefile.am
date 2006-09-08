@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I etc
 
 SUBDIRS = fig src lib doc progs demos tests
 
-EXTRA_DIST = ANNOUNCE TO-DO
+EXTRA_DIST = TO-DO
 
 EXTRA_DIRS = etc contrib win32
 
