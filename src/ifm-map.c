@@ -195,13 +195,7 @@ resolve_tags(void)
 
         if (room != NULL) {
             vh_pstore(item, "ROOM", room);
-            list = vh_pget(room, "ITEMS");
-
-            if (list == NULL) {
-                list = vl_create();
-                vh_pstore(room, "ITEMS", list);
-            }
-
+            list = vh_add_list(room, "ITEMS");
             vl_ppush(list, item);
         }
     }
@@ -249,16 +243,8 @@ room_exit(vhash *room, int xoff, int yoff, int flag)
     if (xoff == 0 && yoff == 0)
         fatal("internal: invalid direction offset");
 
-    flags = vh_pget(room, "EXIT");
-    if (flags == NULL) {
-        if (!flag)
-            return;
-        flags = vh_create();
-        vh_pstore(room, "EXIT", flags);
-    }
-
+    flags = vh_add_hash(room, "EXIT");
     V_BUF_SET2("%d,%d", xoff, yoff);
-
     num = vh_iget(flags, V_BUF_VAL);
     num = V_MAX(num, 0);
 
@@ -451,23 +437,27 @@ setup_links(void)
                 /* Unitize direction */
                 if (xoff != 0)
                     xoff = (xoff > 0 ? 1 : -1);
+
                 if (yoff != 0)
                     yoff = (yoff > 0 ? 1 : -1);
 
                 /* Remove room exits */
                 if (count == 0)
                     room_exit(from, xoff, yoff, 0);
+
                 room_exit(to, -xoff, -yoff, 0);
 
                 /* Add final coordinates */
                 while (1) {
                     x += xoff;
                     y += yoff;
+
                     if (x == xt && y == yt)
                         break;
 
                     vl_ipush(xpos, x);
                     vl_ipush(ypos, y);
+
                     if ((other = room_at(num, x, y)) != NULL)
                         WARN_CROSS(other, from, to);
                 }
@@ -566,6 +556,7 @@ setup_sections(void)
         /* Find width and length of section */
         first = 1;
         list = vh_pget(sect, "ROOMS");
+
         v_iterate(list, j) {
             room = vl_iter_pval(j);
 
@@ -585,6 +576,7 @@ setup_sections(void)
         }
 
         list = vh_pget(sect, "LINKS");
+
         v_iterate(list, j) {
             link = vl_iter_pval(j);
 
@@ -608,6 +600,7 @@ setup_sections(void)
 
         /* Normalize all coordinates */
         list = vh_pget(sect, "ROOMS");
+
         v_iterate(list, j) {
             room = vl_iter_pval(j);
             x = vh_iget(room, "X");
@@ -617,6 +610,7 @@ setup_sections(void)
         }
 
         list = vh_pget(sect, "LINKS");
+
         v_iterate(list, j) {
             link = vl_iter_pval(j);
 

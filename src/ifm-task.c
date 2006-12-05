@@ -1359,10 +1359,7 @@ warn_failure(void)
         }
 
         /* Add it to list */
-        if ((list = vh_pget(reasons, V_BUF_VAL)) == NULL) {
-            list = vl_create();
-            vh_pstore(reasons, V_BUF_VAL, list);
-        }
+        list = vh_add_list(reasons, V_BUF_VAL);
 
         if (rdesc == NULL)
             V_BUF_SET(tdesc);
@@ -1377,14 +1374,16 @@ warn_failure(void)
                vh_sgetref(location, "DESC"));
 
     keys = vh_keys(reasons);
-    vl_sort(keys, NULL);
 
     v_iterate(keys, iter) {
         reason = vl_iter_svalref(iter);
+
         list = vh_pget(reasons, reason);
         entries = vl_join(list, ", ");
+
         list = vl_filltext(entries, 65);
         V_BUF_ADD1("   %s:\n", reason);
+
         v_iterate(list, iter)
             V_BUF_ADD1("      %s\n", vl_iter_svalref(iter));
     }

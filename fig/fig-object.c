@@ -137,13 +137,9 @@ fig_create_object(vhash *parent, int type)
     vh_istore(obj, "TYPE", type);
 
     if (parent != NULL) {
-        if ((objects = vh_pget(parent, "OBJECTS")) == NULL) {
-            objects = vl_create();
-            vh_pstore(parent, "OBJECTS", objects);
-        }
-
-        vl_ppush(objects, obj);
         vh_pstore(obj, "PARENT", parent);
+        objects = vh_add_list(parent, "OBJECTS");
+        vl_ppush(objects, obj);
     }
 
     return obj;
@@ -180,25 +176,13 @@ fig_create_point(vhash *parent, float x, float y)
     vlist *list;
     int num;
 
-    if ((list = vh_pget(parent, "XP")) == NULL) {
-        list = vl_create();
-        vh_pstore(parent, "XP", list);
-    }
-
+    list = vh_add_list(parent, "XP");
     vl_ipush(list, (int) (x * scale));
 
-    if ((list = vh_pget(parent, "YP")) == NULL) {
-        list = vl_create();
-        vh_pstore(parent, "YP", list);
-    }
-
+    list = vh_add_list(parent, "YP");
     vl_ipush(list, (int) (y * scale));
 
-    if ((list = vh_pget(parent, "SHAPE")) == NULL) {
-        list = vl_create();
-        vh_pstore(parent, "SHAPE", list);
-    }
-
+    list = vh_add_list(parent, "SHAPE");
     num = vl_length(list);
     vl_fpush(list, num == 0 ? 0.0 : 1.0);
 

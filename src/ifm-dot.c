@@ -102,11 +102,7 @@ dot_task_finish(void)
         room = vh_pget(step, "ROOM");
         name = room ? vh_sgetref(room, "DESC") : "";
 
-        if ((list = vh_pget(rooms, name)) == NULL) {
-            list = vl_create();
-            vh_pstore(rooms, name, list);
-        }
-
+        list = vh_add_list(rooms, name);
         vl_spush(list, node);
     }
 

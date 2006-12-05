@@ -283,8 +283,7 @@ room_attr	: TAG ID
                         vh_pstore(curobj, "DIR", curdirs);
                         curdirs = NULL;
 
-                        room = vh_pget(roomtags, $4);
-                        if (room != NULL)
+                        if ((room = vh_pget(roomtags, $4)) != NULL)
                             vh_pstore(curobj, "NEAR", room);
                         else
                             err("room tag '%s' not yet defined", $4);

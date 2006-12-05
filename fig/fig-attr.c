@@ -59,10 +59,7 @@ fig_lookup_colour(vhash *object, float r, float g, float b)
     int id;
 
     figure = fig_get_figure(object);
-    if ((colours = vh_pget(figure, "COLOURS")) == NULL) {
-        colours = vh_create();
-        vh_pstore(figure, "COLOURS", colours);
-    }
+    colours = vh_add_hash(figure, "COLOURS");
 
     sprintf(cbuf, "#%02x%02x%02x",
             (int) (r * 255), (int) (g * 255), (int) (b * 255));
@@ -205,12 +202,6 @@ fig_set_papersize(vhash *figure, char *size)
 void
 fig_set_shape(vhash *object, int num, float shape)
 {
-    vlist *list;
-
-    if ((list = vh_pget(object, "SHAPE")) == NULL) {
-        list = vl_create();
-        vh_pstore(object, "SHAPE", list);
-    }
-
+    vlist *list = vh_add_list(object, "SHAPE");
     vl_fstore(list, num, shape);
 }

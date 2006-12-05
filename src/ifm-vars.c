@@ -89,7 +89,6 @@ load_styles(void)
         return;
 
     list = vh_keys(rstyles);
-    vl_sort(list, NULL);
 
     v_iterate(list, iter) {
         name = vl_iter_svalref(iter);
@@ -102,6 +101,8 @@ load_styles(void)
         if (!vh_exists(styles, name))
             warn("style '%s' referenced but not defined", name);
     }
+
+    vl_destroy(list);
 }
 
 /* Push a style onto the style list */
@@ -182,14 +183,10 @@ set_style(char *name)
 {
     INIT_VARS;
 
-    if (name != NULL && strlen(name) > 0) {
-        if ((cvars = vh_pget(styles, name)) == NULL) {
-            cvars = vh_create();
-            vh_pstore(styles, name, cvars);
-        }
-    } else {
+    if (name != NULL && strlen(name) > 0)
+        cvars = vh_add_hash(styles, name);
+    else
         cvars = nvars;
-    }
 }
 
 /* Set the current style list */

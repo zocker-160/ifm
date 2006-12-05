@@ -58,10 +58,7 @@ add_attr(vhash *obj, char *attr, char *fmt, ...)
     V_BUF_DECL;
     char *str;
 
-    if ((list = vh_pget(obj, attr)) == NULL) {
-        list = vl_create();
-        vh_pstore(obj, attr, list);
-    }
+    list = vh_add_list(obj, attr);
 
     if (fmt != NULL) {
         V_BUF_FMT(fmt, str);
@@ -77,11 +74,7 @@ add_list(vhash *obj, char *attr, vhash *thing)
 {
     vlist *list;
 
-    if ((list = vh_pget(obj, attr)) == NULL) {
-        list = vl_create();
-        vh_pstore(obj, attr, list);
-    }
-
+    list = vh_add_list(obj, attr);
     vl_ppush(list, thing);
 }
 
