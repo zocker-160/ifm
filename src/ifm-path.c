@@ -17,7 +17,7 @@
 
 #define NODE(room)           vh_sgetref(room, "NODE")
 
-#define PATH_LIST(r1, r2)    vg_path_list(graph, NODE(r1), NODE(r2))
+#define PATH_NODES(r1, r2)   vg_path_nodes(graph, NODE(r1), NODE(r2))
 #define PATH_INFO(r1, r2)    vg_path_info(graph, NODE(r1), NODE(r2))
 #define PATH_LENGTH(r1, r2)  ((int) vg_path_length(graph, NODE(r1), NODE(r2)))
 
@@ -347,7 +347,7 @@ get_path(vhash *step, vhash *room)
     vh_delete(step, "PATH");
 
     if (list == NULL)
-        list = PATH_LIST(path_room, room);
+        list = PATH_NODES(path_room, room);
 
     if (list == NULL)
         return NULL;
