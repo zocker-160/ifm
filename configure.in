@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Initialize autoconf.
-AC_INIT(ifm, 5.3, zondo42@googlemail.com)
+AC_INIT(ifm, 5.2, zondo42@googlemail.com)
 AC_CONFIG_SRCDIR(src/ifm-main.c)
 AC_CONFIG_AUX_DIR(etc)
 
@@ -9,8 +9,15 @@ dnl Initialize automake.
 AM_INIT_AUTOMAKE(foreign)
 
 dnl Check for Vars library.
-AM_CONFIG_LIB(Vars, VARS, vars-config, 3.1,
-the Vars library is required -- get it from www.freewebtown.com/zondo/programs)
+if test -d $srcdir/vars; then
+    AC_CONFIG_SUBDIRS(vars)
+    AC_SUBST(VARS_CFLAGS)
+    AC_SUBST(VARS_LIBS)
+    VARS_CFLAGS='-I$(top_srcdir)/vars/src'
+    VARS_LIBS='-L$(top_builddir)/vars/src/.libs -lvars -lm'
+else
+    AM_CONFIG_LIB(Vars, VARS, vars-config, 3.1, the Vars library is required -- get it from www.freewebtown.com/zondo/programs)
+fi
 
 dnl Checks for programs.
 AC_PROG_CC

@@ -24,8 +24,8 @@ Building IFM
 ************
 
 To build IFM from source, either on Linux or Windows under Cygwin, you'll
-need the Vars library (also written by me) to be installed.  You can get it
-at:
+need the Vars library (also written by me) to be installed.  If it's not
+bundled with IFM in the 'vars' subdirectory, you can get it at:
 
     http://www.freewebtown.com/zondo/programs
 
