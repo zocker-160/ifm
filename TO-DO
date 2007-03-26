@@ -1,6 +1,6 @@
-* IFM to-do list
+# IFM TO-DO list, in -*- org -*- mode.
 
-** General
+* General
 
 BUG: order matters with -S option.  Try -S reckless -S verbose in different
 order -- only 1 takes effect.
@@ -21,7 +21,7 @@ more accurate error location.
 Simplify driver interface.  It's a mess.  Maybe remove dependence on Vars
 knowledge.
 
-** Maps
+* Maps
 
 How about a 'label' keyword, like rooms, that puts arbitrary text on the
 page (like admap does)?  Specify its offset from a given room, its
@@ -40,13 +40,13 @@ stuff.
 
 How about GTK driver?
 
-** Items
+* Items
 
 How about item flag: actor, which indicates that when got, they're
 following you -- you don't pick them up.  So they shouldn't count in
 inventory management.
 
-** Tasks
+* Tasks
 
 BUG: Nasty problem with 'leave': see leave-bug.ifm.  How to fix it?  One
 possibility is to warn about it when doing movement -- if you ever move
@@ -86,7 +86,7 @@ Change T_<attr> to G_<attr>, and T_USER to G_DO.
 
 How about Dave's item-state idea?
 
-** PostScript driver
+* PostScript driver
 
 Implement 'link_spline' using curveto, if poss.
 
@@ -96,13 +96,13 @@ Make overlapping stuff look less cryptic.
 
 Fix roomitemratio like Tk version.  Maybe have this as a control var.
 
-** Fig driver
+* Fig driver
 
 BUG: output don't start at the origin -- why?
 
 Updown/inout overlaps line.  Need border box in page background colour.
 
-** Text driver
+* Text driver
 
 Merge multiple identical tasks into one, with (%d times) appended.
 
@@ -126,7 +126,7 @@ room_char_size or something.  Also need some width/height ratio variable so
 that if room_width and room_height are the same, the box looks square on
 output.
 
-** Tkifm
+* Tkifm
 
 Rewrite it in python!
 
@@ -153,7 +153,7 @@ wants to skip rest of messages.
 
 How about dump-window-to-ps option, using canvas ps command?
 
-** Scr2ifm
+* Scr2ifm
 
 How about a general perl module for building ifm input?  Methods:
     room(desc, args)	define a new room (returns id)
@@ -171,7 +171,7 @@ Maybe phase out vars altogether and replace with commands.
 
 Add command stripping regexp (eg to dispose of 'go').
 
-** Rec2scr
+* Rec2scr
 
 How about using the innate script facility of dumb-frotz instead of
 capturing stdout?  Or maybe an option to that effect.
