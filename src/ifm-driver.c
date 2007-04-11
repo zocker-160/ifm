@@ -264,7 +264,7 @@ print_items(int dnum)
 {
     driver drv = drivers[dnum];
     itemfuncs *func = drv.ifunc;
-    vlist *items, *sorted;
+    vlist *items;
     vhash *item;
     viter iter;
 
@@ -277,15 +277,12 @@ print_items(int dnum)
         func->item_start();
 
     if (func->item_entry != NULL) {
-        sorted = vl_sort(items, itemsort);
-
-        v_iterate(sorted, iter) {
+        vl_sort(items, itemsort);
+        v_iterate(items, iter) {
             item = vl_iter_pval(iter);
             set_style_list(vh_pget(item, "STYLE"));
             func->item_entry(item);
         }
-
-        vl_destroy(sorted);
     }
 
     if (func->item_finish != NULL)
