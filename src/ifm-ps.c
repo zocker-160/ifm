@@ -120,9 +120,6 @@ ps_map_start(void)
     put_string("%%%%Title: %s\n", title);
     printf("%%%%Creator: IFM v%s\n", VERSION);
     printf("%%%%Pages: %d\n", num_pages);
-    printf("%%%%BeginSetup\n");
-    printf("%%%%IncludeFeature: *PageSize %s\n", page_size);
-    printf("%%%%EndSetup\n");
     printf("%%%%EndComments\n\n");
 
     /* Print PostScript prolog */
@@ -194,7 +191,7 @@ ps_map_section(vhash *sect)
             printf("endpage\n");
 
         ps_pagenum = page;
-        printf("\n%%%%Page: %d\n\n", ps_pagenum);
+        printf("\n%%%%Page: %d %d\n\n", ps_pagenum, ps_pagenum);
 
         rotate = (ps_rotflag ? ps_rotate : vh_iget(sect, "ROTATE"));
 
