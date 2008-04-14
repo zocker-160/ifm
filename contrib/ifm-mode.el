@@ -6,7 +6,7 @@
 ;; Maintainer: Glenn Hutchings <zondo42@googlemail.com>
 ;; Created: 19 Apr 2001
 ;; Description: IFM map editing mode.
-;; Version 0.3 (6 Sep 2006)
+;; Version 0.4 (11 Apr 2008)
 
 ;; This file is not part of GNU Emacs.
 
@@ -44,6 +44,11 @@
 ;;     checking and display maps, items and tasks.
 ;;   * Add commands to display variables and map sections.
 ;;   * Add customization group and variables.
+;;
+;; Version 0.4 - 11 Apr 2008
+;;   * Add ifm-program-args with default "-nowarn" to avoid warnings getting
+;;     printed to temporary PostScript files.
+;;   * Add flymake support.
 
 ;; TODO:
 
@@ -54,6 +59,7 @@
 ;; Code:
 
 (require 'easymenu)
+(require 'flymake)
 
 (defgroup ifm nil
   "Major mode for editing IFM Interactive Fiction Maps."
@@ -62,6 +68,11 @@
 
 (defcustom ifm-program "ifm"
   "IFM program to run."
+  :group 'ifm
+  :type 'string)
+
+(defcustom ifm-program-args "-nowarn"
+  "Extra arguments to pass to IFM program."
   :group 'ifm
   :type 'string)
 
@@ -300,7 +311,7 @@ VIEW is non-nil.  Pass ARGS to IFM."
 
   ;; Run IFM on current buffer.
   (apply 'call-process-region (point-min) (point-max)
-	 ifm-program nil buf t args)
+	 ifm-program nil buf t ifm-program-args args)
 
   ;; Write to file if required.
   (when file
@@ -320,5 +331,20 @@ VIEW is non-nil.  Pass ARGS to IFM."
     (ifm-mode)))
 
 (add-hook 'find-file-hooks 'ifm-mode-after-find-file)
+
+(defun flymake-ifm-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+		     'flymake-create-temp-inplace))
+     	 (local-file (file-relative-name
+		      temp-file
+		      (file-name-directory buffer-file-name))))
+    (list ifm-program (list local-file))))
+
+(setq flymake-allowed-file-name-masks
+      (cons '(".+\\.ifm$"
+	      flymake-ifm-init
+	      flymake-simple-cleanup
+	      flymake-get-real-file-name)
+	    flymake-allowed-file-name-masks))
 
 (provide 'ifm-mode)
