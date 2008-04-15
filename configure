@@ -1838,13 +1838,13 @@ _ACEOF
    VARS_LIBS="`$VARS_CONFIG --libs`"
 
 elif test -n "3.3"; then
-   if test -z "the Vars library is required -- get it from www.freewebtown.com/zondo/programs"; then
+   if test -z ""; then
       { { echo "$as_me:$LINENO: error: can't find Vars library" >&5
 echo "$as_me: error: can't find Vars library" >&2;}
    { (exit 1); exit 1; }; }
    else
-      { { echo "$as_me:$LINENO: error: the Vars library is required -- get it from www.freewebtown.com/zondo/programs" >&5
-echo "$as_me: error: the Vars library is required -- get it from www.freewebtown.com/zondo/programs" >&2;}
+      { { echo "$as_me:$LINENO: error: " >&5
+echo "$as_me: error: " >&2;}
    { (exit 1); exit 1; }; }
    fi
 fi

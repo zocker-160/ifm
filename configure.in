@@ -17,7 +17,7 @@ if test -d $srcdir/vars; then
     VARS_CFLAGS='-I$(top_srcdir)/vars/src'
     VARS_LIBS='$(top_builddir)/vars/src/.libs/libvars.a -lm'
 else
-    AM_CONFIG_LIB(Vars, VARS, vars-config, 3.3, the Vars library is required -- get it from www.freewebtown.com/zondo/programs)
+    AM_CONFIG_LIB(Vars, VARS, vars-config, 3.3)
 fi
 
 dnl Checks for programs.
