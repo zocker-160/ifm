@@ -23,14 +23,8 @@ edited using Xfig, or converted into many other formats.
 Building IFM
 ************
 
-To build IFM from source, either on Linux or Windows under Cygwin, you'll
-need the Vars library (also written by me) to be installed.  If it's not
-bundled with IFM in the 'vars' subdirectory, you can get it at:
-
-    http://www.freewebtown.com/zondo/programs
-
-After that, see the file INSTALL for installation details.  But it
-basically boils down to:
+See the file INSTALL for installation details.  But it basically boils down
+to:
 
     ./configure
     make
@@ -39,17 +33,14 @@ basically boils down to:
 Existing IFM Maps
 *****************
 
-Dave Chapeskie (dchapes@ddm.wox.org) has set up a web page of IFM maps, in
-source and PostScript format, at
+There's a web page set up by Dave Chapeskie (dchapes@ddm.wox.org) which has
+IFM maps in source and PostScript format, at
 
       http://www.sentex.net/~dchapes/ifm
 
 At the moment it contains maps of a few Infocom and Inform games.  Some are
 complete, others not quite.  A few have tasks set up so that a walkthrough
-can be made.
-
-If you produce any maps worthy of distribution, or more complete versions
-of those already there, he will be glad to add them to his page.
+can be made.  The site hasn't been updated for a while.
 
 In addition, the 'demos' subdirectory contains some demonstration maps that
 don't give away secrets from real games.
