@@ -57,6 +57,11 @@
 ;; output for section names at startup and add them to the menu, for just
 ;; displaying that section.
 
+;; BUGS:
+
+;; Imenu doesn't work properly with IFM room/item/task strings containing
+;; backslashes.
+
 ;; Code:
 
 (require 'easymenu)
@@ -109,14 +114,15 @@
 
 (defvar ifm-mode-hook '())
 
-(defconst ifm-string-regexp "[ \t]+\"\\([^\"]+\\)\"")
+(defconst ifm-string-regexp "[ \t]+\"\\(.+?\\)\"")
 
 (defconst ifm-imenu-generic-expression
   (list
-   (list "Tasks" (concat "task" ifm-string-regexp) 1)
-   (list "Items" (concat "item" ifm-string-regexp) 1)
-   (list "Rooms" (concat "room" ifm-string-regexp) 1)
-   (list "Maps"  (concat "map"  ifm-string-regexp) 1))
+   (list "Styles" "^style[\t ]+\\([A-Za-z0-9_]+\\)" 1)
+   (list "Tasks"  (concat "task" ifm-string-regexp) 1)
+   (list "Items"  (concat "item" ifm-string-regexp) 1)
+   (list "Rooms"  (concat "room" ifm-string-regexp) 1)
+   (list "Maps"   (concat "map"  ifm-string-regexp) 1))
   "Imenu builder.")
 
 (defconst ifm-structure-regexp
