@@ -114,16 +114,19 @@
 
 (defvar ifm-mode-hook '())
 
+(defconst ifm-id-regexp "[\t ]+\\([A-Za-z0-9_]+\\)")
+
 (defconst ifm-string-regexp "[ \t]+\"\\(.+?\\)\"")
 
 (defconst ifm-imenu-generic-expression
   (list
-   (list "Styles" "^style[\t ]+\\([A-Za-z0-9_]+\\)" 1)
-   (list "Tasks"  (concat "task" ifm-string-regexp) 1)
-   (list "Items"  (concat "item" ifm-string-regexp) 1)
-   (list "Rooms"  (concat "room" ifm-string-regexp) 1)
-   (list "Maps"   (concat "map"  ifm-string-regexp) 1))
-  "Imenu builder.")
+   (list "Styles" (concat "^style" ifm-id-regexp)     1)
+   (list "Tags"   (concat "tag"    ifm-id-regexp)     1)
+   (list "Tasks"  (concat "task"   ifm-string-regexp) 1)
+   (list "Items"  (concat "item"   ifm-string-regexp) 1)
+   (list "Rooms"  (concat "room"   ifm-string-regexp) 1)
+   (list "Maps"   (concat "map"    ifm-string-regexp) 1))
+  "Imenu expression for building IFM index.")
 
 (defconst ifm-structure-regexp
   (regexp-opt '("room") 'words)
