@@ -45,7 +45,8 @@
 ;;   * Add commands to display variables and map sections.
 ;;   * Add customization group and variables.
 ;;
-;; Version 0.4 - 11 Apr 2008
+;; Version 0.4 - 20 May 2008
+;;   * Add commands to show recording and debugging task output.
 ;;   * Add ifm-program-args with default "-nowarn" to avoid warnings getting
 ;;     printed to temporary PostScript files.
 ;;   * Add flymake support.
@@ -96,6 +97,8 @@
     (define-key map "\C-c\C-m" 'ifm-show-maps)
     (define-key map "\C-c\C-i" 'ifm-show-items)
     (define-key map "\C-c\C-t" 'ifm-show-tasks)
+    (define-key map "\C-c\C-r" 'ifm-show-tasks-rec)
+    (define-key map "\C-c\C-d" 'ifm-show-tasks-debug)
     (define-key map "\C-c\C-s" 'ifm-show-sections)
     (define-key map "\C-c\C-v" 'ifm-show-vars)
     (setq ifm-mode-map map)))
@@ -155,7 +158,10 @@
    "---"
    ["Show maps"               ifm-show-maps t]
    ["Show items"              ifm-show-items t]
+   "---"
    ["Show tasks"              ifm-show-tasks t]
+   ["Show tasks (recording)"  ifm-show-tasks-rec t]
+   ["Show tasks (debugging)"  ifm-show-tasks-debug t]
    "---"
    ["Show map sections"       ifm-show-sections t]
    ["Show variables"          ifm-show-vars t]))
@@ -244,6 +250,30 @@ With prefix arg, write item list to file instead."
 		  (ifm-get-filename "Task list file" "-tasks.txt" arg)
 		nil)))
     (ifm-run "*IFM tasks*" file (not file) "-tasks")))
+
+(defun ifm-show-tasks-rec (arg)
+  "Show IFM task list as a game recording in another window.
+With prefix arg, write item list to file instead."
+  (interactive "P")
+  (ifm-check)
+
+  (let ((file (if arg
+		  (ifm-get-filename "Task list file" "-tasks-rec.txt" arg)
+		nil)))
+    (ifm-run "*IFM tasks (recording)*" file (not file)
+	     "-tasks" "-format" "rec")))
+
+(defun ifm-show-tasks-debug (arg)
+  "Show IFM task list with debugging info in another window.
+With prefix arg, write item list to file instead."
+  (interactive "P")
+  (ifm-check)
+
+  (let ((file (if arg
+		  (ifm-get-filename "Task list file" "-tasks-debug.txt" arg)
+		nil)))
+    (ifm-run "*IFM tasks (debugging)*" file (not file)
+	     "-tasks" "-style" "verbose")))
 
 (defun ifm-show-sections ()
   "Show IFM map sections in another window."
