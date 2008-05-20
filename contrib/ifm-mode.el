@@ -33,11 +33,11 @@
 
 ;; Change Log:
 
-;; Version 0.1 - 19 Apr 2001
-;;   * First version.
-;;
-;; Version 0.2 - 9 Jul 2002
-;;   * Use font-lock mode.
+;; Version 0.4 - 20 May 2008
+;;   * Add commands to show recording and debugging task output.
+;;   * Add ifm-program-args with default "-nowarn" to avoid warnings getting
+;;     printed to temporary PostScript files.
+;;   * Add imenu and flymake support.
 ;;
 ;; Version 0.3 - 6 Sep 2006
 ;;   * Merge in code from Lee Bigelow <ligelowbee@yahoo.com> to do syntax
@@ -45,11 +45,11 @@
 ;;   * Add commands to display variables and map sections.
 ;;   * Add customization group and variables.
 ;;
-;; Version 0.4 - 20 May 2008
-;;   * Add commands to show recording and debugging task output.
-;;   * Add ifm-program-args with default "-nowarn" to avoid warnings getting
-;;     printed to temporary PostScript files.
-;;   * Add flymake support.
+;; Version 0.2 - 9 Jul 2002
+;;   * Use font-lock mode.
+;;
+;; Version 0.1 - 19 Apr 2001
+;;   * First version.
 
 ;; TODO:
 
@@ -60,6 +60,7 @@
 ;; Code:
 
 (require 'easymenu)
+(require 'imenu)
 (require 'flymake)
 
 (defgroup ifm nil
@@ -107,6 +108,16 @@
   "Syntax table used in IFM mode.")
 
 (defvar ifm-mode-hook '())
+
+(defconst ifm-string-regexp "[ \t]+\"\\([^\"]+\\)\"")
+
+(defconst ifm-imenu-generic-expression
+  (list
+   (list "Tasks" (concat "task" ifm-string-regexp) 1)
+   (list "Items" (concat "item" ifm-string-regexp) 1)
+   (list "Rooms" (concat "room" ifm-string-regexp) 1)
+   (list "Maps"  (concat "map"  ifm-string-regexp) 1))
+  "Imenu builder.")
 
 (defconst ifm-structure-regexp
   (regexp-opt '("room") 'words)
@@ -203,6 +214,10 @@ before doing anything else."
   ;; Set up font lock.
   (make-local-variable 'font-lock-defaults)
   (setq font-lock-defaults '(ifm-font-lock-keywords t))
+
+  ;; Set up imenu.
+  (setq imenu-generic-expression ifm-imenu-generic-expression)
+  (imenu-add-menubar-index)
 
   ;; Run startup hooks.
   (run-hooks 'ifm-mode-hook))
