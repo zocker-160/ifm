@@ -29,4 +29,4 @@ Colon-separated list of extra directories to search for include files.
 
 [FILES]
 .IP \fC$HOME/.ifmrc\fP
-User resource file (\fCifm.ini\fP on Windoze).
+User resource file.
