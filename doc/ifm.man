@@ -18,8 +18,8 @@ IFM can write hardcopy maps directly to PostScript, suitable for printing
 or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
-This man page just presents a summary of the command-line options.
-Detailed documentation on how to use IFM can be found in the in the
+This man page just presents a summary of the command-line options.  Online
+documentation on how to use IFM can be found in the
 .B SEE ALSO
 section.
 
