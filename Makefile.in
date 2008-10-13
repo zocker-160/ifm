@@ -15,8 +15,6 @@
 @SET_MAKE@
 
 # Common Makefile targets.
-
-# Show recent source changes.
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -175,9 +173,13 @@ target_alias = @target_alias@
 tkifm = @tkifm@
 AUTOMAKE_OPTIONS = check-news
 ACLOCAL_AMFLAGS = -I etc
-SUBDIRS = $(subdirs) fig src lib doc progs demos tests
+SUBDIRS = $(subdirs) fig src lib doc man progs demos tests
 EXTRA_DIST = COPYING.DOC TO-DO
 EXTRA_DIRS = etc contrib win32
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
+
+# Show recent source changes.
 DAYS = 7
 all: all-recursive
 

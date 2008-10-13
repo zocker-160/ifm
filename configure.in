@@ -89,6 +89,7 @@ doc/Makefile
 doc/conf.py
 fig/Makefile
 lib/Makefile
+man/Makefile
 progs/Makefile
 src/Makefile
 tests/Makefile
