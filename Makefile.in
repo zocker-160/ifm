@@ -41,9 +41,9 @@ build_triplet = @build@
 host_triplet = @host@
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
-	$(top_srcdir)/etc/Makefile.common COPYING INSTALL NEWS THANKS \
-	etc/config.guess etc/config.sub etc/depcomp etc/install-sh \
-	etc/ltmain.sh etc/missing etc/mkinstalldirs
+	$(top_srcdir)/etc/Makefile.common COPYING COPYING.DOC INSTALL \
+	NEWS THANKS etc/config.guess etc/config.sub etc/depcomp \
+	etc/install-sh etc/ltmain.sh etc/missing etc/mkinstalldirs
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
@@ -176,7 +176,7 @@ tkifm = @tkifm@
 AUTOMAKE_OPTIONS = check-news
 ACLOCAL_AMFLAGS = -I etc
 SUBDIRS = $(subdirs) fig src lib doc progs demos tests
-EXTRA_DIST = TO-DO
+EXTRA_DIST = COPYING.DOC TO-DO
 EXTRA_DIRS = etc contrib win32
 DAYS = 7
 all: all-recursive

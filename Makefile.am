@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I etc
 
 SUBDIRS = $(subdirs) fig src lib doc progs demos tests
 
-EXTRA_DIST = TO-DO
+EXTRA_DIST = COPYING.DOC TO-DO
 
 EXTRA_DIRS = etc contrib win32
 
