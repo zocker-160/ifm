@@ -1,14 +1,14 @@
-A big thanks to Dave Chapeskie (dchapes@ddm.wox.org) for lots of great
-suggestions for improving IFM, and also for setting up a web page of IFM
-maps (www.sentex.net/~dchapes/ifm).
+* A big thanks to Dave Chapeskie (dchapes@ddm.wox.org) for lots of great
+  suggestions for improving IFM.
 
-Thanks to Dan Eble (eble@ticalc.org) for patches to improve PostScript
-output, and a bug fix.
+* Thanks to Dan Eble (eble@ticalc.org) for patches to improve PostScript
+  output, and a bug fix.
 
-Thanks to Lee Bigelow (ligelowbee@yahoo.com) for enhancements to the GNU
-Emacs IFM mode.
+* Thanks to Lee Bigelow (ligelowbee@yahoo.com) for enhancements to the GNU
+  Emacs IFM mode.
 
-Thanks to Elijah Griffin for asciimapper.
+* Thanks to Elijah Griffin (asciimapper@eli.users.panix.com) for
+  ``asciimapper``.
 
 .. Local Variables:
 .. mode: rst
