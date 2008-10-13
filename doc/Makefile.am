@@ -33,20 +33,21 @@ guide: html
 
 force:; @ rm -rf $(HTMLDIR); $(MAKE) all
 
-SPHINX = sphinx-build -N
+SPHINX = sphinx-build -N -d $(DOCTREES)
 SPHINXOPTS = 
+DOCTREES = $(srcdir)/doctrees
 
-setup:;	@ mkdir -p $(HTMLDIR)/.doctrees $(HTMLDIR)/.linkcheck
+setup:;	@ mkdir -p $(HTMLDIR) $(DOCTREES)
 
 html: setup conf.py logo.png
-	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)
+	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(HTMLDIR)
 
 latex: conf.py
 	@ mkdir -p $(LATEXDIR)
-	$(SPHINX) -b $@ $(SPHINXOPTS) . $(LATEXDIR)
+	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(LATEXDIR)
 
 linkcheck: setup conf.py
-	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)/.linkcheck
+	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(DOCTREES)
 
 # Man page.
 
