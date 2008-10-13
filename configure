@@ -1719,6 +1719,7 @@ am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 
 
 if test -d $srcdir/vars; then
+    chmod u+w $srcdir/vars/etc
     touch $srcdir/vars/etc/noinstall
 
 

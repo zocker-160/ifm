@@ -86,7 +86,7 @@ $(ifmdocdir):
 
 # Distribution stuff.
 
-EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates
+EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates logo.png
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(htmldir); then					\

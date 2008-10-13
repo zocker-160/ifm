@@ -10,6 +10,7 @@ AM_INIT_AUTOMAKE(foreign)
 
 dnl Check for Vars library.
 if test -d $srcdir/vars; then
+    chmod u+w $srcdir/vars/etc
     touch $srcdir/vars/etc/noinstall
     AC_CONFIG_SUBDIRS(vars)
     AC_SUBST(VARS_CFLAGS)

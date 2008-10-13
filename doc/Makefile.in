@@ -177,7 +177,7 @@ MAN_TITLE = Interactive Fiction Mapper
 man_MANS = ifm.1
 
 # Distribution stuff.
-EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates
+EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates logo.png
 DAYS = 7
 all: all-am
 
