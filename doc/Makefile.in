@@ -160,7 +160,7 @@ htmldir = $(builddir)/html
 latexdir = $(builddir)/latex
 sphinxdir = $(builddir)/sphinx
 
-# Documenation sources.
+# Documentation sources.
 DOCFILES = changes.rst diagnostics.rst ifm2dev.rst ifm2tex.rst index.rst \
 intro.rst language.rst license.rst maps.rst programs.rst scr2ifm.rst	 \
 solving.rst tkifm.rst usage.rst
@@ -169,8 +169,9 @@ solving.rst tkifm.rst usage.rst
 # Programs.
 IFM = $(top_srcdir)/src/ifm -s version="$(VERSION)"
 IFMCMD = $(IFM) -I $(top_srcdir)/lib
-HELP2MAN = $(top_srcdir)/etc/missing --run help2man -N -n "$(MAN_TITLE)"
-SPHINX = sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
+HELP2MAN = $(OPTIONAL) help2man -N -n "$(MAN_TITLE)"
+SPHINX = $(OPTIONAL) sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
+OPTIONAL = $(top_srcdir)/etc/missing --run
 
 # Man page.
 MAN_TITLE = Interactive Fiction Mapper
@@ -334,7 +335,7 @@ clean-am: clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-local
+distclean-am: clean-am distclean-generic
 
 dvi: dvi-am
 
@@ -379,19 +380,15 @@ uninstall-am: uninstall-info-am uninstall-man
 uninstall-man: uninstall-man1
 
 .PHONY: all all-am check check-am clean clean-generic dist-hook \
-	distclean distclean-generic distclean-local distdir dvi dvi-am \
-	html html-am info info-am install install-am install-data \
-	install-data-am install-data-hook install-exec install-exec-am \
-	install-info install-info-am install-man install-man1 \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-hook uninstall-info-am uninstall-man uninstall-man1
+	distclean distclean-generic distdir dvi dvi-am html html-am \
+	info info-am install install-am install-data install-data-am \
+	install-data-hook install-exec install-exec-am install-info \
+	install-info-am install-man install-man1 install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am uninstall uninstall-am uninstall-hook \
+	uninstall-info-am uninstall-man uninstall-man1
 
-
-# Main targets.
-
-all: guide manpage
 
 # User guide.
 
@@ -401,17 +398,20 @@ guide: html
 
 force:; @ rm -rf $(htmldir); $(MAKE) all
 
-setup:;	@ mkdir -p $(htmldir) $(sphinxdir)
-
-html: setup conf.py logo.png
+html: setup
 	$(SPHINX) -b $@ $(srcdir) $(htmldir)
 
-latex: conf.py
-	@ mkdir -p $(latexdir)
+latex: setup
 	$(SPHINX) -b $@ $(srcdir) $(latexdir)
 
-linkcheck: setup conf.py
+linkcheck: setup
 	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
+
+setup:;	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir)
+	@ for file in conf.py logo.png; do				\
+	    path=$(builddir)/$$file;					\
+	    test -f $$path || ln -s $(srcdir)/$$file $$path;		\
+	done
 
 manpage: ifm.1
 
@@ -452,8 +452,6 @@ dist-doc: $(EXTRA_DIST)
 	fi
 
 # Other stuff.
-
-distclean-local: clean-doc
 
 install-data-hook: install-doc
 

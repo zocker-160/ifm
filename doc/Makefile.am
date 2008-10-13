@@ -7,7 +7,7 @@ htmldir = $(builddir)/html
 latexdir = $(builddir)/latex
 sphinxdir = $(builddir)/sphinx
 
-# Documenation sources.
+# Documentation sources.
 
 DOCFILES = changes.rst diagnostics.rst ifm2dev.rst ifm2tex.rst index.rst \
 intro.rst language.rst license.rst maps.rst programs.rst scr2ifm.rst	 \
@@ -17,11 +17,9 @@ solving.rst tkifm.rst usage.rst
 
 IFM      = $(top_srcdir)/src/ifm -s version="$(VERSION)"
 IFMCMD   = $(IFM) -I $(top_srcdir)/lib
-HELP2MAN = $(top_srcdir)/etc/missing --run help2man -N -n "$(MAN_TITLE)"
-
-# Main targets.
-
-all: guide manpage
+HELP2MAN = $(OPTIONAL) help2man -N -n "$(MAN_TITLE)"
+SPHINX   = $(OPTIONAL) sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
+OPTIONAL = $(top_srcdir)/etc/missing --run
 
 # User guide.
 
@@ -31,19 +29,20 @@ guide: html
 
 force:; @ rm -rf $(htmldir); $(MAKE) all
 
-SPHINX = sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
-
-setup:;	@ mkdir -p $(htmldir) $(sphinxdir)
-
-html: setup conf.py logo.png
+html: setup
 	$(SPHINX) -b $@ $(srcdir) $(htmldir)
 
-latex: conf.py
-	@ mkdir -p $(latexdir)
+latex: setup
 	$(SPHINX) -b $@ $(srcdir) $(latexdir)
 
-linkcheck: setup conf.py
+linkcheck: setup
 	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
+
+setup:;	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir)
+	@ for file in conf.py logo.png; do				\
+	    path=$(builddir)/$$file;					\
+	    test -f $$path || ln -s $(srcdir)/$$file $$path;		\
+	done
 
 # Man page.
 
@@ -94,8 +93,6 @@ dist-doc: $(EXTRA_DIST)
 	fi
 
 # Other stuff.
-
-distclean-local: clean-doc
 
 install-data-hook: install-doc
 
