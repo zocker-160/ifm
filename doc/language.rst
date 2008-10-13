@@ -1,0 +1,616 @@
+.. _language:
+
+==========
+ Language
+==========
+
+This section gives a complete detailed description of the IFM language.
+
+Symbols
+=======
+
+In the following sections, these symbols are used:
+
+``ID``
+	 A name starting with a letter, followed by any combination of
+	 upper- and lowercase letters or numbers or an underscore. For
+	 example, ``Dense_Forest``. IDs are not allowed to clash with
+	 reserved words (e.g., ``room``, or ``tag``). One way to avoid this
+	 is to capitalize all tags (reserved words are all in lowercase).
+
+``STRING``
+	 Any sequence of characters, in double-quotes.  For example, ``"Black
+	 Rod"``. To get a double-quote inside a string, quote it using a
+	 backslash, like this::
+
+             "Ground Floor, \"A\" Block"
+
+         You can continue strings on several lines---a
+	 newline-and-whitespace sequence is translated into a single space,
+	 just like in TADS and Inform.
+
+``NUMBER``
+	 A number. If the context requires an integer, the number is
+	 silently rounded to the larges integer not greater than this
+	 value.
+
+``COMPASS``
+	 A compass direction, which can be abbreviated or in full (e.g.,
+	 ``n``, ``se``, ``northwest``, etc).
+
+``OTHERDIR``
+	 One of ``up``, ``down``, ``in`` or ``out``.
+
+``[...]``
+	 An optional part.
+
+``A | B``
+	 Either A or B.
+
+Format
+======
+
+IFM generally has a free-format layout---i.e., whitespace may be placed
+anywhere to increase readability. The only exception is inside quoted
+strings, where spaces are significant. Comments may be added, starting with
+a hash (``#``) and continuing to the end of the line. All commands are
+terminated with a semicolon.
+
+Control
+=======
+
+The overall title of the map may be set using the command::
+
+    title STRING;
+
+If a map has several sections, you can set the title of each section using
+the command::
+
+    map STRING;
+
+This sets the title of the next map section. If you use this command at
+all, then the number of uses should be the same as the actual number of map
+sections. It's conventional (but not required) to put the ``map`` command
+just before the room that starts a new map section.
+
+If your map uses features that are only present in later versions of IFM,
+you can indicate that up front by using the command::
+
+    require NUMBER;
+
+Then, if the IFM version number is less than this number, parsing will
+abort immediately, avoiding lots of potentially confusing syntax errors.
+
+There's no point in requiring any version less than 5.0, since that's when
+the require syntax was added.
+
+Tags
+====
+
+All IFM objects may be given tag names, so that you can refer to them in
+other commands. Tags for different types of object are independent---for
+example, you could have a room and an item with the same tag.  However,
+tags for similar objects must be unique.
+
+In many cases, you are allowed to refer to a tag name anywhere, even
+earlier in the file that you defined it (as long as the tag is defined
+*somewhere*!). Exceptions are the room_ ``from ID`` clause and tags in
+commands that modify existing objects---these tags must be defined before
+being used.
+
+The special tag ``last`` may be used to refer to the last object that was
+defined (depending on the context).  Also, within an individual command,
+the special tag ``it`` may be used to refer to the most recent object tag.
+
+Commands
+========
+
+There are five different types of object in IFM: rooms, items, links, joins
+and tasks. Each is created using its own command, the general format of
+which is::
+
+    <type> <body> [attribute-list];
+
+For rooms, items and tasks, ``<body>`` is just a string description. For
+links and joins, it specifies two room tags to link or join together.
+
+Many of the attributes or objects accept a list of tags as arguments. All
+of these, if specified more than once in the same object, concatenate the
+lists together.
+
+Once an object as been declared with a tag name, its attributes can be
+modified by later commands referring to that tag, like this::
+
+    <type> ID [attribute-list];
+
+where ``ID`` is the tag name of the object. Note that the tag must be
+defined earlier in the file than it is used.
+
+.. _room:
+
+Rooms
+-----
+
+A new room is added using the command::
+
+    room STRING [attribute-list];
+
+where ``STRING`` is a description of the room. Room attributes can be:
+
+``tag ID``
+       Give the room a tag name, so that you can refer to it elsewhere.
+
+``dir COMPASS [NUMBER] [COMPASS [NUMBER]...] [from ID]``
+       Specify the position of the room relative to the room with the given
+       tag ID (which must be defined before it is used).  If no ``from``
+       clause is specified, the last defined room is used instead. There
+       can be more than one direction given---the new room is placed
+       relative to the previous one using them. Following a direction with
+       a number means to repeat it that many times.
+
+       The ``dir`` clause creates an implicit link between this room and
+       the previous one. Some of the room attributes below behave
+       differently depending on whether they appear before or after the
+       ``dir`` clause in the attribute list.
+
+       If the room is given a tag name, then the implicit link will be
+       given the same tag.
+
+``link ID [ID...]``
+       Specify other rooms that this room links to.  Note that this creates
+       a link with no special attributes---use the standalone ``link``
+       command for that.
+
+``join ID [ID...]``
+       Specify rooms on other map sections that this room joins to. Note
+       that this creates a join with no special attributes---use the
+       standalone ``join`` command for that.
+
+``exit COMPASS [COMPASS...]``
+       Indicate which other directions the room has exits in. Room exits in
+       a particular direction are marked on the map only if there is no
+       link going to or from the room in that direction.
+
+``note STRING``
+       Append a note to the room's note list.
+
+``score NUMBER``
+       Indicate that you score the specified number of points when visiting
+       this room for the first time.
+
+``need ID [ID...]``
+       If this appears before a ``dir`` clause, indicate that you can only
+       enter this room after getting the specified items. If it appears
+       afterwards, it applies to the implicit link instead.
+
+``after ID [ID...]``
+       If this appears before a ``dir`` clause, indicate that you can only
+       enter this room after doing the specified tasks. If it appears
+       afterwards, it applies to the implicit link instead.
+
+``before ID [ID...]``
+       If this appears before a ``dir`` clause, indicate that you can only
+       enter this room before doing the specified tasks. If it appears
+       afterwards, it applies to the implicit link instead. Those tasks are
+       marked unsafe.
+
+``leave ID [ID...]``
+       If this appears before a ``dir`` clause, indicate that the specified
+       items, if carried, must be left behind when entering the room. If it
+       appears afterwards, it applies to the implicit link instead.
+
+``leave all [except ID [ID...]]``
+       As above, except indicate that all items must be left behind. The
+       ``except`` clause can be used to omit specific items.
+
+``go OTHERDIR``
+       Indicate that the link to this room is in the specified direction.
+
+``cmd STRING``
+       Specify the command you type to move to this room from the previous
+       one. If no ``cmd`` clause is given, the command is deduced from the
+       ``go`` clause. If that isn't specified, the command will be deduced
+       from the ``dir`` clause.
+
+``cmd from STRING``
+       As above, but this specifies the command to go in the other
+       direction. This defaults to the ``cmd to`` command, if specified.
+
+``cmd to STRING``
+       This is identical to ``cmd`` on its own, and only exists for
+       symmetry.
+
+``oneway``
+       Indicate that the return journey from this room to the previous one
+       is not possible.
+
+``length NUMBER``
+       Indicate that the direction link to this room has the specified
+       length (default 1). This only affects the calculation of the nearest
+       task_ when solving the game.
+
+``start``
+       Indicate that this is the room the player starts in. Default is for
+       the first room mentioned to be the start room. If more than one room
+       has this attribute, the last one declared takes precedence.
+
+``finish``
+       Indicate that entering this room finishes the game.
+
+``nodrop``
+       Indicate that no items should be voluntarily dropped in this room.
+
+``nolink``
+       Indicate that this room does not have an implicit link with the
+       previous one via the ``dir`` clause.
+
+``nopath``
+       Indicate that the implicit link from this room should not be used by
+       the game solver.
+
+``style ID [ID...]``
+       Add a list of display styles_ to the room (and also the implicit
+       link, if any).
+
+Items
+-----
+
+An item is introduced using the command::
+
+    item STRING [attribute-list];
+
+where ``STRING`` is the item description. Item attributes can be:
+
+``tag` ID``
+       Give the item a tag name, so you can refer to it elsewhere.
+
+``in ID``
+       Set the initial location of this item. Default is the last defined
+       room. If there is no last room (i.e., an item was declared before
+       any room was declared), then this item is initially carried by the
+       player.
+
+``note STRING``
+       Append a note to the item's note list.
+
+``score NUMBER``
+       Indicate that you get points the first time you pick this item up.
+
+``hidden``
+       Indicate that this item is not immediately obvious when entering the
+       room.
+
+``keep``
+       Indicate that this item shouldn't ever be dropped (no "drop" task
+       should be generated).
+
+``keep with ID [ID...]``
+       Indicate that the item shouldn't be dropped until all the other
+       specified items have left the inventory.
+
+``keep until ID [ID...]``
+       Indicate that the item shouldn't be dropped until all the other
+       specified tasks have been done.
+
+``ignore``
+       Indicate that this item should be ignored when trying to find a
+       solution (i.e., never go out of your way to pick it up).
+
+``given``
+       Indicate that this item didn't have to be picked up when it entered
+       the inventory (no "get" task should be generated). This attribute is
+       obsolete---you should use the task_ ``give`` clause instead.
+
+``lost``
+       Indicate that this item wasn't dropped when it left the inventory
+       (no "drop" task should be generated).  Normally you should use the
+       task_ ``drop`` or ``lose`` clauses instead. The only use for this
+       attribute is for items that are left behind due to a ``leave``
+       clause.
+
+``need ID [ID...]``
+       Indicate that you can only pick this item up after getting the
+       specified items.
+
+``after ID [ID...]``
+       Indicate you can only pick this item up after the specified tasks
+       are done.
+
+``before ID [ID...]``
+       Indicate you can only pick this item up before the specified tasks
+       are done.
+
+``finish``
+       Indicate that getting this item finishes the game.
+
+``style ID [ID...]``
+       Add a list of display styles_ to the item.
+
+Links
+-----
+
+You can create extra room links using the command::
+
+    link ID to ID [attribute-list];
+
+and the following attributes may be specified:
+
+``tag ID``
+       Give the link a tag name, so you can refer to it elsewhere.
+
+``dir COMPASS [COMPASS...]``
+       Set the intermediate directions that this link travels in, in the
+       same manner as for rooms. Note that if you omit the final direction
+       to the linked room, it is added automatically.
+
+``go OTHERDIR``
+       Indicate that the link is in the specified direction.
+
+``cmd STRING``
+       Specify the command you type to go in this direction. If no ``cmd``
+       clause is given, the command is deduced from the ``go`` clause. If
+       that isn't specified, the command will be deduced from the ``dir``
+       clause.
+
+``cmd from STRING``
+       As above, but this specifies the command to go in the other
+       direction. This defaults to the ``cmd to`` command, if specified.
+
+``cmd to STRING``
+       This is identical to ``cmd`` on its own, and only exists for
+       symmetry.
+
+``oneway``
+       Indicate that this is a one-way link, in a similar manner to the
+       room attribute of the same name.
+
+``hidden``
+       Indicate that this link should not be drawn on the map. Hidden links
+       are still used when solving the game.
+
+``nopath``
+       Indicate that this link should not be used by the game solver.
+
+``length NUMBER``
+       Indicate that this link has the specified length (default 1). This
+       only affects the calculation of the nearest task_ when solving the
+       game.
+
+``need ID [ID...]``
+       Indicate that you can only go in this direction after getting the
+       specified items.
+
+``after ID [ID...]``
+       Indicate that you can only go in this direction after doing the
+       specified tasks.
+
+``before ID [ID...]``
+       Indicate that you can only go in this direction before doing the
+       specified tasks. These tasks are marked unsafe.
+
+``leave ID [ID...]``
+       Indicate that the specified items, if carried, must be left behind
+       when using this connection.
+
+``leave all [except ID [ID...]]``
+       As above, except indicate that all items must be left behind. The
+       ``except`` clause can be used to omit specific items.
+
+``style ID [ID...]``
+       Add a list of display styles_ to the link.
+
+Joins
+-----
+
+There is a standalone join command which joins two rooms on different map
+sections::
+
+    join ID to ID [attribute-list];
+
+The following attributes may be specified:
+
+``tag ID``
+       Give the join a tag name, so you can refer to it elsewhere.
+
+``go COMPASS | OTHERDIR``
+       Indicate that the join to this room is in the specified direction.
+
+``cmd STRING``
+       Specify the command you type to go in this direction. If no ``cmd``
+       clause is given, the command is deduced from the ``go`` clause. If
+       that isn't specified, the command will be undefined.
+
+``cmd from STRING``
+       As above, but this specifies the command to go in the other
+       direction. This defaults to the ``cmd to`` command, if specified.
+
+``cmd to STRING``
+       This is identical to ``cmd`` on its own, and only exists for
+       symmetry.
+
+``oneway``
+       Indicate that this is a one-way join, in a similar manner to the
+       room attribute of the same name.
+
+``hidden``
+       Indicate that this join should not be drawn on the map. Hidden joins
+       are still used when solving the game.
+
+``nopath``
+       Indicate that this join should not be used by the game solver.
+
+``length NUMBER``
+       Indicate that this join has the specified length (default 1). This
+       only affects the calculation of the nearest task_ when solving the
+       game.
+
+``need ID [ID...]``
+       Indicate that you can only go in this direction after getting the
+       specified items.
+
+``after ID [ID...]``
+       Indicate that you can only go in this direction after doing the
+       specified tasks.
+
+``before ID [ID...]``
+       Indicate that you can only go in this direction before doing the
+       specified tasks. These tasks are marked unsafe.
+
+``leave ID [ID...]``
+       Indicate that the specified items, if carried, must be left behind
+       when using this connection.
+
+``leave all [except ID [ID...]]``
+       As above, except indicate that all items must be left behind. The
+       ``except`` clause can be used to omit specific items.
+
+``style ID [ID...]``
+       Add a list of display styles_ to the join.
+
+.. _task:
+
+Tasks
+-----
+
+You can indicate tasks which need to be done in order to solve the game
+using the command::
+
+    task STRING [attribute-list];
+
+and these are the available attributes:
+
+``tag ID``
+       Give the task a tag name, so you can refer to it elsewhere.
+
+``in ID``
+       Specify the room the task must be done in. If this clause is
+       omitted, it defaults to the last defined room. You can use the
+       special word ``any`` to indicate that the task may be performed
+       anywhere. A task declared before any room is equivalent to saying
+       ``in any``.
+
+``need ID [ID...]``
+       Indicate that the specified items are required before you can do
+       this task.
+
+``after ID [ID...]``
+       Indicate that this task can only be done after all the specified
+       tasks have been done.
+
+``follow ID``
+       Indicate that this task must be done immediately after the specified
+       one. Not even a "drop item" task is allowed in between.
+
+``do ID [ID...]``
+       Indicate that doing this task also causes the specified other tasks
+       to be done (if they aren't done already). These other tasks are done
+       immediately, without regard for any prerequisite items or tasks they
+       might need, and their effects are carried out---including any ``do``
+       clauses they might have, recursively.
+
+``get ID [ID...]``
+       Indicate that doing this task enables you to get the specified
+       items, and must be done before you can get them.
+
+``give ID [ID...]``
+       Indicate that doing this task puts the specified items straight into
+       your inventory, wherever they happen to be.
+
+``lose ID [ID...]``
+       Indicate that doing this task causes the specified items to be
+       lost. This implies that all tasks which need these items must be
+       done before this one.
+
+``drop ID [ID...] [in ID] [until ID [ID...]]``
+       Indicate that doing this task drops the specified items in the
+       current room (or the room indicated by the in clause) if you're
+       carrying them. No "drop" message is generated. If there's an
+       ``until`` clause, you can't retrieve the items until the specified
+       tasks have been done.
+
+``drop all [except ID [ID...]] [in ID] [until ID [ID...]]``
+       As above, but drop everything you're carrying. The ``except`` clause
+       can be used to omit specific items.
+
+``goto ID``
+       Indicate that you get "teleported" to the specified room when this
+       task is done. This happens after ``give`` and ``drop`` actions.
+
+``safe``
+       Mark this task as safe---i.e., one that can't cause the game solver
+       to get stuck.
+
+``ignore``
+       Don't ever do this task explicitly when solving the game. The task
+       may still be done via a ``do`` action.
+
+``finish``
+       Indicate that doing this task finishes the game.
+
+``score NUMBER``
+       Indicate that you get the specified score for doing this task.
+
+``note STRING``
+       Append a note to the task's note list.
+
+``cmd STRING [NUMBER]``
+       Specify the exact command you type to do the task. If a number
+       follows the command, do the command that many times. Multiple
+       ``cmd`` clauses concatenate into a list of commands.
+
+``cmd none``
+       Indicate that no command is required to do this task.
+
+``style ID [ID...]``
+       Add a list of display styles_ to the task.
+
+Variables
+=========
+
+Various aspects of output are controlled by variables.  These are set using
+the following syntax::
+
+    [FORMAT.]ID = NUMBER | STRING | undef [in style ID];
+
+``FORMAT``, if specified, is the name of a specific output format---the
+variable then applies only to that output format. ``ID`` is the name of the
+variable, and it can take a numeric or string value. Note that setting a
+variable to the value ``undef`` effectively removes it. If the ``style``
+clause is present, this means to only set the variable to this value in the
+specified style.
+
+Styles
+======
+
+A *style* defines a set of variables with particular values, so that those
+values can be referred to together. IFM keeps track of the currently active
+list of styles, and there are two commands which change this list. The
+command::
+
+    style ID;
+
+pushes the specified style onto the style list. This style becomes the
+current style. Any IFM objects declared while a style list is in force will
+by default be output in those styles. Any variable setting is by default in
+the current style (though you can specify a particular style using the ``in
+style`` clause.
+
+The command::
+
+    endstyle [ID];
+
+pops the current style from the style list. The previous style on the list
+(if any) becomes the current style. The ``ID``, if specified, should match
+the ``ID`` in the corresponding style command, or a warning is given.
+
+Each display style has its own set of values for customization
+variables. On output, when the value of a variable is needed for displaying
+an object, the style list for that object is searched in reverse order of
+declaration. The value used is from the first style to define this
+variable. If no style defines it, then the default value is used.
+
+If a style is referenced by an object but not defined anywhere in the
+input, then its definition is assumed to be in a separate file, which is
+searched for using the standard search path. The name of this file is
+formed by adding a ``.ifm`` suffix to the style name. If the file is not
+found, or it does not define the required style, a warning is given.
