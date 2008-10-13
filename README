@@ -1,5 +1,6 @@
-IFM -- Interactive Fiction Mapper
-*********************************
+===================================
+ IFM -- Interactive Fiction Mapper
+===================================
 
 IFM is a language and a program for keeping track of your progress through
 an Interactive Fiction game.  You can record each room you visit and its
@@ -21,17 +22,17 @@ or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
 Building IFM
-************
+============
 
 See the file INSTALL for installation details.  But it basically boils down
-to:
+to::
 
     ./configure
     make
     make install
 
 Existing IFM Maps
-*****************
+=================
 
 There's a web page set up by Dave Chapeskie (dchapes@ddm.wox.org) which has
 IFM maps in source and PostScript format, at
@@ -46,27 +47,27 @@ In addition, the 'demos' subdirectory contains some demonstration maps that
 don't give away secrets from real games.
 
 Extra IFM Programs
-******************
+==================
 
 There are a few utility programs bundled with IFM.  To make the most use of
 them, you'll need a few other things installed on your system: Tcl/Tk,
 perl, xfig, transfig and TeX.
 
 ifm2dev
-=======
+-------
 
 ifm2dev is a perl script which is a front end to fig2dev, which converts
 diagrams in Fig format to various other formats.  ifm2dev converts each map
 section and writes them to separate files.
 
 ifm2tex
-=======
+-------
 
 ifm2tex is another perl script which uses ifm2dev to dump EPS maps and
 include them in a LaTeX document, together with tables of items and tasks.
 
 tkifm
-=====
+-----
 
 tkifm is a simple graphical interface to IFM.  It provides you with a
 window allowing you to edit IFM input (or just view it, if you want to use
@@ -74,7 +75,7 @@ your own editor), and menus to view the maps you've generated so far or
 export them to PostScript or Fig format.
 
 scr2ifm
-=======
+-------
 
 scr2ifm is a perl script that takes one or more Infocom-style transcripts
 of an IF game and creates a map in IFM format.
@@ -93,7 +94,7 @@ been tested on several different types of transcript (Infocom, Inform,
 TADS, Magnetic Scrolls), but is probably still far from bullet-proof.
 
 Related Programs
-****************
+================
 
 IFMapper is a graphical mapping tool written by Gonzalo Garramuno
 (ggarra@advance.dsl.com.ar), and has the ability to read and write IFM
@@ -102,7 +103,7 @@ maps.  You can find IFMapper at
      http://www.rubyforge.org/projects/ifmapper
 
 Finally...
-**********
+==========
 
 IFM and its utility programs are free software, and you may redistribute
 them under certain conditions; see the file called COPYING for details.
@@ -111,3 +112,7 @@ Feel free to send comments, bug reports, suggestions, etc. to me.  I am
 Glenn Hutchings (zondo42@googlemail.com).
 
 Happy mapping!
+
+.. Local Variables:
+.. mode: rst
+.. End:

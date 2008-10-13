@@ -1,25 +1,37 @@
-This directory contains miscellaneous contributed stuff for IFM.
+===================
+ Contributed stuff
+===================
 
-asciimapper     Tool to create IFM maps from ASCII art maps, contributed by
-		Elijah Griffin.  Intended to be an easy way to draw a map
-		and have it converted to IFM format.
+This directory contains miscellaneous contributed stuff for IFM:
 
-ifm.vim	        Support for IFM syntax colouring in vim (a vi clone),
-		contributed by Dave Chapeskie (dchapes@ddm.on.ca).  This
-		has been partially updated for version 5.x of IFM, but
-		isn't yet complete.
+``asciimapper``
+     Tool to create IFM maps from ASCII art maps, contributed by Elijah
+     Griffin.  Intended to be an easy way to draw a map and have it
+     converted to IFM format.
 
-ifm-mode.el	GNU Emacs IFM mode, version 0.3.  Has syntax colouring and
-		checking, commands to display maps, items and tasks, and a
-		mode menu.
+``ifm.vim``
+     Support for IFM syntax colouring in ``vim`` (a ``vi`` clone),
+     contributed by Dave Chapeskie (dchapes@ddm.on.ca).  This has been
+     partially updated for version 5.x of IFM, but isn't yet complete.
 
-rec2scr		Perl script which invokes the dumb-frotz interpreter
-		(available from the IF archive) to non-interactively
-		convert a recording of game commands into a transcript.
-		Very useful for testing the recording output from IFM.
+``ifm-mode.el``
+     GNU Emacs IFM mode.  Has syntax colouring and checking, commands to
+     display maps, items and tasks, and a mode menu.
 
-ifmpp		A preprocessor for any old IFM maps that made use of the
-		gpp directives.  Needs gpp installed.
+``rec2scr``
+     Perl script which invokes the ``dumb-frotz`` interpreter (available
+     from the IF archive) to non-interactively convert a recording of game
+     commands into a transcript.  Very useful for testing the recording
+     output from IFM.
 
-chess.pl	Perl script to write a chess board in IFM format.  One of
-		the precursors to asciimapper (see above).
+``ifmpp``
+     A preprocessor for any old IFM maps that made use of the ``gpp``
+     directives.  Needs ``gpp`` installed.
+
+``chess.pl``
+     Perl script to write a chess board in IFM format.  One of the
+     precursors to ``asciimapper`` (see above).
+
+.. Local Variables:
+.. mode: rst
+.. End:
