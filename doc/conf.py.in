@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Firrst 3D documentation build configuration file, created by
+# Sphinx documentation build configuration file, created by
 # sphinx-quickstart on Fri Jul 25 11:19:04 2008.
 #
 # This file is execfile()d with the current directory set to its containing
@@ -65,17 +65,6 @@ today_fmt = '%B %d, %Y'
 # documents.
 #default_role = None
 
-# If true, '()' will be appended to :func: etc. cross-reference text.
-#add_function_parentheses = True
-
-# If true, the current module name will be prepended to all description
-# unit titles (such as .. function::).
-#add_module_names = True
-
-# If true, sectionauthor and moduleauthor directives will be shown in the
-# output. They are ignored by default.
-#show_authors = False
-
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
@@ -130,7 +119,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_use_modindex = False
 
 # If false, no index is generated.
-#html_use_index = True
+html_use_index = False
 
 # If true, the index is split into individual pages for each letter.
 #html_split_index = False
@@ -144,11 +133,8 @@ html_use_modindex = False
 # be the base URL from which the finished HTML is served.
 #html_use_opensearch = ''
 
-# If nonempty, this is the file name suffix for HTML files (e.g. ".xhtml").
-#html_file_suffix = ''
-
 # Output file base name for HTML help builder.
-#htmlhelp_basename = 'IFM'
+htmlhelp_basename = 'IFM'
 
 
 # Options for LaTeX output
@@ -179,6 +165,3 @@ latex_documents = [
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
-
-# If false, no module index is generated.
-#latex_use_modindex = True
