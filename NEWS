@@ -1,31 +1,19 @@
 Version 5.3 (13 Oct 2008)
 =========================
 
-Additions
----------
-
 * The GNU Emacs ``ifm-mode.el`` in the ``contrib`` directory has been
   improved: it can display task recording and debugging output, now has
   imenu and flymake support, and also has a minor bug fix.
 
-Changes
--------
-
 * The documentation is now much prettier, thanks to `Sphinx
   <http://sphinx.pocoo.org>`_.  PDF documentation is no longer distributed,
   but can be generated if required.
-
-Bug fixes
----------
 
 * PostScript maps now conform properly to Adobe DSC.  This stops
   Ghostscript 8.x barfing on them.
 
 Version 5.2 (7 Sep 2006)
 ========================
-
-Additions
----------
 
 * There's a new ``-errors`` option, which controls the maximum number of
   errors printed before giving up.
@@ -38,15 +26,9 @@ Additions
   commands to display maps, items and tasks and various other things.
   Based on an initial version contributed by Lee Bigelow.
 
-Changes
--------
-
 * Several unused features which added needless complexity have been
   removed.  These are: preprocessing by ``gpp``, expressions for
   real/integer values, and variable interpolation in strings.
-
-Bug fixes
----------
 
 * An obscure bug has been fixed which involved the ``follow`` and ``need``
   attributes combined.  This caused some valid task orderings to be flagged
@@ -62,24 +44,15 @@ Bug fixes
 Version 5.1 (30 Nov 2004)
 =========================
 
-Additions
----------
-
 * The ``tkifm`` program now supports line numbering and syntax
   highlighting, thanks to a contributor who wishes to remain anonymous.
 
 * There is now a man page summarizing the command-line options.
 
-Changes
--------
-
 * In PostScript output, up/down and in/out labels are now drawn separately,
   next to their respective rooms.  Also, if a link leaves a room and
   returns to the same room, it's drawn as a small circle.  Thanks to Dan
   Eble (eble@ticalc.org).
-
-Bug fixes
----------
 
 * Hopefully, the Windoze port should work properly now.
 
@@ -93,9 +66,6 @@ Bug fixes
 
 Version 5.0 (23 Jan 2003)
 =========================
-
-Additions
----------
 
 * New map output: Fig format, suitable for viewing or editing with Xfig, or
   exporting to other formats.
@@ -145,9 +115,6 @@ Additions
 * There's a new ``require`` keyword, which lets you say that a certain
   version of IFM (or later) is required for a map.
 
-Changes
--------
-
 * Changed implicit-link style behaviour -- the ``style`` clause on a room
   now applies to both the room and the implicit link, so it's now
   independent of its position relative to the ``dir`` clause.
@@ -166,9 +133,6 @@ Changes
   support.  The ``ifm.vim`` file has also been updated with the latest
   keywords.
 
-Bug fixes
----------
-
 * Fixed bug with room ``link`` and ``join`` attributes: it didn't work to
   use ``last`` as an argument.
 
@@ -177,9 +141,6 @@ Bug fixes
 
 Version 4.1 (10 May 1999)
 =========================
-
-Bug fixes
----------
 
 * Fixed minor task bug -- in special cases, giving items caused solver to
   fail to find newly-opened paths.
@@ -192,9 +153,6 @@ Bug fixes
 
 Version 4.0 (21 Apr 1999)
 =========================
-
-Additions
----------
 
 * PostScript driver can now print in colour.
 
@@ -223,9 +181,6 @@ Additions
 * Some example maps are now bundled with IFM, in the ``demos``
   subdirectory.
 
-Changes
--------
-
 * Names and defaults of many output variables have been changed in order to
   make them more consistent.
 
@@ -249,9 +204,6 @@ Changes
 Version 3.0 (1 Oct 1998)
 ========================
 
-Additions
----------
-
 * There's a new program ``scr2ifm`` in the distribution, which attempts to
   convert a game transcript into IFM format.  It's a perl script, and gets
   installed on Unix-type systems if perl is detected.
@@ -268,9 +220,6 @@ Additions
 * New PostScript variable ``link_arrowsize``, which allows you to change
   the size of arrowheads on one-way links.
 
-Changes
--------
-
 * ``tkifm`` is now installed automatically on Unix-type systems if ``wish``
   (or one of its namesakes) is detected.
 
@@ -283,9 +232,6 @@ Changes
 
 * The ``times`` keyword is now obsolete (but still works, for
   compatibility) -- just the repeat count is used instead.
-
-Bug fixes
----------
 
 * Fixed bug with ``drop all except`` clause -- was treating it as just a
   simple ``drop`` clause.
@@ -301,18 +247,12 @@ Bug fixes
 Version 2.1 (26 Aug 1998)
 =========================
 
-Bug fixes
----------
-
 * Fixed bug which caused some types of variable not to be set properly.
 
 * Minor fixes to library functions to link properly under Solaris.
 
 Version 2.0 (19 Aug 1998)
 =========================
-
-Additions
----------
 
 * Lots of new keywords for use by the game solver, which has been
   considerably enhanced.
@@ -330,9 +270,6 @@ Additions
   interpreters.
 
 * Package now has a test suite.
-
-Changes
--------
 
 * Links and joins can now be ``hidden`` -- which means they're used only
   for task purposes.
@@ -361,9 +298,6 @@ Changes
   preferred editor.
 
 * Unix version now uses GNU autoconf/automake for installation.
-
-Bug fixes
----------
 
 * Got ``tkifm`` save-as option to set current filename properly.
 
