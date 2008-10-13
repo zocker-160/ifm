@@ -261,7 +261,7 @@ An item is introduced using the command::
 
 where ``STRING`` is the item description. Item attributes can be:
 
-``tag` ID``
+``tag ID``
        Give the item a tag name, so you can refer to it elsewhere.
 
 ``in ID``
