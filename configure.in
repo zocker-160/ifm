@@ -85,7 +85,7 @@ AC_OUTPUT(
 Makefile
 demos/Makefile
 doc/Makefile
-doc/cover.ifm
+doc/conf.py
 fig/Makefile
 lib/Makefile
 progs/Makefile

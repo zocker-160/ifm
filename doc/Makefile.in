@@ -40,7 +40,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/cover.ifm.in $(top_srcdir)/etc/Makefile.common
+	$(srcdir)/conf.py.in $(top_srcdir)/etc/Makefile.common
 subdir = doc
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
@@ -48,7 +48,7 @@ am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
-CONFIG_CLEAN_FILES = cover.ifm
+CONFIG_CLEAN_FILES = conf.py
 SOURCES =
 DIST_SOURCES =
 man1dir = $(mandir)/man1
@@ -155,33 +155,29 @@ target_alias = @target_alias@
 tkifm = @tkifm@
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
-PDF_TITLE = IFM Version $(VERSION)
-PDF_AUTHOR = Glenn Hutchings
 MAN_TITLE = Interactive Fiction Mapper
 man_MANS = ifm.1
+
+# Documenation sources.
+DOCFILES = diagnostics.rst index.rst intro.rst language.rst maps.rst	\
+programs.rst solving.rst usage.rst
+
 
 # Programs.
 IFM = $(top_srcdir)/src/ifm -s version="$(VERSION)"
 IFMCMD = $(IFM) -I $(top_srcdir)/lib
 HELP2MAN = $(top_srcdir)/etc/missing --run help2man -N -n "$(MAN_TITLE)"
-
-# General rules.
-SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex .rtf
+HTMLDIR = html
+LATEXDIR = latex
+SPHINX = sphinx-build -N
+SPHINXOPTS = 
 
 # Distribution stuff.
-EXTRA_DIST = ifm.1 ifm.man ifm.lyx gfdl.lyx advent.cmd advent.ifm	\
-advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr	\
-advent7.scr example.ifm tkifm.txt macros.tex
-
-
-# Cleaning stuff.
-CLEAN_DOC = *.ps *.eps *.pdf
-CLEAN_TEX = ifm.tex *.aux *.dvi *.lof *.lot *.log *.toc *.out
+EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates
 DAYS = 7
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex .rtf .gv
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/etc/Makefile.common $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -211,7 +207,7 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-cover.ifm: $(top_builddir)/config.status $(srcdir)/cover.ifm.in
+conf.py: $(top_builddir)/config.status $(srcdir)/conf.py.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 uninstall-info-am:
 install-man1: $(man1_MANS) $(man_MANS)
@@ -364,6 +360,8 @@ mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-generic
 
+pdf: pdf-am
+
 pdf-am:
 
 ps: ps-am
@@ -389,23 +387,43 @@ uninstall-man: uninstall-man1
 
 # Main targets.
 
-doc: fig pdf html man
+all: guide manpage
 
-pdf: ifm.pdf
+# User guide.
 
-rtf: ifm.rtf
+.PHONY: html latex
 
-fig: cover.eps example.eps advent.eps
+guide: html
 
-man: ifm.1
+force:; @ rm -rf $(HTMLDIR); $(MAKE) all
+
+setup:;	@ mkdir -p $(HTMLDIR)/.doctrees $(HTMLDIR)/.linkcheck
+
+html: setup conf.py logo.png
+	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)
+
+latex: conf.py
+	@ mkdir -p $(LATEXDIR)
+	$(SPHINX) -b $@ $(SPHINXOPTS) . $(LATEXDIR)
+
+linkcheck: setup conf.py
+	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)/.linkcheck
+
+logo.png: logo.ifm ifm2web
+	./ifm2web $< $@
+#	$(IFMCMD) -m -f fig -o logo.fig $<
+#	fig2dev -L png -m 0.3 logo.fig > $@
+#	rm -f logo.fig
+
+# Man page.
+
+manpage: ifm.1
 
 ifm.1: ifm.man
 	cp ifm.man ifm.tmp
 	echo "[SEE ALSO]" >> ifm.tmp
-	echo ".IP $(ifmdocdir)/html" >> ifm.tmp
+	echo ".IP $(ifmdocdir)" >> ifm.tmp
 	echo "Online documentation" >> ifm.tmp
-	echo ".IP $(ifmdocdir)/ifm.pdf" >> ifm.tmp
-	echo "Documentation suitable for printing" >> ifm.tmp
 	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
 	rm -f ifm.tmp
 
@@ -414,35 +432,16 @@ mantest: man
 	gv -a4 -scale -1 -spartan ifm.ps
 	rm -f ifm.ps
 
-.lyx.ps:;	lyx --export ps $< > $@
-.lyx.tex:;	lyx --export latex $< > $@
-.lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
-.lyx.rtf:;	lyx2rtf -d2 $<
-.ps.gv:;	gv -a4 -scale -1 -spartan $<
-.tex.aux:;	latex $<; latex $<; latex $<
-.ifm.fig:;	$(IFMCMD) -m -f fig -o $@ $<
-.fig.eps:;	fig2dev -L eps $< > $@
-.fig.png:;	fig2dev -L png $< > $@
-.fig.tex:;	fig2dev -L latex $< > $@
-
-html: fig ifm.lyx
-	lyx2html -title IFM ifm.lyx
-
 # Installation stuff.
 
-install-doc: install-html install-pdf
+install-doc: install-html
 
 install-html: $(ifmdocdir)
-	@ if test -d $(srcdir)/ifm; then				\
+	@ if test -d $(srcdir)/html; then				\
 	   set -x;							\
-	   rm -rf $(ifmdocdir)/html;					\
-	   cp -rf $(srcdir)/ifm $(ifmdocdir)/html;			\
-	fi
-
-install-pdf: $(ifmdocdir)
-	@ if test -f $(srcdir)/ifm.pdf; then				\
-	   set -x;							\
-	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(ifmdocdir);		\
+	   rm -rf $(ifmdocdir);						\
+	   mkdir -p $(ifmdocdir);					\
+	   cp -rf $(srcdir)/html/* $(ifmdocdir);			\
 	fi
 
 $(ifmdocdir):
@@ -452,23 +451,11 @@ $(ifmdocdir):
 	$(mkinstalldirs) $(ifmdocdir)
 
 dist-doc: $(EXTRA_DIST)
-	if test -d $(srcdir)/ifm; then					\
-	   cp -rf $(srcdir)/ifm $(distdir);				\
+	if test -d $(srcdir)/html; then					\
+	   cp -rf $(srcdir)/html $(distdir);				\
 	fi
-	if test -f $(srcdir)/ifm.pdf; then				\
-	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
-	fi
-
-clean-doc: realclean
-
-realclean: htmlclean
-	rm -rf $(CLEAN_DOC)
-
-htmlclean:; rm -rf ifm $(CLEAN_TEX)
 
 # Other stuff.
-
-test:; mozilla `pwd`/ifm/index.htm
 
 distclean-local: clean-doc
 
@@ -479,8 +466,6 @@ uninstall-hook:
 	rm -rf $(ifmdocdir)
 
 dist-hook: dist-doc
-
-edit:; lyx ifm.lyx
 
 log:;	@ echo
 	@ echo Finding source changes in the last $(DAYS) days...

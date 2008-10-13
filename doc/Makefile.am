@@ -3,12 +3,14 @@
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
-PDF_TITLE  = IFM Version $(VERSION)
-PDF_AUTHOR = Glenn Hutchings
-
 MAN_TITLE = Interactive Fiction Mapper
 
 man_MANS = ifm.1
+
+# Documenation sources.
+
+DOCFILES = diagnostics.rst index.rst intro.rst language.rst maps.rst	\
+programs.rst solving.rst usage.rst
 
 # Programs.
 
@@ -18,23 +20,49 @@ HELP2MAN = $(top_srcdir)/etc/missing --run help2man -N -n "$(MAN_TITLE)"
 
 # Main targets.
 
-doc: fig pdf html man
+all: guide manpage
 
-pdf: ifm.pdf
+# User guide.
 
-rtf: ifm.rtf
+.PHONY: html latex
 
-fig: cover.eps example.eps advent.eps
+HTMLDIR  = html
+LATEXDIR = latex
 
-man: ifm.1
+guide: html
+
+force:; @ rm -rf $(HTMLDIR); $(MAKE) all
+
+SPHINX = sphinx-build -N
+SPHINXOPTS = 
+
+setup:;	@ mkdir -p $(HTMLDIR)/.doctrees $(HTMLDIR)/.linkcheck
+
+html: setup conf.py logo.png
+	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)
+
+latex: conf.py
+	@ mkdir -p $(LATEXDIR)
+	$(SPHINX) -b $@ $(SPHINXOPTS) . $(LATEXDIR)
+
+linkcheck: setup conf.py
+	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)/.linkcheck
+
+logo.png: logo.ifm ifm2web
+	./ifm2web $< $@
+#	$(IFMCMD) -m -f fig -o logo.fig $<
+#	fig2dev -L png -m 0.3 logo.fig > $@
+#	rm -f logo.fig
+
+# Man page.
+
+manpage: ifm.1
 
 ifm.1: ifm.man
 	cp ifm.man ifm.tmp
 	echo "[SEE ALSO]" >> ifm.tmp
-	echo ".IP $(ifmdocdir)/html" >> ifm.tmp
+	echo ".IP $(ifmdocdir)" >> ifm.tmp
 	echo "Online documentation" >> ifm.tmp
-	echo ".IP $(ifmdocdir)/ifm.pdf" >> ifm.tmp
-	echo "Documentation suitable for printing" >> ifm.tmp
 	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
 	rm -f ifm.tmp
 
@@ -43,39 +71,16 @@ mantest: man
 	gv -a4 -scale -1 -spartan ifm.ps
 	rm -f ifm.ps
 
-# General rules.
-
-SUFFIXES = .lyx .ps .tex .aux .pdf .eps .fig .ifm .png .tex .rtf
-
-.lyx.ps:;	lyx --export ps $< > $@
-.lyx.tex:;	lyx --export latex $< > $@
-.lyx.pdf:;	tex2pdf -t "$(PDF_TITLE)" -a "$(PDF_AUTHOR)" $<
-.lyx.rtf:;	lyx2rtf -d2 $<
-.ps.gv:;	gv -a4 -scale -1 -spartan $<
-.tex.aux:;	latex $<; latex $<; latex $<
-.ifm.fig:;	$(IFMCMD) -m -f fig -o $@ $<
-.fig.eps:;	fig2dev -L eps $< > $@
-.fig.png:;	fig2dev -L png $< > $@
-.fig.tex:;	fig2dev -L latex $< > $@
-
-html: fig ifm.lyx
-	lyx2html -title IFM ifm.lyx
-
 # Installation stuff.
 
-install-doc: install-html install-pdf
+install-doc: install-html
 
 install-html: $(ifmdocdir)
-	@ if test -d $(srcdir)/ifm; then				\
+	@ if test -d $(srcdir)/html; then				\
 	   set -x;							\
-	   rm -rf $(ifmdocdir)/html;					\
-	   cp -rf $(srcdir)/ifm $(ifmdocdir)/html;			\
-	fi
-
-install-pdf: $(ifmdocdir)
-	@ if test -f $(srcdir)/ifm.pdf; then				\
-	   set -x;							\
-	   $(INSTALL_DATA) $(srcdir)/ifm.pdf $(ifmdocdir);		\
+	   rm -rf $(ifmdocdir);						\
+	   mkdir -p $(ifmdocdir);					\
+	   cp -rf $(srcdir)/html/* $(ifmdocdir);			\
 	fi
 
 $(ifmdocdir):
@@ -86,33 +91,14 @@ $(ifmdocdir):
 
 # Distribution stuff.
 
-EXTRA_DIST = ifm.1 ifm.man ifm.lyx gfdl.lyx advent.cmd advent.ifm	\
-advent1.scr advent2.scr advent3.scr advent4.scr advent5.scr advent6.scr	\
-advent7.scr example.ifm tkifm.txt macros.tex
+EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates
 
 dist-doc: $(EXTRA_DIST)
-	if test -d $(srcdir)/ifm; then					\
-	   cp -rf $(srcdir)/ifm $(distdir);				\
+	if test -d $(srcdir)/html; then					\
+	   cp -rf $(srcdir)/html $(distdir);				\
 	fi
-	if test -f $(srcdir)/ifm.pdf; then				\
-	   cp -r $(srcdir)/ifm.pdf $(distdir);				\
-	fi
-
-# Cleaning stuff.
-
-CLEAN_DOC = *.ps *.eps *.pdf
-CLEAN_TEX = ifm.tex *.aux *.dvi *.lof *.lot *.log *.toc *.out
-
-clean-doc: realclean
-
-realclean: htmlclean
-	rm -rf $(CLEAN_DOC)
-
-htmlclean:; rm -rf ifm $(CLEAN_TEX)
 
 # Other stuff.
-
-test:; mozilla `pwd`/ifm/index.htm
 
 distclean-local: clean-doc
 
@@ -123,7 +109,5 @@ uninstall-hook:
 	rm -rf $(ifmdocdir)
 
 dist-hook: dist-doc
-
-edit:; lyx ifm.lyx
 
 include $(top_srcdir)/etc/Makefile.common

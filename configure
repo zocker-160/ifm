@@ -4083,7 +4083,7 @@ echo "$as_me: WARNING: perl not found -- not building perl scripts" >&2;}
    scr2ifm=
 fi
 
-                                                                                          ac_config_files="$ac_config_files Makefile demos/Makefile doc/Makefile doc/cover.ifm fig/Makefile lib/Makefile progs/Makefile src/Makefile tests/Makefile"
+                                                                                          ac_config_files="$ac_config_files Makefile demos/Makefile doc/Makefile doc/conf.py fig/Makefile lib/Makefile progs/Makefile src/Makefile tests/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4669,7 +4669,7 @@ do
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "demos/Makefile" ) CONFIG_FILES="$CONFIG_FILES demos/Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
-  "doc/cover.ifm" ) CONFIG_FILES="$CONFIG_FILES doc/cover.ifm" ;;
+  "doc/conf.py" ) CONFIG_FILES="$CONFIG_FILES doc/conf.py" ;;
   "fig/Makefile" ) CONFIG_FILES="$CONFIG_FILES fig/Makefile" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "progs/Makefile" ) CONFIG_FILES="$CONFIG_FILES progs/Makefile" ;;
