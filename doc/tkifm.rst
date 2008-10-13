@@ -1,12 +1,12 @@
 .. _tkifm:
 
-======================================
- ``tkifm``: create maps interactively
-======================================
+=============================================
+ :program:`tkifm`: create maps interactively
+=============================================
 
-``tkifm`` is a graphical front end to IFM. It provides a text editing
-window in which you can map out your game using IFM commands, and a set of
-menus to view things.  The various features are as follows:
+:program:`tkifm` is a graphical front end to IFM. It provides a text
+editing window in which you can map out your game using IFM commands, and a
+set of menus to view things.  The various features are as follows:
 
 Text editing window
        This is the main window, where you type IFM commands. It provides
@@ -45,80 +45,32 @@ Help menu
        This displays a small info panel about the current IFM version,
        including copying restrictions.
 
-Using Your Own Editor
+Using your own editor
 =====================
 
 If you'd like to use your own editor to edit IFM files, but still view
-results with ``tkifm``, you can. ``tkifm`` recognizes when the file it is
+results with :program:`tkifm`, you can. :program:`tkifm` recognizes when the file it is
 visiting gets modified, and rereads it if so. If you like, you can also
-disable all tkifm file modification commands by setting the ``ifm(edit)``
+disable all tkifm file modification commands by setting the :keyword:`ifm(edit)`
 variable to zero (see below). This is probably a good idea if using another
-editor, or else you might accidentally save from ``tkifm`` and lose all
+editor, or else you might accidentally save from :program:`tkifm` and lose all
 your changes.
 
 Customization
 =============
 
-On startup, ``tkifm`` reads an initialization file in your home directory
-(the one pointed at by the ``HOME`` environment variable). On Unix systems
-it is called ``.tkifmrc``, and on Win32 systems it is called ``tkifm.ini``.
-From there, using Tcl commands, you can set various things that affect the
-appearance of the program.  Here's an example file showing the valid
-variables, their format and defaults::
+On startup, :program:`tkifm` reads an initialization file in your home
+directory (the one pointed at by the :envvar:`HOME` environment
+variable). On Unix systems it is called :file:`.tkifmrc`, and on Win32
+systems it is called :file:`tkifm.ini`.  From there, using Tcl commands,
+you can set various things that affect the appearance of the program.
+Here's an example file showing the valid variables, their format and
+defaults:
 
-    # Example tkifm init file.
+.. literalinclude:: examples/tkifm.txt
+   :language: tcl
 
-    # Whether to allow editing.
-    set ifm(edit) 1
-
-    # Edit window dimensions.
-    set ifm(editwidth)  80
-    set ifm(editheight) 24
-
-    # Editing font.
-    set ifm(editfont) {Courier 12 bold}
-
-    # Edit window colours.
-    set ifm(editforeground) black
-    set ifm(editbackground) wheat
-
-    # Item list window dimensions.
-    set ifm(itemwidth)  50
-    set ifm(itemheight) 30
-
-    # Task list (brief) window dimensions.
-    set ifm(taskwidth)  50
-    set ifm(taskheight) 30
-
-    # Task list (verbose) window dimensions.
-    set ifm(verbosewidth)  80
-    set ifm(verboseheight) 30
-
-    # Variable window dimensions.
-    set ifm(varswidth)  50
-    set ifm(varsheight) 30
-
-    # Text window font.
-    set ifm(textfont) {Times 12 bold}
-
-    # Text window colours.
-    set ifm(textforeground) black
-    set ifm(textbackground) wheat
-
-    # Whether to allow tearoff menus.
-    set ifm(tearoff) 1
-
-    # Syntax highlighting variables.
-    set ifm(syntaxcomments)     firebrick
-    set ifm(syntaxstrings)      grey40
-    set ifm(syntaxstructure)    blue
-    set ifm(syntaxdirections)   darkgoldenrod
-    set ifm(syntaxspecial)      cadetblue
-    set ifm(syntaxbuiltin)      forestgreen
-    set ifm(syntaxkeyword)      royalblue
-    set ifm(syntaxpreprocessor) purple
-
-Errors and Warnings
+Errors and warnings
 ===================
 
 Any errors or warnings that occur when invoking IFM will be displayed in a

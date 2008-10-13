@@ -28,6 +28,10 @@ text---these are described in :ref:`usage`. Some of the output formats have
 a set of variables which control the appearance of the output---see
 :ref:`variables`.
 
+IFM comes with **ABSOLUTELY NO WARRANTY**.  This is free software, and you
+are welcome to redistribute it under certain conditions; see :ref:`license`
+for details.
+
 History of IFM
 ==============
 

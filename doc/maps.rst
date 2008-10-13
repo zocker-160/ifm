@@ -38,8 +38,8 @@ this::
 
 Now you've said which way you went to get to the garage, and since you were
 in the kitchen, IFM knows that the garage is south of the kitchen. By the
-way, ``south`` can be abbreviated ``s`` (and similarly for all other
-directions), just like in the games.
+way, :keyword:`south` can be abbreviated :keyword:`s` (and similarly for
+all other directions), just like in the games.
 
 Ok, you're in the garage. Unfortunately, that's a dead end and you have to
 retrace your steps to the kitchen.  You've already mapped that, so there's
@@ -78,7 +78,7 @@ Like this::
 This says that you move east, then north, to get to the study. Now, what if
 someone locked the study door behind you and the only way out was through
 the window?  That's a one-way trip into the study, which you can indicate
-using the ``oneway`` attribute like this::
+using the :keyword:`oneway` attribute like this::
 
     room "Study" dir e n oneway;
 
@@ -94,19 +94,20 @@ dining room command like this::
 
     room "Dining Room" dir s link Kitchen;
 
-The ``link`` clause creates a straight-line link between the current room
-and the room with the specified tag name (in this case, the kitchen).
+The :keyword:`link` clause creates a straight-line link between the current
+room and the room with the specified tag name (in this case, the kitchen).
 
 Note that if this link needed to turn corners, as in the study example
 above, then that method of linking the rooms wouldn't have worked. In that
-case, you'd have to use the stand-alone ``link`` command. For example::
+case, you'd have to use the stand-alone :keyword:`link` command. For
+example::
 
     link Diner to Kitchen dir n nw;
 
 This assumes you've given the dining room the tag name ``Diner``. The link
 starts off going north, then turns northwest, and finally goes toward the
-kitchen. Note that in a ``link`` command, if you omit the final direction
-which leads to the linked room, it is added automatically.
+kitchen. Note that in a :keyword:`link` command, if you omit the final
+direction which leads to the linked room, it is added automatically.
 
 Other Directions
 ================
@@ -118,9 +119,10 @@ that using the go clause, like this::
     room "Garage" dir s go down;
 
 This indicates that the actual direction travelled is downwards, but it is
-still represented as south on the map. The ``go`` clause accepts ``up``,
-``down``, ``in`` and ``out``. As with compass directions, ``up`` and
-``down`` may be abbreviated as ``u`` and ``d``.
+still represented as south on the map. The :keyword:`go` clause accepts
+:keyword:`up`, :keyword:`down`, :keyword:`in` and :keyword:`out`. As with
+compass directions, :keyword:`up` and :keyword:`down` may be abbreviated as
+:keyword:`u` and :keyword:`d`.
 
 Room Exits
 ==========
@@ -129,7 +131,7 @@ At various points in a game, you arrive in a room with many directions to
 explore. It is useful to be able to mark some of these directions as
 unexplored, so that you can come back and explore them later. You could
 mark these by creating dummy rooms in those directions, but this is
-tedious. Alternatively, you can use the ``exit`` clause, like this::
+tedious. Alternatively, you can use the :keyword:`exit` clause, like this::
 
     room "Dining Room" dir s exit nw e;
 
@@ -139,16 +141,16 @@ displayed by a small line poking out of the room in those directions.
 
 When you come to actually explore those directions, and add links to new
 rooms, the corresponding room exit markers will no longer be drawn. So you
-can leave the ``exit`` clauses in if you want.
+can leave the :keyword:`exit` clauses in if you want.
 
 Map Sections
 ============
 
 In IFM, rooms are divided into groups called *map sections*. Each room in a
 map section has an explicit spatial relationship to all the other rooms in
-that section. A room which is obtained by moving via a ``dir`` clause from
-a previous room is on the same map section as the previous room, since its
-co-ordinates can be calculated relative to it.
+that section. A room which is obtained by moving via a :keyword:`dir`
+clause from a previous room is on the same map section as the previous
+room, since its co-ordinates can be calculated relative to it.
 
 There are several reasons why it might be a good idea to split a game map
 into different sections:
@@ -174,9 +176,9 @@ one section is connected to a room on another, using the join command::
 
     join Room1 to Room2;
 
-As usual, ``Room1`` and ``Room2`` are tag names. You can also use ``join``
-as a clause in a ``room`` command (usually done with the room starting in a
-new section)::
+As usual, ``Room1`` and ``Room2`` are tag names. You can also use
+:keyword:`join` as a clause in a :keyword:`room` command (usually done with
+the room starting in a new section)::
 
     room "Basement" join Ground_Floor;
 
@@ -188,16 +190,16 @@ Each map section can be given a title using the map command, like this::
     map "Kensington Gardens";
 
 This names the next map section that hasn't been named.  Note that you
-should have as many ``map`` commands as you have map sections, although
-this isn't enforced---any names that are missing will be assigned default
-names, and extra names will be ignored. It's conventional to give a ``map``
-command just before starting a new map section.
+should have as many :keyword:`map` commands as you have map sections,
+although this isn't enforced---any names that are missing will be assigned
+default names, and extra names will be ignored. It's conventional to give a
+:keyword:`map` command just before starting a new map section.
 
 In rare circumstances (e.g., a three-dimensional maze) you may need to have
 rooms on the same map section which are not connected to each other. The
-room ``dir`` clause creates an implicit link from the previous room by
-default, but you can stop this from happening by using the ``nolink``
-attribute. As a trivial example::
+room :keyword:`dir` clause creates an implicit link from the previous room
+by default, but you can stop this from happening by using the
+:keyword:`nolink` attribute. As a trivial example::
 
     room "One Side of Wall" tag this_side;
     room "Other Side of Wall" dir e nolink tag other_side;
@@ -213,13 +215,13 @@ Adding Items
 ============
 
 As well as rooms, IFM can indicate the initial rooms of various items found
-in the game. To add an item, use the ``item`` command like this::
+in the game. To add an item, use the :keyword:`item` command like this::
 
     item "Spoon" in Kitchen;
 
-The ``in`` clause can be omitted, and then the room defaults to the last
-room mentioned. You can also add an arbitrary note to each item (e.g., to
-remind you what it's for) using the ``note`` attribute::
+The :keyword:`in` clause can be omitted, and then the room defaults to the
+last room mentioned. You can also add an arbitrary note to each item (e.g.,
+to remind you what it's for) using the :keyword:`note` attribute::
 
     item "Spoon" in Kitchen note "Stirs tea";
 
@@ -257,13 +259,13 @@ map. There are several ways that this could occur:
 
 * The game designer made some room links longer than others, and you
   haven't taken that into account. To extend the length of a link, just add
-  a length indicator after the direction in the dir clause (e.g., ``dir e
-  2`` instead of ``dir e``).
+  a length indicator after the direction in the dir clause (e.g.,
+  :keyword:`dir e 2` instead of :keyword:`dir e`).
 
 * One of the links turned a corner, so that the direction you use to go
   back isn't the opposite of the one you used to get here. In that case,
-  you need to add the corner-turn in the link (e.g., ``dir e s`` instead of
-  ``dir e``).
+  you need to add the corner-turn in the link (e.g., :keyword:`dir e s`
+  instead of :keyword:`dir e`).
 
 * The map is multi-level, in which case it's probably best to split it into
   different map sections.

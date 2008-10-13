@@ -13,3 +13,4 @@
    diagnostics
    programs
    changes
+   license

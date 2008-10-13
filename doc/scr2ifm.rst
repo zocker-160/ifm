@@ -1,48 +1,61 @@
 .. _scr2ifm:
 
-=============================================
- ``scr2ifm``: convert transcripts to IFM map
-=============================================
+====================================================
+ :program:`scr2ifm`: convert transcripts to IFM map
+====================================================
 
-``scr2ifm`` reads one or more transcripts of an Interactive Fiction game
-and produces a map of it in IFM format. It works on Infocom-style
+:program:`scr2ifm` reads one or more transcripts of an Interactive Fiction
+game and produces a map of it in IFM format. It works on Infocom-style
 transcripts---those produced by Inform- and TADS-generated games (and of
 course Infocom games themselves). The idea is that you play your game in a
 carefree manner, without worrying about mapping anything, and after the
-session use ``scr2ifm`` to get a map. Well, that's the theory anyway.
+session use :program:`scr2ifm` to get a map. Well, that's the theory
+anyway.
 
-``scr2ifm`` offers two basic ways of mapping: you can create an initial
-(incomplete) map from your first transcript and then add the rest "by
-hand", or you can create a set of transcripts, each exploring different
+:program:`scr2ifm` offers two basic ways of mapping: you can create an
+initial (incomplete) map from your first transcript and then add the rest
+"by hand", or you can create a set of transcripts, each exploring different
 parts of the game, and then merge them all into a final map. Which you
 choose is up to you.
 
 Options
 =======
 
-These are the command-line options for ``scr2ifm``:
+These are the command-line options for :program:`scr2ifm`:
 
--c file  Append the given file of IFM and parameter commands to the end of
-   	 the map. This allows you to fix various problems in the resulting
-   	 map.
+.. cmdoption:: -c file
 
--o file  Write output to the given file instead of stdout.
+   Append the given file of IFM and parameter commands to the end of the
+   map. This allows you to fix various problems in the resulting map.
 
--i  Indent the output nicely (according to my definition, anyway). This
-    makes things look better if you've added item and task commands. 
-    Default is no indentation at all.
+.. cmdoption:: -o file
 
--l  Add a comment to each IFM command indicating the file and line number of
-    the transcript command that generated it.
+   Write output to the given file instead of ``stdout``.
 
--w  Don't print warnings.
+.. cmdoption:: -i
 
--h  Print a short usage message and exit.
+   Indent the output nicely (according to *my* definition, anyway). This
+   makes things look better if you've added item and task commands.
+   Default is no indentation at all.
+
+.. cmdoption:: -l
+
+   Add a comment to each IFM command indicating the file and line number of
+   the transcript command that generated it.
+
+.. cmdoption:: -w
+
+   Don't print warnings.
+
+.. cmdoption:: -h
+
+   Print a short usage message and exit.
 
 Operation
 =========
 
-``scr2ifm`` works by recognizing several key things in the transcript:
+:program:`scr2ifm` works by recognizing several key things in the
+transcript:
 
 * The commands you type. These are easy to spot, because they are preceded
   by a prompt (usually ``>``).
@@ -73,14 +86,14 @@ Some of these checks can be tailored to a particular transcript.
 Making Transcripts
 ==================
 
-For best results with ``scr2ifm``, you should follow these guidelines when
-making a transcript:
+For best results with :program:`scr2ifm`, you should follow these
+guidelines when making a transcript:
 
 * Always use *verbose* mode. If you don't, then when you revisit a room
   you've been in before, no description will be printed. In that case,
-  ``scr2ifm`` will have to rely on the room name to tell where it is. If
-  there's more than one room with that name, it'll get confused (and so
-  will you when you look at the map!).
+  :program:`scr2ifm` will have to rely on the room name to tell where it
+  is. If there's more than one room with that name, it'll get confused (and
+  so will you when you look at the map!).
 
 * After starting the script, look around. Otherwise your starting room may
   not be included on the map, since the room description may not get
@@ -88,10 +101,10 @@ making a transcript:
 
 * If there's a bend in a link (e.g., if you leave a room by going east, and
   enter the next room from the south) make sure you do the return journey.
-  Otherwise, ``scr2ifm`` won't know about the bend.
+  Otherwise, :program:`scr2ifm` won't know about the bend.
 
 * Avoid places where different rooms have the same room description (i.e.,
-  mazes). ``scr2ifm`` can't resolve cases like this, and will assume
+  mazes). :program:`scr2ifm` can't resolve cases like this, and will assume
   there's just a single room. Note that this doesn't exclude all
   mazes---the "twisty passages, all different" maze from *Colossal Cave*
   would still work, since the descriptions are different.
@@ -102,16 +115,16 @@ making a transcript:
   be added to the same map section. If not, a new map section will be
   created (and you should use the map command to give it a name).
 
-Some games will be more amenable to ``scr2ifm`` than others---in general
-the ones with reasonable map connections, where each connection makes sense
-in relation to the others. For these games, the order in which rooms are
-visited will probably make no difference to the resulting map. But for
-perverse games (e.g., *Colossal Cave*, above ground) the order of visiting
-makes a big difference. In these cases, it's probably best to avoid trying
-to get all the connections on the map---you'll spew forth lots of IFM
-warnings otherwise, and the map will look awful. Sometimes it's worth
-having a second attempt at a transcript, choosing different directions to
-go in, to see if it improves things.
+Some games will be more amenable to :program:`scr2ifm` than others---in
+general the ones with reasonable map connections, where each connection
+makes sense in relation to the others. For these games, the order in which
+rooms are visited will probably make no difference to the resulting
+map. But for perverse games (e.g., *Colossal Cave*, above ground) the order
+of visiting makes a big difference. In these cases, it's probably best to
+avoid trying to get all the connections on the map---you'll spew forth lots
+of IFM warnings otherwise, and the map will look awful. Sometimes it's
+worth having a second attempt at a transcript, choosing different
+directions to go in, to see if it improves things.
 
 Another problem with mapping is that some games have these inconvenient
 things called puzzles, which sometimes block you from exploring everywhere
@@ -122,145 +135,146 @@ IFM Commands
 ============
 
 While you're making your transcript, you can use a subset of IFM commands
-to add extra things that ``scr2ifm`` will recognize. (Of course, the game
-almost certainly won't understand these commands, and will print a suitable
-indignant reply. But that shouldn't affect the state of things.) The
-commands recognized are:
+to add extra things that :program:`scr2ifm` will recognize. (Of course, the
+game almost certainly won't understand these commands, and will print a
+suitable indignant reply. But that shouldn't affect the state of things.)
+The commands recognized are:
 
-``title <name>``
+:keyword:`title <name>`
        Give the map a title. The name must be in double-quotes. This
        command can appear anywhere, and has the same effect each time.
 
-``map <name>``
+:keyword:`map <name>`
        Indicate that the current room starts a new map section with the
        given name. The name must be in double-quotes. This is useful if it
        seems like the map divides into different sections (e.g., the floors
        of a house).
 
-       If you use the ``map`` command, you'll end up with two or more map
-       sections. The first map section is the one that contains the very
-       first room, and will have a default name unless you give it one
-       using another ``map`` command.
+       If you use the :keyword:`map` command, you'll end up with two or
+       more map sections. The first map section is the one that contains
+       the very first room, and will have a default name unless you give it
+       one using another :keyword:`map` command.
 
-``item <name> [attrs]``
+:keyword:`item <name> [attrs]`
        Declare an item in the current room.  The name must be in
        double-quotes. If you don't give it a tag attribute, one is
        generated automatically by changing all invalid tag characters in
        the name to underscores.
 
-``item [attrs]``
+:keyword:`item [attrs]`
        Add the given attributes to the last declared item, if any.
 
-``item delete``
+:keyword:`item delete`
        Delete the last declared item, if any.
 
-``task <name> [attrs]``
+:keyword:`task <name> [attrs]`
        Declare a task in the current room in a similar manner to items. The
        name must be in double-quotes.
 
-``task [attrs]``
+:keyword:`task [attrs]`
        Add the given attributes to the last declared task, if any.
 
-``task delete``
+:keyword:`task delete`
        Delete the last declared task, if any.
 
-Note that ``scr2ifm`` knows almost nothing about IFM command syntax. If
-there's a syntax error in a command, you'll have to manually edit the
-resulting transcript (or delete the item/task and do it again).
+Note that :program:`scr2ifm` knows almost nothing about IFM command
+syntax. If there's a syntax error in a command, you'll have to manually
+edit the resulting transcript (or delete the item/task and do it again).
 
 Fixing Problems
 ===============
 
-The map produced by ``scr2ifm`` will not be perfect in a lot of cases. When
-running it through IFM you might get warnings about overlapping rooms, or
-crossed link lines. These problems are usually fixed by stretching the link
-lines of some of the rooms. Some overlapping-room problems are caused by
-the program making a bad choice of direction to put an up/down/in/out
-connection in. Another problem might be not recognizing when a room is the
-same as a previously-visited room, because the room description changed too
-much between visits.
+The map produced by :program:`scr2ifm` will not be perfect in a lot of
+cases. When running it through IFM you might get warnings about overlapping
+rooms, or crossed link lines. These problems are usually fixed by
+stretching the link lines of some of the rooms. Some overlapping-room
+problems are caused by the program making a bad choice of direction to put
+an up/down/in/out connection in. Another problem might be not recognizing
+when a room is the same as a previously-visited room, because the room
+description changed too much between visits.
 
 You can fix most of these problems by creating a command file and
-specifying it with the ``-c`` option.  There are two types of entry:
-``scr2ifm`` commands and IFM commands. In a command file, blank lines and
-comment lines (those starting with a ``#``) are ignored. If a command isn't
-recognized as a ``scr2ifm`` command, it's assumed to be an IFM command, and
-is passed straight into the output verbatim. You can use these to resolve
-conflicts in the generated map, by stretching certain links or hiding them
-altogether.
+specifying it with the :keyword:`-c` option.  There are two types of entry:
+:program:`scr2ifm` commands and IFM commands. In a command file, blank
+lines and comment lines (those starting with a ``#``) are ignored. If a
+command isn't recognized as a :program:`scr2ifm` command, it's assumed to
+be an IFM command, and is passed straight into the output verbatim. You can
+use these to resolve conflicts in the generated map, by stretching certain
+links or hiding them altogether.
 
 Here's a list of the commands available:
 
-``is_room TEXT``
+:keyword:`is_room TEXT`
        Declare a line of text that is actually the name of a room. Normally
        room names get recognized properly, but there may be some special
        cases that aren't.
 
-``not_room TEXT``
+:keyword:`not_room TEXT`
        Declare a line of text that definitely isn't the name of a
        room. This is for opposite cases to the above.
 
-``use_name TEXT``
+:keyword:`use_name TEXT`
        Use only the room name to decide whether a room has been previously
        visited. This is for cases where a room description changes too much
        between visits to be called the same room. Note that this implies
        that there can only ever be one room with this name.
 
-``set_option LETTER``
-       This is a convenience that lets you specify ``scr2ifm`` command-line
-       options in the command file instead. E.g., ``set_option i`` will
-       indent output nicely.
+:keyword:`set_option LETTER`
+       This is a convenience that lets you specify :program:`scr2ifm`
+       command-line options in the command file instead. E.g.,
+       :keyword:`set_option i` will indent output nicely.
 
-``set_param VAR = VALUE``
+:keyword:`set_param VAR = VALUE`
        This evaluates the given Perl expression. You can use this to set
        various parameters that control how the transcript is parsed (see
-       below).  Setting a value of ``undef`` will remove that parameter (so
-       that it won't be used).
+       below).  Setting a value of :keyword:`undef` will remove that
+       parameter (so that it won't be used).
 
 Here's a list of the parameters that control how the transcript is parsed,
-and their defaults. You can use the ``scr2ifm`` ``set_param`` command to
-set them in the command file.
+and their defaults. You can use the :program:`scr2ifm` :keyword:`set_param`
+command to set them in the command file.
 
-``$name_remove``
+:keyword:`$name_remove`
        Matched text to remove before seeing if a line of text is a room
        name. This is for getting rid of stuff like " (in the dodgem
        car)". Default: ``\s+\(.+\)``
 
-``$name_maxwords``
+:keyword:`$name_maxwords`
        Maximum no. of words in a room name. Default: 8
 
-``$name_maxuncap``
+:keyword:`$name_maxuncap`
        Maximum length of an uncapitalized word in a room name. Default: 3
 
-``$name_invalid``
+:keyword:`$name_invalid`
        Regexp which, if matched, signals an invalid room name. Default:
        ``[.!?"]``
 
-``$desc_minwords``
+:keyword:`$desc_minwords`
        Minimum no. of matching words required to match a room
        description. Default: 20
 
-``$cmd_prompt``
+:keyword:`$cmd_prompt`
        Regexp matching a command prompt. Default: ``^>\s*``
 
-``$cmd_look``
+:keyword:`$cmd_look`
        Regexp matching a 'look' command (case-insensitive). Default:
        ``^l(ook)?$``
 
-``$cmd_undo``
+:keyword:`$cmd_undo`
        Regexp matching an UNDO command (case-insensitive). It's assumed
        that only a single level of UNDO is available. Default: ``^undo$``
 
-``$cmd_teleport``
+:keyword:`$cmd_teleport`
        Regexp matching commands that are known to cause a teleport to an
        arbitrary room (case-insensitive). Default: ``^(restart|restore)$``
 
 Writing the Map
 ===============
 
-Output from ``scr2ifm`` is as follows. First, if the title of the map was
-specified with the ``title`` command, it is printed. Then, if there's more
-than one map section, a list of map section titles is printed.
+Output from :program:`scr2ifm` is as follows. First, if the title of the
+map was specified with the :keyword:`title` command, it is printed. Then,
+if there's more than one map section, a list of map section titles is
+printed.
 
 Next, there's a list of IFM commands derived from the transcript. Each time
 a new room is seen, a room command is output for it. Each room is given a
@@ -271,23 +285,23 @@ that number appended.  For example, room "West of House" would get tag
 
 If a movement command was up, down, in or out, then a compass direction is
 chosen for it that doesn't clash with other rooms (if possible) and the
-``go`` attribute is used to mark its real direction. If a movement command
-isn't recognized, the same is done except this time the ``cmd`` attribute
-is used to record the command instead.
+:keyword:`go` attribute is used to mark its real direction. If a movement
+command isn't recognized, the same is done except this time the
+:keyword:`cmd` attribute is used to record the command instead.
 
-If movement is seen between two already-visited rooms, a ``link`` command
-is output (or a ``join``, if the rooms appear to be on different map
-sections). Link tags are built by concatenating the room tags of the linked
-rooms with an underscore in between. Link movement is dealt with in the
-same manner as for rooms.
+If movement is seen between two already-visited rooms, a :keyword:`link`
+command is output (or a :keyword:`join`, if the rooms appear to be on
+different map sections). Link tags are built by concatenating the room tags
+of the linked rooms with an underscore in between. Link movement is dealt
+with in the same manner as for rooms.
 
-If the special ``item`` or ``task`` commands are seen, then an item or task
-command is output following the room that it appears in. If an item or task
-hasn't been given a tag, it is assigned one. The tag is made by translating
-all invalid tag characters in the name to underscores, capitalizing (to
-avoid clashes with IFM commands) and, if the tag clashes with a
-previously-defined tag, adding a numerical suffix to make it unique. For
-example, "black rod" might get a tag ``Black_rod_2``.
+If the special :keyword:`item` or :keyword:`task` commands are seen, then
+an item or task command is output following the room that it appears in. If
+an item or task hasn't been given a tag, it is assigned one. The tag is
+made by translating all invalid tag characters in the name to underscores,
+capitalizing (to avoid clashes with IFM commands) and, if the tag clashes
+with a previously-defined tag, adding a numerical suffix to make it
+unique. For example, "black rod" might get a tag ``Black_rod_2``.
 
 Finally, the IFM commands from the file indicated by the ``-c`` option are
 echoed (if any).
@@ -295,8 +309,8 @@ echoed (if any).
 Example Session
 ===============
 
-Here's a simple example of ``scr2ifm`` in action on *Colossal Cave*. First,
-the transcript in file ``advent.scr`` (with annotation):
+Here's a simple example of :program:`scr2ifm` in action on *Colossal
+Cave*. First, the transcript in file :file:`advent.scr` (with annotation):
 
 .. include:: examples/advent1.scr
    :literal:
@@ -349,8 +363,8 @@ To check for problems, just type::
 On the first run through, there are complaints about an overlapping room,
 due to a bad choice of direction for the "down" link from ``Outside
 Grate``, and the expected problems with the link between the ``Debris
-Room`` and the ``Building``. A command file, ``advent.cmd``, will fix these
-problems:
+Room`` and the ``Building``. A command file, :file:`advent.cmd`, will fix
+these problems:
 
 .. include:: examples/advent.cmd
    :literal:
@@ -371,7 +385,8 @@ Printed, it looks like this:
 Limitations
 ===========
 
-Here's a list of things that ``scr2ifm`` doesn't currently deal with:
+Here's a list of things that :program:`scr2ifm` doesn't currently deal
+with:
 
 * Mazes. Different maze rooms that look identical (i.e., have identical
   names and descriptions) will simply appear as a single room.
