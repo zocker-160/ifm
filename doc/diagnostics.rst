@@ -7,7 +7,7 @@ be produced by IFM, and what they mean. Note that individual output formats
 may print their own errors and/or warnings. These lists only cover the
 standard ones.
 
-Error Messages
+Error messages
 ==============
 
 Here's the list of error messages. If any errors occur, no output is
@@ -77,7 +77,7 @@ produced.
        overridden the system initialization file. The remedy is to define
        the variable somewhere.
 
-Warning Messages
+Warning messages
 ================
 
 Here's the list of warning messages. If only warnings occur, then output is

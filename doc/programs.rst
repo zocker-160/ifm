@@ -1,5 +1,5 @@
 ====================
- Other IFM Programs
+ Other IFM programs
 ====================
 
 There are several other programs bundled with IFM, which you might find

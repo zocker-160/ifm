@@ -4,7 +4,7 @@
  Using IFM
 ===========
 
-Running the Program
+Running the program
 ===================
 
 IFM is run from the command line. The general form of the command is::
@@ -125,7 +125,7 @@ Finally, here are the information options:
 
    Just print some usage information.
 
-Types of Output
+Types of output
 ===============
 
 IFM has three different types of output (a map, a list of items, and a list
@@ -144,7 +144,7 @@ format. The table below shows what's available for each format.
 All the map output formats display map sections in the same way, so that
 what you get with one format looks much the same as another. [1]_
 
-PostScript Maps (``ps``)
+PostScript maps (``ps``)
 ------------------------
 
 This produces a PostScript map suitable for printing.  Several map sections
@@ -154,7 +154,7 @@ page. Also, portrait or landscape is chosen depending on whichever gives
 the best fit. Fonts of room and item text are scaled to fit them in the
 room boxes, if required.
 
-Fig Maps (``fig``)
+Fig maps (``fig``)
 ------------------
 
 This produces a map which can be read (and edited) by `Xfig
@@ -169,7 +169,7 @@ Fig format is also useful if you want to print poster-sized maps over
 several pages. The :option:`-M` option of :program:`fig2dev` (part of the
 transfig package) will automatically do this.
 
-Tk Drawing Commands (``tk``)
+Tk drawing commands (``tk``)
 ----------------------------
 
 This produces map commands for input to :ref:`tkifm <tkifm>`, a simple
@@ -178,7 +178,7 @@ yourself---:program:`tkifm` does that internally to build its map
 pictures. But you can control its display by setting variables in the usual
 way.
 
-ASCII Text (``text``)
+ASCII text (``text``)
 ---------------------
 
 This produces human-readable output for items and tasks. The output should
@@ -186,7 +186,7 @@ be fairly self-explanatory.
 
 .. _recording:
 
-Recording Commands (``rec``)
+Recording commands (``rec``)
 ----------------------------
 
 This output produces a list of commands suitable for feeding to IF
@@ -208,14 +208,14 @@ an interpreter that is able to fix the random seed at startup (e.g.,
 :program:`frotz`). This should eliminate most (but not all) of the problems
 of randomness.
 
-Task Dependencies (``dot``)
+Task dependencies (``dot``)
 ---------------------------
 
 This produces a graph of the dependencies of tasks on each other, in
 Graphviz (dot) format. You'll need to have Graphviz installed in order to
 display the graph; you can get it from http://www.graphviz.org.
 
-Raw Data (``raw``)
+Raw data (``raw``)
 ------------------
 
 This produces raw data for all output formats, intended for use by other
@@ -295,7 +295,7 @@ containing general colour and font definitions).
 
 .. _variables:
 
-Output Variables
+Output variables
 ================
 
 There are many variables available for customizing output. Most of them are
@@ -308,7 +308,7 @@ Here's the original initialization file that came bundled with IFM:
 
 .. literalinclude:: ../lib/ifm-init.ifm
 
-Predefined Styles
+Predefined styles
 =================
 
 IFM comes with a few predefined style files, as shown in the table below:

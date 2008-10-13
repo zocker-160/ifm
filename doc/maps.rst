@@ -7,7 +7,7 @@
 This section gives you a tour of the main commands for making maps. It's
 not complete; see :ref:`language` for a full list of commands.
 
-Introduction to Maps
+Introduction to maps
 ====================
 
 The traditional Infocom-style way of drawing Interactive Fiction maps is
@@ -21,7 +21,7 @@ them. Links emanate from rooms in any of the eight standard compass
 directions, and also follow the grid. In the following sections, we'll
 introduce the IFM commands that can be used to draw this example map.
 
-Adding Rooms
+Adding rooms
 ============
 
 To draw the example map from the previous section, you first choose an
@@ -84,7 +84,7 @@ using the :keyword:`oneway` attribute like this::
 
 This is indicated on the map by an arrow.
 
-Adding Links
+Adding links
 ============
 
 The map as it stands is not complete---the diagonal link between the
@@ -109,7 +109,7 @@ starts off going north, then turns northwest, and finally goes toward the
 kitchen. Note that in a :keyword:`link` command, if you omit the final
 direction which leads to the linked room, it is added automatically.
 
-Other Directions
+Other directions
 ================
 
 Suppose that there were steps down from the kitchen into the garage, and
@@ -124,7 +124,7 @@ still represented as south on the map. The :keyword:`go` clause accepts
 compass directions, :keyword:`up` and :keyword:`down` may be abbreviated as
 :keyword:`u` and :keyword:`d`.
 
-Room Exits
+Room exits
 ==========
 
 At various points in a game, you arrive in a room with many directions to
@@ -143,7 +143,7 @@ When you come to actually explore those directions, and add links to new
 rooms, the corresponding room exit markers will no longer be drawn. So you
 can leave the :keyword:`exit` clauses in if you want.
 
-Map Sections
+Map sections
 ============
 
 In IFM, rooms are divided into groups called *map sections*. Each room in a
@@ -211,7 +211,7 @@ by default, but you can stop this from happening by using the
 In this example, there are two map sections: above ground, and below
 ground. But the two above-ground rooms are not connected directly.
 
-Adding Items
+Adding items
 ============
 
 As well as rooms, IFM can indicate the initial rooms of various items found

@@ -586,6 +586,8 @@ variable to the value :keyword:`undef` effectively removes it. If the
 :keyword:`style` clause is present, this means to only set the variable to
 this value in the specified style.
 
+.. _style:
+
 Styles
 ======
 

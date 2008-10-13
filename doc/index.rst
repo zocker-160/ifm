@@ -6,11 +6,14 @@
    :maxdepth: 2
 
    intro
+   install
    maps
    solving
    usage
    language
    diagnostics
    programs
-   changes
+   links
+   thanks
    license
+   changes

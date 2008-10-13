@@ -32,8 +32,8 @@ IFM comes with **ABSOLUTELY NO WARRANTY**.  This is free software, and you
 are welcome to redistribute it under certain conditions; see :ref:`license`
 for details.
 
-History of IFM
-==============
+A bit of history
+================
 
 When I started playing IF games, years ago, I did what many other people
 did---made a rough map on paper of where I'd explored, so I could see which
@@ -66,15 +66,12 @@ appeared, which immediately tripled the size of the program and caused all
 sorts of headaches.
 
 But eventually it got to the stage where it might be worth releasing, so in
-June 1998 the first version appeared in the `IF archive`_. Very soon after
-that, I got a lot of feedback from one Dave Chapeskie
-(dchapes@ddm.wox.org), who made a lot of great suggestions for improvements
-and new features. He also very kindly started up a Web page for IFM maps;
-you can find it at http://www.sentex.net/~dchapes/ifm.
-
-And now, finally, it's finished and I can go back to that IF game I was
+June 1998 the first version appeared in the `IF archive`_.  And now,
+finally, it's finished and I can go back to that IF game I was
 playing. [1]_
 
 .. _IF archive: http://www.ifarchive.org
+
+.. rubric:: Footnotes
 
 .. [1] Oh all right. Maybe *one* more feature...

@@ -12,6 +12,10 @@ carefree manner, without worrying about mapping anything, and after the
 session use :program:`scr2ifm` to get a map. Well, that's the theory
 anyway.
 
+:program:`scr2ifm` was inspired by :program:`Frobot`, another
+transcript-reading mapper.  But :program:`scr2ifm` in combination with IFM
+does a much better job.
+
 :program:`scr2ifm` offers two basic ways of mapping: you can create an
 initial (incomplete) map from your first transcript and then add the rest
 "by hand", or you can create a set of transcripts, each exploring different
@@ -83,7 +87,7 @@ transcript:
 
 Some of these checks can be tailored to a particular transcript.
 
-Making Transcripts
+Making transcripts
 ==================
 
 For best results with :program:`scr2ifm`, you should follow these
@@ -131,7 +135,7 @@ things called puzzles, which sometimes block you from exploring everywhere
 so you can map it properly. Come on, IF authors, let's get our priorities
 right!
 
-IFM Commands
+IFM commands
 ============
 
 While you're making your transcript, you can use a subset of IFM commands
@@ -181,7 +185,7 @@ Note that :program:`scr2ifm` knows almost nothing about IFM command
 syntax. If there's a syntax error in a command, you'll have to manually
 edit the resulting transcript (or delete the item/task and do it again).
 
-Fixing Problems
+Fixing problems
 ===============
 
 The map produced by :program:`scr2ifm` will not be perfect in a lot of
@@ -268,7 +272,7 @@ command to set them in the command file.
        Regexp matching commands that are known to cause a teleport to an
        arbitrary room (case-insensitive). Default: ``^(restart|restore)$``
 
-Writing the Map
+Writing the map
 ===============
 
 Output from :program:`scr2ifm` is as follows. First, if the title of the
@@ -306,7 +310,7 @@ unique. For example, "black rod" might get a tag ``Black_rod_2``.
 Finally, the IFM commands from the file indicated by the ``-c`` option are
 echoed (if any).
 
-Example Session
+Example session
 ===============
 
 Here's a simple example of :program:`scr2ifm` in action on *Colossal

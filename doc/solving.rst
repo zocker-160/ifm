@@ -1,7 +1,7 @@
 .. _solving:
 
 ==================
- Solving the Game
+ Solving the game
 ==================
 
 As well as making a map of your game, you can record the steps you took to
@@ -9,7 +9,7 @@ solve it. IFM can then calculate a (fairly) optimal solution. This section
 is a guide to how to do it. Again, it's not a complete specification---see
 :ref:`language` for that.
 
-Introduction to Tasks
+Introduction to tasks
 =====================
 
 The basic game-solving action is called a *task* in IFM-speak. To introduce
@@ -28,10 +28,10 @@ The game solver in IFM divides tasks into two fundamental types: *safe* and
 position where solving the game is impossible. The game solver avoids doing
 unsafe tasks until it really has to.
 
-Task Dependencies
+Task dependencies
 =================
 
-Requiring Tasks
+Requiring tasks
 ---------------
 
 A lot of tasks require a previous task to be done first. To say this, you
@@ -77,7 +77,7 @@ Of course, you can only have a single task in a :keyword:`follow`
 clause---the immediately preceding task. It is an error for two or more
 tasks to try to immediately follow the same task.
 
-Requiring Items
+Requiring items
 ---------------
 
 For a lot of tasks, you need to have one or more items in your
@@ -93,7 +93,7 @@ Note that you don't need to add tasks to get required items yourself---the
 game solver does that automatically. It knows it has to get all the items
 which appear in :keyword:`need` clauses.
 
-Obtaining Items
+Obtaining items
 ---------------
 
 Sometimes a task needs to be done before you can get an item. One way to
@@ -129,7 +129,7 @@ in your inventory. You can say that using the :keyword:`give` clause::
 The :keyword:`give` clause overrides all other restrictions placed on
 getting items; the item is just teleported into your possession.
 
-Ignoring Tasks
+Ignoring tasks
 --------------
 
 In some circumstances, all the effects of doing a task occur before the
@@ -146,7 +146,7 @@ attribute. This is useful while you're solving the game (see `Tweaking the
 Solution`_) and when the task can be done by other tasks (see the next
 section).
 
-Doing Other Tasks
+Doing other tasks
 -----------------
 
 You can arrange for a task to automatically do other tasks after it is
@@ -178,10 +178,10 @@ on. [1]_
 Note that any task which does an unsafe task in this way is itself marked
 unsafe.
 
-Handling Items
+Handling items
 ==============
 
-Inventory Items
+Inventory items
 ---------------
 
 Items can be split into two types: *useful* and *useless*.  A useful item
@@ -224,7 +224,7 @@ be voluntarily dropped in that room. Any items which need to be dropped
 will then be dropped after the next task that happens in a room where
 dropping is allowed.
 
-Losing Items
+Losing items
 ------------
 
 Sometimes, doing a task causes items to be destroyed.  You can say that
@@ -242,10 +242,10 @@ could also have been written::
 
     task "Light bonfire" need match lose it;
 
-Dropping Items
+Dropping items
 --------------
 
-As mentioned in `Inventory Items`_, IFM knows when a useful item is no
+As mentioned in `Inventory items`_, IFM knows when a useful item is no
 longer needed, and drops it automatically. But sometimes items need to be
 dropped temporarily, even though they're needed later. You can do that
 using the :keyword:`drop` clause::
@@ -279,7 +279,7 @@ else. You can use the :keyword:`until` clause to say that::
 A task which drops items will be marked unsafe if there is no path back to
 the dropped items.
 
-Leaving Items
+Leaving items
 -------------
 
 There are some situations where your movement is blocked if you are
@@ -311,10 +311,10 @@ doesn't involve dropping any of the needed items.
 Note that the :keyword:`leave` clause overrides the room :keyword:`nodrop`
 attribute; items will be dropped even in those rooms.
 
-Moving Around
+Moving around
 =============
 
-Limiting Movement
+Limiting movement
 -----------------
 
 Sometimes an item is required, or a task needs to be done, before movement
@@ -358,7 +358,7 @@ could be added to the previous example to provide an escape route::
 
     join Vault to Entrance go e after disable_alarm hidden;
 
-Movement Tasks
+Movement tasks
 --------------
 
 There are several different ways of moving around in a game. The usual way
@@ -388,10 +388,10 @@ once, this method of travel can only be used once. Note also that the
 you to the new location (so if you drop items in the "current room", you
 will be teleported away from the dropped items).
 
-Other Game Features
+Other game features
 ===================
 
-Scoring Points
+Scoring points
 --------------
 
 Many games have some sort of scoring system, whereby you get points for
@@ -407,7 +407,7 @@ If an item has a score, but is given to the player via a task
 :keyword:`give` clause, then its score is added to the score for that task
 instead.
 
-Finishing the Game
+Finishing the game
 ------------------
 
 Usually a game finishes when you complete some final task. You can indicate
@@ -418,7 +418,7 @@ game solver ever manages to do something which is flagged with the
 :keyword:`finish` attribute, it considers the game solved and stops. Any
 extra things left to do will not be done, even if they score points.
 
-Finding a Solution
+Finding a solution
 ==================
 
 Here's what the game solver does in order to come up with a solution to the
@@ -496,7 +496,7 @@ list, the following steps are performed:
    something that's already been done (e.g., go and get an item that you've
    already been given).
 
-Tweaking the Solution
+Tweaking the solution
 =====================
 
 There will be some situations (quite a few, actually) where the game solver
