@@ -12,3 +12,4 @@
    language
    diagnostics
    programs
+   changes
