@@ -1,16 +1,17 @@
 ## Automake template for IFM documentation.
 
 docdir = $(prefix)/doc
+builddir = $(top_builddir)/doc
 ifmdocdir = $(docdir)/ifm
-
-MAN_TITLE = Interactive Fiction Mapper
-
-man_MANS = ifm.1
+htmldir = $(builddir)/html
+latexdir = $(builddir)/latex
+sphinxdir = $(builddir)/sphinx
 
 # Documenation sources.
 
-DOCFILES = diagnostics.rst index.rst intro.rst language.rst maps.rst	\
-programs.rst solving.rst usage.rst
+DOCFILES = changes.rst diagnostics.rst ifm2dev.rst ifm2tex.rst index.rst \
+intro.rst language.rst license.rst maps.rst programs.rst scr2ifm.rst	 \
+solving.rst tkifm.rst usage.rst
 
 # Programs.
 
@@ -26,37 +27,36 @@ all: guide manpage
 
 .PHONY: html latex
 
-HTMLDIR  = html
-LATEXDIR = latex
-
 guide: html
 
-force:; @ rm -rf $(HTMLDIR); $(MAKE) all
+force:; @ rm -rf $(htmldir); $(MAKE) all
 
-SPHINX = sphinx-build -N -d $(DOCTREES)
-SPHINXOPTS = 
-DOCTREES = $(srcdir)/doctrees
+SPHINX = sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
 
-setup:;	@ mkdir -p $(HTMLDIR) $(DOCTREES)
+setup:;	@ mkdir -p $(htmldir) $(sphinxdir)
 
 html: setup conf.py logo.png
-	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(HTMLDIR)
+	$(SPHINX) -b $@ $(srcdir) $(htmldir)
 
 latex: conf.py
-	@ mkdir -p $(LATEXDIR)
-	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(LATEXDIR)
+	@ mkdir -p $(latexdir)
+	$(SPHINX) -b $@ $(srcdir) $(latexdir)
 
 linkcheck: setup conf.py
-	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(DOCTREES)
+	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
 
 # Man page.
+
+MAN_TITLE = Interactive Fiction Mapper
+
+man_MANS = ifm.1
 
 manpage: ifm.1
 
 ifm.1: ifm.man
 	cp ifm.man ifm.tmp
 	echo "[SEE ALSO]" >> ifm.tmp
-	echo ".IP $(ifmdocdir)" >> ifm.tmp
+	echo ".IP $(ifmdocdir)/index.html" >> ifm.tmp
 	echo "Online documentation" >> ifm.tmp
 	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
 	rm -f ifm.tmp
@@ -71,11 +71,11 @@ mantest: man
 install-doc: install-html
 
 install-html: $(ifmdocdir)
-	@ if test -d $(srcdir)/html; then				\
+	@ if test -d $(htmldir); then					\
 	   set -x;							\
 	   rm -rf $(ifmdocdir);						\
 	   mkdir -p $(ifmdocdir);					\
-	   cp -rf $(srcdir)/html/* $(ifmdocdir);			\
+	   cp -rf $(htmldir)/* $(ifmdocdir);				\
 	fi
 
 $(ifmdocdir):
@@ -89,8 +89,8 @@ $(ifmdocdir):
 EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates
 
 dist-doc: $(EXTRA_DIST)
-	if test -d $(srcdir)/html; then					\
-	   cp -rf $(srcdir)/html $(distdir);				\
+	if test -d $(htmldir); then					\
+	   cp -rf $(htmldir) $(distdir);				\
 	fi
 
 # Other stuff.

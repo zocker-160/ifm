@@ -154,24 +154,27 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
 docdir = $(prefix)/doc
+builddir = $(top_builddir)/doc
 ifmdocdir = $(docdir)/ifm
-MAN_TITLE = Interactive Fiction Mapper
-man_MANS = ifm.1
+htmldir = $(builddir)/html
+latexdir = $(builddir)/latex
+sphinxdir = $(builddir)/sphinx
 
 # Documenation sources.
-DOCFILES = diagnostics.rst index.rst intro.rst language.rst maps.rst	\
-programs.rst solving.rst usage.rst
+DOCFILES = changes.rst diagnostics.rst ifm2dev.rst ifm2tex.rst index.rst \
+intro.rst language.rst license.rst maps.rst programs.rst scr2ifm.rst	 \
+solving.rst tkifm.rst usage.rst
 
 
 # Programs.
 IFM = $(top_srcdir)/src/ifm -s version="$(VERSION)"
 IFMCMD = $(IFM) -I $(top_srcdir)/lib
 HELP2MAN = $(top_srcdir)/etc/missing --run help2man -N -n "$(MAN_TITLE)"
-HTMLDIR = html
-LATEXDIR = latex
-SPHINX = sphinx-build -N -d $(DOCTREES)
-SPHINXOPTS = 
-DOCTREES = $(srcdir)/doctrees
+SPHINX = sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
+
+# Man page.
+MAN_TITLE = Interactive Fiction Mapper
+man_MANS = ifm.1
 
 # Distribution stuff.
 EXTRA_DIST = $(DOCFILES) ifm.1 ifm.man examples templates
@@ -396,28 +399,26 @@ all: guide manpage
 
 guide: html
 
-force:; @ rm -rf $(HTMLDIR); $(MAKE) all
+force:; @ rm -rf $(htmldir); $(MAKE) all
 
-setup:;	@ mkdir -p $(HTMLDIR) $(DOCTREES)
+setup:;	@ mkdir -p $(htmldir) $(sphinxdir)
 
 html: setup conf.py logo.png
-	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(HTMLDIR)
+	$(SPHINX) -b $@ $(srcdir) $(htmldir)
 
 latex: conf.py
-	@ mkdir -p $(LATEXDIR)
-	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(LATEXDIR)
+	@ mkdir -p $(latexdir)
+	$(SPHINX) -b $@ $(srcdir) $(latexdir)
 
 linkcheck: setup conf.py
-	$(SPHINX) -b $@ $(SPHINXOPTS) $(srcdir) $(DOCTREES)
-
-# Man page.
+	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
 
 manpage: ifm.1
 
 ifm.1: ifm.man
 	cp ifm.man ifm.tmp
 	echo "[SEE ALSO]" >> ifm.tmp
-	echo ".IP $(ifmdocdir)" >> ifm.tmp
+	echo ".IP $(ifmdocdir)/index.html" >> ifm.tmp
 	echo "Online documentation" >> ifm.tmp
 	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
 	rm -f ifm.tmp
@@ -432,11 +433,11 @@ mantest: man
 install-doc: install-html
 
 install-html: $(ifmdocdir)
-	@ if test -d $(srcdir)/html; then				\
+	@ if test -d $(htmldir); then					\
 	   set -x;							\
 	   rm -rf $(ifmdocdir);						\
 	   mkdir -p $(ifmdocdir);					\
-	   cp -rf $(srcdir)/html/* $(ifmdocdir);			\
+	   cp -rf $(htmldir)/* $(ifmdocdir);				\
 	fi
 
 $(ifmdocdir):
@@ -446,8 +447,8 @@ $(ifmdocdir):
 	$(mkinstalldirs) $(ifmdocdir)
 
 dist-doc: $(EXTRA_DIST)
-	if test -d $(srcdir)/html; then					\
-	   cp -rf $(srcdir)/html $(distdir);				\
+	if test -d $(htmldir); then					\
+	   cp -rf $(htmldir) $(distdir);				\
 	fi
 
 # Other stuff.
