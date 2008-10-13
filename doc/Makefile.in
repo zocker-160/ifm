@@ -409,12 +409,6 @@ latex: conf.py
 linkcheck: setup conf.py
 	$(SPHINX) -b $@ $(SPHINXOPTS) . $(HTMLDIR)/.linkcheck
 
-logo.png: logo.ifm ifm2web
-	./ifm2web $< $@
-#	$(IFMCMD) -m -f fig -o logo.fig $<
-#	fig2dev -L png -m 0.3 logo.fig > $@
-#	rm -f logo.fig
-
 # Man page.
 
 manpage: ifm.1
