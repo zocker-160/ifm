@@ -1,5 +1,10 @@
 # Common Makefile targets.
 
+IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib -s version="$(VERSION)"
+
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
+
 # Show recent source changes.
 
 DAYS = 7
