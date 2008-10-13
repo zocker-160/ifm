@@ -1,7 +1,5 @@
 ## Automake template for IFM man page.
 
-# Programs.
-
 HELP2MAN = $(OPTIONAL) help2man -N -n "$(MAN_TITLE)"
 OPTIONAL = $(top_srcdir)/etc/missing --run
 
