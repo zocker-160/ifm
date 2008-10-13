@@ -16,8 +16,6 @@
 
 # Common Makefile targets.
 
-# Show recent source changes.
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -215,6 +213,12 @@ LINTDEFS = -I. $(CPPFLAGS) $(DEFS) $(INCLUDES)
 LINTCMD = $(LINT) $(LINTARGS) $(LINTLOCAL) $(LINTGLOBAL) $(LINTFLAGS)	\
 $(LINTDEFS)
 
+IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
+IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
+
+# Show recent source changes.
 DAYS = 7
 CLEANFILES = *.output
 all: all-am

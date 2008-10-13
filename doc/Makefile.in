@@ -15,8 +15,6 @@
 @SET_MAKE@
 
 # Common Makefile targets.
-
-# Show recent source changes.
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -149,9 +147,7 @@ subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
-docdir = $(prefix)/doc
 builddir = $(top_builddir)/doc
-ifmdocdir = $(docdir)/ifm
 htmldir = $(builddir)/html
 latexdir = $(builddir)/latex
 sphinxdir = $(builddir)/sphinx
@@ -163,13 +159,17 @@ solving.rst tkifm.rst usage.rst
 
 
 # Programs.
-IFM = $(top_srcdir)/src/ifm -s version="$(VERSION)"
-IFMCMD = $(IFM) -I $(top_srcdir)/lib
 SPHINX = $(OPTIONAL) sphinx-build -N -d $(sphinxdir) $(SPHINXOPTS)
 OPTIONAL = $(top_srcdir)/etc/missing --run
 
 # Distribution stuff.
 EXTRA_DIST = $(DOCFILES) examples templates logo.png
+IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
+IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
+
+# Show recent source changes.
 DAYS = 7
 all: all-am
 

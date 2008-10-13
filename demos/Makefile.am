@@ -2,8 +2,6 @@
 
 EXTRA_DIST = example.ifm maptest.ifm ruins.ifm
 
-IFM = $(top_srcdir)/src/ifm -I $(top_srcdir)/lib -S helvetica
-
 SET = -s task_graph_rooms=1
 
 ps fig: maptest.ifm

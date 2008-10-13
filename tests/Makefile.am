@@ -12,14 +12,8 @@ test-leave2.ifm test-link1.ifm test-link2.ifm test-lose.ifm test-nocmd.ifm \
 test-nolink1.ifm test-nolink2.ifm test-nopath.ifm test-noroom.ifm	   \
 test-note.ifm test-path.ifm test-simple.ifm test-unsafe.ifm
 
-IFM		= $(top_builddir)/src/ifm $(ARGS)
-
-ARGS		= -I$(top_srcdir)/lib
-
 TKIFM		= $(top_builddir)/progs/tkifm
-
 TESTS		= $(SRCS:.ifm=.test)
-
 EXP		= $(SRCS:.ifm=.exp)
 
 EXTRA_DIST	= README $(TESTS) $(EXP)

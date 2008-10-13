@@ -16,8 +16,6 @@
 
 # Common Makefile targets.
 
-# Show recent source changes.
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -163,6 +161,12 @@ STYLES = helvetica.ifm puzzle.ifm reckless.ifm special.ifm verbose.ifm
 LIBFILES = ifm-init.ifm ifm-pro.ps ifm-rgb.txt $(STYLES)
 pkgdata_DATA = $(LIBFILES)
 EXTRA_DIST = $(LIBFILES)
+IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
+IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
+docdir = $(prefix)/doc
+ifmdocdir = $(docdir)/ifm
+
+# Show recent source changes.
 DAYS = 7
 all: all-am
 

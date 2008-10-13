@@ -176,6 +176,8 @@ ACLOCAL_AMFLAGS = -I etc
 SUBDIRS = $(subdirs) fig src lib doc man progs demos tests
 EXTRA_DIST = COPYING.DOC TO-DO
 EXTRA_DIRS = etc contrib win32
+IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
+IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
