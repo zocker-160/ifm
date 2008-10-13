@@ -312,45 +312,38 @@ Example Session
 Here's a simple example of :program:`scr2ifm` in action on *Colossal
 Cave*. First, the transcript in file :file:`advent.scr` (with annotation):
 
-.. include:: examples/advent1.scr
-   :literal:
+.. literalinclude:: examples/advent1.scr
 
 The previous two commands are recommended after starting the transcript.
 
-.. include:: examples/advent2.scr
-   :literal:
+.. literalinclude:: examples/advent2.scr
 
 The previous four commands declare the given items to the program. You
 don't have to bother with this if you don't want item locations on your
 map.
 
-.. include:: examples/advent3.scr
-   :literal:
+.. literalinclude:: examples/advent3.scr
 
 Note that in this game we don't go in all possible directions---there's no
 logic to the connections, and it'd just make a complete mess on the map.
 
-.. include:: examples/advent4.scr
-   :literal:
+.. literalinclude:: examples/advent4.scr
 
 That last command declared a task---again, you don't have to bother with
 this if you don't want to.
 
-.. include:: examples/advent5.scr
-   :literal:
+.. literalinclude:: examples/advent5.scr
 
 Oops! Stumbled into the dark by mistake. Without the ``UNDO``, that would
 have meant ``Darkness`` appeared on the map as a room.
 
-.. include:: examples/advent6.scr
-   :literal:
+.. literalinclude:: examples/advent6.scr
 
 Goodness me! That was unexpected---we've been teleported. The link almost
 certainly won't look good on the map. We have the option of UNDOing, right
 now, or fixing the map later. Let's do the latter.
 
-.. include:: examples/advent7.scr
-   :literal:
+.. literalinclude:: examples/advent7.scr
 
 Ok, now to create a map. To do that, use this command::
 
@@ -366,8 +359,7 @@ Grate``, and the expected problems with the link between the ``Debris
 Room`` and the ``Building``. A command file, :file:`advent.cmd`, will fix
 these problems:
 
-.. include:: examples/advent.cmd
-   :literal:
+.. literalinclude:: examples/advent.cmd
 
 Now, if we invoke::
 
@@ -375,8 +367,7 @@ Now, if we invoke::
 
 we get the following map:
 
-.. include:: examples/advent.ifm
-   :literal:
+.. literalinclude:: examples/advent.ifm
 
 Printed, it looks like this:
 

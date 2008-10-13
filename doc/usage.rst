@@ -306,8 +306,7 @@ preferences in your personal init file.
 
 Here's the original initialization file that came bundled with IFM:
 
-.. include:: ../lib/ifm-init.ifm
-   :literal:
+.. literalinclude:: ../lib/ifm-init.ifm
 
 Predefined Styles
 =================

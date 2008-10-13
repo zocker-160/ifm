@@ -7,11 +7,9 @@
 General Public License
 ======================
 
-.. include:: ../COPYING
-   :literal:
+.. literalinclude:: ../COPYING
 
 Free Documentation License
 ==========================
 
-.. include:: ../COPYING.DOC
-   :literal:
+.. literalinclude:: ../COPYING.DOC
