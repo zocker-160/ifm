@@ -3,7 +3,7 @@
 ====================
 
 There are several other programs bundled with IFM, which you might find
-useful.
+useful:
 
 .. toctree::
    :maxdepth: 2
