@@ -25,7 +25,8 @@ See the main IFM documentation in the ``doc`` directory for how to obtain
 and install IFM on various systems.
 
 IFM and its utility programs are free software, and you may redistribute
-them under certain conditions; see the file called ``COPYING`` for details.
+them under certain conditions; see the files ``COPYING`` and
+``COPYING.DOC`` for details.
 
 Feel free to send comments, bug reports, suggestions, etc. to me.  I am
 Glenn Hutchings (zondo42@googlemail.com).
