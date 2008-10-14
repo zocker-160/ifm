@@ -4,11 +4,6 @@
 
 This directory contains miscellaneous contributed stuff for IFM:
 
-``asciimapper``
-     Tool to create IFM maps from ASCII art maps, contributed by Elijah
-     Griffin.  Intended to be an easy way to draw a map and have it
-     converted to IFM format.
-
 ``ifm.vim``
      Support for IFM syntax colouring in ``vim`` (a ``vi`` clone),
      contributed by Dave Chapeskie (dchapes@ddm.on.ca).  This has been
