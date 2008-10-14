@@ -4,8 +4,15 @@
 
 .. _mapping-programs:
 
-Other mapping programs
-======================
+.. index:: 
+   pair: Mapping programs; GUEmap
+   pair: Mapping programs; IFMapper
+   pair: Mapping programs; Frobot
+   pair: Mapping programs; ifm2i7
+   pair: Mapping programs; asciimapper
+
+Mapping programs and tools
+==========================
 
 * GUEmap_ is the most popular graphical mapping tool used on Windows.
 
@@ -17,19 +24,15 @@ Other mapping programs
 * Frobot_ creates maps in a similar manner to :ref:`scr2ifm <scr2ifm>`, by
   analyzing a game transcript.
 
-.. _Frobot: http://www.ifarchive.org/if-archive/mapping-tools/frobot12.zip
-.. _IFMapper: http://www.rubyforge.org/projects/ifmapper
-.. _GUEmap: http://www.cjmweb.net/GUEmap
-
-Programs which read/write IFM maps
-==================================
-
 * ifm2i7_ is a Perl script which converts IFM maps into `Inform 7`_ input,
   using IFM's :ref:`raw <raw>` output format.
 
 * asciimapper_ is a Perl script which takes ASCII representations of maps
   and converts them to IFM format.
 
+.. _Frobot: http://www.ifarchive.org/if-archive/mapping-tools/frobot12.zip
+.. _IFMapper: http://www.rubyforge.org/projects/ifmapper
+.. _GUEmap: http://www.cjmweb.net/GUEmap
 .. _ifm2i7: http://code.wetash.com/ifm2i7
 .. _`Inform 7`: http://www.inform-fiction.org/I7/Inform%207.html
 .. _asciimapper: http://www.ifarchive.org/if-archive/mapping-tools/asciimapper

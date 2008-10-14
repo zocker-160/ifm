@@ -21,6 +21,13 @@ them. Links emanate from rooms in any of the eight standard compass
 directions, and also follow the grid. In the following sections, we'll
 introduce the IFM commands that can be used to draw this example map.
 
+.. index::
+   single: room; Adding rooms
+   single: tag; Adding rooms
+   single: dir; Adding rooms
+   single: from; Adding rooms
+   single: oneway; Adding rooms
+
 Adding rooms
 ============
 
@@ -84,6 +91,9 @@ using the :keyword:`oneway` attribute like this::
 
 This is indicated on the map by an arrow.
 
+.. index::
+   single: link; Adding links
+
 Adding links
 ============
 
@@ -109,6 +119,13 @@ starts off going north, then turns northwest, and finally goes toward the
 kitchen. Note that in a :keyword:`link` command, if you omit the final
 direction which leads to the linked room, it is added automatically.
 
+.. index::
+   single: go; Other directions
+   single: up; Other directions
+   single: down; Other directions
+   single: in; Other directions
+   single: out; Other directions
+
 Other directions
 ================
 
@@ -123,6 +140,9 @@ still represented as south on the map. The :keyword:`go` clause accepts
 :keyword:`up`, :keyword:`down`, :keyword:`in` and :keyword:`out`. As with
 compass directions, :keyword:`up` and :keyword:`down` may be abbreviated as
 :keyword:`u` and :keyword:`d`.
+
+.. index::
+   single: exit; Room exits
 
 Room exits
 ==========
@@ -142,6 +162,11 @@ displayed by a small line poking out of the room in those directions.
 When you come to actually explore those directions, and add links to new
 rooms, the corresponding room exit markers will no longer be drawn. So you
 can leave the :keyword:`exit` clauses in if you want.
+
+.. index::
+   single: map; Map sections
+   single: join; Map sections
+   single: nolink; Map sections
 
 Map sections
 ============
@@ -185,7 +210,8 @@ the room starting in a new section)::
 The "joined" status of the two rooms is indicated after their description
 text; the default is to use an increasing number.
 
-Each map section can be given a title using the map command, like this::
+Each map section can be given a title using the :keyword:`map` command,
+like this::
 
     map "Kensington Gardens";
 
@@ -211,6 +237,11 @@ by default, but you can stop this from happening by using the
 In this example, there are two map sections: above ground, and below
 ground. But the two above-ground rooms are not connected directly.
 
+.. index::
+   single: item; Adding items
+   single: note; Adding items
+   single: in; Adding items
+
 Adding items
 ============
 
@@ -228,26 +259,31 @@ to remind you what it's for) using the :keyword:`note` attribute::
 Here's the completed map description for the above example, with a few
 other items thrown in::
 
-    title "Example Map";
+   title "Example Map";
 
-    room "Kitchen" tag Kitchen;
-      item "spoon" note "Stirs tea";
-      item "sink";
-      item "monkey";
+   room "Kitchen" tag Kitchen;
+     item "spoon" note "Stirs tea";
+     item "sink";
+     item "monkey";
 
-    room "Garage" dir s go down;
-      item "monkey wrench" note "For wrenching monkey out of sink";
+   room "Garage" dir s go down;
+     item "monkey wrench" note "For wrenching monkey out of sink";
 
-    room "Lounge" dir e from Kitchen;
-      item "TV set";
+   room "Lounge" dir e from Kitchen;
+     item "TV set";
 
-    room "Dining Room" dir s link Kitchen;
-      item "table";
-      item "chair";
+   room "Dining Room" dir s link Kitchen;
+     item "table";
+     item "chair";
 
-    room "Study" dir e n oneway;
+   room "Study" dir e n oneway;
 
 See :ref:`usage` for how to display it.
+
+.. index::
+   single: dir; Conflicts
+
+.. index:: Colossal Cave; Mapping conflicts
 
 Conflicts
 =========
@@ -270,6 +306,6 @@ map. There are several ways that this could occur:
 * The map is multi-level, in which case it's probably best to split it into
   different map sections.
 
-* The map is just weird. Colossal Cave is a good example, particularly the
-  above-ground section and the mazes. There seems to be no logic tying the
-  rooms together. You're on your own.
+* The map is just weird. *Colossal Cave* is a good example, particularly
+  the above-ground section and the mazes. There seems to be no logic tying
+  the rooms together. You're on your own.

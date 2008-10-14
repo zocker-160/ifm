@@ -9,6 +9,13 @@ solve it. IFM can then calculate a (fairly) optimal solution. This section
 is a guide to how to do it. Again, it's not a complete specification---see
 :ref:`language` for that.
 
+.. index::
+   single: task; Introduction to tasks
+   single: safe; Introduction to tasks
+   single: unsafe; Introduction to tasks
+   single: in; Introduction to tasks
+   single: in any; Introduction to tasks
+
 Introduction to tasks
 =====================
 
@@ -30,6 +37,11 @@ unsafe tasks until it really has to.
 
 Task dependencies
 =================
+
+.. index::
+   single: after; Requiring tasks
+   single: after last; Requiring tasks
+   single: follow; Requiring tasks
 
 Requiring tasks
 ---------------
@@ -77,6 +89,9 @@ Of course, you can only have a single task in a :keyword:`follow`
 clause---the immediately preceding task. It is an error for two or more
 tasks to try to immediately follow the same task.
 
+.. index::
+   single: need; Requiring items
+
 Requiring items
 ---------------
 
@@ -92,6 +107,13 @@ than one item tag---e.g., :keyword:`need bunny asbestos_gloves`.
 Note that you don't need to add tasks to get required items yourself---the
 game solver does that automatically. It knows it has to get all the items
 which appear in :keyword:`need` clauses.
+
+.. index::
+   single: get; Obtaining items
+   single: before; Obtaining items
+   single: after; Obtaining items
+   single: need; Obtaining items
+   single: give; Obtaining items
 
 Obtaining items
 ---------------
@@ -129,6 +151,9 @@ in your inventory. You can say that using the :keyword:`give` clause::
 The :keyword:`give` clause overrides all other restrictions placed on
 getting items; the item is just teleported into your possession.
 
+.. index::
+   single: ignore; Ignoring tasks
+
 Ignoring tasks
 --------------
 
@@ -145,6 +170,9 @@ You can explicitly ignore a task using the :keyword:`ignore`
 attribute. This is useful while you're solving the game (see `Tweaking the
 Solution`_) and when the task can be done by other tasks (see the next
 section).
+
+.. index::
+   single: do; Doing tasks
 
 Doing other tasks
 -----------------
@@ -180,6 +208,15 @@ unsafe.
 
 Handling items
 ==============
+
+.. index::
+   single: need; Inventory items
+   single: get; Inventory items
+   single: give; Inventory items
+   single: keep; Inventory items
+   single: keep_unused_items; Inventory items
+
+.. index:: Variables; keep_unused_items
 
 Inventory items
 ---------------
@@ -224,6 +261,9 @@ be voluntarily dropped in that room. Any items which need to be dropped
 will then be dropped after the next task that happens in a room where
 dropping is allowed.
 
+.. index::
+   single: lose; Losing items
+
 Losing items
 ------------
 
@@ -241,6 +281,12 @@ last room, item or task tag name within a command. So the previous example
 could also have been written::
 
     task "Light bonfire" need match lose it;
+
+.. index::
+   single: drop; Dropping items
+   single: all; Dropping items
+   single: except; Dropping items
+   single: until; Dropping items
 
 Dropping items
 --------------
@@ -279,6 +325,12 @@ else. You can use the :keyword:`until` clause to say that::
 A task which drops items will be marked unsafe if there is no path back to
 the dropped items.
 
+.. index::
+   single: leave; Leaving items
+   single: all; Leaving items
+   single: except; Leaving items
+   single: nodrop; Leaving items
+
 Leaving items
 -------------
 
@@ -313,6 +365,11 @@ attribute; items will be dropped even in those rooms.
 
 Moving around
 =============
+
+.. index::
+   single: need; Limiting movement
+   single: after; Limiting movement
+   single: before; Limiting movement
 
 Limiting movement
 -----------------
@@ -358,6 +415,12 @@ could be added to the previous example to provide an escape route::
 
     join Vault to Entrance go e after disable_alarm hidden;
 
+.. index::
+   single: cmd; Movement tasks
+   single: goto; Movement tasks
+
+.. index:: Colossal Cave; Movement tasks
+
 Movement tasks
 --------------
 
@@ -391,6 +454,9 @@ will be teleported away from the dropped items).
 Other game features
 ===================
 
+.. index::
+   single: score; Scoring points
+
 Scoring points
 --------------
 
@@ -407,6 +473,9 @@ If an item has a score, but is given to the player via a task
 :keyword:`give` clause, then its score is added to the score for that task
 instead.
 
+.. index::
+   single: finish; Finishing the game
+
 Finishing the game
 ------------------
 
@@ -417,6 +486,11 @@ condition: entering a room, picking up an object or doing a task. If the
 game solver ever manages to do something which is flagged with the
 :keyword:`finish` attribute, it considers the game solved and stops. Any
 extra things left to do will not be done, even if they score points.
+
+.. index::
+   single: unsafe; Finding a solution
+   single: safe; Finding a solution
+   single: inventory; Finding a solution
 
 Finding a solution
 ==================
@@ -503,6 +577,11 @@ There will be some situations (quite a few, actually) where the game solver
 doesn't do things the way you want it to. This section gives a few tips,
 and some new keywords, for modifying things.
 
+.. index::
+   single: safe; Making things safe
+   single: all_tasks_safe; Making things safe
+   single: Variables; all_tasks_safe
+
 Making things safe
 ------------------
 
@@ -523,6 +602,9 @@ responsibility if the solver gets stuck.
 If you want to be seriously reckless, you can set the variable
 :keyword:`all_tasks_safe` to a nonzero value. Then, all tasks will be
 considered safe.
+
+.. index::
+   single: length; Changing path lengths
 
 Changing path lengths
 ---------------------
@@ -546,6 +628,9 @@ given to tasks in rooms in the same level as you are now, (hopefully)
 minimizing the number of level changes. Note that the length attribute
 doesn't affect map drawing at all.
 
+.. index::
+   single: nopath; Closing off paths
+
 Closing off paths
 -----------------
 
@@ -557,6 +642,10 @@ and joins to indicate this. It doesn't affect map output in any way.
 Another use for this attribute is to force the game solver to do things in
 a different order. This might be preferable to adding fake task
 dependencies.
+
+.. index::
+   single: ignore; Ignoring parts of the solution
+   single: do; Ignoring parts of the solution
 
 Ignoring parts of the solution
 ------------------------------
@@ -616,6 +705,10 @@ the same name. So the two-level example above could be split into::
     # Stop gratuitous travel between levels.
     link LB length 50;
 
+.. index::
+   single: solver_messages; Displaying solver messages
+   single: Variables; solver_messages
+
 Displaying solver messages
 --------------------------
 
@@ -624,6 +717,13 @@ setting the :keyword:`solver_messages` variable (either in one of the input
 files, or via the :option:`-set` command-line option). This produces reams
 of output giving details of the game solver's thoughts before it does
 anything. [4]_
+
+.. index::
+   single: inventory; Limitations
+   single: length; Limitations
+   single: follow; Limitations
+   single: leave; Limitations
+   single: need; Limitations
 
 Limitations
 ===========

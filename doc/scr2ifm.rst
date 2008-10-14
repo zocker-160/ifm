@@ -87,6 +87,8 @@ transcript:
 
 Some of these checks can be tailored to a particular transcript.
 
+.. index:: Colossal Cave; Making transcripts
+
 Making transcripts
 ==================
 
@@ -309,6 +311,8 @@ unique. For example, "black rod" might get a tag ``Black_rod_2``.
 
 Finally, the IFM commands from the file indicated by the ``-c`` option are
 echoed (if any).
+
+.. index:: Colossal Cave; Example scr2ifm session
 
 Example session
 ===============

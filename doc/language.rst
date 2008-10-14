@@ -11,14 +11,14 @@ Symbols
 
 In the following sections, these symbols are used:
 
-``ID``
+:keyword:`ID`
 	 A name starting with a letter, followed by any combination of
 	 upper- and lowercase letters or numbers or an underscore. For
 	 example, ``Dense_Forest``. IDs are not allowed to clash with
 	 reserved words (e.g., ``room``, or ``tag``). One way to avoid this
 	 is to capitalize all tags (reserved words are all in lowercase).
 
-``STRING``
+:keyword:`STRING`
 	 Any sequence of characters, in double-quotes.  For example, ``"Black
 	 Rod"``. To get a double-quote inside a string, quote it using a
 	 backslash, like this::
@@ -29,22 +29,22 @@ In the following sections, these symbols are used:
 	 newline-and-whitespace sequence is translated into a single space,
 	 just like in TADS and Inform.
 
-``NUMBER``
+:keyword:`NUMBER`
 	 A number. If the context requires an integer, the number is
 	 silently rounded to the larges integer not greater than this
 	 value.
 
-``COMPASS``
+:keyword:`COMPASS`
 	 A compass direction, which can be abbreviated or in full (e.g.,
 	 ``n``, ``se``, ``northwest``, etc).
 
-``OTHERDIR``
+:keyword:`OTHERDIR`
 	 One of ``up``, ``down``, ``in`` or ``out``.
 
-``[...]``
+:keyword:`[...]`
 	 An optional part.
 
-``A | B``
+:keyword:`A | B`
 	 Either A or B.
 
 Format
@@ -81,8 +81,10 @@ you can indicate that up front by using the command::
 Then, if the IFM version number is less than this number, parsing will
 abort immediately, avoiding lots of potentially confusing syntax errors.
 
-There's no point in requiring any version less than 5.0, since that's when
-the require syntax was added.
+.. note::
+
+   There's no point in requiring any version less than 5.0, since that's
+   when the require syntax was added.
 
 Tags
 ====
@@ -138,8 +140,12 @@ A new room is added using the command::
 
 where ``STRING`` is a description of the room. Room attributes can be:
 
+.. index:: tag
+
 :keyword:`tag ID`
        Give the room a tag name, so that you can refer to it elsewhere.
+
+.. index:: dir
 
 :keyword:`dir COMPASS [NUMBER] [COMPASS [NUMBER]...] [from ID]`
        Specify the position of the room relative to the room with the given
@@ -157,43 +163,61 @@ where ``STRING`` is a description of the room. Room attributes can be:
        If the room is given a tag name, then the implicit link will be
        given the same tag.
 
+.. index:: link
+
 :keyword:`link ID [ID...]`
        Specify other rooms that this room links to.  Note that this creates
        a link with no special attributes---use the standalone
        :keyword:`link` command for that.
+
+.. index:: join
 
 :keyword:`join ID [ID...]`
        Specify rooms on other map sections that this room joins to. Note
        that this creates a join with no special attributes---use the
        standalone :keyword:`join` command for that.
 
+.. index:: exit
+
 :keyword:`exit COMPASS [COMPASS...]`
        Indicate which other directions the room has exits in. Room exits in
        a particular direction are marked on the map only if there is no
        link going to or from the room in that direction.
 
+.. index:: note
+
 :keyword:`note STRING`
        Append a note to the room's note list.
+
+.. index:: score
 
 :keyword:`score NUMBER`
        Indicate that you score the specified number of points when visiting
        this room for the first time.
+
+.. index:: need
 
 :keyword:`need ID [ID...]`
        If this appears before a :keyword:`dir` clause, indicate that you
        can only enter this room after getting the specified items. If it
        appears afterwards, it applies to the implicit link instead.
 
+.. index:: after
+
 :keyword:`after ID [ID...]`
        If this appears before a :keyword:`dir` clause, indicate that you
        can only enter this room after doing the specified tasks. If it
        appears afterwards, it applies to the implicit link instead.
+
+.. index:: before
 
 :keyword:`before ID [ID...]`
        If this appears before a :keyword:`dir` clause, indicate that you
        can only enter this room before doing the specified tasks. If it
        appears afterwards, it applies to the implicit link instead. Those
        tasks are marked unsafe.
+
+.. index:: leave
 
 :keyword:`leave ID [ID...]`
        If this appears before a :keyword:`dir` clause, indicate that the
@@ -205,8 +229,12 @@ where ``STRING`` is a description of the room. Room attributes can be:
        As above, except indicate that all items must be left behind. The
        :keyword:`except` clause can be used to omit specific items.
 
+.. index:: go
+
 :keyword:`go OTHERDIR`
        Indicate that the link to this room is in the specified direction.
+
+.. index:: cmd
 
 :keyword:`cmd STRING`
        Specify the command you type to move to this room from the previous
@@ -223,33 +251,49 @@ where ``STRING`` is a description of the room. Room attributes can be:
        This is identical to :keyword:`cmd` on its own, and only exists for
        symmetry.
 
+.. index:: oneway
+
 :keyword:`oneway`
        Indicate that the return journey from this room to the previous one
        is not possible.
+
+.. index:: length
 
 :keyword:`length NUMBER`
        Indicate that the direction link to this room has the specified
        length (default 1). This only affects the calculation of the nearest
        task_ when solving the game.
 
+.. index:: start
+
 :keyword:`start`
        Indicate that this is the room the player starts in. Default is for
        the first room mentioned to be the start room. If more than one room
        has this attribute, the last one declared takes precedence.
 
+.. index:: finish
+
 :keyword:`finish`
        Indicate that entering this room finishes the game.
 
+.. index:: nodrop
+
 :keyword:`nodrop`
        Indicate that no items should be voluntarily dropped in this room.
+
+.. index:: nolink
 
 :keyword:`nolink`
        Indicate that this room does not have an implicit link with the
        previous one via the :keyword:`dir` clause.
 
+.. index:: nopath
+
 :keyword:`nopath`
        Indicate that the implicit link from this room should not be used by
        the game solver.
+
+.. index:: style
 
 :keyword:`style ID [ID...]`
        Add a list of display styles_ to the room (and also the implicit
@@ -264,8 +308,12 @@ An item is introduced using the command::
 
 where :keyword:`STRING` is the item description. Item attributes can be:
 
+.. index:: tag
+
 :keyword:`tag ID`
        Give the item a tag name, so you can refer to it elsewhere.
+
+.. index:: in
 
 :keyword:`in ID`
        Set the initial location of this item. Default is the last defined
@@ -273,15 +321,23 @@ where :keyword:`STRING` is the item description. Item attributes can be:
        any room was declared), then this item is initially carried by the
        player.
 
+.. index:: note
+
 :keyword:`note STRING`
        Append a note to the item's note list.
+
+.. index:: score
 
 :keyword:`score NUMBER`
        Indicate that you get points the first time you pick this item up.
 
+.. index:: hidden
+
 :keyword:`hidden`
        Indicate that this item is not immediately obvious when entering the
        room.
+
+.. index:: keep
 
 :keyword:`keep`
        Indicate that this item shouldn't ever be dropped (no "drop" task
@@ -295,14 +351,20 @@ where :keyword:`STRING` is the item description. Item attributes can be:
        Indicate that the item shouldn't be dropped until all the other
        specified tasks have been done.
 
+.. index:: ignore
+
 :keyword:`ignore`
        Indicate that this item should be ignored when trying to find a
        solution (i.e., never go out of your way to pick it up).
+
+.. index:: given
 
 :keyword:`given`
        Indicate that this item didn't have to be picked up when it entered
        the inventory (no "get" task should be generated). This attribute is
        obsolete---you should use the task_ :keyword:`give` clause instead.
+
+.. index:: lost
 
 :keyword:`lost`
        Indicate that this item wasn't dropped when it left the inventory
@@ -311,20 +373,30 @@ where :keyword:`STRING` is the item description. Item attributes can be:
        use for this attribute is for items that are left behind due to a
        :keyword:`leave` clause.
 
+.. index:: need
+
 :keyword:`need ID [ID...]`
        Indicate that you can only pick this item up after getting the
        specified items.
+
+.. index:: after
 
 :keyword:`after ID [ID...]`
        Indicate you can only pick this item up after the specified tasks
        are done.
 
+.. index:: before
+
 :keyword:`before ID [ID...]`
        Indicate you can only pick this item up before the specified tasks
        are done.
 
+.. index:: finish
+
 :keyword:`finish`
        Indicate that getting this item finishes the game.
+
+.. index:: style
 
 :keyword:`style ID [ID...]`
        Add a list of display styles_ to the item.
@@ -338,16 +410,24 @@ You can create extra room links using the command::
 
 and the following attributes may be specified:
 
+.. index:: tag
+
 :keyword:`tag ID`
        Give the link a tag name, so you can refer to it elsewhere.
+
+.. index:: dir
 
 :keyword:`dir COMPASS [COMPASS...]`
        Set the intermediate directions that this link travels in, in the
        same manner as for rooms. Note that if you omit the final direction
        to the linked room, it is added automatically.
 
+.. index:: go
+
 :keyword:`go OTHERDIR`
        Indicate that the link is in the specified direction.
+
+.. index:: cmd
 
 :keyword:`cmd STRING`
        Specify the command you type to go in this direction. If no
@@ -364,33 +444,49 @@ and the following attributes may be specified:
        This is identical to :keyword:`cmd` on its own, and only exists for
        symmetry.
 
+.. index:: oneway
+
 :keyword:`oneway`
        Indicate that this is a one-way link, in a similar manner to the
        room attribute of the same name.
+
+.. index:: hidden
 
 :keyword:`hidden`
        Indicate that this link should not be drawn on the map. Hidden links
        are still used when solving the game.
 
+.. index:: nopath
+
 :keyword:`nopath`
        Indicate that this link should not be used by the game solver.
+
+.. index:: length
 
 :keyword:`length NUMBER`
        Indicate that this link has the specified length (default 1). This
        only affects the calculation of the nearest task_ when solving the
        game.
 
+.. index:: need
+
 :keyword:`need ID [ID...]`
        Indicate that you can only go in this direction after getting the
        specified items.
+
+.. index:: after
 
 :keyword:`after ID [ID...]`
        Indicate that you can only go in this direction after doing the
        specified tasks.
 
+.. index:: before
+
 :keyword:`before ID [ID...]`
        Indicate that you can only go in this direction before doing the
        specified tasks. These tasks are marked unsafe.
+
+.. index:: leave
 
 :keyword:`leave ID [ID...]`
        Indicate that the specified items, if carried, must be left behind
@@ -399,6 +495,8 @@ and the following attributes may be specified:
 :keyword:`leave all [except ID [ID...]]`
        As above, except indicate that all items must be left behind. The
        :keyword:`except` clause can be used to omit specific items.
+
+.. index:: style
 
 :keyword:`style ID [ID...]`
        Add a list of display styles_ to the link.
@@ -413,11 +511,17 @@ sections::
 
 The following attributes may be specified:
 
+.. index:: tag
+
 :keyword:`tag ID`
        Give the join a tag name, so you can refer to it elsewhere.
 
+.. index:: go
+
 :keyword:`go COMPASS | OTHERDIR`
        Indicate that the join to this room is in the specified direction.
+
+.. index:: cmd
 
 :keyword:`cmd STRING`
        Specify the command you type to go in this direction. If no
@@ -434,41 +538,61 @@ The following attributes may be specified:
        This is identical to :keyword:`cmd` on its own, and only exists for
        symmetry.
 
+.. index:: oneway
+
 :keyword:`oneway`
        Indicate that this is a one-way join, in a similar manner to the
        room attribute of the same name.
+
+.. index:: hidden
 
 :keyword:`hidden`
        Indicate that this join should not be drawn on the map. Hidden joins
        are still used when solving the game.
 
+.. index:: nopath
+
 :keyword:`nopath`
        Indicate that this join should not be used by the game solver.
+
+.. index:: length
 
 :keyword:`length NUMBER`
        Indicate that this join has the specified length (default 1). This
        only affects the calculation of the nearest task_ when solving the
        game.
 
+.. index:: need
+
 :keyword:`need ID [ID...]`
        Indicate that you can only go in this direction after getting the
        specified items.
+
+.. index:: after
 
 :keyword:`after ID [ID...]`
        Indicate that you can only go in this direction after doing the
        specified tasks.
 
+.. index:: before
+
 :keyword:`before ID [ID...]`
        Indicate that you can only go in this direction before doing the
        specified tasks. These tasks are marked unsafe.
+
+.. index:: leave
 
 :keyword:`leave ID [ID...]`
        Indicate that the specified items, if carried, must be left behind
        when using this connection.
 
+.. index:: leave
+
 :keyword:`leave all [except ID [ID...]]`
        As above, except indicate that all items must be left behind. The
        :keyword:`except` clause can be used to omit specific items.
+
+.. index:: style
 
 :keyword:`style ID [ID...]`
        Add a list of display styles_ to the join.
@@ -485,8 +609,12 @@ using the command::
 
 and these are the available attributes:
 
+.. index:: tag
+
 :keyword:`tag ID`
        Give the task a tag name, so you can refer to it elsewhere.
+
+.. index:: in
 
 :keyword:`in ID`
        Specify the room the task must be done in. If this clause is
@@ -495,17 +623,25 @@ and these are the available attributes:
        performed anywhere. A task declared before any room is equivalent to
        saying :keyword:`in any`.
 
+.. index:: need
+
 :keyword:`need ID [ID...]`
        Indicate that the specified items are required before you can do
        this task.
+
+.. index:: after
 
 :keyword:`after ID [ID...]`
        Indicate that this task can only be done after all the specified
        tasks have been done.
 
+.. index:: follow
+
 :keyword:`follow ID`
        Indicate that this task must be done immediately after the specified
        one. Not even a "drop item" task is allowed in between.
+
+.. index:: do
 
 :keyword:`do ID [ID...]`
        Indicate that doing this task also causes the specified other tasks
@@ -514,18 +650,26 @@ and these are the available attributes:
        might need, and their effects are carried out---including any
        :keyword:`do` clauses they might have, recursively.
 
+.. index:: get
+
 :keyword:`get ID [ID...]`
        Indicate that doing this task enables you to get the specified
        items, and must be done before you can get them.
+
+.. index:: give
 
 :keyword:`give ID [ID...]`
        Indicate that doing this task puts the specified items straight into
        your inventory, wherever they happen to be.
 
+.. index:: lose
+
 :keyword:`lose ID [ID...]`
        Indicate that doing this task causes the specified items to be
        lost. This implies that all tasks which need these items must be
        done before this one.
+
+.. index:: drop
 
 :keyword:`drop ID [ID...] [in ID] [until ID [ID...]]`
        Indicate that doing this task drops the specified items in the
@@ -538,27 +682,41 @@ and these are the available attributes:
        As above, but drop everything you're carrying. The :keyword:`except`
        clause can be used to omit specific items.
 
+.. index:: goto
+
 :keyword:`goto ID`
        Indicate that you get "teleported" to the specified room when this
        task is done. This happens after :keyword:`give` and :keyword:`drop`
        actions.
 
+.. index:: safe
+
 :keyword:`safe`
        Mark this task as safe---i.e., one that can't cause the game solver
        to get stuck.
+
+.. index:: ignore
 
 :keyword:`ignore`
        Don't ever do this task explicitly when solving the game. The task
        may still be done via a :keyword:`do` action.
 
+.. index:: finish
+
 :keyword:`finish`
        Indicate that doing this task finishes the game.
+
+.. index:: score
 
 :keyword:`score NUMBER`
        Indicate that you get the specified score for doing this task.
 
+.. index:: note
+
 :keyword:`note STRING`
        Append a note to the task's note list.
+
+.. index:: cmd
 
 :keyword:`cmd STRING [NUMBER]`
        Specify the exact command you type to do the task. If a number
@@ -568,8 +726,12 @@ and these are the available attributes:
 :keyword:`cmd none`
        Indicate that no command is required to do this task.
 
+.. index:: style
+
 :keyword:`style ID [ID...]`
        Add a list of display styles_ to the task.
+
+.. index:: true, false
 
 Variables
 =========
@@ -592,7 +754,14 @@ values 1 and 0 respectively.
 If the :keyword:`style` clause is present, this means to only set the
 variable to this value in the specified style.
 
+.. versionadded:: 5.3
+   The :keyword:`true` and :keyword:`false` keywords.
+
 .. _style:
+
+.. index::
+   pair: Styles; style
+   pair: Styles; endstyle
 
 Styles
 ======

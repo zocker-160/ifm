@@ -144,6 +144,9 @@ format. The table below shows what's available for each format.
 All the map output formats display map sections in the same way, so that
 what you get with one format looks much the same as another. [1]_
 
+.. index::
+   pair: PostScript; Types of output
+
 PostScript maps (``ps``)
 ------------------------
 
@@ -153,6 +156,9 @@ takes.  Automatic packing is done to try to get a good fit on the
 page. Also, portrait or landscape is chosen depending on whichever gives
 the best fit. Fonts of room and item text are scaled to fit them in the
 room boxes, if required.
+
+.. index::
+   pair: Fig; Types of output
 
 Fig maps (``fig``)
 ------------------
@@ -169,6 +175,9 @@ Fig format is also useful if you want to print poster-sized maps over
 several pages. The :option:`-M` option of :program:`fig2dev` (part of the
 transfig package) will automatically do this.
 
+.. index::
+   pair: Tk; Types of output
+
 Tk drawing commands (``tk``)
 ----------------------------
 
@@ -178,6 +187,9 @@ yourself---:program:`tkifm` does that internally to build its map
 pictures. But you can control its display by setting variables in the usual
 way.
 
+.. index::
+   pair: ASCII; Types of output
+
 ASCII text (``text``)
 ---------------------
 
@@ -185,6 +197,9 @@ This produces human-readable output for items and tasks. The output should
 be fairly self-explanatory.
 
 .. _recording:
+
+.. index::
+   pair: Recording; Types of output
 
 Recording commands (``rec``)
 ----------------------------
@@ -208,6 +223,9 @@ an interpreter that is able to fix the random seed at startup (e.g.,
 :program:`frotz`). This should eliminate most (but not all) of the problems
 of randomness.
 
+.. index::
+   pair: Task dependencies; Types of output
+
 Task dependencies (``dot``)
 ---------------------------
 
@@ -217,6 +235,9 @@ Graphviz (dot) format. You'll need to have `Graphviz
 
 .. _raw:
 
+.. index::
+   pair: Raw data; Types of output
+
 Raw data (``raw``)
 ------------------
 
@@ -225,6 +246,11 @@ programs (and the IFM regression test suite). Each entry consists of a
 number of data lines, and is separated from other entries by a blank line.
 Each data line consists of an attribute, a colon, and its value. The
 attributes should be self-explanatory. [2]_
+
+.. index::
+   single: style; Customization
+
+.. index:: Colossal Cave; Customizing rooms
 
 Customization
 =============
@@ -310,6 +336,14 @@ Here's the original initialization file that came bundled with IFM:
 
 .. literalinclude:: ../lib/ifm-init.ifm
 
+.. index::
+   single: style; Predefined styles
+   pair: helvetica; Predefined styles
+   pair: reckless; Predefined styles
+   pair: verbose; Predefined styles
+   pair: puzzle; Predefined styles
+   pair: special; Predefined styles
+
 Predefined styles
 =================
 
@@ -319,10 +353,10 @@ IFM comes with a few predefined style files, as shown in the table below:
     Style      Scope  Description
     ========== ====== ====================================
     helvetica  global Use Helvetica fonts everywhere in maps
-    puzzle     room   Mark room as containing a puzzle
-    special    link   Mark link as being special in some way
     reckless   global Treat all tasks as safe when solving the game
     verbose    global Print verbose solver messages
+    puzzle     room   Mark room as containing a puzzle
+    special    link   Mark link as being special in some way
     ========== ====== ====================================
 
 If you create any generally useful or nice-looking styles, you might want
