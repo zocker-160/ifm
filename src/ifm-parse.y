@@ -84,7 +84,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
 
-%token <ival> INTEGER
+%token <ival> INTEGER TRUE FALSE
 %token <dval> REAL
 %token <sval> STRING ID
 
@@ -1145,6 +1145,8 @@ otherdir	: IN            { $$ = D_IN;   }
 
 number          : INTEGER               { $$ = $1; }
                 | REAL                  { $$ = $1; }
+                | TRUE                  { $$ =  1; }
+                | FALSE                 { $$ =  0; }
                 ;
 
 strings         : STRING

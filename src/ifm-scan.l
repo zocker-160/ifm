@@ -95,6 +95,7 @@ VAR             \${ID}
 "endstyle"      { return ENDSTYLE; }
 "except"	{ return EXCEPT; }
 "exit"		{ return EXIT; }
+"false"         { return FALSE; }
 "finish"	{ return FINISH; }
 "follow"	{ return FOLLOW; }
 "from"		{ return FROM; }
@@ -148,6 +149,7 @@ VAR             \${ID}
 "times"         { return TIMES; }
 "title"		{ return TITLE; }
 "to"		{ return TO; }
+"true"          { return TRUE; }
 "u"		{ return UP; }
 "undef"		{ return UNDEF; }
 "until"		{ return UNTIL; }

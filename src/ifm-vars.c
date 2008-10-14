@@ -327,7 +327,17 @@ var_int(char *id)
 {
     vscalar *var;
     VAR_CHECK(id, var);
-    return (var != NULL ? vs_iget(var) : 0);
+
+    if (var == NULL)
+        return 0;
+
+    if (V_STREQ(vs_sget(var), "true"))
+        return 1;
+
+    if (V_STREQ(vs_sget(var), "false"))
+        return 0;
+
+    return vs_iget(var);
 }
 
 /* List variables to stdout */

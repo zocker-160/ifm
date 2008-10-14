@@ -64,7 +64,7 @@ page_margin = 2;		# ps fig
 page_rotate = undef;		# ps
 
 # Whether to show the main title on each page.
-show_page_title = 1;		# ps
+show_page_title = true;		# ps
 
 # Appearance of the main title (if shown).
 page_title_font = "Times-Bold";	# ps
@@ -72,7 +72,7 @@ page_title_fontsize = 18;	# ps
 page_title_colour = "black";	# ps
 
 # Whether to show a border around each page.
-show_page_border = 0;		# ps fig
+show_page_border = false;	# ps fig
 
 # Colour of the page border (if drawn).
 page_border_colour = "black";	# ps fig
@@ -82,14 +82,14 @@ page_background_colour = "white"; # ps fig
 
 # Whether to scale Fig layout to fit on a single page.  Most of the time,
 # this doesn't make things look good.
-fit_page = 0;			# fig
+fit_page = false;		# fig
 
 ##############################################################################
 # Map section variables
 ##############################################################################
 
 # Whether to show the map title.
-show_map_title = 1;		# ps fig
+show_map_title = true;		# ps fig
 
 # Appearance of the title printed above each map section.
 map_title_font = "Times-Bold";	# ps fig
@@ -97,7 +97,7 @@ map_title_fontsize = 14;	# ps fig
 map_title_colour = "black";	# ps fig
 
 # Whether to show a border around each map section.
-show_map_border = 0;		# ps fig
+show_map_border = false;	# ps fig
 
 # Colour of the map border (if drawn).
 map_border_colour = "black";	# ps fig
@@ -158,7 +158,7 @@ room_text_fontsize = 10;	# ps fig
 room_text_fontdef = "Times 10 bold"; # tk
 
 # Whether to show non-hidden item descriptions in rooms.
-show_items = 1;			# ps fig tk
+show_items = true;		# ps fig tk
 
 # Colour, font and fontsize of item description text (if shown).
 item_text_colour = "black";	# ps fig tk
@@ -168,7 +168,7 @@ item_text_fontdef = "Times 8 italic"; # tk
 
 # Whether to append room tag names to room descriptions.  If so, they are
 # appended in square brackets, like [this].
-show_tags = 0;			# ps fig tk
+show_tags = false;		# ps fig tk
 
 ##############################################################################
 # Link style variables
@@ -182,10 +182,10 @@ link_colour = "black";		# ps fig tk
 link_arrow_size = 0.1;		# ps tk
 
 # Whether to draw link lines as splines.
-link_spline = 1;		# fig tk
+link_spline = true;		# fig tk
 
 # Whether to draw dashed link lines.
-link_dashed = 0;		# ps fig
+link_dashed = false;		# ps fig
 
 # Appearance of text that's associated with link lines.  The Tk default is
 # to colour them differently for readability.
@@ -206,7 +206,7 @@ link_inout_string = "I/O";	# ps fig tk
 ##############################################################################
 
 # Whether to indicate joins in the room text.
-show_joins = 1;			# ps fig tk
+show_joins = true;		# ps fig tk
 
 # Join string format (gets put in parentheses in those rooms that join to
 # other rooms).  The value should be "number" or "letter".
@@ -220,14 +220,14 @@ join_format = "number";		# ps fig tk
 
 # Whether to keep unused items (i.e. those which were obtained via some
 # task or other, but currently have no use).
-keep_unused_items = 1;		# text rec
+keep_unused_items = true;	# text rec
 
 # Whether to treat all tasks as safe (reckless mode!).
-all_tasks_safe = 0;		# text rec
+all_tasks_safe = false;		# text rec
 
 # Whether to print game solver info messages (helps with figuring out what
 # it's up to).
-solver_messages = 0;		# text rec
+solver_messages = false;	# text rec
 
 ##############################################################################
 # Task dependency variables
@@ -235,11 +235,11 @@ solver_messages = 0;		# text rec
 
 # Whether to group tasks by the room they're done in.  This can either
 # enhance the task structure or make it look a complete mess.
-task_graph_rooms = 0;		# dot
+task_graph_rooms = false;	# dot
 
 # Whether to show orphan tasks (those with no previous/next dependencies).
 # Useful for completeness, but it clutters things up a lot.
-task_graph_orphans = 0;		# dot
+task_graph_orphans = false;	# dot
 
 # Graph attributes, in Graphviz format.
 task_graph_attr = "";		# dot

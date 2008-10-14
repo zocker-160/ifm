@@ -577,14 +577,20 @@ Variables
 Various aspects of output are controlled by variables.  These are set using
 the following syntax::
 
-    [FORMAT.]ID = NUMBER | STRING | undef [in style ID];
+    [FORMAT.]ID = NUMBER | STRING | true | false | undef [in style ID];
 
 ``FORMAT``, if specified, is the name of a specific output format---the
-variable then applies only to that output format. ``ID`` is the name of the
-variable, and it can take a numeric or string value. Note that setting a
-variable to the value :keyword:`undef` effectively removes it. If the
-:keyword:`style` clause is present, this means to only set the variable to
-this value in the specified style.
+variable then applies only to that output format.
+
+``ID`` is the name of the variable, and it can take a numeric or string
+value. Note that setting a variable to the value :keyword:`undef`
+effectively removes it.
+
+The values :keyword:`true` and :keyword:`false` correspond to the integer
+values 1 and 0 respectively.
+
+If the :keyword:`style` clause is present, this means to only set the
+variable to this value in the specified style.
 
 .. _style:
 
@@ -602,7 +608,7 @@ pushes the specified style onto the style list. This style becomes the
 current style. Any IFM objects declared while a style list is in force will
 by default be output in those styles. Any variable setting is by default in
 the current style (though you can specify a particular style using the
-:keyword:`in style` clause.
+:keyword:`in style` clause).
 
 The command::
 

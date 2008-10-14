@@ -1,12 +1,12 @@
 ;; ifm-mode.el --- IFM editing commands for Emacs.
 
 ;; Filename: ifm-mode.el
-;; Copyright (C) 2006 Glenn Hutchings
+;; Copyright (C) 2001-2008 Glenn Hutchings
 ;; Author: Glenn Hutchings <zondo42@googlemail.com>
 ;; Maintainer: Glenn Hutchings <zondo42@googlemail.com>
 ;; Created: 19 Apr 2001
 ;; Description: IFM map editing mode.
-;; Version 0.4 (11 Apr 2008)
+;; Version 0.4 (14 Oct 2008)
 
 ;; This file is not part of GNU Emacs.
 
@@ -33,7 +33,8 @@
 
 ;; Change Log:
 
-;; Version 0.4 - 20 May 2008
+;; Version 0.4 - 14 Oct 2008
+;;   * Updated for IFM 5.3.
 ;;   * Add commands to show recording and debugging task output.
 ;;   * Add ifm-program-args with default "-nowarn" to avoid warnings getting
 ;;     printed to temporary PostScript files.
@@ -144,7 +145,7 @@
   "Regexp matching special keywords in IFM mode.")
 
 (defconst ifm-builtin-regexp
-  (regexp-opt '("all" "any" "it" "last" "none" "undef") 'words)
+  (regexp-opt '("all" "any" "it" "last" "none" "true" "false" "undef") 'words)
   "Regexp matching builtin names in IFM mode.")
 
 (defconst ifm-keyword-regexp

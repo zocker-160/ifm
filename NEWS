@@ -1,16 +1,22 @@
-Version 5.3 (13 Oct 2008)
+Version 5.3 (14 Oct 2008)
 =========================
-
-* The GNU Emacs ``ifm-mode.el`` in the ``contrib`` directory has been
-  improved: it can display task recording and debugging output, now has
-  imenu and flymake support, and also has a minor bug fix.
 
 * The documentation is now much prettier, thanks to `Sphinx
   <http://sphinx.pocoo.org>`_.  PDF documentation is no longer distributed,
   but can be generated if required.
 
+* The new keywords ``true`` and ``false`` can be used in place of 1 and 0,
+  respectively, when setting variables.
+
+* The GNU Emacs ``ifm-mode.el`` in the ``contrib`` directory has been
+  improved: it can display task recording and debugging output, now has
+  imenu and flymake support, and also has a minor bug fix.
+
 * PostScript maps now conform properly to Adobe DSC.  This stops
   Ghostscript 8.x barfing on them.
+
+* Since ``asciimapper`` is now in the IF archive, it is no longer part of
+  the ``contrib`` directory.
 
 Version 5.2 (7 Sep 2006)
 ========================

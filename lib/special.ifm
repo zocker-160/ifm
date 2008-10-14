@@ -1,6 +1,6 @@
 # Link 'special' style (was previously the 'special' attribute).
 
 style special;
-  link_dashed = 1;
+  link_dashed = true;
   tk.link_colour = "blue";
 endstyle special;

@@ -1,5 +1,5 @@
 # Verbose solver messages.
 
 style verbose;
-  solver_messages = 1;
+  solver_messages = true;
 endstyle verbose;
