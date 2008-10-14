@@ -12,8 +12,8 @@
    usage
    language
    diagnostics
-   programs
+   tools
    links
    thanks
-   license
    changes
+   license

@@ -39,9 +39,9 @@ the :keyword:`-show path` option.  But you can change the search path by
 setting the :envvar:`IFMPATH` environment variable.  It should be a
 colon-separated list of directories to search.
 
-IFM looks for an initialization file called ifm.ini in your home directory
-(the one pointed at by the :envvar:`HOME` environment variable).  If that
-exists, it is read.  You can set various defaults there.
+IFM looks for an initialization file called :file:`ifm.ini` in your home
+directory (the one pointed at by the :envvar:`HOME` environment variable).
+If that exists, it is read.  You can set various defaults there.
 
 Graphical interface
 -------------------
@@ -62,7 +62,7 @@ suffix ``.ifm``, and set the Open command to be::
 
 If you want a nice window interface for making maps *and* a mouse-clicky
 way of drawing them too, you might want to check out :ref:`IFMapper
-<related-programs>` instead.
+<mapping-programs>` instead.
 
 Alternatively, you can write a graphical front end which builds an IFM
 source file automatically---but don't forget to send me a copy so I can

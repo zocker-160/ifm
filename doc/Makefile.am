@@ -7,9 +7,9 @@ sphinxdir = $(builddir)/sphinx
 
 # Documentation sources.
 
-DOCFILES = changes.rst diagnostics.rst ifm2dev.rst ifm2tex.rst index.rst \
-intro.rst language.rst license.rst maps.rst programs.rst scr2ifm.rst	 \
-solving.rst tkifm.rst usage.rst
+DOCFILES = changes.rst diagnostics.rst editors.rst ifm2dev.rst ifm2tex.rst \
+index.rst intro.rst language.rst license.rst maps.rst scr2ifm.rst	   \
+solving.rst tkifm.rst tools.rst usage.rst
 
 # Programs.
 
@@ -22,15 +22,15 @@ OPTIONAL = $(top_srcdir)/etc/missing --run
 
 guide: html
 
-force:; @ rm -rf $(htmldir); $(MAKE) all
+force:; @ rm -rf $(htmldir); $(MAKE) guide
 
-html: setup
+html: setup conf.py
 	$(SPHINX) -b $@ $(srcdir) $(htmldir)
 
-latex: setup
+latex: setup conf.py
 	$(SPHINX) -b $@ $(srcdir) $(latexdir)
 
-linkcheck: setup
+linkcheck: setup conf.py
 	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
 
 setup:;	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir)

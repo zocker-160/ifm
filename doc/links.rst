@@ -2,28 +2,55 @@
  IFM links
 ===========
 
-.. _related-programs:
+.. _mapping-programs:
 
-Related programs
-================
+Other mapping programs
+======================
 
-* IFMapper_ is a graphical mapping tool written by Gonzalo Garramuno
-  (ggarra@advance.dsl.com.ar), and has the ability to read and write IFM
-  maps.
+* GUEmap_ is the most popular graphical mapping tool used on Windows.
 
+* IFMapper_ is a graphical mapping tool for Linux and Windows and has the
+  ability to read and write IFM and GUEmap_ maps.  It also uses (and
+  improves on) the :ref:`scr2ifm <scr2ifm>` algorithm for mapping
+  transcripts.
+
+* Frobot_ creates maps in a similar manner to :ref:`scr2ifm <scr2ifm>`, by
+  analyzing a game transcript.
+
+.. _Frobot: http://www.ifarchive.org/if-archive/mapping-tools/frobot12.zip
 .. _IFMapper: http://www.rubyforge.org/projects/ifmapper
+.. _GUEmap: http://www.cjmweb.net/GUEmap
+
+Programs which read/write IFM maps
+==================================
+
+* ifm2i7_ is a Perl script which converts IFM maps into `Inform 7`_ input,
+  using IFM's :ref:`raw <raw>` output format.
+
+* asciimapper_ is a Perl script which takes ASCII representations of maps
+  and converts them to IFM format.
+
+.. _ifm2i7: http://code.wetash.com/ifm2i7
+.. _`Inform 7`: http://www.inform-fiction.org/I7/Inform%207.html
+.. _asciimapper: http://www.ifarchive.org/if-archive/mapping-tools/asciimapper
+
+.. _ifm-maps:
 
 Existing IFM maps
 =================
 
 * There's a web page set up by Dave Chapeskie (dchapes@ddm.wox.org) which
-  has IFM maps in source and PostScript format, at
+  has many IFM maps in source and PostScript format, at
 
       http://www.sentex.net/~dchapes/ifm
 
   At the moment it contains maps of a few Infocom and Inform games.  Some
   are complete, others not quite.  A few have tasks set up so that a
   walkthrough can be made.  The site hasn't been updated for a while.
+
+* Another site containing some IFM maps can be found at:
+
+      http://www.highprogrammer.com/alan/games/video/ifmaps
 
 * The :file:`demos` subdirectory of the IFM distribution contains some
   demonstration maps that don't give away secrets from real games.

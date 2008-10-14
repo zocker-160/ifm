@@ -43,9 +43,8 @@ page and turned into a complete mess.
 My first attempt at solving this problem was to make use of the tools I had
 available to draw the map for me. So I started typing the map network into
 a file, and wrote a small Perl script to convert the data into something
-that `groff <http://groff.ffii.org>`_ could read and draw a map from. I
-also added a way of recording which items I'd found, and whether I'd found
-a use for them yet.
+that groff_ could read and draw a map from. I also added a way of recording
+which items I'd found, and whether I'd found a use for them yet.
 
 As it stood, this worked quite well---it produced nice maps and lists of
 items so I could see where I'd got to. The only problem was that it was
@@ -70,6 +69,7 @@ June 1998 the first version appeared in the `IF archive`_.  And now,
 finally, it's finished and I can go back to that IF game I was
 playing. [1]_
 
+.. _groff: http://groff.ffii.org
 .. _IF archive: http://www.ifarchive.org
 
 .. rubric:: Footnotes

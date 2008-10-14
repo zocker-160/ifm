@@ -115,7 +115,7 @@ Finally, here are the information options:
 
    ``vars``
 	   Show a complete list of defined variables, in a format suitable
-	   for feeding back into IFM. See `Output Variables`_.
+	   for feeding back into IFM. See `Output variables`_.
 
 .. cmdoption:: -v, --version
 
@@ -212,8 +212,10 @@ Task dependencies (``dot``)
 ---------------------------
 
 This produces a graph of the dependencies of tasks on each other, in
-Graphviz (dot) format. You'll need to have Graphviz installed in order to
-display the graph; you can get it from http://www.graphviz.org.
+Graphviz (dot) format. You'll need to have `Graphviz
+<http://www.graphviz.org>`_ installed in order to display the graph.
+
+.. _raw:
 
 Raw data (``raw``)
 ------------------
@@ -222,7 +224,7 @@ This produces raw data for all output formats, intended for use by other
 programs (and the IFM regression test suite). Each entry consists of a
 number of data lines, and is separated from other entries by a blank line.
 Each data line consists of an attribute, a colon, and its value. The
-attributes should be self-explanatory.
+attributes should be self-explanatory. [2]_
 
 Customization
 =============
@@ -231,7 +233,7 @@ You can change the appearance of many output features according to your
 taste. You do this by setting the values of the variables that control
 those features.  This section tells you how to use variables---for a
 complete list of the customization variables available, see `Output
-Variables`_.
+variables`_.
 
 As a first example, the background colour of rooms is determined by the
 variable :keyword:`room_colour`. Its default value is ``white``. It can be
@@ -333,3 +335,5 @@ command-line option.
 
 .. [1] Well, that's the goal anyway. But there are still some very minor
        differences.
+
+.. [2] Programmer-speak for "I couldn't be bothered to document it."
