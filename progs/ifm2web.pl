@@ -33,6 +33,7 @@ $ifm .= "=$maps" if $maps;
 $ifm .= " -format fig";
 $ifm .= " -S $style" if $style;
 $ifm .= " -s show_map_title=$title";
+$ifm .= " -s show_map_border=false";
 $ifm .= " -s map_border_colour=$alpha";
 $ifm .= " -s map_background_colour=$alpha";
 
