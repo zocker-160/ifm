@@ -175,8 +175,6 @@ SMALL = $(IFM2WEB) -z 3 -s 14
 
 # Distribution stuff.
 EXTRA_DIST = $(DOCFILES) examples templates
-IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
-IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 

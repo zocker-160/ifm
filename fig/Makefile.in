@@ -182,8 +182,6 @@ testfig_SOURCES = testfig.c
 testfig_LDFLAGS = $(VARS_LIBS)
 testfig_LDADD = libfig.a -lvars -lm
 CLEANFILES = test.fig* test.eps testfig
-IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
-IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 

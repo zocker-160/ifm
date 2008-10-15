@@ -156,8 +156,6 @@ bin_SCRIPTS = @tkifm@ @ifm2dev@ @ifm2tex@ @ifm2web@ @scr2ifm@
 EXTRA_SCRIPTS = tkifm ifm2dev ifm2tex ifm2web scr2ifm
 EXTRA_DIST = tkifm.tcl ifm2dev.pl ifm2tex.pl scr2ifm.pl
 CLEANFILES = $(bin_SCRIPTS) *.tex *.aux *.dvi *.lo* *.eps *.ps *.toc
-IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
-IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
