@@ -25,7 +25,7 @@ $ifmopts = 'sSI';
 getopt($ifmopts, \%ifmopts);
 
 # Build IFM command.
-$ifm = "ifm";
+$ifm = "ifm -nowarn";
 foreach $opt (keys %ifmopts) {
     $ifm .= " -$opt";
     $ifm .= " $ifmopts{$opt}" if $ifmopts =~ /$opt/;
@@ -78,7 +78,7 @@ if ($opts{m}) {
     system "ifm2dev -o $template -- -w $file";
 
     # Get dimensions of each one.
-    @data = `$ifm -nowarn -show maps $file`;
+    @data = `$ifm -show maps $file`;
     shift(@data);
 
     # Write each map section.
@@ -291,7 +291,7 @@ sub ifmraw {
     my %listtag = ('lpos' => 1, 'cmd' => 1, 'after' => 1, 'needed' => 1,
 		   'enter' => 1, 'move' => 1, 'note' => 1);
 
-    my $cmd = "$ifm -nowarn -map -items -tasks -format raw";
+    my $cmd = "$ifm -map -items -tasks -format raw";
     my ($data, $list, $obj, $section);
     my $file = shift;
 
