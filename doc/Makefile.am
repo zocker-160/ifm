@@ -4,6 +4,8 @@ builddir = $(top_builddir)/doc
 htmldir = $(builddir)/html
 latexdir = $(builddir)/latex
 sphinxdir = $(builddir)/sphinx
+imagedir = $(srcdir)/images
+exampledir = $(srcdir)/examples
 
 # Documentation sources.
 
@@ -18,7 +20,7 @@ OPTIONAL = $(top_srcdir)/etc/missing --run
 
 # User guide.
 
-.PHONY: html latex
+.PHONY: html latex images
 
 guide: html
 
@@ -34,12 +36,33 @@ linkcheck: setup conf.py
 	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
 
 setup:
-	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir)
-	@ cd $(srcdir)/images; $(MAKE) -s
+	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir) $(imagedir)
+	@ $(MAKE) -s images
 	@ for file in conf.py images/logo.png; do			\
 	    path=$(builddir)/$$file;					\
 	    test -f $$path || ln -s $(srcdir)/$$file $$path;		\
 	done
+
+# Generated images.
+
+EXAMPLES = $(wildcard ${exampledir}/*.ifm)
+TMP = $(subst ${exampledir},${imagedir},${EXAMPLES})
+PNG = $(subst .ifm,.png,${TMP})
+
+IFM2WEB = perl $(top_srcdir)/progs/ifm2web.pl -S helvetica
+
+LARGE = $(IFM2WEB) -z 3 -s 40
+SMALL = $(IFM2WEB) -z 3 -s 14
+
+images: $(PNG)
+
+$(imagedir)/%.png: $(exampledir)/%.ifm
+	@ echo creating $@
+	$(LARGE) -o $@ $<
+
+$(imagedir)/logo.png: $(exampledir)/logo.ifm
+	@ echo creating $@
+	$(SMALL) -o $@ $<
 
 # Installation stuff.
 
@@ -61,7 +84,7 @@ $(ifmdocdir):
 
 # Distribution stuff.
 
-EXTRA_DIST = $(DOCFILES) examples images templates
+EXTRA_DIST = $(DOCFILES) examples templates
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(htmldir); then					\
