@@ -19,13 +19,9 @@ This directory contains miscellaneous contributed stuff for IFM:
      commands into a transcript.  Very useful for testing the recording
      output from IFM.
 
-``ifmpp``
-     A preprocessor for any old IFM maps that made use of the ``gpp``
-     directives.  Needs ``gpp`` installed.
-
 ``chess.pl``
      Perl script to write a chess board in IFM format.  One of the
-     precursors to ``asciimapper`` (see above).
+     precursors to ``asciimapper``.
 
 .. Local Variables:
 .. mode: rst
