@@ -196,10 +196,10 @@ ASCII text (``text``)
 This produces human-readable output for items and tasks. The output should
 be fairly self-explanatory.
 
-.. _recording:
-
 .. index::
    pair: Recording; Types of output
+
+.. _recording:
 
 Recording commands (``rec``)
 ----------------------------
