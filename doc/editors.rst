@@ -1,13 +1,14 @@
-====================
- IFM editor support
-====================
+.. _editors:
 
-GNU Emacs
-=========
+=========================
+ IFM text editor support
+=========================
 
-*WRITE ME*
+The :file:`contrib` directory of the IFM source distribution has a couple
+of files which support two popular text editors:
 
-VIM (Vi IMproved)
-=================
+:file:`ifm-mode.el`
+    An IFM editing mode for GNU Emacs.
 
-*WRITE ME*
+:file:`ifm.vim`
+    An IFM editing mode for VIM (Vi IMproved).
