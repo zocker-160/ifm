@@ -1,41 +1,11 @@
-#! /usr/bin/env perl
-
-=head1 NAME
-
-ifm2web -- convert IFM maps to images suitable for the Interweb
-
-=head1 SYNOPSIS
-
-ifm2web [options] file
-
-=head1 DESCRIPTION
-
-=head1 OPTIONS
-
-=over 4
-
-=item B<-o> F<file>
-
-Write output to the specified file, instead of stdout.
-
-=item B<-h>
-
-Give a usage message.
-
-=back
-
-=head1 AUTHOR
-
-Glenn Hutchings
-
-=cut
+# ifm2web -- convert IFM map to image suitable for the Interweb
 
 require 5.000;
 use Getopt::Std;
 
 # Parse arguments.
 $0 =~ s-.*/--;
-getopts('hm:f:s:to:a:nz:', \%opts) || die "Type '$0 -h' for help\n";
+getopts('hm:f:s:to:a:nz:S:', \%opts) || die "Type '$0 -h' for help\n";
 usage() if $opts{h};
 
 $maps = $opts{m};
@@ -43,13 +13,10 @@ $format = $opts{f} || "png";
 $title = $opts{t} ? "true" : "false";
 $output = $opts{o};
 $alpha = $opts{a} || "white";
-$zoom = $opts{z} || 5;
+$zoom = $opts{z} || 1;
 $scale = $opts{s} || 100;
+$style = $opts{S};
 $whatif = $opts{n};
-
-# Parse any extra IFM arguments.
-$ifmopts = 's:S:I:';
-getopt($ifmopts, \%ifmopts);
 
 # Get IFM file.
 $file = shift(@ARGV) or moan("no IFM file specified");
@@ -61,8 +28,10 @@ $output = $prefix . "." . $format unless $output;
 # Build IFM command.
 $ifm = "ifm -nowarn";
 
-$ifm .= " -map=$maps" if $maps;
+$ifm .= " -map";
+$ifm .= "=$maps" if $maps;
 $ifm .= " -format fig";
+$ifm .= " -S $style" if $style;
 $ifm .= " -s show_map_title=$title";
 $ifm .= " -s map_border_colour=$alpha";
 $ifm .= " -s map_background_colour=$alpha";
