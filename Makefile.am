@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = check-news
 
 ACLOCAL_AMFLAGS = -I etc
 
-SUBDIRS = $(subdirs) fig src lib doc man progs demos tests
+SUBDIRS = $(subdirs) fig src lib doc man progs tests
 
 EXTRA_DIST = COPYING.DOC TO-DO
 

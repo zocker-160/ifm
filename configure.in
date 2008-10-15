@@ -88,7 +88,6 @@ fi
 dnl Write Makefiles.
 AC_OUTPUT(
 Makefile
-demos/Makefile
 doc/Makefile
 doc/conf.py
 fig/Makefile
