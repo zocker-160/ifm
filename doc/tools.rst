@@ -10,6 +10,7 @@ useful:
 
    ifm2dev
    ifm2tex
+   ifm2web
    scr2ifm
    tkifm
    editors
