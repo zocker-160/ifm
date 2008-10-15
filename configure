@@ -275,7 +275,7 @@ PACKAGE_BUGREPORT='zondo42@googlemail.com'
 
 ac_unique_file="src/ifm-main.c"
 ac_subdirs_all="$ac_subdirs_all vars"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar subdirs VARS_CFLAGS VARS_LIBS VARS_CONFIG CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE YACC LEX LEXLIB LEX_OUTPUT_ROOT RANLIB ac_ct_RANLIB CPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os CYGWIN_TRUE CYGWIN_FALSE WISH tkifm PERL ifm2dev ifm2tex scr2ifm LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar subdirs VARS_CFLAGS VARS_LIBS VARS_CONFIG CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE YACC LEX LEXLIB LEX_OUTPUT_ROOT RANLIB ac_ct_RANLIB CPP EGREP build build_cpu build_vendor build_os host host_cpu host_vendor host_os CYGWIN_TRUE CYGWIN_FALSE WISH tkifm PERL ifm2dev ifm2tex ifm2web scr2ifm LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -4073,6 +4073,9 @@ ifm2dev=ifm2dev
 ifm2tex=ifm2tex
 
 
+ifm2web=ifm2web
+
+
 scr2ifm=scr2ifm
 
 
@@ -4081,6 +4084,7 @@ if test $PERL = no; then
 echo "$as_me: WARNING: perl not found -- not building perl scripts" >&2;}
    ifm2dev=
    ifm2tex=
+   ifm2web=
    scr2ifm=
 fi
 
@@ -4827,6 +4831,7 @@ s,@tkifm@,$tkifm,;t t
 s,@PERL@,$PERL,;t t
 s,@ifm2dev@,$ifm2dev,;t t
 s,@ifm2tex@,$ifm2tex,;t t
+s,@ifm2web@,$ifm2web,;t t
 s,@scr2ifm@,$scr2ifm,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t

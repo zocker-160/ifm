@@ -71,6 +71,9 @@ AC_SUBST(ifm2dev)
 ifm2tex=ifm2tex
 AC_SUBST(ifm2tex)
 
+ifm2web=ifm2web
+AC_SUBST(ifm2web)
+
 scr2ifm=scr2ifm
 AC_SUBST(scr2ifm)
 
@@ -78,6 +81,7 @@ if test $PERL = no; then
    AC_MSG_WARN(perl not found -- not building perl scripts)
    ifm2dev=
    ifm2tex=
+   ifm2web=
    scr2ifm=
 fi
 
