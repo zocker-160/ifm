@@ -13,7 +13,8 @@ Introduction to maps
 The traditional Infocom-style way of drawing Interactive Fiction maps is
 the "boxes-and-lines" method, like this:
 
-*INSERT example.png*
+.. image:: images/infocom.png
+   :align: center
 
 This is the style of map that IFM produces. Rooms are represented as boxes
 on a square grid, and links between the rooms are drawn as lines connecting
@@ -257,28 +258,14 @@ to remind you what it's for) using the :keyword:`note` attribute::
     item "Spoon" in Kitchen note "Stirs tea";
 
 Here's the completed map description for the above example, with a few
-other items thrown in::
+other items thrown in:
 
-   title "Example Map";
+.. literalinclude:: examples/example.ifm
 
-   room "Kitchen" tag Kitchen;
-     item "spoon" note "Stirs tea";
-     item "sink";
-     item "monkey";
+And this is what it looks like as rendered by IFM:
 
-   room "Garage" dir s go down;
-     item "monkey wrench" note "For wrenching monkey out of sink";
-
-   room "Lounge" dir e from Kitchen;
-     item "TV set";
-
-   room "Dining Room" dir s link Kitchen;
-     item "table";
-     item "chair";
-
-   room "Study" dir e n oneway;
-
-See :ref:`usage` for how to display it.
+.. image:: images/example.png
+   :align: center
 
 .. index::
    single: dir; Conflicts

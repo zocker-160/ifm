@@ -8,8 +8,8 @@ sphinxdir = $(builddir)/sphinx
 # Documentation sources.
 
 DOCFILES = changes.rst diagnostics.rst editors.rst ifm2dev.rst ifm2tex.rst \
-index.rst intro.rst language.rst license.rst maps.rst scr2ifm.rst	   \
-solving.rst tkifm.rst tools.rst usage.rst
+ifm2web.rst index.rst intro.rst language.rst license.rst maps.rst	   \
+scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
 
 # Programs.
 
@@ -33,8 +33,10 @@ latex: setup conf.py
 linkcheck: setup conf.py
 	$(SPHINX) -b $@ $(srcdir) $(sphinxdir)
 
-setup:;	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir)
-	@ for file in conf.py logo.png; do				\
+setup:
+	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir)
+	@ cd $(srcdir)/images; $(MAKE) -s
+	@ for file in conf.py images/logo.png; do			\
 	    path=$(builddir)/$$file;					\
 	    test -f $$path || ln -s $(srcdir)/$$file $$path;		\
 	done
@@ -59,7 +61,7 @@ $(ifmdocdir):
 
 # Distribution stuff.
 
-EXTRA_DIST = $(DOCFILES) examples templates logo.png
+EXTRA_DIST = $(DOCFILES) examples images templates
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(htmldir); then					\

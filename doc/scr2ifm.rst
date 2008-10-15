@@ -379,7 +379,8 @@ we get the following map:
 
 Printed, it looks like this:
 
-*INSERT advent.png*
+.. image:: images/advent.png
+   :align: center
 
 Limitations
 ===========
