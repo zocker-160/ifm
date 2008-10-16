@@ -9,9 +9,9 @@ exampledir = $(srcdir)/examples
 
 # Documentation sources.
 
-DOCFILES = changes.rst diagnostics.rst editors.rst ifm2dev.rst ifm2tex.rst \
-ifm2web.rst index.rst intro.rst language.rst license.rst maps.rst	   \
-scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
+DOCFILES = changes.rst diagnostics.rst editors.rst example.rst ifm2dev.rst \
+ifm2tex.rst ifm2web.rst index.rst intro.rst language.rst license.rst	   \
+maps.rst scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
 
 # Programs.
 
@@ -54,7 +54,7 @@ IFM2WEB = perl $(top_srcdir)/progs/ifm2web.pl -S helvetica
 
 LARGE = $(IFM2WEB) -z 3 -s 40
 SMALL = $(IFM2WEB) -z 3 -s 14
-TASKS = $(IFM2WEB) -g
+TASKS = $(IFM2WEB) -g -s 70
 
 images: $(PNG)
 

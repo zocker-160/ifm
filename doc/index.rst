@@ -9,6 +9,7 @@
    install
    maps
    solving
+   example
    usage
    language
    diagnostics
