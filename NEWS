@@ -1,8 +1,12 @@
-Version 5.3 (15 Oct 2008)
+Version 5.3 (16 Oct 2008)
 =========================
 
 * There's a new Perl script ``ifm2web``, which converts IFM maps to image
   files suitable for the Interweb.
+
+* There are some new task graph options: ``task_graph_wrap``, which controls
+  word-wrapping when printing graph nodes, and ``task_graph_font``, which
+  sets the text font.
 
 * The documentation is now much prettier, thanks to `Sphinx
   <http://sphinx.pocoo.org>`_.  PDF documentation is no longer distributed,
