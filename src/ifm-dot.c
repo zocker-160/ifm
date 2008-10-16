@@ -29,6 +29,7 @@ taskfuncs dot_taskfuncs = {
 /* Control variables */
 static int show_rooms = 0;
 static int show_orphans = 0;
+static int word_wrap = 0;
 static char *graph_attr = "";
 static char *node_attr = "";
 static char *link_attr = "";
@@ -41,15 +42,18 @@ void
 dot_task_start(void)
 {
     double width, height;
-    char *title;
+    char *title, *font;
 
     /* Get control variables */
     set_map_vars();
+
     show_rooms = var_int("task_graph_rooms");
     show_orphans = var_int("task_graph_orphans");
     graph_attr = var_string("task_graph_attr");
     node_attr = var_string("task_graph_node");
     link_attr = var_string("task_graph_link");
+    word_wrap = var_int("task_graph_wrap");
+    font = var_string("task_graph_font");
 
     /* Get title */
     if (vh_exists(map, "TITLE"))
@@ -64,8 +68,13 @@ dot_task_start(void)
     /* Write graph header */
     printf("digraph \"%s\" {\n", title);
 
+    printf("    fontname = \"%s\";\n", font);
+
     printf("    graph [size = \"%g,%g\", ratio = fill, %s];\n",
            height, width, graph_attr);
+
+    printf("    node [fontname = \"%s\"];\n", font);
+    printf("    edge [fontname = \"%s\"];\n", font);
 
     printf("    rankdir = LR;\n");
     printf("    rotate = 90;\n");
@@ -75,7 +84,7 @@ dot_task_start(void)
 void
 dot_task_finish(void)
 {
-    vlist *list, *tolist, *nodes;
+    vlist *list, *tolist, *nodes, *lines;
     vhash *step, *room, *rooms;
     char *node, *name;
     int cluster = 0;
@@ -136,10 +145,14 @@ dot_task_finish(void)
 
             printf("%s [", node);
 
-            if (show_rooms || strlen(name) == 0)
-                V_BUF_SET(vh_sgetref(step, "DESC"));
-            else
-                V_BUF_SET2("%s\\n[%s]", vh_sgetref(step, "DESC"), name);
+            V_BUF_SET(vh_sgetref(step, "DESC"));
+            if (!show_rooms && strlen(name) > 0)
+                V_BUF_ADD1(" [%s]", name);
+
+            if (word_wrap > 0) {
+                lines = vl_filltext(V_BUF_VAL, word_wrap);
+                V_BUF_SET(vl_join(lines, "\\n"));
+            }
 
             print_label(V_BUF_VAL);
             printf("];\n");

@@ -250,6 +250,12 @@ task_graph_node = "shape=box";  # dot
 # Link attributes, in Graphviz format.
 task_graph_link = "";		# dot
 
+# Word wrapping cutoff.
+task_graph_wrap = 12;		# dot
+
+# Font name.
+task_graph_font = "Times-Roman"; # dot
+
 ##############################################################################
 # End of initialization file
 ##############################################################################
