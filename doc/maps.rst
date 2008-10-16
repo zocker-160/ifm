@@ -1,7 +1,7 @@
 .. _making-maps:
 
 =============
- Making Maps
+ Making maps
 =============
 
 This section gives you a tour of the main commands for making maps. It's

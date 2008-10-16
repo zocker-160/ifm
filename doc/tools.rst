@@ -8,9 +8,9 @@ useful:
 .. toctree::
    :maxdepth: 2
 
+   scr2ifm
+   tkifm
    ifm2dev
    ifm2tex
    ifm2web
-   scr2ifm
-   tkifm
    editors
