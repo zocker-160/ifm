@@ -74,7 +74,7 @@ dot_task_start(void)
            height, width, graph_attr);
 
     printf("    node [fontname = \"%s\"];\n", font);
-    printf("    edge [fontname = \"%s\"];\n", font);
+    printf("    edge [fontname = \"%s\", len = 1.5];\n", font);
 
     printf("    rankdir = LR;\n");
     printf("    rotate = 90;\n");
