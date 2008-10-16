@@ -47,18 +47,28 @@ setup:
 
 EXAMPLES = $(wildcard ${exampledir}/*.ifm)
 TMP = $(subst ${exampledir},${imagedir},${EXAMPLES})
-PNG = $(subst .ifm,.png,${TMP})
+PNG = $(subst .ifm,.png,${TMP}) $(imagedir)/ruins-graph.png	\
+$(imagedir)/ruins-graph-byroom.png
 
 IFM2WEB = perl $(top_srcdir)/progs/ifm2web.pl -S helvetica
 
 LARGE = $(IFM2WEB) -z 3 -s 40
 SMALL = $(IFM2WEB) -z 3 -s 14
+TASKS = $(IFM2WEB) -g
 
 images: $(PNG)
 
 $(imagedir)/%.png: $(exampledir)/%.ifm
 	@ echo creating $@
 	$(LARGE) -o $@ $<
+
+$(imagedir)/%-graph.png: $(exampledir)/%.ifm
+	@ echo creating $@
+	@ $(TASKS) -o $@ $<
+
+$(imagedir)/%-graph-byroom.png: $(exampledir)/%.ifm
+	@ echo creating $@
+	@ $(TASKS) -r -o $@ $<
 
 $(imagedir)/logo.png: $(exampledir)/logo.ifm
 	@ echo creating $@
