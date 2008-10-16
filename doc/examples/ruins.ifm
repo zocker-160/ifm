@@ -24,19 +24,19 @@ room "Dark Forest";
   # to it later.
   item "speckled mushroom"		tag mushroom;
 
+  task "Examine snake"			need mushroom;
+
   # On picking the mushroom, we notice a statuette in the grass.  It can't
   # be taken until the mushroom is, so give it a 'need' clause.  It's also
   # not immediately apparent in the room, so mark it hidden.
   item "statuette"			tag statue hidden need mushroom;
 
-  # After a while, a plane turns up and drops the packing case.  Let's wait
-  # for it to arrive.  The actual command typed to do that is WAIT, several
-  # times.  Note that doing this is optional -- you only need to use tasks
-  # if you want to record what you did, as well as where you've been.
-  task "Wait for aeroplane"		cmd "wait" 3;
+  # There's a noise overhead -- after picking up the statuette, let's wait
+  # and see what it is.
+  task "Look"				need statue;
 
-  # For completeness, let's add the packing case too, but it doesn't really
-  # play a part in the solution.
+  # A packing case!  For completeness, let's add the packing case too, but
+  # it doesn't really play a part in the solution.
   item "packing case"			hidden;
 
   # The game is won by putting all the treasures in the packing case, which
@@ -45,18 +45,25 @@ room "Dark Forest";
   # separate task, but you could also implement it as a single task which
   # requires all four treasures.  The only difference would be possibly
   # different behaviour from the game solver.
-  task "Put statuette in case"		tag pack_statue need statue
-					lose it score 10;
-  task "Put bangle in case"		tag pack_bangle need bangle
-					lose it score 20;
+  task "Put statuette in case"		tag pack_statue
+       	    	      	 		need statue bangle ruby wax
+					lose statue score 10;
+
+  task "Put bangle in case"		tag pack_bangle
+       	    	      	 		need bangle ruby wax
+					lose bangle score 20;
+
   task "Put ruby in case"		tag pack_ruby need ruby
-					lose it score 30;
-  task "Put wax in case"		tag pack_wax need wax
-					lose it score 40;
+       	    	      	 		need ruby wax
+					lose ruby score 30;
+
+  task "Put wax in case"		tag pack_wax
+       	    	      	 		need wax
+					lose wax score 40;
 
   # After all the treasures are stashed, the game is over.
   task "Wait for helicopter"		after pack_statue pack_bangle
-					pack_ruby pack_wax cmd "wait" 2 finish;
+					pack_ruby pack_wax cmd "WAIT" 2 finish;
 
 # Going down, we get to the square chamber.  Let's put this room below the
 # start room (south, that is), but indicating that the direction is
@@ -68,12 +75,17 @@ room "Square Chamber"			tag Chamber dir s go down exit s e;
 
   # Obviously (?) the thing to do here is to put the mushroom in the sunlight.
   # This eventually leads us to the special carvings on the wall.
+  task "Examine inscriptions"; # XXX
+  task "Examine mushroom"; # XXX
+  task "Examine sunlight"; # XXX
+
   task "Put mushroom in sunlight"	need mushroom lose it;
   task "Examine trails"			after last;
   task "Examine carvings"		after last;
 
   # When we press the carvings, a panel opens containing the iron key.
   task "Press carvings"			after last;
+  task "Search cavity"			after last;
   item "iron key"			tag key hidden after last;
 
 # Going south, we enter a mossy corridor...
@@ -82,8 +94,9 @@ room "Stooped Corridor"			dir s;
   item "moss";
 
   # Examining the moss, and searching it, we find a ruby.
-  task "Examine moss";
+  task "Examine moss"; # XXX
   task "Search moss"			after last;
+  task "Look"  				after last; # XXX
   item "blood-red ruby"			tag ruby hidden after last;
 
   # We need the iron key to open the door.
@@ -97,11 +110,18 @@ room "Lofty Shrine"			dir s after open_door;
   item "stone slab";
   item "mummified priest";
 
+  task "Examine slab"; # XXX
+  task "Examine priest"; # XXX
+  task "Ask priest about ruby"; # XXX
+  task "Ask priest about slab"; # XXX
+  task "Ask priest about key"; # XXX
+
   # We can interact with the mummy in many ways, but the important
   # game-solving task is to return the iron key, for which we're
   # rewarded.
   task "Put key on slab"		need key lose it give wax;
   item "wax"				tag wax hidden;
+  task "Examine wax"			need wax;
 
 # The shrine is a dead end, but we can also go east from the Square
 # Chamber.  Doing that plunges us into the Web of Darkness.  Illustrate
@@ -110,14 +130,12 @@ room "Lofty Shrine"			dir s after open_door;
 # implicit link and not the room.
 room "Web of Darkness"			style Dark dir e from Chamber oneway;
   item "scuttling claws";
+  task "E"; # XXX
+  task "S"; # XXX
 
 # Going southeast takes us to the second web room.  Make that dark too.
 room "Web of Darkness"			style Dark dir se oneway;
   item "scuttling claws";
-
-  # This second room returns to the Square Chamber by going northeast,
-  # requiring a convoluted link.
-  link last to Chamber			dir ne n w 2 oneway;
 
   # The act of going northeast gives you a bangle (you trip over it and
   # pick it up).  There are two ways of doing this: with an explicit
@@ -125,11 +143,15 @@ room "Web of Darkness"			style Dark dir se oneway;
   # task that hands you the bangle in this room without you doing
   # anything.  Let's use the first method.
   item "silver bangle"			hidden tag bangle;
-  task "Stumble over bangle"		give bangle cmd "NE" goto Chamber
-					tag find_bangle;
+  #  task "Stumble over bangle"		give bangle cmd none;
 
   # The other alternative would be:
-  # task "Stumble over bangle"		give bangle cmd none;
+  task "Stumble over bangle"		give bangle cmd "NE" goto Chamber;
+  task "Inventory"			need bangle in any cmd "I";
+
+  # This second room returns to the Square Chamber by going northeast,
+  # requiring a convoluted link.
+  link last to Chamber			dir ne n w 2 oneway;
 
 #############################################################################
 
