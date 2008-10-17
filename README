@@ -2,6 +2,9 @@
  IFM -- Interactive Fiction Mapper
 ===================================
 
+About IFM
+=========
+
 IFM is a language and a program for keeping track of your progress through
 an Interactive Fiction game.  You can record each room you visit and its
 relation to other rooms, the initial locations of useful items you find,
@@ -21,12 +24,27 @@ IFM can write hardcopy maps directly to PostScript, suitable for printing
 or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
-See the main IFM documentation in the ``doc`` directory for how to obtain
-and install IFM on various systems.
+For detailed documentation, see the guide in ``doc/index.html``.
+
+Copyright
+=========
 
 IFM and its utility programs are free software, and you may redistribute
 them under certain conditions; see the files ``COPYING`` and
 ``COPYING.DOC`` for details.
+
+Installation
+============
+
+See the file :file:`INSTALL` for installation details.  But it basically
+boils down to::
+
+    ./configure
+    make
+    su -c 'make install'
+
+Finally...
+==========
 
 Feel free to send comments, bug reports, suggestions, etc. to me.  I am
 Glenn Hutchings (zondo42@googlemail.com).
