@@ -12,7 +12,6 @@
    example
    usage
    language
-   diagnostics
    tools
    links
    thanks

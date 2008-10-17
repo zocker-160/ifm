@@ -9,9 +9,9 @@ exampledir = $(srcdir)/examples
 
 # Documentation sources.
 
-DOCFILES = changes.rst diagnostics.rst editors.rst example.rst ifm2dev.rst \
-ifm2tex.rst ifm2web.rst index.rst intro.rst language.rst license.rst	   \
-maps.rst scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
+DOCFILES = changes.rst editors.rst example.rst ifm2dev.rst ifm2tex.rst	\
+ifm2web.rst index.rst intro.rst language.rst license.rst maps.rst	\
+scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
 
 # Programs.
 
