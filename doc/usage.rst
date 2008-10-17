@@ -51,6 +51,9 @@ starting with the output options:
    argument ``1,3-5`` would print map sections 1, 3, 4 and 5. If the list
    isn't specified, all sections are printed.
 
+   .. versionadded:: 5.0
+      Optional list of map sections.
+
 .. cmdoption:: -i, --items
 
    Print a list of items which appear in the game.
@@ -79,10 +82,14 @@ Next comes the auxiliary options:
    Set a global style. See Customization_ for more details. This option may
    be repeated.
 
+   .. versionadded:: 5.0
+
 .. cmdoption:: -s, --set VAR=VALUE
 
    Set a customization variable. This overrides any settings in the input
    files. This option may be repeated.
+
+   .. versionadded:: 5.0
 
 .. cmdoption:: --noinit
 
@@ -97,6 +104,8 @@ Next comes the auxiliary options:
    Print this many errors before aborting (default: 10). If set to zero,
    print all errors.
 
+   .. versionadded:: 5.2
+
 Finally, here are the information options:
 
 .. cmdoption:: --show=TYPE
@@ -108,6 +117,8 @@ Finally, here are the information options:
 	   Show a list of all the map sections defined in the input. This
 	   is useful for finding the numbers of the map sections you want
 	   to print.
+
+	   .. versionadded:: 5.0
 
    ``path``
 	   Show the directories that are searched for library and include
@@ -162,6 +173,8 @@ room boxes, if required.
 
 Fig maps (``fig``)
 ------------------
+
+.. versionadded:: 5.0
 
 This produces a map which can be read (and edited) by `Xfig
 <http://www.xfig.org>`_, and any other programs which understand Fig
@@ -229,6 +242,8 @@ of randomness.
 Task dependencies (``dot``)
 ---------------------------
 
+.. versionadded:: 5.0
+
 This produces a graph of the dependencies of tasks on each other, in
 Graphviz (dot) format. You'll need to have `Graphviz
 <http://www.graphviz.org>`_ installed in order to display the graph.
@@ -285,7 +300,7 @@ map of *Colossal Cave* and want to mark rooms where you can refill your water
 bottle. You can define a style called, say, ``Water``, like this::
 
     style Water;
-    room_colour = "light blue";
+      room_colour = "light blue";
     endstyle;
 
 The values of variables that are set between the :keyword:`style` and
@@ -294,7 +309,7 @@ if you declare rooms like this::
 
     room "At End Of Road";
 
-    room "Inside Building" dir e go in style Water;
+    room "Inside Building" style Water dir e go in;
 
 then the room "Inside Building" will be drawn with a light blue
 background. You can customize individual links in a similar manner.

@@ -81,10 +81,8 @@ you can indicate that up front by using the command::
 Then, if the IFM version number is less than this number, parsing will
 abort immediately, avoiding lots of potentially confusing syntax errors.
 
-.. note::
-
-   There's no point in requiring any version less than 5.0, since that's
-   when the require syntax was added.
+.. versionadded:: 5.0
+   The :keyword:`require` keyword.
 
 Tags
 ====
@@ -281,6 +279,8 @@ where ``STRING`` is a description of the room. Room attributes can be:
 :keyword:`nodrop`
        Indicate that no items should be voluntarily dropped in this room.
 
+       .. versionadded:: 5.0
+
 .. index:: nolink
 
 :keyword:`nolink`
@@ -347,15 +347,21 @@ where :keyword:`STRING` is the item description. Item attributes can be:
        Indicate that the item shouldn't be dropped until all the other
        specified items have left the inventory.
 
+       .. versionadded:: 5.0
+
 :keyword:`keep until ID [ID...]`
        Indicate that the item shouldn't be dropped until all the other
        specified tasks have been done.
+
+       .. versionadded:: 5.0
 
 .. index:: ignore
 
 :keyword:`ignore`
        Indicate that this item should be ignored when trying to find a
        solution (i.e., never go out of your way to pick it up).
+
+       .. versionadded:: 5.0
 
 .. index:: given
 
@@ -650,6 +656,8 @@ and these are the available attributes:
        might need, and their effects are carried out---including any
        :keyword:`do` clauses they might have, recursively.
 
+       .. versionadded:: 5.0
+
 .. index:: get
 
 :keyword:`get ID [ID...]`
@@ -700,6 +708,8 @@ and these are the available attributes:
 :keyword:`ignore`
        Don't ever do this task explicitly when solving the game. The task
        may still be done via a :keyword:`do` action.
+
+       .. versionadded:: 5.0
 
 .. index:: finish
 

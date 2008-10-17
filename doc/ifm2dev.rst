@@ -4,6 +4,8 @@
  :program:`ifm2dev`: convert IFM maps to various other formats
 ===============================================================
 
+.. versionadded:: 5.0
+
 :program:`ifm2dev` is a front end to :program:`fig2dev`, which converts
 diagrams in `Xfig <http://www.xfig.org>`_ format to various other formats.
 :program:`ifm2dev` converts each map section and writes them to separate

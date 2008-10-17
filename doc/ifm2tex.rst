@@ -4,6 +4,8 @@
  :program:`ifm2tex`: convert IFM maps to LaTeX
 ===============================================
 
+.. versionadded:: 5.0
+
 :program:`ifm2tex` is a program for creating a summary file in LaTeX
 format, suitable for converting to PostScript and printing. It uses
 :program:`ifm2dev` to create the maps. The command format is::
