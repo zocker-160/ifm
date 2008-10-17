@@ -7,6 +7,8 @@ MAN_TITLE = Interactive Fiction Mapper
 
 man_MANS = ifm.1
 
+EXTRA_DIST = ifm.man
+
 manpage: ifm.1
 
 ifm.1: ifm.man

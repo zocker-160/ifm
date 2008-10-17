@@ -156,6 +156,7 @@ HELP2MAN = $(OPTIONAL) help2man -N -n "$(MAN_TITLE)"
 OPTIONAL = $(top_srcdir)/etc/missing --run
 MAN_TITLE = Interactive Fiction Mapper
 man_MANS = ifm.1
+EXTRA_DIST = ifm.man
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
