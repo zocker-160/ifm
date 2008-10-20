@@ -156,9 +156,10 @@ imagedir = $(srcdir)/images
 exampledir = $(srcdir)/examples
 
 # Documentation sources.
-DOCFILES = changes.rst editors.rst example.rst ifm2dev.rst ifm2tex.rst	\
-ifm2web.rst index.rst intro.rst language.rst license.rst maps.rst	\
-scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
+DOCFILES = changes.rst editors.rst example.rst ifm2dev.rst ifm2tex.rst	  \
+ifm2web.rst index.rst install.rst intro.rst language.rst license.rst	  \
+links.rst maps.rst scr2ifm.rst solving.rst thanks.rst tkifm.rst tools.rst \
+usage.rst
 
 
 # Programs.
@@ -177,7 +178,7 @@ SMALL = $(IFM2WEB) -z 3 -s 14
 TASKS = $(IFM2WEB) -g -s 70
 
 # Distribution stuff.
-EXTRA_DIST = $(DOCFILES) examples templates
+EXTRA_DIST = $(DOCFILES) examples templates images
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 

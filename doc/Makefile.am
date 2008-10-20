@@ -9,9 +9,10 @@ exampledir = $(srcdir)/examples
 
 # Documentation sources.
 
-DOCFILES = changes.rst editors.rst example.rst ifm2dev.rst ifm2tex.rst	\
-ifm2web.rst index.rst intro.rst language.rst license.rst maps.rst	\
-scr2ifm.rst solving.rst tkifm.rst tools.rst usage.rst
+DOCFILES = changes.rst editors.rst example.rst ifm2dev.rst ifm2tex.rst	  \
+ifm2web.rst index.rst install.rst intro.rst language.rst license.rst	  \
+links.rst maps.rst scr2ifm.rst solving.rst thanks.rst tkifm.rst tools.rst \
+usage.rst
 
 # Programs.
 
@@ -94,7 +95,7 @@ $(ifmdocdir):
 
 # Distribution stuff.
 
-EXTRA_DIST = $(DOCFILES) examples templates
+EXTRA_DIST = $(DOCFILES) examples templates static
 
 dist-doc: $(EXTRA_DIST)
 	if test -d $(htmldir); then					\
