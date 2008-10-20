@@ -69,8 +69,23 @@ June 1998 the first version appeared in the `IF archive`_.  And now,
 finally, it's finished and I can go back to that IF game I was
 playing. [1]_
 
+Getting IFM
+===========
+
+You can find IFM in the `IF archive`_, in the :file:`mapping-tools`
+subdirectory.  See the file :file:`INSTALL` that comes with the IFM source
+distribution for installation details.  But it basically boils down to::
+
+    ./configure
+    make
+    su -c 'make install'
+
+If you want to build IFM on Windows, you'll need to install Cygwin_ first.
+Then, use the same commands as above.
+
 .. _groff: http://groff.ffii.org
 .. _IF archive: http://www.ifarchive.org
+.. _Cygwin: http://www.cygwin.com
 
 .. rubric:: Footnotes
 
