@@ -178,7 +178,7 @@ SMALL = $(IFM2WEB) -z 3 -s 14
 TASKS = $(IFM2WEB) -g -s 70
 
 # Distribution stuff.
-EXTRA_DIST = $(DOCFILES) examples templates images
+EXTRA_DIST = $(DOCFILES) examples templates static
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
