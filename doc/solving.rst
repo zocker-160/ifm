@@ -1,10 +1,10 @@
 .. _solving:
 
-.. highlight:: ifm
-
 ==================
  Solving the game
 ==================
+
+.. highlight:: ifm
 
 As well as making a map of your game, you can record the steps you took to
 solve it. IFM can then calculate a (fairly) optimal solution. This section

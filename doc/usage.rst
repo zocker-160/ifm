@@ -317,9 +317,9 @@ then the room "Inside Building" will be drawn with a light blue
 background. You can customize individual links in a similar manner.
 
 An alternative way to define a variable in a particular style is to use the
-in style clause, like this::
+:keyword:`in style` clause, like this::
 
-   room_colour = "light blue" in style Water;
+    room_colour = "light blue" in style Water;
 
 If a style only changes a single variable, this may be more convenient.
 

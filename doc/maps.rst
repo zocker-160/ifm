@@ -1,10 +1,10 @@
 .. _making-maps:
 
-.. highlight:: ifm
-
 =============
  Making maps
 =============
+
+.. highlight:: ifm
 
 This section gives you a tour of the main commands for making maps. It's
 not complete; see :ref:`language` for a full list of commands.
