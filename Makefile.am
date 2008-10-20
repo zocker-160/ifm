@@ -8,7 +8,7 @@ SUBDIRS = $(subdirs) fig src lib doc man progs tests
 
 EXTRA_DIST = COPYING.DOC TO-DO
 
-EXTRA_DIRS = etc contrib win32
+EXTRA_DIRS = etc contrib
 
 dist-hook: dist-prepare dist-extra dist-config dist-header dist-touch \
 	   dist-cleanup
