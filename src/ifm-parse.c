@@ -220,15 +220,6 @@
 /* Copy the first part of user declarations.  */
 #line 1 "ifm-parse.y"
 
-/*
- * This file is part of IFM (Interactive Fiction Mapper), copyright (C)
- * Glenn Hutchings 1997-2008.
- *
- * IFM comes with ABSOLUTELY NO WARRANTY.  This is free software, and you
- * are welcome to redistribute it under certain conditions; see the file
- * COPYING for details.
- */
-
 /* Input parser */
 
 #ifdef HAVE_CONFIG_H
@@ -325,7 +316,7 @@ static int instyle = 0;         /* Set variable in different style? */
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 87 "ifm-parse.y"
+#line 78 "ifm-parse.y"
 {
     int ival;
     double dval;
@@ -333,7 +324,7 @@ typedef union YYSTYPE
     vscalar *vval;
 }
 /* Line 193 of yacc.c.  */
-#line 337 "ifm-parse.c"
+#line 328 "ifm-parse.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -346,7 +337,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 350 "ifm-parse.c"
+#line 341 "ifm-parse.c"
 
 #ifdef short
 # undef short
@@ -712,27 +703,27 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   120,   120,   121,   122,   125,   126,   127,   128,   129,
-     130,   131,   132,   139,   143,   149,   164,   163,   267,   266,
-     281,   282,   285,   292,   310,   325,   338,   355,   372,   376,
-     380,   384,   388,   392,   396,   400,   404,   408,   412,   418,
-     422,   426,   431,   436,   441,   445,   448,   449,   452,   460,
-     465,   472,   488,   487,   505,   504,   518,   519,   522,   529,
-     533,   537,   541,   546,   550,   554,   558,   562,   566,   570,
-     574,   578,   582,   586,   589,   590,   591,   604,   605,   606,
-     609,   623,   628,   635,   651,   650,   664,   663,   677,   678,
-     681,   686,   690,   694,   698,   702,   706,   710,   714,   720,
-     724,   729,   734,   739,   746,   754,   753,   767,   766,   780,
-     781,   784,   788,   792,   796,   800,   804,   808,   812,   816,
-     822,   826,   831,   836,   841,   848,   856,   855,   874,   873,
-     887,   888,   891,   898,   902,   906,   910,   914,   918,   924,
-     931,   938,   946,   950,   955,   959,   963,   967,   971,   975,
-     979,   983,   987,   991,   995,  1000,  1004,  1008,  1011,  1012,
-    1015,  1023,  1028,  1035,  1050,  1058,  1062,  1067,  1071,  1076,
-    1080,  1087,  1088,  1099,  1103,  1107,  1113,  1114,  1117,  1128,
-    1129,  1132,  1138,  1147,  1159,  1160,  1161,  1162,  1163,  1164,
-    1165,  1166,  1169,  1170,  1171,  1172,  1179,  1180,  1181,  1182,
-    1185,  1190,  1197
+       0,   111,   111,   112,   113,   116,   117,   118,   119,   120,
+     121,   122,   123,   130,   134,   140,   155,   154,   258,   257,
+     272,   273,   276,   283,   301,   316,   329,   346,   363,   367,
+     371,   375,   379,   383,   387,   391,   395,   399,   403,   409,
+     413,   417,   422,   427,   432,   436,   439,   440,   443,   451,
+     456,   463,   479,   478,   496,   495,   509,   510,   513,   520,
+     524,   528,   532,   537,   541,   545,   549,   553,   557,   561,
+     565,   569,   573,   577,   580,   581,   582,   595,   596,   597,
+     600,   614,   619,   626,   642,   641,   655,   654,   668,   669,
+     672,   677,   681,   685,   689,   693,   697,   701,   705,   711,
+     715,   720,   725,   730,   737,   745,   744,   758,   757,   771,
+     772,   775,   779,   783,   787,   791,   795,   799,   803,   807,
+     813,   817,   822,   827,   832,   839,   847,   846,   865,   864,
+     878,   879,   882,   889,   893,   897,   901,   905,   909,   915,
+     922,   929,   937,   941,   946,   950,   954,   958,   962,   966,
+     970,   974,   978,   982,   986,   991,   995,   999,  1002,  1003,
+    1006,  1014,  1019,  1026,  1041,  1049,  1053,  1058,  1062,  1067,
+    1071,  1078,  1079,  1090,  1094,  1098,  1104,  1105,  1108,  1119,
+    1120,  1123,  1129,  1138,  1150,  1151,  1152,  1153,  1154,  1155,
+    1156,  1157,  1160,  1161,  1162,  1163,  1170,  1171,  1172,  1173,
+    1176,  1181,  1188
 };
 #endif
 
@@ -1918,14 +1909,14 @@ yyreduce:
   switch (yyn)
     {
         case 13:
-#line 140 "ifm-parse.y"
+#line 131 "ifm-parse.y"
     {
                     vh_sstore(map, "TITLE", (yyvsp[(2) - (3)].sval));
                 }
     break;
 
   case 14:
-#line 144 "ifm-parse.y"
+#line 135 "ifm-parse.y"
     {
                     if (sectnames == NULL)
                         sectnames = vl_create();
@@ -1934,7 +1925,7 @@ yyreduce:
     break;
 
   case 15:
-#line 150 "ifm-parse.y"
+#line 141 "ifm-parse.y"
     {
                     float version;
                     sscanf(VERSION, "%f", &version);
@@ -1945,7 +1936,7 @@ yyreduce:
     break;
 
   case 16:
-#line 164 "ifm-parse.y"
+#line 155 "ifm-parse.y"
     {
                     curobj = vh_create();
 		    vh_sstore(curobj, "DESC", (yyvsp[(2) - (2)].sval));
@@ -1958,7 +1949,7 @@ yyreduce:
     break;
 
   case 17:
-#line 174 "ifm-parse.y"
+#line 165 "ifm-parse.y"
     {
                     vhash *near, *link, *sect = NULL;
                     vlist *list, *dirs;
@@ -2054,7 +2045,7 @@ yyreduce:
     break;
 
   case 18:
-#line 267 "ifm-parse.y"
+#line 258 "ifm-parse.y"
     {
                     implicit = 0;
                     modify = 1;
@@ -2066,14 +2057,14 @@ yyreduce:
     break;
 
   case 19:
-#line 276 "ifm-parse.y"
+#line 267 "ifm-parse.y"
     {
                     RESET;
                 }
     break;
 
   case 22:
-#line 286 "ifm-parse.y"
+#line 277 "ifm-parse.y"
     {
                     if (!modify)
                         set_tag("room", (yyvsp[(2) - (2)].sval), curobj, roomtags);
@@ -2083,7 +2074,7 @@ yyreduce:
     break;
 
   case 23:
-#line 293 "ifm-parse.y"
+#line 284 "ifm-parse.y"
     {
                     vhash *room;
 
@@ -2104,7 +2095,7 @@ yyreduce:
     break;
 
   case 24:
-#line 311 "ifm-parse.y"
+#line 302 "ifm-parse.y"
     {
                     implicit = 1;
 
@@ -2122,7 +2113,7 @@ yyreduce:
     break;
 
   case 25:
-#line 326 "ifm-parse.y"
+#line 317 "ifm-parse.y"
     {
                     viter iter;
                     int dir;
@@ -2138,7 +2129,7 @@ yyreduce:
     break;
 
   case 26:
-#line 339 "ifm-parse.y"
+#line 330 "ifm-parse.y"
     {
                     vscalar *elt;
                     vhash *link;
@@ -2158,7 +2149,7 @@ yyreduce:
     break;
 
   case 27:
-#line 356 "ifm-parse.y"
+#line 347 "ifm-parse.y"
     {
                     vscalar *elt;
                     vhash *join;
@@ -2178,77 +2169,77 @@ yyreduce:
     break;
 
   case 28:
-#line 373 "ifm-parse.y"
+#line 364 "ifm-parse.y"
     {
                     vh_istore(curobj, "GO", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 29:
-#line 377 "ifm-parse.y"
+#line 368 "ifm-parse.y"
     {
                     vh_istore(curobj, "ONEWAY", 1);
 		}
     break;
 
   case 30:
-#line 381 "ifm-parse.y"
+#line 372 "ifm-parse.y"
     {
                     vh_istore(curobj, "NODROP", 1);
 		}
     break;
 
   case 31:
-#line 385 "ifm-parse.y"
+#line 376 "ifm-parse.y"
     {
                     vh_istore(curobj, "NOLINK", 1);
 		}
     break;
 
   case 32:
-#line 389 "ifm-parse.y"
+#line 380 "ifm-parse.y"
     {
                     vh_istore(curobj, "NOPATH", 1);
 		}
     break;
 
   case 33:
-#line 393 "ifm-parse.y"
+#line 384 "ifm-parse.y"
     {
                     startroom = curobj;
 		}
     break;
 
   case 34:
-#line 397 "ifm-parse.y"
+#line 388 "ifm-parse.y"
     {
                     vh_istore(curobj, "FINISH", 1);
                 }
     break;
 
   case 35:
-#line 401 "ifm-parse.y"
+#line 392 "ifm-parse.y"
     {
                     SET_LIST(curobj, ATTR(NEED), curitems);
                 }
     break;
 
   case 36:
-#line 405 "ifm-parse.y"
+#line 396 "ifm-parse.y"
     {
                     SET_LIST(curobj, ATTR(BEFORE), curtasks);
 		}
     break;
 
   case 37:
-#line 409 "ifm-parse.y"
+#line 400 "ifm-parse.y"
     {
                     SET_LIST(curobj, ATTR(AFTER), curtasks);
 		}
     break;
 
   case 38:
-#line 413 "ifm-parse.y"
+#line 404 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, ATTR(LEAVE), curitems);
@@ -2257,21 +2248,21 @@ yyreduce:
     break;
 
   case 39:
-#line 419 "ifm-parse.y"
+#line 410 "ifm-parse.y"
     {
                     vh_istore(curobj, "LEN", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 40:
-#line 423 "ifm-parse.y"
+#line 414 "ifm-parse.y"
     {
                     vh_istore(curobj, "SCORE", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 41:
-#line 427 "ifm-parse.y"
+#line 418 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", (yyvsp[(2) - (2)].sval));
@@ -2279,7 +2270,7 @@ yyreduce:
     break;
 
   case 42:
-#line 432 "ifm-parse.y"
+#line 423 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", (yyvsp[(3) - (3)].sval));
@@ -2287,7 +2278,7 @@ yyreduce:
     break;
 
   case 43:
-#line 437 "ifm-parse.y"
+#line 428 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "FROM_CMD", (yyvsp[(3) - (3)].sval));
@@ -2295,14 +2286,14 @@ yyreduce:
     break;
 
   case 44:
-#line 442 "ifm-parse.y"
+#line 433 "ifm-parse.y"
     {
                     add_attr(curobj, "NOTE", (yyvsp[(2) - (2)].sval));
 		}
     break;
 
   case 48:
-#line 453 "ifm-parse.y"
+#line 444 "ifm-parse.y"
     {
                     if (currooms == NULL)
                         currooms = vl_create();
@@ -2311,7 +2302,7 @@ yyreduce:
     break;
 
   case 49:
-#line 461 "ifm-parse.y"
+#line 452 "ifm-parse.y"
     {
                     (yyval.vval) = vs_screate((yyvsp[(1) - (1)].sval));
                     itroom = vs_copy((yyval.vval));
@@ -2319,7 +2310,7 @@ yyreduce:
     break;
 
   case 50:
-#line 466 "ifm-parse.y"
+#line 457 "ifm-parse.y"
     {
                     if (itroom == NULL)
                         err("no room referred to by 'it'");
@@ -2329,7 +2320,7 @@ yyreduce:
     break;
 
   case 51:
-#line 473 "ifm-parse.y"
+#line 464 "ifm-parse.y"
     {
                     if (lastroom == NULL) {
                         err("no room referred to by 'last'");
@@ -2341,7 +2332,7 @@ yyreduce:
     break;
 
   case 52:
-#line 488 "ifm-parse.y"
+#line 479 "ifm-parse.y"
     {
                     curobj = vh_create();
                     vh_sstore(curobj, "DESC", (yyvsp[(2) - (2)].sval));
@@ -2352,7 +2343,7 @@ yyreduce:
     break;
 
   case 53:
-#line 496 "ifm-parse.y"
+#line 487 "ifm-parse.y"
     {
                     if (!vh_exists(curobj, "IN"))
                         vh_pstore(curobj, "IN", lastroom);
@@ -2364,7 +2355,7 @@ yyreduce:
     break;
 
   case 54:
-#line 505 "ifm-parse.y"
+#line 496 "ifm-parse.y"
     {
                     modify = 1;
                     if ((curobj = vh_pget(itemtags, (yyvsp[(2) - (2)].sval))) == NULL) {
@@ -2375,14 +2366,14 @@ yyreduce:
     break;
 
   case 55:
-#line 513 "ifm-parse.y"
+#line 504 "ifm-parse.y"
     {
                     RESET;
                 }
     break;
 
   case 58:
-#line 523 "ifm-parse.y"
+#line 514 "ifm-parse.y"
     {
                     if (!modify)
                         set_tag("item", (yyvsp[(2) - (2)].sval), curobj, itemtags);
@@ -2392,28 +2383,28 @@ yyreduce:
     break;
 
   case 59:
-#line 530 "ifm-parse.y"
+#line 521 "ifm-parse.y"
     {
                     vh_store(curobj, "IN", (yyvsp[(2) - (2)].vval));
 		}
     break;
 
   case 60:
-#line 534 "ifm-parse.y"
+#line 525 "ifm-parse.y"
     {
                     add_attr(curobj, "NOTE", (yyvsp[(2) - (2)].sval));
 		}
     break;
 
   case 61:
-#line 538 "ifm-parse.y"
+#line 529 "ifm-parse.y"
     {
                     vh_istore(curobj, "HIDDEN", 1);
 		}
     break;
 
   case 62:
-#line 542 "ifm-parse.y"
+#line 533 "ifm-parse.y"
     {
                     obsolete("'given' attribute", "task 'give' attribute");
                     vh_istore(curobj, "GIVEN", 1);
@@ -2421,77 +2412,77 @@ yyreduce:
     break;
 
   case 63:
-#line 547 "ifm-parse.y"
+#line 538 "ifm-parse.y"
     {
                     vh_istore(curobj, "LOST", 1);
 		}
     break;
 
   case 64:
-#line 551 "ifm-parse.y"
+#line 542 "ifm-parse.y"
     {
                     vh_istore(curobj, "IGNORE", 1);
 		}
     break;
 
   case 65:
-#line 555 "ifm-parse.y"
+#line 546 "ifm-parse.y"
     {
                     vh_istore(curobj, "KEEP", 1);
 		}
     break;
 
   case 66:
-#line 559 "ifm-parse.y"
+#line 550 "ifm-parse.y"
     {
                     SET_LIST(curobj, "KEEP_WITH", curitems);
 		}
     break;
 
   case 67:
-#line 563 "ifm-parse.y"
+#line 554 "ifm-parse.y"
     {
                     SET_LIST(curobj, "KEEP_UNTIL", curtasks);
 		}
     break;
 
   case 68:
-#line 567 "ifm-parse.y"
+#line 558 "ifm-parse.y"
     {
                     SET_LIST(curobj, "NEED", curitems);
                 }
     break;
 
   case 69:
-#line 571 "ifm-parse.y"
+#line 562 "ifm-parse.y"
     {
                     SET_LIST(curobj, "BEFORE", curtasks);
                 }
     break;
 
   case 70:
-#line 575 "ifm-parse.y"
+#line 566 "ifm-parse.y"
     {
                     SET_LIST(curobj, "AFTER", curtasks);
                 }
     break;
 
   case 71:
-#line 579 "ifm-parse.y"
+#line 570 "ifm-parse.y"
     {
                     vh_istore(curobj, "SCORE", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 72:
-#line 583 "ifm-parse.y"
+#line 574 "ifm-parse.y"
     {
                     vh_istore(curobj, "FINISH", 1);
                 }
     break;
 
   case 76:
-#line 592 "ifm-parse.y"
+#line 583 "ifm-parse.y"
     {
                     if (themitems != NULL) {
                         if (curitems == NULL)
@@ -2505,22 +2496,22 @@ yyreduce:
     break;
 
   case 77:
-#line 604 "ifm-parse.y"
+#line 595 "ifm-parse.y"
     { allflag = 0; }
     break;
 
   case 78:
-#line 605 "ifm-parse.y"
+#line 596 "ifm-parse.y"
     { allflag = 1; }
     break;
 
   case 79:
-#line 606 "ifm-parse.y"
+#line 597 "ifm-parse.y"
     { allflag = 1; }
     break;
 
   case 80:
-#line 610 "ifm-parse.y"
+#line 601 "ifm-parse.y"
     {
                     if (curitems == NULL)
                         curitems = vl_create();
@@ -2535,7 +2526,7 @@ yyreduce:
     break;
 
   case 81:
-#line 624 "ifm-parse.y"
+#line 615 "ifm-parse.y"
     {
                     (yyval.vval) = vs_screate((yyvsp[(1) - (1)].sval));
                     ititem = vs_copy((yyval.vval));
@@ -2543,7 +2534,7 @@ yyreduce:
     break;
 
   case 82:
-#line 629 "ifm-parse.y"
+#line 620 "ifm-parse.y"
     {
                     if (ititem == NULL)
                         err("no item referred to by 'it'");
@@ -2553,7 +2544,7 @@ yyreduce:
     break;
 
   case 83:
-#line 636 "ifm-parse.y"
+#line 627 "ifm-parse.y"
     {
                     if (lastitem == NULL) {
                         err("no item referred to by 'last'");
@@ -2565,7 +2556,7 @@ yyreduce:
     break;
 
   case 84:
-#line 651 "ifm-parse.y"
+#line 642 "ifm-parse.y"
     {
                     curobj = vh_create();
                     vh_store(curobj, "FROM", (yyvsp[(2) - (4)].vval));
@@ -2576,7 +2567,7 @@ yyreduce:
     break;
 
   case 85:
-#line 659 "ifm-parse.y"
+#line 650 "ifm-parse.y"
     {
                     vl_ppush(links, curobj);
                     RESET;
@@ -2584,7 +2575,7 @@ yyreduce:
     break;
 
   case 86:
-#line 664 "ifm-parse.y"
+#line 655 "ifm-parse.y"
     {
                     modify = 1;
                     if ((curobj = vh_pget(linktags, (yyvsp[(2) - (2)].sval))) == NULL) {
@@ -2595,14 +2586,14 @@ yyreduce:
     break;
 
   case 87:
-#line 672 "ifm-parse.y"
+#line 663 "ifm-parse.y"
     {
                     RESET;
                 }
     break;
 
   case 90:
-#line 682 "ifm-parse.y"
+#line 673 "ifm-parse.y"
     {
                     vh_pstore(curobj, "DIR", curdirs);
                     curdirs = NULL;
@@ -2610,56 +2601,56 @@ yyreduce:
     break;
 
   case 91:
-#line 687 "ifm-parse.y"
+#line 678 "ifm-parse.y"
     {
                     vh_istore(curobj, "GO", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 92:
-#line 691 "ifm-parse.y"
+#line 682 "ifm-parse.y"
     {
                     vh_istore(curobj, "ONEWAY", 1);
 		}
     break;
 
   case 93:
-#line 695 "ifm-parse.y"
+#line 686 "ifm-parse.y"
     {
                     vh_istore(curobj, "HIDDEN", 1);
 		}
     break;
 
   case 94:
-#line 699 "ifm-parse.y"
+#line 690 "ifm-parse.y"
     {
                     vh_istore(curobj, "NOPATH", 1);
 		}
     break;
 
   case 95:
-#line 703 "ifm-parse.y"
+#line 694 "ifm-parse.y"
     {
                     SET_LIST(curobj, "NEED", curitems);
                 }
     break;
 
   case 96:
-#line 707 "ifm-parse.y"
+#line 698 "ifm-parse.y"
     {
                     SET_LIST(curobj, "BEFORE", curtasks);
 		}
     break;
 
   case 97:
-#line 711 "ifm-parse.y"
+#line 702 "ifm-parse.y"
     {
                     SET_LIST(curobj, "AFTER", curtasks);
 		}
     break;
 
   case 98:
-#line 715 "ifm-parse.y"
+#line 706 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, "LEAVE", curitems);
@@ -2668,14 +2659,14 @@ yyreduce:
     break;
 
   case 99:
-#line 721 "ifm-parse.y"
+#line 712 "ifm-parse.y"
     {
                     vh_istore(curobj, "LEN", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 100:
-#line 725 "ifm-parse.y"
+#line 716 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", (yyvsp[(2) - (2)].sval));
@@ -2683,7 +2674,7 @@ yyreduce:
     break;
 
   case 101:
-#line 730 "ifm-parse.y"
+#line 721 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", (yyvsp[(3) - (3)].sval));
@@ -2691,7 +2682,7 @@ yyreduce:
     break;
 
   case 102:
-#line 735 "ifm-parse.y"
+#line 726 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "FROM_CMD", (yyvsp[(3) - (3)].sval));
@@ -2699,7 +2690,7 @@ yyreduce:
     break;
 
   case 103:
-#line 740 "ifm-parse.y"
+#line 731 "ifm-parse.y"
     {
                     if (!modify)
                         set_tag("link", (yyvsp[(2) - (2)].sval), curobj, linktags);
@@ -2709,7 +2700,7 @@ yyreduce:
     break;
 
   case 105:
-#line 754 "ifm-parse.y"
+#line 745 "ifm-parse.y"
     {
                     curobj = vh_create();
                     vh_store(curobj, "FROM", (yyvsp[(2) - (4)].vval));
@@ -2720,7 +2711,7 @@ yyreduce:
     break;
 
   case 106:
-#line 762 "ifm-parse.y"
+#line 753 "ifm-parse.y"
     {
                     vl_ppush(joins, curobj);
                     RESET;
@@ -2728,7 +2719,7 @@ yyreduce:
     break;
 
   case 107:
-#line 767 "ifm-parse.y"
+#line 758 "ifm-parse.y"
     {
                     modify = 1;
                     if ((curobj = vh_pget(jointags, (yyvsp[(2) - (2)].sval))) == NULL) {
@@ -2739,70 +2730,70 @@ yyreduce:
     break;
 
   case 108:
-#line 775 "ifm-parse.y"
+#line 766 "ifm-parse.y"
     {
                     RESET;
                 }
     break;
 
   case 111:
-#line 785 "ifm-parse.y"
+#line 776 "ifm-parse.y"
     {
                     vh_istore(curobj, "GO", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 112:
-#line 789 "ifm-parse.y"
+#line 780 "ifm-parse.y"
     {
                     vh_istore(curobj, "GO", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 113:
-#line 793 "ifm-parse.y"
+#line 784 "ifm-parse.y"
     {
                     vh_istore(curobj, "ONEWAY", 1);
 		}
     break;
 
   case 114:
-#line 797 "ifm-parse.y"
+#line 788 "ifm-parse.y"
     {
                     vh_istore(curobj, "HIDDEN", 1);
 		}
     break;
 
   case 115:
-#line 801 "ifm-parse.y"
+#line 792 "ifm-parse.y"
     {
                     vh_istore(curobj, "NOPATH", 1);
 		}
     break;
 
   case 116:
-#line 805 "ifm-parse.y"
+#line 796 "ifm-parse.y"
     {
                     SET_LIST(curobj, "NEED", curitems);
                 }
     break;
 
   case 117:
-#line 809 "ifm-parse.y"
+#line 800 "ifm-parse.y"
     {
                     SET_LIST(curobj, "BEFORE", curtasks);
 		}
     break;
 
   case 118:
-#line 813 "ifm-parse.y"
+#line 804 "ifm-parse.y"
     {
                     SET_LIST(curobj, "AFTER", curtasks);
 		}
     break;
 
   case 119:
-#line 817 "ifm-parse.y"
+#line 808 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, "LEAVE", curitems);
@@ -2811,14 +2802,14 @@ yyreduce:
     break;
 
   case 120:
-#line 823 "ifm-parse.y"
+#line 814 "ifm-parse.y"
     {
                     vh_istore(curobj, "LEN", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 121:
-#line 827 "ifm-parse.y"
+#line 818 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", (yyvsp[(2) - (2)].sval));
@@ -2826,7 +2817,7 @@ yyreduce:
     break;
 
   case 122:
-#line 832 "ifm-parse.y"
+#line 823 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "TO_CMD", (yyvsp[(3) - (3)].sval));
@@ -2834,7 +2825,7 @@ yyreduce:
     break;
 
   case 123:
-#line 837 "ifm-parse.y"
+#line 828 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "FROM_CMD", (yyvsp[(3) - (3)].sval));
@@ -2842,7 +2833,7 @@ yyreduce:
     break;
 
   case 124:
-#line 842 "ifm-parse.y"
+#line 833 "ifm-parse.y"
     {
                     if (!modify)
                         set_tag("join", (yyvsp[(2) - (2)].sval), curobj, jointags);
@@ -2852,7 +2843,7 @@ yyreduce:
     break;
 
   case 126:
-#line 856 "ifm-parse.y"
+#line 847 "ifm-parse.y"
     {
                     curobj = vh_create();
                     vh_sstore(curobj, "DESC", (yyvsp[(2) - (2)].sval));
@@ -2862,7 +2853,7 @@ yyreduce:
     break;
 
   case 127:
-#line 863 "ifm-parse.y"
+#line 854 "ifm-parse.y"
     {
                     if (vh_iget(curobj, "NOROOM"))
                         vh_pstore(curobj, "IN", NULL);
@@ -2876,7 +2867,7 @@ yyreduce:
     break;
 
   case 128:
-#line 874 "ifm-parse.y"
+#line 865 "ifm-parse.y"
     {
                     modify = 1;
                     if ((curobj = vh_pget(tasktags, (yyvsp[(2) - (2)].sval))) == NULL) {
@@ -2887,14 +2878,14 @@ yyreduce:
     break;
 
   case 129:
-#line 882 "ifm-parse.y"
+#line 873 "ifm-parse.y"
     {
                     RESET;
                 }
     break;
 
   case 132:
-#line 892 "ifm-parse.y"
+#line 883 "ifm-parse.y"
     {
                     if (!modify)
                         set_tag("task", (yyvsp[(2) - (2)].sval), curobj, tasktags);
@@ -2904,42 +2895,42 @@ yyreduce:
     break;
 
   case 133:
-#line 899 "ifm-parse.y"
+#line 890 "ifm-parse.y"
     {
                     SET_LIST(curobj, "AFTER", curtasks);
 		}
     break;
 
   case 134:
-#line 903 "ifm-parse.y"
+#line 894 "ifm-parse.y"
     {
                     SET_LIST(curobj, "NEED", curitems);
 		}
     break;
 
   case 135:
-#line 907 "ifm-parse.y"
+#line 898 "ifm-parse.y"
     {
                     SET_LIST(curobj, "GIVE", curitems);
 		}
     break;
 
   case 136:
-#line 911 "ifm-parse.y"
+#line 902 "ifm-parse.y"
     {
                     SET_LIST(curobj, "GET", curitems);
 		}
     break;
 
   case 137:
-#line 915 "ifm-parse.y"
+#line 906 "ifm-parse.y"
     {
                     SET_LIST(curobj, "DO", curtasks);
 		}
     break;
 
   case 138:
-#line 919 "ifm-parse.y"
+#line 910 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, "DROP", curitems);
@@ -2948,7 +2939,7 @@ yyreduce:
     break;
 
   case 139:
-#line 925 "ifm-parse.y"
+#line 916 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, "DROP", curitems);
@@ -2958,7 +2949,7 @@ yyreduce:
     break;
 
   case 140:
-#line 932 "ifm-parse.y"
+#line 923 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, "DROP", curitems);
@@ -2968,7 +2959,7 @@ yyreduce:
     break;
 
   case 141:
-#line 939 "ifm-parse.y"
+#line 930 "ifm-parse.y"
     {
                     if (curitems != NULL)
                         SET_LIST(curobj, "DROP", curitems);
@@ -2979,14 +2970,14 @@ yyreduce:
     break;
 
   case 142:
-#line 947 "ifm-parse.y"
+#line 938 "ifm-parse.y"
     {
                     vh_store(curobj, "DROPROOM", (yyvsp[(3) - (3)].vval));
 		}
     break;
 
   case 143:
-#line 951 "ifm-parse.y"
+#line 942 "ifm-parse.y"
     {
                     vh_store(curobj, "DROPROOM", (yyvsp[(3) - (5)].vval));
                     SET_LIST(curobj, "DROPUNTIL", curtasks);
@@ -2994,77 +2985,77 @@ yyreduce:
     break;
 
   case 144:
-#line 956 "ifm-parse.y"
+#line 947 "ifm-parse.y"
     {
                     SET_LIST(curobj, "DROPUNTIL", curtasks);
                 }
     break;
 
   case 145:
-#line 960 "ifm-parse.y"
+#line 951 "ifm-parse.y"
     {
                     SET_LIST(curobj, "LOSE", curitems);
 		}
     break;
 
   case 146:
-#line 964 "ifm-parse.y"
+#line 955 "ifm-parse.y"
     {
                     vh_store(curobj, "GOTO", (yyvsp[(2) - (2)].vval));
                 }
     break;
 
   case 147:
-#line 968 "ifm-parse.y"
+#line 959 "ifm-parse.y"
     {
                     vh_store(curobj, "FOLLOW", (yyvsp[(2) - (2)].vval));
                 }
     break;
 
   case 148:
-#line 972 "ifm-parse.y"
+#line 963 "ifm-parse.y"
     {
                     vh_store(curobj, "IN", (yyvsp[(2) - (2)].vval));
 		}
     break;
 
   case 149:
-#line 976 "ifm-parse.y"
+#line 967 "ifm-parse.y"
     {
                     vh_istore(curobj, "NOROOM", 1);
 		}
     break;
 
   case 150:
-#line 980 "ifm-parse.y"
+#line 971 "ifm-parse.y"
     {
                     vh_istore(curobj, "IGNORE", 1);
 		}
     break;
 
   case 151:
-#line 984 "ifm-parse.y"
+#line 975 "ifm-parse.y"
     {
                     vh_istore(curobj, "SAFE", 1);
                 }
     break;
 
   case 152:
-#line 988 "ifm-parse.y"
+#line 979 "ifm-parse.y"
     {
                     vh_istore(curobj, "SCORE", (yyvsp[(2) - (2)].ival));
 		}
     break;
 
   case 153:
-#line 992 "ifm-parse.y"
+#line 983 "ifm-parse.y"
     {
                     vh_istore(curobj, "FINISH", 1);
                 }
     break;
 
   case 154:
-#line 996 "ifm-parse.y"
+#line 987 "ifm-parse.y"
     {
                     while (repeat-- > 0)
                         add_attr(curobj, "CMD", (yyvsp[(2) - (2)].sval));
@@ -3072,21 +3063,21 @@ yyreduce:
     break;
 
   case 155:
-#line 1001 "ifm-parse.y"
+#line 992 "ifm-parse.y"
     {
                     add_attr(curobj, "CMD", NULL);
                 }
     break;
 
   case 156:
-#line 1005 "ifm-parse.y"
+#line 996 "ifm-parse.y"
     {
                     add_attr(curobj, "NOTE", (yyvsp[(2) - (2)].sval));
 		}
     break;
 
   case 160:
-#line 1016 "ifm-parse.y"
+#line 1007 "ifm-parse.y"
     {
                     if (curtasks == NULL)
                         curtasks = vl_create();
@@ -3095,7 +3086,7 @@ yyreduce:
     break;
 
   case 161:
-#line 1024 "ifm-parse.y"
+#line 1015 "ifm-parse.y"
     {
                     (yyval.vval) = vs_screate((yyvsp[(1) - (1)].sval));
                     ittask = vs_copy((yyval.vval));
@@ -3103,7 +3094,7 @@ yyreduce:
     break;
 
   case 162:
-#line 1029 "ifm-parse.y"
+#line 1020 "ifm-parse.y"
     {
                     if (ittask == NULL)
                         err("no task referred to by 'it'");
@@ -3113,7 +3104,7 @@ yyreduce:
     break;
 
   case 163:
-#line 1036 "ifm-parse.y"
+#line 1027 "ifm-parse.y"
     {
                     if (lasttask == NULL) {
                         err("no task referred to by 'last'");
@@ -3125,7 +3116,7 @@ yyreduce:
     break;
 
   case 164:
-#line 1051 "ifm-parse.y"
+#line 1042 "ifm-parse.y"
     {
                     if (instyle)
                         pop_style(NULL);
@@ -3134,14 +3125,14 @@ yyreduce:
     break;
 
   case 165:
-#line 1059 "ifm-parse.y"
+#line 1050 "ifm-parse.y"
     {
                     var_set(NULL, (yyvsp[(1) - (5)].sval), vs_dcreate((yyvsp[(3) - (5)].dval)));
                 }
     break;
 
   case 166:
-#line 1063 "ifm-parse.y"
+#line 1054 "ifm-parse.y"
     {
                     var_set((yyvsp[(1) - (6)].sval), (yyvsp[(2) - (6)].sval), vs_dcreate((yyvsp[(4) - (6)].dval)));
                     obsolete("variable assignment", "dotted notation");
@@ -3149,14 +3140,14 @@ yyreduce:
     break;
 
   case 167:
-#line 1068 "ifm-parse.y"
+#line 1059 "ifm-parse.y"
     {
                     var_set(NULL, (yyvsp[(1) - (5)].sval), vs_screate((yyvsp[(3) - (5)].sval)));
                 }
     break;
 
   case 168:
-#line 1072 "ifm-parse.y"
+#line 1063 "ifm-parse.y"
     {
                     var_set((yyvsp[(1) - (6)].sval), (yyvsp[(2) - (6)].sval), vs_screate((yyvsp[(4) - (6)].sval)));
                     obsolete("variable assignment", "dotted notation");
@@ -3164,14 +3155,14 @@ yyreduce:
     break;
 
   case 169:
-#line 1077 "ifm-parse.y"
+#line 1068 "ifm-parse.y"
     {
                     var_set(NULL, (yyvsp[(1) - (5)].sval), NULL);
                 }
     break;
 
   case 170:
-#line 1081 "ifm-parse.y"
+#line 1072 "ifm-parse.y"
     {
                     var_set((yyvsp[(1) - (6)].sval), (yyvsp[(2) - (6)].sval), NULL);
                     obsolete("variable assignment", "dotted notation");
@@ -3179,7 +3170,7 @@ yyreduce:
     break;
 
   case 172:
-#line 1089 "ifm-parse.y"
+#line 1080 "ifm-parse.y"
     {
                     push_style((yyvsp[(3) - (3)].sval));
                     instyle++;
@@ -3187,28 +3178,28 @@ yyreduce:
     break;
 
   case 173:
-#line 1100 "ifm-parse.y"
+#line 1091 "ifm-parse.y"
     {
                     push_style((yyvsp[(2) - (3)].sval));
                 }
     break;
 
   case 174:
-#line 1104 "ifm-parse.y"
+#line 1095 "ifm-parse.y"
     {
                     pop_style((yyvsp[(2) - (3)].sval));
                 }
     break;
 
   case 175:
-#line 1108 "ifm-parse.y"
+#line 1099 "ifm-parse.y"
     {
                     pop_style(NULL);
                 }
     break;
 
   case 178:
-#line 1118 "ifm-parse.y"
+#line 1109 "ifm-parse.y"
     {
                     add_attr(curobj, "STYLE", (yyvsp[(1) - (1)].sval));
                     ref_style((yyvsp[(1) - (1)].sval));
@@ -3216,7 +3207,7 @@ yyreduce:
     break;
 
   case 181:
-#line 1133 "ifm-parse.y"
+#line 1124 "ifm-parse.y"
     {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -3225,7 +3216,7 @@ yyreduce:
     break;
 
   case 182:
-#line 1139 "ifm-parse.y"
+#line 1130 "ifm-parse.y"
     {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -3237,7 +3228,7 @@ yyreduce:
     break;
 
   case 183:
-#line 1148 "ifm-parse.y"
+#line 1139 "ifm-parse.y"
     {
                     if (curdirs == NULL)
                         curdirs = vl_create();
@@ -3250,87 +3241,87 @@ yyreduce:
     break;
 
   case 184:
-#line 1159 "ifm-parse.y"
+#line 1150 "ifm-parse.y"
     { (yyval.ival) = D_NORTH;	    }
     break;
 
   case 185:
-#line 1160 "ifm-parse.y"
+#line 1151 "ifm-parse.y"
     { (yyval.ival) = D_EAST;	    }
     break;
 
   case 186:
-#line 1161 "ifm-parse.y"
+#line 1152 "ifm-parse.y"
     { (yyval.ival) = D_SOUTH;	    }
     break;
 
   case 187:
-#line 1162 "ifm-parse.y"
+#line 1153 "ifm-parse.y"
     { (yyval.ival) = D_WEST;	    }
     break;
 
   case 188:
-#line 1163 "ifm-parse.y"
+#line 1154 "ifm-parse.y"
     { (yyval.ival) = D_NORTHEAST; }
     break;
 
   case 189:
-#line 1164 "ifm-parse.y"
+#line 1155 "ifm-parse.y"
     { (yyval.ival) = D_NORTHWEST; }
     break;
 
   case 190:
-#line 1165 "ifm-parse.y"
+#line 1156 "ifm-parse.y"
     { (yyval.ival) = D_SOUTHEAST; }
     break;
 
   case 191:
-#line 1166 "ifm-parse.y"
+#line 1157 "ifm-parse.y"
     { (yyval.ival) = D_SOUTHWEST; }
     break;
 
   case 192:
-#line 1169 "ifm-parse.y"
+#line 1160 "ifm-parse.y"
     { (yyval.ival) = D_IN;   }
     break;
 
   case 193:
-#line 1170 "ifm-parse.y"
+#line 1161 "ifm-parse.y"
     { (yyval.ival) = D_OUT;  }
     break;
 
   case 194:
-#line 1171 "ifm-parse.y"
+#line 1162 "ifm-parse.y"
     { (yyval.ival) = D_UP;   }
     break;
 
   case 195:
-#line 1172 "ifm-parse.y"
+#line 1163 "ifm-parse.y"
     { (yyval.ival) = D_DOWN; }
     break;
 
   case 196:
-#line 1179 "ifm-parse.y"
+#line 1170 "ifm-parse.y"
     { (yyval.dval) = (yyvsp[(1) - (1)].ival); }
     break;
 
   case 197:
-#line 1180 "ifm-parse.y"
+#line 1171 "ifm-parse.y"
     { (yyval.dval) = (yyvsp[(1) - (1)].dval); }
     break;
 
   case 198:
-#line 1181 "ifm-parse.y"
+#line 1172 "ifm-parse.y"
     { (yyval.dval) =  1; }
     break;
 
   case 199:
-#line 1182 "ifm-parse.y"
+#line 1173 "ifm-parse.y"
     { (yyval.dval) =  0; }
     break;
 
   case 200:
-#line 1186 "ifm-parse.y"
+#line 1177 "ifm-parse.y"
     {
                     (yyval.sval) = (yyvsp[(1) - (1)].sval);
                     repeat = 1;
@@ -3338,7 +3329,7 @@ yyreduce:
     break;
 
   case 201:
-#line 1191 "ifm-parse.y"
+#line 1182 "ifm-parse.y"
     {
                     (yyval.sval) = (yyvsp[(1) - (2)].sval);
                     repeat = (yyvsp[(2) - (2)].ival);
@@ -3348,7 +3339,7 @@ yyreduce:
     break;
 
   case 202:
-#line 1198 "ifm-parse.y"
+#line 1189 "ifm-parse.y"
     {
                     (yyval.sval) = (yyvsp[(1) - (3)].sval);
                     repeat = (yyvsp[(3) - (3)].ival);
@@ -3360,7 +3351,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 3364 "ifm-parse.c"
+#line 3355 "ifm-parse.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3574,6 +3565,6 @@ yyreturn:
 }
 
 
-#line 1207 "ifm-parse.y"
+#line 1198 "ifm-parse.y"
 
 

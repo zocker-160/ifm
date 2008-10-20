@@ -192,7 +192,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 87 "ifm-parse.y"
+#line 78 "ifm-parse.y"
 {
     int ival;
     double dval;
