@@ -6,7 +6,6 @@
    :maxdepth: 2
 
    intro
-   install
    maps
    solving
    example
