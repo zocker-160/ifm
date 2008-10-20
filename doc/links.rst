@@ -57,3 +57,11 @@ Existing IFM maps
 
 * The :file:`demos` subdirectory of the IFM distribution contains some
   demonstration maps that don't give away secrets from real games.
+
+Other links
+===========
+
+* The game-solving side of IFM touches on an area of research at McGill
+  University called `Narrative Flow Graphs`_.
+
+.. _Narrative Flow Graphs: http://gram.cs.mcgill.ca/nfg.php
