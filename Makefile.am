@@ -1,6 +1,6 @@
 ## Automake template for IFM.
 
-AUTOMAKE_OPTIONS = check-news
+AUTOMAKE_OPTIONS = check-news no-dist-gzip dist-bzip2
 
 ACLOCAL_AMFLAGS = -I etc
 
