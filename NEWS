@@ -1,5 +1,8 @@
-Version 5.3 (16 Oct 2008)
+Version 5.3 (20 Oct 2008)
 =========================
+
+* New ``them`` keyword, which refers to the list of items mentioned in the
+  current statement.
 
 * There's a new Perl script ``ifm2web``, which converts IFM maps to image
   files suitable for the Interweb.
@@ -17,7 +20,7 @@ Version 5.3 (16 Oct 2008)
 
 * The GNU Emacs ``ifm-mode.el`` in the ``contrib`` directory has been
   improved: it can display task recording and debugging output, now has
-  imenu and flymake support, and also has a minor bug fix.
+  ``imenu`` and ``flymake`` support, and a minor bug fix.
 
 * PostScript maps now conform properly to Adobe DSC.  This stops
   Ghostscript 8.x barfing on them.
