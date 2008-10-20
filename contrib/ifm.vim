@@ -64,7 +64,7 @@ syntax match ifmDirFromInt	contained "[0-9]\+"		skipwhite skipempty nextgroup=if
 "    These options take arguments but we don't hightlight them
 "    TODO: "in/after last" should have the word 'last' highlighted as a
 "    constant, similarily for tasks "in any" should have 'any' highlighted
-"    TODO: 'it' should be highlighted (e.g. task "xx" need xx drop it)
+"    TODO: 'it' and 'them' should be highlighted (e.g. task "xx" need xx drop it)
 "    TODO: IFM2.0 added things like "leave all except ID" which should be
 "    highlighted.
 "    TODO: 'cmd from' and 'cmd to' should be hightlighted instead of just 'cmd'
