@@ -21,11 +21,6 @@ different order---only 1 takes effect.
 
 ``tkifm`` accelerators don't work on Unix.
 
-Language
-========
-
-Maybe get consecutive strings to merge together.
-
 Program
 =======
 
@@ -35,8 +30,13 @@ more accurate error location.
 Simplify driver interface.  It's a mess.  Maybe remove dependence on Vars
 knowledge.
 
+Language
+========
+
+Maybe get consecutive strings to merge together.
+
 Maps
-====
+----
 
 How about a ``label`` keyword, like rooms, that puts arbitrary text on the
 page (like ``admap`` does)?  Specify its offset from a given room, its
@@ -54,14 +54,14 @@ Need some sort of debugging feature that eases sorting out of overlapping
 stuff.
 
 Items
-=====
+-----
 
 How about item flag: ``actor``, which indicates that when got, they're
 following you---you don't pick them up.  So they shouldn't count in
 inventory management.
 
 Tasks
-=====
+-----
 
 How about inventory max-carried stuff?  Need to give each item a
 ``drop-priority`` number (if two equal, use order of declaration) and a
@@ -143,30 +143,6 @@ box looks square on output.
 Tools
 =====
 
-``tkifm``
----------
-
-Do line clipping in IFM instead of here.  Make clipping standard across
-drivers, using the util function.  In fact, have clipped version of lines
-before drivers even see them (but keep originals for raw output).
-
-Gather all warnings/errors and display them at once in a text window.
-Enable single-click which goes to that line number (if any) in edit window.
-Don't exit IFM after first error.
-
-Add horizontal scrollbars to text windows.  Don't wrap words.
-
-Get it to read a standard init like IFM does, by using standard search path
-or ``IFMPATH``.  Can keep doc up to date properly then.
-
-``.ifm`` suffix is assumed.  Change doc to reflect this.
-
-Maybe all the non-line-specific errors and warnings should be bunched
-together in a single message.  Or get error/warning funcs to ask if user
-wants to skip rest of messages.
-
-How about dump-window-to-ps option, using canvas ps command?
-
 ``scr2ifm``
 -----------
 
@@ -196,6 +172,30 @@ How about using the innate script facility of ``dumb-frotz`` instead of
 capturing ``stdout``?  Or maybe an option to that effect.
 
 The ``cmd`` command don't seem to want to print RETURN.
+
+``tkifm``
+---------
+
+Do line clipping in IFM instead of here.  Make clipping standard across
+drivers, using the util function.  In fact, have clipped version of lines
+before drivers even see them (but keep originals for raw output).
+
+Gather all warnings/errors and display them at once in a text window.
+Enable single-click which goes to that line number (if any) in edit window.
+Don't exit IFM after first error.
+
+Add horizontal scrollbars to text windows.  Don't wrap words.
+
+Get it to read a standard init like IFM does, by using standard search path
+or ``IFMPATH``.  Can keep doc up to date properly then.
+
+``.ifm`` suffix is assumed.  Change doc to reflect this.
+
+Maybe all the non-line-specific errors and warnings should be bunched
+together in a single message.  Or get error/warning funcs to ask if user
+wants to skip rest of messages.
+
+How about dump-window-to-ps option, using canvas ps command?
 
 Documentation
 =============
