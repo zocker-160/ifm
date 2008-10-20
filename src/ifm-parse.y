@@ -1,4 +1,13 @@
 %{
+/*
+ * This file is part of IFM (Interactive Fiction Mapper), copyright (C)
+ * Glenn Hutchings 1997-2008.
+ *
+ * IFM comes with ABSOLUTELY NO WARRANTY.  This is free software, and you
+ * are welcome to redistribute it under certain conditions; see the file
+ * COPYING for details.
+ */
+
 /* Input parser */
 
 #ifdef HAVE_CONFIG_H
@@ -29,10 +38,15 @@
 #define ATTR(name) \
         (implicit ? "LINK_" #name : #name)
 
+#define RESET RESET_IT; RESET_THEM
+
 #define RESET_IT                                                        \
         RESET_VAR(itroom);                                              \
         RESET_VAR(ititem);                                              \
         RESET_VAR(ittask)
+
+#define RESET_THEM                                                      \
+        { if (themitems != NULL) vl_destroy(themitems); themitems = NULL; }
 
 #define RESET_VAR(var) if (var != NULL) { vs_destroy(var); var = NULL; }
 
@@ -55,6 +69,8 @@ static vhash *lasttask = NULL;  /* Last task mentioned */
 static vscalar *itroom = NULL;  /* Room referred to by 'it' */
 static vscalar *ititem = NULL;  /* Item referred to by 'it' */
 static vscalar *ittask = NULL;  /* Task referred to by 'it' */
+
+static vlist *themitems = NULL; /* Items referred to by 'them' */
 
 static int roomid = 0;          /* Current room ID */
 static int itemid = 0;          /* Current item ID */
@@ -79,7 +95,7 @@ static int instyle = 0;         /* Set variable in different style? */
 %token	      AFTER NEED GET SCORE JOIN GO REQUIRE ANY LAST START GOTO MAP
 %token        EXIT GIVEN LOST KEEP LENGTH TITLE LOSE SAFE BEFORE FOLLOW CMD
 %token        LEAVE UNDEF FINISH GIVE DROP ALL EXCEPT IT UNTIL TIMES NOLINK
-%token        NOPATH NONE STYLE ENDSTYLE WITH IGNORE DO
+%token        NOPATH NONE STYLE ENDSTYLE WITH IGNORE DO THEM
 
 %token <ival> NORTH EAST SOUTH WEST NORTHEAST NORTHWEST SOUTHEAST SOUTHWEST
 %token <ival> UP DOWN IN OUT
@@ -245,7 +261,7 @@ room_stmt	: ROOM STRING
                         WARN_IGNORED(nolink);
 
                     lastroom = curobj;
-                    RESET_IT;
+                    RESET;
                 }
                 | ROOM ID
                 {
@@ -258,7 +274,7 @@ room_stmt	: ROOM STRING
                 }
                 room_attrs ';'
                 {
-                    RESET_IT;
+                    RESET;
                 }
 		;
 
@@ -483,7 +499,7 @@ item_stmt	: ITEM STRING
 
                     lastitem = curobj;
                     vl_ppush(items, curobj);
-                    RESET_IT;
+                    RESET;
 		}
                 | ITEM ID
                 {
@@ -495,7 +511,7 @@ item_stmt	: ITEM STRING
                 }
                 item_attrs ';'
                 {
-                    RESET_IT;
+                    RESET;
                 }
 		;
 
@@ -572,6 +588,17 @@ item_attr	: TAG ID
 
 item_list	: item_elt
 		| item_list item_elt
+                | THEM
+                {
+                    if (themitems != NULL) {
+                        if (curitems == NULL)
+                            curitems = vl_copy(themitems);
+                        else
+                            vl_append(curitems, themitems);
+                    } else {
+                        err("no items referred to by 'them'");
+                    }
+                }
 		;
 
 item_list_all   : item_list                     { allflag = 0; }
@@ -583,7 +610,13 @@ item_elt	: item
 		{
                     if (curitems == NULL)
                         curitems = vl_create();
+
                     vl_push(curitems, $1);
+
+                    if (themitems == NULL)
+                        themitems = vl_create();
+
+                    vl_push(themitems, vs_copy($1));
 		}
 		;
 
@@ -625,7 +658,7 @@ link_stmt	: LINK room TO room
                 link_attrs ';'
 		{
                     vl_ppush(links, curobj);
-                    RESET_IT;
+                    RESET;
 		}
                 | LINK ID
                 {
@@ -637,7 +670,7 @@ link_stmt	: LINK room TO room
                 }
                 link_attrs ';'
                 {
-                    RESET_IT;
+                    RESET;
                 }
 		;
 
@@ -728,7 +761,7 @@ join_stmt	: JOIN room TO room
                 join_attrs ';'
 		{
                     vl_ppush(joins, curobj);
-                    RESET_IT;
+                    RESET;
 		}
                 | JOIN ID
                 {
@@ -740,7 +773,7 @@ join_stmt	: JOIN room TO room
                 }
                 join_attrs ';'
                 {
-                    RESET_IT;
+                    RESET;
                 }
 		;
 
@@ -835,7 +868,7 @@ task_stmt	: TASK STRING
 
                     lasttask = curobj;
                     vl_ppush(tasks, curobj);
-                    RESET_IT;
+                    RESET;
 		}
                 | TASK ID
                 {
@@ -847,7 +880,7 @@ task_stmt	: TASK STRING
                 }
                 task_attrs ';'
                 {
-                    RESET_IT;
+                    RESET;
                 }
 		;
 

@@ -92,24 +92,25 @@
      WITH = 308,
      IGNORE = 309,
      DO = 310,
-     NORTH = 311,
-     EAST = 312,
-     SOUTH = 313,
-     WEST = 314,
-     NORTHEAST = 315,
-     NORTHWEST = 316,
-     SOUTHEAST = 317,
-     SOUTHWEST = 318,
-     UP = 319,
-     DOWN = 320,
-     IN = 321,
-     OUT = 322,
-     INTEGER = 323,
-     TRUE = 324,
-     FALSE = 325,
-     REAL = 326,
-     STRING = 327,
-     ID = 328
+     THEM = 311,
+     NORTH = 312,
+     EAST = 313,
+     SOUTH = 314,
+     WEST = 315,
+     NORTHEAST = 316,
+     NORTHWEST = 317,
+     SOUTHEAST = 318,
+     SOUTHWEST = 319,
+     UP = 320,
+     DOWN = 321,
+     IN = 322,
+     OUT = 323,
+     INTEGER = 324,
+     TRUE = 325,
+     FALSE = 326,
+     REAL = 327,
+     STRING = 328,
+     ID = 329
    };
 #endif
 /* Tokens.  */
@@ -166,31 +167,32 @@
 #define WITH 308
 #define IGNORE 309
 #define DO 310
-#define NORTH 311
-#define EAST 312
-#define SOUTH 313
-#define WEST 314
-#define NORTHEAST 315
-#define NORTHWEST 316
-#define SOUTHEAST 317
-#define SOUTHWEST 318
-#define UP 319
-#define DOWN 320
-#define IN 321
-#define OUT 322
-#define INTEGER 323
-#define TRUE 324
-#define FALSE 325
-#define REAL 326
-#define STRING 327
-#define ID 328
+#define THEM 311
+#define NORTH 312
+#define EAST 313
+#define SOUTH 314
+#define WEST 315
+#define NORTHEAST 316
+#define NORTHWEST 317
+#define SOUTHEAST 318
+#define SOUTHWEST 319
+#define UP 320
+#define DOWN 321
+#define IN 322
+#define OUT 323
+#define INTEGER 324
+#define TRUE 325
+#define FALSE 326
+#define REAL 327
+#define STRING 328
+#define ID 329
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 71 "ifm-parse.y"
+#line 87 "ifm-parse.y"
 {
     int ival;
     double dval;
@@ -198,7 +200,7 @@ typedef union YYSTYPE
     vscalar *vval;
 }
 /* Line 1529 of yacc.c.  */
-#line 202 "ifm-parse.h"
+#line 204 "ifm-parse.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

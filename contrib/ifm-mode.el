@@ -145,7 +145,8 @@
   "Regexp matching special keywords in IFM mode.")
 
 (defconst ifm-builtin-regexp
-  (regexp-opt '("all" "any" "it" "last" "none" "true" "false" "undef") 'words)
+  (regexp-opt '("all" "any" "it" "them" "last" "none" "true" "false"
+		"undef") 'words)
   "Regexp matching builtin names in IFM mode.")
 
 (defconst ifm-keyword-regexp
