@@ -98,10 +98,25 @@ earlier in the file that you defined it (as long as the tag is defined
 in commands that modify existing objects---these tags must be defined
 before being used.
 
-The special tag :keyword:`last` may be used to refer to the last object
-that was defined (depending on the context).  Also, within an individual
-command, the special tag :keyword:`it` may be used to refer to the most
-recent object tag.
+Special names
+=============
+
+There are three special names that can refer to IFM objects in certain
+contexts:
+
+:keyword:`last`
+    May be used to refer to the last object of a certain type that was
+    defined in a previous statement.
+
+:keyword:`it`
+    May be used to refer to the most recent object in the current
+    statement.
+
+:keyword:`them`
+    May be used to refer to all the items mentioned so far in the current
+    statement.
+
+    .. versionadded:: 5.3
 
 Commands
 ========
