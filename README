@@ -24,7 +24,7 @@ IFM can write hardcopy maps directly to PostScript, suitable for printing
 or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
-For detailed documentation, see the guide in ``doc/index.html``.
+For detailed documentation, see the IFM user guide: ``doc/index.html``.
 
 Copyright
 =========
@@ -36,8 +36,8 @@ them under certain conditions; see the files ``COPYING`` and
 Installation
 ============
 
-See the file :file:`INSTALL` for installation details.  But it basically
-boils down to::
+See the file ``INSTALL`` for installation details.  But it basically boils
+down to::
 
     ./configure
     make
