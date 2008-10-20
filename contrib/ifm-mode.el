@@ -148,12 +148,12 @@
   "Regexp matching builtin names in IFM mode.")
 
 (defconst ifm-keyword-regexp
-  (regexp-opt '("all " "after" "any" "before" "cmd" "d" "do" "down"
+  (regexp-opt '("all" "after" "any" "before" "cmd" "d" "do" "down"
 		"dir" "drop" "endstyle" "except" "exit" "finish" "follow"
 		"from" "get" "give" "go" "goto" "hidden" "ignore" "in" "item"
 		"join" "keep" "leave" "length" "link" "lose" "lost"
 		"map" "need" "none" "nodrop" "nolink" "nopath" "note" "oneway"
-		"out" "require" "room" "score" "start" "style" "tag"
+		"out" "require" "room" "safe" "score" "start" "style" "tag"
 		"task" "title" "to" "u" "up" "until" "with") 'words)
   "Regexp matching general keywords in IFM mode.")
 
