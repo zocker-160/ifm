@@ -13,7 +13,7 @@
 # All configuration values have a default value; values that are commented
 # out serve to show the default value.
 
-import sys, os
+import sys, os, time
 
 # If your extensions are in another directory, add it here. If the
 # directory is relative to the documentation root, use os.path.abspath to
@@ -34,11 +34,11 @@ templates_path = ['templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'index'
+#master_doc = 'index'
 
 # General substitutions.
 project = 'IFM'
-copyright = '2008, Glenn Hutchings'
+copyright = '1998-%s, Glenn Hutchings' % time.strftime('%Y')
 
 # The default replacements for |version| and |release|, also used in
 # various other places throughout the built documents.
@@ -109,11 +109,15 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {
+    'index': 'indexsidebar.html',
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
+html_additional_pages = {
+    'index': 'indexcontent.html',
+}
 
 # If false, no module index is generated.
 html_use_modindex = False
