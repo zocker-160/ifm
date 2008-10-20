@@ -27,8 +27,7 @@ Program
 Have more specific compile error messages.  Or record character number, for
 more accurate error location.
 
-Simplify driver interface.  It's a mess.  Maybe remove dependence on Vars
-knowledge.
+Simplify driver interface.  Maybe remove dependence on Vars knowledge.
 
 Language
 ========
@@ -209,6 +208,11 @@ Installation
 
 Maybe prepend ``$(pkgdatadir)/site-ifm`` directory to search path, to allow
 for customization.  Create that dir when installing.
+
+Other stuff
+===========
+
+Finish TO-DO stuff in ``ifm.vim``.
 
 .. Local Variables:
 .. mode: rst
