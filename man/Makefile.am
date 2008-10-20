@@ -5,23 +5,32 @@ OPTIONAL = $(top_srcdir)/etc/missing --run
 
 MAN_TITLE = Interactive Fiction Mapper
 
-man_MANS = ifm.1
+IFM = $(top_builddir)/src/ifm
+
+MANPAGE = ifm.1
+
+man_MANS = $(MANPAGE)
 
 EXTRA_DIST = ifm.man
 
-manpage: ifm.1
+TMP = /tmp/ifm.tmp
 
-ifm.1: ifm.man
-	cp ifm.man ifm.tmp
-	echo "[SEE ALSO]" >> ifm.tmp
-	echo ".IP $(ifmdocdir)/index.html" >> ifm.tmp
-	echo "Online documentation" >> ifm.tmp
-	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
-	rm -f ifm.tmp
+manpage: $(MANPAGE)
 
-mantest: ifm.1
-	groff -man -Tps ifm.1 > ifm.ps
+$(MANPAGE): ifm.man
+	cp $(srcdir)/ifm.man $(TMP)
+	chmod u+w $(TMP)
+	echo "[SEE ALSO]" >> $(TMP)
+	echo ".IP $(ifmdocdir)/index.html" >> $(TMP)
+	echo "Online documentation" >> $(TMP)
+	$(HELP2MAN) -o $@ -i $(TMP) $(IFM)
+	rm -f $(TMP)
+
+mantest: $(MANPAGE)
+	groff -man -Tps $(MANPAGE) > ifm.ps
 	gv -a4 -scale -1 -spartan ifm.ps
 	rm -f ifm.ps
 
 include $(top_srcdir)/etc/Makefile.common
+
+DISTCLEANFILES = $(MANPAGE)

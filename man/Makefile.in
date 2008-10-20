@@ -155,13 +155,17 @@ tkifm = @tkifm@
 HELP2MAN = $(OPTIONAL) help2man -N -n "$(MAN_TITLE)"
 OPTIONAL = $(top_srcdir)/etc/missing --run
 MAN_TITLE = Interactive Fiction Mapper
-man_MANS = ifm.1
+IFM = $(top_builddir)/src/ifm
+MANPAGE = ifm.1
+man_MANS = $(MANPAGE)
 EXTRA_DIST = ifm.man
+TMP = /tmp/ifm.tmp
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
 # Show recent source changes.
 DAYS = 7
+DISTCLEANFILES = $(MANPAGE)
 all: all-am
 
 .SUFFIXES:
@@ -302,6 +306,7 @@ clean-generic:
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -364,18 +369,19 @@ uninstall-man: uninstall-man1
 	uninstall-am uninstall-info-am uninstall-man uninstall-man1
 
 
-manpage: ifm.1
+manpage: $(MANPAGE)
 
-ifm.1: ifm.man
-	cp ifm.man ifm.tmp
-	echo "[SEE ALSO]" >> ifm.tmp
-	echo ".IP $(ifmdocdir)/index.html" >> ifm.tmp
-	echo "Online documentation" >> ifm.tmp
-	$(HELP2MAN) -o ifm.1 -i ifm.tmp $(IFM)
-	rm -f ifm.tmp
+$(MANPAGE): ifm.man
+	cp $(srcdir)/ifm.man $(TMP)
+	chmod u+w $(TMP)
+	echo "[SEE ALSO]" >> $(TMP)
+	echo ".IP $(ifmdocdir)/index.html" >> $(TMP)
+	echo "Online documentation" >> $(TMP)
+	$(HELP2MAN) -o $@ -i $(TMP) $(IFM)
+	rm -f $(TMP)
 
-mantest: ifm.1
-	groff -man -Tps ifm.1 > ifm.ps
+mantest: $(MANPAGE)
+	groff -man -Tps $(MANPAGE) > ifm.ps
 	gv -a4 -scale -1 -spartan ifm.ps
 	rm -f ifm.ps
 
