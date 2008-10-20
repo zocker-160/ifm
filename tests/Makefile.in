@@ -159,12 +159,13 @@ test-follow4.ifm test-give1.ifm test-give2.ifm test-it.ifm test-join1.ifm  \
 test-join2.ifm test-keep1.ifm test-keep2.ifm test-leave1.ifm		   \
 test-leave2.ifm test-link1.ifm test-link2.ifm test-lose.ifm test-nocmd.ifm \
 test-nolink1.ifm test-nolink2.ifm test-nopath.ifm test-noroom.ifm	   \
-test-note.ifm test-path.ifm test-simple.ifm test-unsafe.ifm
+test-note.ifm test-path.ifm test-simple.ifm test-them.ifm test-unsafe.ifm
 
+IFM = $(top_builddir)/src/ifm
 TKIFM = $(top_builddir)/progs/tkifm
 TESTS = $(SRCS:.ifm=.test)
 EXP = $(SRCS:.ifm=.exp)
-EXTRA_DIST = README $(TESTS) $(EXP)
+EXTRA_DIST = README Maketest $(TESTS) $(EXP) $(SRCS)
 SUFFIXES = .ifm .test .task .prof .tk .ps .rec
 CLEANFILES = *.out
 docdir = $(prefix)/doc
