@@ -270,6 +270,8 @@ attributes should be self-explanatory. [2]_
 Customization
 =============
 
+.. highlight:: ifm
+
 You can change the appearance of many output features according to your
 taste. You do this by setting the values of the variables that control
 those features.  This section tells you how to use variables---for a
@@ -376,8 +378,8 @@ IFM comes with a few predefined style files, as shown in the table below:
 
 If you create any generally useful or nice-looking styles, you might want
 to send me a copy so I can include them with the next version of IFM.  The
-"scope" field indicates which type of IFM object it applies to. Styles that
-have global scope can meaningfully be used by the :option:`-style`
+**Scope** field indicates which type of IFM object it applies to. Styles
+that have global scope can meaningfully be used by the :option:`-style`
 command-line option.
 
 Diagnostics
@@ -409,6 +411,10 @@ produced.
        You've said :keyword:`it` to refer to the last room, item or task
        tag that was mentioned in the current command, but no tags of that
        type of object have been mentioned.
+
+``error: no items referred to by 'them'``
+       You've said :keyword:`them` to refer to all the items mentioned in
+       the current command, but no items have been mentioned.
 
 ``error: [type] tag [name] already defined``
        You've given two similar objects the same tag name.

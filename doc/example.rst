@@ -2,6 +2,8 @@
  Mapping and solving example
 =============================
 
+.. highlight:: transcript
+
 The transcript::
 
     Days of searching, days of thirsty hacking through the briars of the

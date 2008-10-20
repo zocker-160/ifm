@@ -1,5 +1,7 @@
 .. _making-maps:
 
+.. highlight:: ifm
+
 =============
  Making maps
 =============

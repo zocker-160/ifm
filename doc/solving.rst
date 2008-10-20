@@ -1,5 +1,7 @@
 .. _solving:
 
+.. highlight:: ifm
+
 ==================
  Solving the game
 ==================
@@ -51,7 +53,7 @@ use the :keyword:`after` clause::
 
     task "Press incinerator start switch" tag press_switch;
 
-    ...
+    # other stuff
 
     task "Put the fluffy bunny in the incinerator" after press_switch;
 
@@ -70,12 +72,12 @@ specify how soon after. But in some situations it is essential that a task
 immediately follows a specific previous task, without deviation.  You can
 use the task :keyword:`follow` clause to specify this. For example::
 
-    room "Mission Control" ...;
+    room "Mission Control";
     task "Activate launch sequence" tag activate;
 
-    ...
+    # other stuff
 
-    room "Rocket Cabin" ...;
+    room "Rocket Cabin";
     task "Fasten seat belt" follow activate;
 
 The :keyword:`follow` clause creates a chain of tasks that must be done one
@@ -183,7 +185,7 @@ done, using the :keyword:`do` clause. For example::
     room "Control Room";
     task "Press airlock button" do open_airlock;
 
-    ...
+    # other stuff
 
     room "Outer Airlock";
     task "Open airlock" tag open_airlock;
@@ -617,7 +619,7 @@ lot more in terms of typing. You can avoid unnecessary trips through these
 doors by artificially changing the *length* of the connection between
 levels, by using the :keyword:`length` attribute of links and joins::
 
-    room "Level A" tag LA ...;
+    room "Level A" tag LA;
 
     room "Level B" tag LB dir e length 50;
 
@@ -669,7 +671,7 @@ commands which just modify existing objects, instead of creating new ones,
 by referring to their tags. As an example, suppose you have the following
 situation::
 
-    room "Top of Chute" ...;
+    room "Top of Chute";
 
     room "Bottom of Chute" dir s go down oneway;
 
@@ -696,11 +698,11 @@ exception is the implicit link created by the room :keyword:`dir`
 clause. These links automatically get tagged when the room does, and with
 the same name. So the two-level example above could be split into::
 
-    room "Level A" tag LA ...;
+    room "Level A" tag LA;
 
     room "Level B" tag LB dir e;
 
-    ...
+    # other stuff
 
     # Stop gratuitous travel between levels.
     link LB length 50;

@@ -321,37 +321,44 @@ Here's a simple example of :program:`scr2ifm` in action on *Colossal
 Cave*. First, the transcript in file :file:`advent.scr` (with annotation):
 
 .. literalinclude:: examples/advent1.scr
+   :language: transcript
 
 The previous two commands are recommended after starting the transcript.
 
 .. literalinclude:: examples/advent2.scr
+   :language: transcript
 
 The previous four commands declare the given items to the program. You
 don't have to bother with this if you don't want item locations on your
 map.
 
 .. literalinclude:: examples/advent3.scr
+   :language: transcript
 
 Note that in this game we don't go in all possible directions---there's no
 logic to the connections, and it'd just make a complete mess on the map.
 
 .. literalinclude:: examples/advent4.scr
+   :language: transcript
 
 That last command declared a task---again, you don't have to bother with
 this if you don't want to.
 
 .. literalinclude:: examples/advent5.scr
+   :language: transcript
 
 Oops! Stumbled into the dark by mistake. Without the ``UNDO``, that would
 have meant ``Darkness`` appeared on the map as a room.
 
 .. literalinclude:: examples/advent6.scr
+   :language: transcript
 
 Goodness me! That was unexpected---we've been teleported. The link almost
 certainly won't look good on the map. We have the option of UNDOing, right
 now, or fixing the map later. Let's do the latter.
 
 .. literalinclude:: examples/advent7.scr
+   :language: transcript
 
 Ok, now to create a map. To do that, use this command::
 
@@ -368,6 +375,7 @@ Room`` and the ``Building``. A command file, :file:`advent.cmd`, will fix
 these problems:
 
 .. literalinclude:: examples/advent.cmd
+   :language: ifm
 
 Now, if we invoke::
 
@@ -376,6 +384,7 @@ Now, if we invoke::
 we get the following map:
 
 .. literalinclude:: examples/advent.ifm
+   :language: ifm
 
 Printed, it looks like this:
 
