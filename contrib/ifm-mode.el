@@ -125,12 +125,12 @@
    (list "Tags"   (concat "tag"    ifm-id-regexp)     1)
    (list "Tasks"  (concat "task"   ifm-string-regexp) 1)
    (list "Items"  (concat "item"   ifm-string-regexp) 1)
-   (list "Rooms"  (concat "room"   ifm-string-regexp) 1)
-   (list "Maps"   (concat "map"    ifm-string-regexp) 1))
+   (list "Rooms"  (concat "^room"  ifm-string-regexp) 1)
+   (list "Maps"   (concat "^map"   ifm-string-regexp) 1))
   "Imenu expression for building IFM index.")
 
 (defconst ifm-structure-regexp
-  (regexp-opt '("room") 'words)
+  (concat "^" (regexp-opt '("room") 'words))
   "Regexp matching structure keywords in IFM mode.")
 
 (defconst ifm-direction-regexp
@@ -140,23 +140,26 @@
   "Regexp matching direction names in IFM mode.")
 
 (defconst ifm-special-regexp
-  (regexp-opt '("endstyle" "style" "title" "map" "start" "finish" "safe"
-		"require") 'words)
+  (concat "^" (regexp-opt '("title" "map" "require" "style" "endstyle") 'words))
   "Regexp matching special keywords in IFM mode.")
 
 (defconst ifm-builtin-regexp
-  (regexp-opt '("all" "any" "it" "them" "last" "none" "true" "false"
-		"undef") 'words)
+  (regexp-opt '("it" "them" "last" "true" "false" "undef") 'words)
   "Regexp matching builtin names in IFM mode.")
 
 (defconst ifm-keyword-regexp
-  (regexp-opt '("after" "before" "cmd" "d" "do" "down" "dir" "drop" "except"
-		"exit" "follow" "from" "get" "give" "go" "goto" "hidden"
-		"ignore" "in" "item" "join" "keep" "leave" "length" "link"
-		"lose" "lost" "need" "nodrop" "nolink" "nopath" "note"
-		"oneway" "out" "score" "tag" "task" "to" "u" "up" "until"
-		"with") 'words)
+  (regexp-opt '("all " "after" "any" "before" "cmd" "d" "do" "down"
+		"dir" "drop" "endstyle" "except" "exit" "finish" "follow"
+		"from" "get" "give" "go" "goto" "hidden" "ignore" "in" "item"
+		"join" "keep" "leave" "length" "link" "lose" "lost"
+		"map" "need" "none" "nodrop" "nolink" "nopath" "note" "oneway"
+		"out" "require" "room" "score" "start" "style" "tag"
+		"task" "title" "to" "u" "up" "until" "with") 'words)
   "Regexp matching general keywords in IFM mode.")
+
+(defconst ifm-variable-regexp
+  "^.+?="
+  "Regexp matching variable names in IFM mode.")
 
 (defconst ifm-obsolete-regexp
   (regexp-opt '("given" "times") 'words)
@@ -166,11 +169,12 @@
   (list
    (cons "#.*" font-lock-comment-face)
    (cons "\"[^\"]*\"" font-lock-string-face)
-   (cons ifm-special-regexp font-lock-constant-face)
+   (cons ifm-special-regexp font-lock-preprocessor-face)
    (cons ifm-structure-regexp font-lock-function-name-face)
-   (cons ifm-direction-regexp font-lock-variable-name-face)
+   (cons ifm-direction-regexp font-lock-type-face)
    (cons ifm-keyword-regexp font-lock-keyword-face)
    (cons ifm-builtin-regexp font-lock-builtin-face)
+   (cons ifm-variable-regexp font-lock-variable-name-face)
    (cons ifm-obsolete-regexp font-lock-warning-face))
   "Font-lock keywords in IFM mode.")
 
