@@ -86,14 +86,17 @@ Page variables
    * - ``page_width``
      - float
      - undef
-     - xxx
+     - If both ``page_width`` and ``page_height`` are defined, these set a
+       custom page size which overrides the ``page_size`` variable.  Units
+       are in cm.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``page_height``
      - float
      - undef
-     - If defined, these set a custom page size which overrides the
-       ``page_size`` variable.  Units are in cm.
+     - If both ``page_width`` and ``page_height`` are defined, these set a
+       custom page size which overrides the ``page_size`` variable.  Units
+       are in cm.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``page_margin``
@@ -181,19 +184,19 @@ Map section variables
    * - ``map_title_colour``
      - string
      - "black"
-     - xxx
+     - Colour of the title printed above each map section.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_title_font``
      - string
      - "Times-Bold"
-     - xxx
+     - Font of the title printed above each map section.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_title_fontsize``
      - int
      - 14
-     - Appearance of the title printed above each map section.
+     - Font size of the title printed above each map section.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``show_map_border``
@@ -264,15 +267,15 @@ Room variables
    * - ``room_width``
      - float
      - 0.8
-     - xxx
+     - Proportion of the room space that's taken up by the room width.
+       Should be less than 1 or you'll have no space left for link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_height``
      - float
      - 0.65
-     - Proportion of the room space that's taken up by the room dimensions.
-       These values should be less than 1 or you'll have no space left for
-       link lines.
+     - Proportion of the room space that's taken up by the room height.
+       Should be less than 1 or you'll have no space left for link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_colour``
@@ -284,23 +287,25 @@ Room variables
    * - ``room_shadow_xoff``
      - float
      - 0.05
-     - xxx
+     - X offset of room 'shadows', as a proportion of allocated room space.
+       This is a pseudo-3D effect which makes rooms look raised off the
+       page.  Note that you can change the direction of the room shadow by
+       negating one or both of the offsets.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_shadow_yoff``
      - float
      - 0.05
-     - xxx
+     - Y offset of room 'shadows', as a proportion of allocated room space.
+       This is a pseudo-3D effect which makes rooms look raised off the
+       page.  Note that you can change the direction of the room shadow by
+       negating one or both of the offsets.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_shadow_colour``
      - string
      - "grey50"
-     - Offset and colour of room 'shadows'.  This is a pseudo-3D effect
-       which makes rooms look raised off the page.  The offsets are a
-       proportion of the allocated room space.  Note that you can change
-       the direction of the room shadow by negating one or both of the
-       offsets.
+     - Colour of room 'shadows'.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_border_width``
