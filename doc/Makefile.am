@@ -9,9 +9,10 @@ exampledir = $(srcdir)/examples
 
 # Documentation sources.
 
-DOCFILES = changes.rst editors.rst example.rst ifm2dev.rst ifm2tex.rst	    \
-ifm2web.rst index.rst intro.rst language.rst license.rst links.rst maps.rst \
-scr2ifm.rst solving.rst thanks.rst tkifm.rst tools.rst usage.rst vars.rst
+DOCFILES = changes.rst contents.rst editors.rst example.rst ifm2dev.rst	  \
+ifm2tex.rst ifm2web.rst intro.rst language.rst license.rst links.rst	  \
+maps.rst scr2ifm.rst solving.rst thanks.rst tkifm.rst tools.rst usage.rst \
+vars.rst
 
 # Programs.
 
@@ -101,6 +102,15 @@ dist-doc: $(EXTRA_DIST)
 	   cp -rf $(htmldir) $(distdir);				\
 	fi
 
+check-doc:
+	@ for path in $(srcdir)/*.rst; do				\
+	    file=`basename $$path`;    					\
+	    if ! test -f $(distdir)/$$file; then			\
+		echo Error: $$file is missing from the distribution;	\
+		exit 1;	 		   				\
+	    fi;	      	 		   				\
+	done
+
 # Other stuff.
 
 install-data-hook: install-doc
@@ -109,6 +119,6 @@ uninstall-hook:
 	- chmod -R u+w $(ifmdocdir)
 	rm -rf $(ifmdocdir)
 
-dist-hook: dist-doc
+dist-hook: dist-doc check-doc
 
 include $(top_srcdir)/etc/Makefile.common
