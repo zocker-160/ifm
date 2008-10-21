@@ -1,6 +1,30 @@
+.. _variables:
+
 ==================
  Output variables
 ==================
+
+There are many variables available for customizing output. Most of them are
+for customizing map output.  Their names, descriptions and default values
+are all contained in the IFM initialization file. You can change this file
+to set global defaults for everybody, or alternatively set your own
+preferences in your personal init file.
+
+The default values are designed to give nice results in all formats.  The
+default for PostScript is to produce maps for monochrome printing on one or
+more pages of A4 paper.  The default for Fig is to produce one big page
+(which can be split into multiple pages later).
+
+The map output formats differ in their treatment of fonts.  In PostScript
+and Fig, the font and font size are specified separately, via the
+``*_font`` and ``*_fontsize`` variables.  In Tk, they are both specified
+together, via the ``*_fontdef`` variables.
+
+In PostScript and Fig output, a font size represents the maximum desired
+size---the actual size may be scaled down in order to fit the text into an
+enclosing space (e.g., a room box).
+
+In Tk output, all line width values are interpreted as integers.
 
 General variables
 =================
@@ -20,9 +44,9 @@ General variables
      - "ifm-rgb.txt"
      - File of colour definitions, which contains the RGB values of each
        colour referred to below (and a good many more).  It's just the
-       rgb.txt file found on Unix/X11 systems.  See that file for a list of
-       available colours.  You can use the same colour names for the Tk
-       output, since it uses the standard X colours.
+       ``rgb.txt`` file found on Unix/X11 systems.  See that file for a
+       list of available colours.  You can use the same colour names for
+       the Tk output, since it uses the standard X colours.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``prolog_file``
@@ -79,7 +103,7 @@ Page variables
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``page_rotate``
-     - int
+     - bool
      - undef
      - Whether to rotate each page to landscape.  If not defined, then
        rotation is decided on a per-page basis in order to get the best
@@ -87,19 +111,19 @@ Page variables
      - :ref:`ps <ps>`
 
    * - ``show_page_title``
-     - int
+     - bool
      - true
      - Whether to show the main title on each page.
      - :ref:`ps <ps>`
 
    * - ``page_title_colour``
-     - int
+     - string
      - "black"
      - Page title colour.
      - :ref:`ps <ps>`
 
    * - ``page_title_font``
-     - int
+     - string
      - "Times-Bold"
      - Page title font.
      - :ref:`ps <ps>`
@@ -111,25 +135,25 @@ Page variables
      - :ref:`ps <ps>`
 
    * - ``show_page_border``
-     - int
+     - bool
      - false
      - Whether to show a border around each page.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``page_border_colour``
-     - int
+     - string
      - "black"
      - Colour of the page border (if drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``page_background_colour``
-     - int
+     - string
      - "white"
      - Colour of the page background (if border is drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``fit_page``
-     - int
+     - bool
      - false
      - Whether to scale Fig layout to fit on a single page.  Most of the
        time, this doesn't make things look good.
@@ -149,19 +173,19 @@ Map section variables
      - Outputs
 
    * - ``show_map_title``
-     - int
+     - bool
      - true
      - Whether to show the map title.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_title_colour``
-     - int
+     - string
      - "black"
      - xxx
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_title_font``
-     - int
+     - string
      - "Times-Bold"
      - xxx
      - :ref:`ps <ps>` :ref:`fig <fig>`
@@ -173,25 +197,25 @@ Map section variables
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``show_map_border``
-     - int
+     - bool
      - false
      - Whether to show a border around each map section.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_border_colour``
-     - int
+     - string
      - "black"
      - Colour of the map border (if drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_background_colour``
-     - int
+     - string
      - "white"
-     - xxx
+     - Colour of the map background (if border is drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``tk.map_background_colour``
-     - int
+     - string
      - "wheat"
      - Colour of the map background (if border is drawn).
      - :ref:`tk <tk>`
@@ -202,17 +226,18 @@ Map section variables
      - Minimum space, in rooms, between map sections when packed together.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
-   * - ``map_canvas_height``
-     - int
-     - 6
-     - xxx
-     - :ref:`tk <tk>`
-
    * - ``map_canvas_width``
      - int
      - 8
-     - Maximum width and height of the Tk map canvas window, in rooms.
-       Sizes bigger than this will cause scrollbars to appear.
+     - Maximum width of the Tk map canvas window, in rooms.  Sizes bigger
+       than this will cause scrollbars to appear.
+     - :ref:`tk <tk>`
+
+   * - ``map_canvas_height``
+     - int
+     - 6
+     - Maximum height of the Tk map canvas window, in rooms.  Sizes bigger
+       than this will cause scrollbars to appear.
      - :ref:`tk <tk>`
 
 Room variables
@@ -229,7 +254,7 @@ Room variables
      - Outputs
 
    * - ``room_size``
-     - int
+     - float
      - 3
      - Space allocated for each room, in cm.  In PostScript and Fig, this
        is the maximum size -- the actual size may be reduced in order to
@@ -237,13 +262,13 @@ Room variables
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_width``
-     - int
+     - float
      - 0.8
      - xxx
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_height``
-     - int
+     - float
      - 0.65
      - Proportion of the room space that's taken up by the room dimensions.
        These values should be less than 1 or you'll have no space left for
@@ -251,25 +276,25 @@ Room variables
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_colour``
-     - int
+     - string
      - "white"
      - Default background colour of rooms.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_shadow_xoff``
-     - int
+     - float
      - 0.05
      - xxx
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_shadow_yoff``
-     - int
+     - float
      - 0.05
      - xxx
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_shadow_colour``
-     - int
+     - string
      - "grey50"
      - Offset and colour of room 'shadows'.  This is a pseudo-3D effect
        which makes rooms look raised off the page.  The offsets are a
@@ -279,91 +304,91 @@ Room variables
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_border_width``
-     - int
+     - float
      - 1
-     - xxx
+     - Width of the room box lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_border_colour``
-     - int
+     - string
      - "black"
-     - Width and colour of the room box lines.
+     - Colour of the room box lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_border_dashed``
-     - int
-     - 0
+     - bool
+     - false
      - Whether to draw dashed room borders.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``room_exit_width``
-     - int
+     - float
      - 1
-     - xxx
+     - Width of the room exit lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_exit_colour``
-     - int
+     - string
      - "black"
-     - Width and colour of the room exit lines.
+     - Colour of the room exit lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_text_colour``
-     - int
+     - string
      - "black"
-     - xxx
+     - Colour of room description text.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_text_font``
-     - int
+     - string
      - "Times-Bold"
-     - xxx
+     - Font of room description text.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``room_text_fontsize``
      - int
      - 10
-     - xxx
+     - Font size of room description text.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``room_text_fontdef``
      - int
      - "Times 10 bold"
-     - Colour, font and fontsize of room description text.
+     - Font and fontsize of room description text.
      - :ref:`tk <tk>`
 
    * - ``show_items``
-     - int
+     - bool
      - true
      - Whether to show non-hidden item descriptions in rooms.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``item_text_colour``
-     - int
+     - string
      - "black"
-     - xxx
+     - Colour of item description text (if shown).
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``item_text_font``
-     - int
+     - string
      - "Times-Italic"
-     - xxx
+     - Font of item description text (if shown).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``item_text_fontsize``
      - int
      - 6
-     - xxx
+     - Font size of item description text (if shown).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``item_text_fontdef``
      - int
      - "Times 8 italic"
-     - Colour, font and fontsize of item description text (if shown).
+     - Font and fontsize of item description text (if shown).
      - :ref:`tk <tk>`
 
    * - ``show_tags``
-     - int
+     - bool
      - false
      - Whether to append room tag names to room descriptions.  If so, they
        are appended in square brackets, like [this].
@@ -383,80 +408,80 @@ Link style variables
      - Outputs
 
    * - ``link_line_width``
-     - int
+     - float
      - 1
      - Width of link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``link_colour``
-     - int
+     - string
      - "black"
      - Colour of link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``link_arrow_size``
-     - int
+     - float
      - 0.1
      - Size of oneway link arrows, as a proportion of the allocated room
        space.
      - :ref:`ps <ps>` :ref:`tk <tk>`
 
    * - ``link_spline``
-     - int
+     - bool
      - true
      - Whether to draw link lines as splines.
      - :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``link_dashed``
-     - int
+     - bool
      - false
      - Whether to draw dashed link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``link_text_font``
-     - int
+     - string
      - "Times-Roman"
-     - xxx
+     - Font of text that's associated with link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``link_text_fontsize``
      - int
      - 6
-     - xxx
+     - Font size of text that's associated with link lines.
+     - :ref:`ps <ps>` :ref:`fig <fig>`
+
+   * - ``link_text_colour``
+     - string
+     - "black"
+     - Colour of text that's associated with link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``link_text_fontdef``
-     - int
+     - string
      - "Times 8 bold"
-     - xxx
+     - Font and font size size of text that's associated with link lines.
      - :ref:`tk <tk>`
 
-   * - ``link_text_colour``
-     - int
-     - "black"
-     - xxx
-     - :ref:`ps <ps>` :ref:`fig <fig>`
-
    * - ``tk.link_text_colour``
-     - int
+     - string
      - "red"
-     - Appearance of text that's associated with link lines.  The Tk
-       default is to colour them differently for readability.
+     - Colour of text that's associated with link lines.
      - :ref:`tk <tk>`
 
    * - ``link_updown_string``
-     - int
+     - instring
      - "U/D"
-     - xxx
+     - Text strings indicating up/down on links.  PostScript is currently a
+       special case: the strings either side of the ``/`` are extracted and
+       printed at either ends of the link, near the room they come from.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``link_inout_string``
-     - int
+     - string
      - "I/O"
-     - Text strings indicating up/down/in/out on links.  PostScript is
-       currently a special case: the strings either side of the '/' are
-       extracted and printed at either ends of the link, near the room they
-       come from.
+     - Text strings indicating in/out on links.  PostScript is currently a
+       special case: the strings either side of the ``/`` are extracted and
+       printed at either ends of the link, near the room they come from.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
 Join style variables
@@ -473,16 +498,16 @@ Join style variables
      - Outputs
 
    * - ``show_joins``
-     - int
+     - bool
      - true
      - Whether to indicate joins in the room text.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``join_format``
-     - int
+     - string
      - "number"
      - Join string format (gets put in parentheses in those rooms that join
-       to other rooms).  The value should be "number" or "letter".
+       to other rooms).  The value should be ``number`` or ``letter``.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
 Game solver variables
@@ -499,20 +524,20 @@ Game solver variables
      - Outputs
 
    * - ``keep_unused_items``
-     - int
+     - bool
      - true
-     - Whether to keep unused items (i.e. those which were obtained via some
-       task or other, but currently have no use).
+     - Whether to keep unused items (i.e., those which were obtained via
+       some task or other, but currently have no use).
      - :ref:`text <text>` :ref:`rec <rec>`
 
    * - ``all_tasks_safe``
-     - int
+     - bool
      - false
      - Whether to treat all tasks as safe (reckless mode!).
      - :ref:`text <text>` :ref:`rec <rec>`
 
    * - ``solver_messages``
-     - int
+     - bool
      - false
      - Whether to print game solver info messages (helps with figuring out
        what it's up to).
@@ -532,14 +557,14 @@ Task dependency variables
      - Outputs
 
    * - ``task_graph_rooms``
-     - int
+     - bool
      - false
      - Whether to group tasks by the room they're done in.  This can either
        enhance the task structure or make it look a complete mess.
      - :ref:`dot <dot>`
 
    * - ``task_graph_orphans``
-     - int
+     - bool
      - false
      - Whether to show orphan tasks (those with no previous/next
        dependencies).  Useful for completeness, but it clutters things up a
@@ -547,19 +572,19 @@ Task dependency variables
      - :ref:`dot <dot>`
 
    * - ``task_graph_attr``
-     - int
+     - string
      - ""
      - Graph attributes, in Graphviz format.
      - :ref:`dot <dot>`
 
    * - ``task_graph_node``
-     - int
+     - string
      - "shape=box"
      - Node attributes, in Graphviz format.
      - :ref:`dot <dot>`
 
    * - ``task_graph_link``
-     - int
+     - string
      - ""
      - Link attributes, in Graphviz format.
      - :ref:`dot <dot>`
@@ -567,11 +592,11 @@ Task dependency variables
    * - ``task_graph_wrap``
      - int
      - 12
-     - Word wrapping cutoff.
+     - Word wrap length of nodes, in characters.
      - :ref:`dot <dot>`
 
    * - ``task_graph_font``
-     - int
+     - string
      - "Times-Roman"
      - Font name.
      - :ref:`dot <dot>`
