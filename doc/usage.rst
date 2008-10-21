@@ -14,8 +14,8 @@ IFM is run from the command line. The general form of the command is::
 On startup, IFM does the following. Firstly, the system initialization file
 is read. This sets defaults used by everyone. This file is called
 :file:`ifm-init.ifm`, and is found by searching a standard set of
-directories. You can prepend to this search path by setting the environment
-variable :envvar:`IFMPATH` to be a colon-separated list of directories.
+directories. You can adjust the search path by setting the environment
+variable :envvar:`IFMPATH`.
 
 Then, if you have a personal initialization file, that is read. This file
 is found in the directory specified by your :envvar:`HOME` environment
@@ -381,6 +381,21 @@ to send me a copy so I can include them with the next version of IFM.  The
 **Scope** field indicates which type of IFM object it applies to. Styles
 that have global scope can meaningfully be used by the :option:`-style`
 command-line option.
+
+Environment variables
+=====================
+
+IFM uses the following environment variables:
+
+.. envvar:: IFMPATH
+
+   A colon-separated list of directories to search for IFM files.  These
+   directories are searched before the standard directories.
+
+.. envvar:: HOME
+
+   Considered to be your home directory when looking for initialization
+   files.
 
 Diagnostics
 ===========
