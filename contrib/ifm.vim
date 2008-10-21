@@ -38,7 +38,6 @@ syntax keyword ifmGoDir contained out in up down
 " TODO: ifmString doesn't handle "testStr\\" correctly...
 syntax region ifmString	contained start=+"+ skip=+\\"+ end=+"+
 syntax match ifmId	contained "[a-zA-Z][a-zA-Z0-9_]*"
-" TODO: IFM5.0 now accepts expressions whenever a number is expected
 syntax match ifmInteger	contained "[0-9]\+"
 syntax match ifmReal	contained "[0-9]\+\.[0-9]\+"
 
