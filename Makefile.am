@@ -10,11 +10,7 @@ EXTRA_DIST = COPYING.DOC TO-DO
 
 EXTRA_DIRS = etc contrib
 
-dist-hook: dist-prepare dist-extra dist-config dist-header dist-touch \
-	   dist-cleanup
-
-dist-prepare:
-	cd $(top_srcdir)/win32; $(MAKE) clean
+dist-hook: dist-extra dist-config dist-header dist-touch dist-cleanup
 
 dist-config:
 	rm -f $(distdir)/etc/*header*
