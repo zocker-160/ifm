@@ -4,11 +4,11 @@
  Output variables
 ==================
 
-There are many variables available for customizing output. Most of them are
-for customizing map output.  Their names, descriptions and default values
-are all contained in the IFM initialization file. You can change this file
-to set global defaults for everybody, or alternatively set your own
-preferences in your personal init file.
+There are many variables available for customizing output, described below.
+Their initial values are set in the IFM initialization file
+:file:`ifm-init.ifm`.  You can change this file to set global defaults for
+everybody, or alternatively set your own preferences in your personal init
+file.
 
 The default values are designed to give nice results in all formats.  The
 default for PostScript is to produce maps for monochrome printing on one or
@@ -41,7 +41,7 @@ General variables
 
    * - ``colour_file``
      - string
-     - "ifm-rgb.txt"
+     - ``ifm-rgb.txt``
      - File of colour definitions, which contains the RGB values of each
        colour referred to below (and a good many more).  It's just the
        ``rgb.txt`` file found on Unix/X11 systems.  See that file for a
@@ -51,7 +51,7 @@ General variables
 
    * - ``prolog_file``
      - string
-     - "ifm-pro.ps"
+     - ``ifm-pro.ps``
      - Prolog file that gets prepended to all the PostScript output.  This
        defines all the procedures for drawing everything.
      - :ref:`ps <ps>`
@@ -78,7 +78,7 @@ Page variables
 
    * - ``page_size``
      - string
-     - "A4"
+     - ``A4``
      - Default page size.  Available page sizes are: ``A3``, ``A4``, ``A``,
        ``B``, ``C``, ``Legal``, ``Letter``.
      - :ref:`ps <ps>` :ref:`fig <fig>`
@@ -121,13 +121,13 @@ Page variables
 
    * - ``page_title_colour``
      - string
-     - "black"
+     - ``black``
      - Page title colour.
      - :ref:`ps <ps>`
 
    * - ``page_title_font``
      - string
-     - "Times-Bold"
+     - ``Times-Bold``
      - Page title font.
      - :ref:`ps <ps>`
 
@@ -145,13 +145,13 @@ Page variables
 
    * - ``page_border_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of the page border (if drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``page_background_colour``
      - string
-     - "white"
+     - ``white``
      - Colour of the page background (if border is drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
@@ -183,13 +183,13 @@ Map section variables
 
    * - ``map_title_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of the title printed above each map section.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_title_font``
      - string
-     - "Times-Bold"
+     - ``Times-Bold``
      - Font of the title printed above each map section.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
@@ -207,19 +207,19 @@ Map section variables
 
    * - ``map_border_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of the map border (if drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``map_background_colour``
      - string
-     - "white"
+     - ``white``
      - Colour of the map background (if border is drawn).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``tk.map_background_colour``
      - string
-     - "wheat"
+     - ``wheat``
      - Colour of the map background (if border is drawn).
      - :ref:`tk <tk>`
 
@@ -280,7 +280,7 @@ Room variables
 
    * - ``room_colour``
      - string
-     - "white"
+     - ``white``
      - Default background colour of rooms.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
@@ -304,7 +304,7 @@ Room variables
 
    * - ``room_shadow_colour``
      - string
-     - "grey50"
+     - ``grey50``
      - Colour of room 'shadows'.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
@@ -316,7 +316,7 @@ Room variables
 
    * - ``room_border_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of the room box lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
@@ -334,19 +334,19 @@ Room variables
 
    * - ``room_exit_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of the room exit lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_text_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of room description text.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``room_text_font``
      - string
-     - "Times-Bold"
+     - ``Times-Bold``
      - Font of room description text.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
@@ -357,8 +357,8 @@ Room variables
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``room_text_fontdef``
-     - int
-     - "Times 10 bold"
+     - string
+     - ``Times 10 bold``
      - Font and fontsize of room description text.
      - :ref:`tk <tk>`
 
@@ -370,13 +370,13 @@ Room variables
 
    * - ``item_text_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of item description text (if shown).
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``item_text_font``
      - string
-     - "Times-Italic"
+     - ``Times-Italic``
      - Font of item description text (if shown).
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
@@ -387,8 +387,8 @@ Room variables
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``item_text_fontdef``
-     - int
-     - "Times 8 italic"
+     - string
+     - ``Times 8 italic``
      - Font and fontsize of item description text (if shown).
      - :ref:`tk <tk>`
 
@@ -420,7 +420,7 @@ Link style variables
 
    * - ``link_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
@@ -445,7 +445,7 @@ Link style variables
 
    * - ``link_text_font``
      - string
-     - "Times-Roman"
+     - ``Times-Roman``
      - Font of text that's associated with link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
@@ -457,25 +457,25 @@ Link style variables
 
    * - ``link_text_colour``
      - string
-     - "black"
+     - ``black``
      - Colour of text that's associated with link lines.
      - :ref:`ps <ps>` :ref:`fig <fig>`
 
    * - ``link_text_fontdef``
      - string
-     - "Times 8 bold"
+     - ``Times 8 bold``
      - Font and font size size of text that's associated with link lines.
      - :ref:`tk <tk>`
 
    * - ``tk.link_text_colour``
      - string
-     - "red"
+     - ``red``
      - Colour of text that's associated with link lines.
      - :ref:`tk <tk>`
 
    * - ``link_updown_string``
-     - instring
-     - "U/D"
+     - string
+     - ``U/D``
      - Text strings indicating up/down on links.  PostScript is currently a
        special case: the strings either side of the ``/`` are extracted and
        printed at either ends of the link, near the room they come from.
@@ -483,7 +483,7 @@ Link style variables
 
    * - ``link_inout_string``
      - string
-     - "I/O"
+     - ``I/O``
      - Text strings indicating in/out on links.  PostScript is currently a
        special case: the strings either side of the ``/`` are extracted and
        printed at either ends of the link, near the room they come from.
@@ -510,7 +510,7 @@ Join style variables
 
    * - ``join_format``
      - string
-     - "number"
+     - ``number``
      - Join string format (gets put in parentheses in those rooms that join
        to other rooms).  The value should be ``number`` or ``letter``.
      - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
@@ -578,19 +578,19 @@ Task dependency variables
 
    * - ``task_graph_attr``
      - string
-     - ""
+     - 
      - Graph attributes, in Graphviz format.
      - :ref:`dot <dot>`
 
    * - ``task_graph_node``
      - string
-     - "shape=box"
+     - ``shape=box``
      - Node attributes, in Graphviz format.
      - :ref:`dot <dot>`
 
    * - ``task_graph_link``
      - string
-     - ""
+     - 
      - Link attributes, in Graphviz format.
      - :ref:`dot <dot>`
 
@@ -602,6 +602,6 @@ Task dependency variables
 
    * - ``task_graph_font``
      - string
-     - "Times-Roman"
+     - ``Times-Roman``
      - Font name.
      - :ref:`dot <dot>`
