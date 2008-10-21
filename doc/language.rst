@@ -761,8 +761,8 @@ and these are the available attributes:
 Variables
 =========
 
-Various aspects of output are controlled by variables.  These are set using
-the following syntax::
+Various aspects of output are controlled by :ref:`variables`.  These are
+set using the following syntax::
 
     [FORMAT.]ID = NUMBER | STRING | true | false | undef [in style ID];
 
