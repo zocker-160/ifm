@@ -11,6 +11,7 @@
    example
    usage
    language
+   vars
    tools
    links
    thanks

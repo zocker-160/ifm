@@ -126,7 +126,7 @@ Finally, here are the information options:
 
    ``vars``
 	   Show a complete list of defined variables, in a format suitable
-	   for feeding back into IFM. See `Output variables`_.
+	   for feeding back into IFM. See :ref:`variables`.
 
 .. cmdoption:: -v, --version
 
@@ -158,6 +158,8 @@ what you get with one format looks much the same as another. [1]_
 .. index::
    pair: PostScript; Types of output
 
+.. _ps:
+
 PostScript maps (``ps``)
 ------------------------
 
@@ -170,6 +172,8 @@ room boxes, if required.
 
 .. index::
    pair: Fig; Types of output
+
+.. _fig:
 
 Fig maps (``fig``)
 ------------------
@@ -191,6 +195,8 @@ transfig package) will automatically do this.
 .. index::
    pair: Tk; Types of output
 
+.. _tk:
+
 Tk drawing commands (``tk``)
 ----------------------------
 
@@ -203,6 +209,8 @@ way.
 .. index::
    pair: ASCII; Types of output
 
+.. _text:
+
 ASCII text (``text``)
 ---------------------
 
@@ -213,6 +221,7 @@ be fairly self-explanatory.
    pair: Recording; Types of output
 
 .. _recording:
+.. _rec:
 
 Recording commands (``rec``)
 ----------------------------
@@ -238,6 +247,8 @@ of randomness.
 
 .. index::
    pair: Task dependencies; Types of output
+
+.. _dot:
 
 Task dependencies (``dot``)
 ---------------------------
@@ -275,8 +286,8 @@ Customization
 You can change the appearance of many output features according to your
 taste. You do this by setting the values of the variables that control
 those features.  This section tells you how to use variables---for a
-complete list of the customization variables available, see `Output
-variables`_.
+complete list of the customization variables available, see
+:ref:`variables`.
 
 As a first example, the background colour of rooms is determined by the
 variable :keyword:`room_colour`. Its default value is ``white``. It can be
@@ -337,21 +348,6 @@ option; these apply to all IFM objects.  Global styles are most useful when
 setting variables that affect the overall appearance of the output, in
 conjunction with the file search method described above (e.g., a file
 containing general colour and font definitions).
-
-.. _variables:
-
-Output variables
-================
-
-There are many variables available for customizing output. Most of them are
-for customizing map output.  Their names, descriptions and default values
-are all contained in the IFM initialization file. You can change this file
-to set global defaults for everybody, or alternatively set your own
-preferences in your personal init file.
-
-Here's the original initialization file that came bundled with IFM:
-
-.. literalinclude:: ../lib/ifm-init.ifm
 
 .. index::
    single: style; Predefined styles
