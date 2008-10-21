@@ -24,15 +24,7 @@ ifm_LDADD   = -lfig $(VARS_LIBS) @LIBS@
 
 AM_YFLAGS = -d -v
 
-BASEPATH = $(pkgdatadir)
-
-if CYGWIN
-INITFILE = ifm.ini
-IFMPATH  = .:$(BASEPATH)
-else
-INITFILE = .ifmrc
-IFMPATH  = $(BASEPATH)
-endif
+IFMPATH = $(pkgdatadir):.
 
 IFMDEFS  = -DSYSINIT=\"ifm-init.ifm\"
 IFMDEFS += -DIFMPATH=\"$(IFMPATH)\"

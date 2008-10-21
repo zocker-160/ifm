@@ -19,9 +19,9 @@ variable :envvar:`IFMPATH`.
 
 Then, if you have a personal initialization file, that is read. This file
 is found in the directory specified by your :envvar:`HOME` environment
-variable. On Unix-like systems it is called :file:`.ifmrc`, and on Win32
-systems it is called :file:`ifm.ini`. You can use this file to customize
-the default variable settings for different types of output.
+variable. It can be called :file:`.ifmrc` or :file:`ifm.ini`; if both
+exist, they are both read. You can use this file to customize the default
+variable settings for different types of output.
 
 Then input from the file(s) on the command-line is read. If no files were
 specified, :keyword:`stdin` is read. A filename equal to :file:`-` also

@@ -67,7 +67,7 @@ static struct show_st {
 int
 main(int argc, char *argv[])
 {
-    char *env, *file = NULL, *info = NULL, *spec, *format = NULL, *home;
+    char *env, *file = NULL, *info = NULL, *spec, *format = NULL;
     vlist *args, *list, *include = NULL, *vars = NULL;
     int noinit = 0, version = 0, help = 0, debug = 0;
     vhash *opts;
@@ -194,10 +194,20 @@ main(int argc, char *argv[])
     if (!parse_input(SYSINIT, 1, 1))
         return 1;
 
-    /* Parse personal init file if available */
+    /* Parse personal init file(s) if available */
     if (!noinit) {
-        home = getenv("HOME");
-        V_BUF_SET2("%s/%s", home != NULL ? home : ".", INITFILE);
+        char *home = getenv("HOME");
+
+        if (home == NULL) {
+            warn("HOME not set; using current directory");
+            home = ".";
+        }
+
+        V_BUF_SET1("%s/.ifmrc", home);
+        if (!parse_input(V_BUF_VAL, 0, 0))
+            return 1;
+
+        V_BUF_SET1("%s/ifm.ini", home);
         if (!parse_input(V_BUF_VAL, 0, 0))
             return 1;
     }
