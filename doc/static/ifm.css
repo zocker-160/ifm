@@ -1,8 +1,8 @@
 @import "default.css";
 
 body {
-    font-family: "Bitstream Vera Sans", sans-serif;
-    font-size: 88%;
+    font-family: "Helvetica", sans-serif;
+    font-size: 90%;
 }
 
 div.document {
@@ -10,8 +10,7 @@ div.document {
 }
 
 div.footer {
-    background-color: #e2e2e2;
-    color: #323232;
+    background-color: gray;
 }
 
 div.footer a {
