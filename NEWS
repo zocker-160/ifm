@@ -1,22 +1,22 @@
-Version 5.3 (20 Oct 2008)
+Version 5.3 (22 Oct 2008)
 =========================
 
 * New ``them`` keyword, which refers to the list of items mentioned in the
   current statement.
 
-* There's a new Perl script ``ifm2web``, which converts IFM maps to image
-  files suitable for the Interweb.
-
 * There are some new task graph options: ``task_graph_wrap``, which controls
   word-wrapping when printing graph nodes, and ``task_graph_font``, which
   sets the text font.
+
+* The new keywords ``true`` and ``false`` can be used in place of 1 and 0,
+  respectively, when setting variables.
 
 * The documentation is now much prettier, thanks to `Sphinx
   <http://sphinx.pocoo.org>`_.  PDF documentation is no longer distributed,
   but can be generated if required.
 
-* The new keywords ``true`` and ``false`` can be used in place of 1 and 0,
-  respectively, when setting variables.
+* There's a new Perl script ``ifm2web``, which converts IFM maps to image
+  files suitable for the Interweb.
 
 * The GNU Emacs ``ifm-mode.el`` in the ``contrib`` directory has been
   improved: it can display task recording and debugging output, now has
@@ -24,6 +24,9 @@ Version 5.3 (20 Oct 2008)
 
 * PostScript maps now conform properly to Adobe DSC.  This stops
   Ghostscript 8.x barfing on them.
+
+* Both versions of the personal initialization file (``.ifmrc`` and
+  ``ifm.ini``) are now read, if they exist.
 
 * Since ``asciimapper`` is now in the IF archive, it is no longer part of
   the ``contrib`` directory.
