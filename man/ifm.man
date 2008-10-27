@@ -30,3 +30,11 @@ Colon-separated list of extra directories to search for include files.
 [FILES]
 .IP \fC$HOME/.ifmrc\fP
 User resource file.
+
+.IP \fC$HOME/ifm.ini\fP
+Alternate resource filename (Windows-style).
+
+[SEE ALSO]
+.BR xfig (1) ,
+.BR fig2dev (1) ,
+.BR dot (1)
