@@ -55,9 +55,6 @@ Existing IFM maps
 
       http://www.highprogrammer.com/alan/games/video/ifmaps
 
-* The :file:`demos` subdirectory of the IFM distribution contains some
-  demonstration maps that don't give away secrets from real games.
-
 Other links
 ===========
 
