@@ -1,4 +1,4 @@
-Version 5.3 (22 Oct 2008)
+Version 5.3 (27 Oct 2008)
 =========================
 
 * New ``them`` keyword, which refers to the list of items mentioned in the
@@ -11,9 +11,8 @@ Version 5.3 (22 Oct 2008)
 * The new keywords ``true`` and ``false`` can be used in place of 1 and 0,
   respectively, when setting variables.
 
-* The documentation is now much prettier, thanks to `Sphinx
-  <http://sphinx.pocoo.org>`_.  PDF documentation is no longer distributed,
-  but can be generated if required.
+* The documentation is now much prettier, thanks to Sphinx_.  PDF
+  documentation is no longer distributed, but can be generated if required.
 
 * There's a new Perl script ``ifm2web``, which converts IFM maps to image
   files suitable for the Interweb.
@@ -22,7 +21,7 @@ Version 5.3 (22 Oct 2008)
   improved: it can display task recording and debugging output, now has
   ``imenu`` and ``flymake`` support, and a minor bug fix.
 
-* PostScript maps now conform properly to Adobe DSC.  This stops
+* PostScript maps now conform properly to Adobe DSC_.  This stops
   Ghostscript 8.x barfing on them.
 
 * Both versions of the personal initialization file (``.ifmrc`` and
@@ -30,6 +29,9 @@ Version 5.3 (22 Oct 2008)
 
 * Since ``asciimapper`` is now in the IF archive, it is no longer part of
   the ``contrib`` directory.
+
+.. _Sphinx: http://sphinx.pocoo.org
+.. _DSC: http://www-cdf.fnal.gov/offline/PostScript/AdobePS.html
 
 Version 5.2 (7 Sep 2006)
 ========================
@@ -70,18 +72,20 @@ Version 5.1 (30 Nov 2004)
 
 * In PostScript output, up/down and in/out labels are now drawn separately,
   next to their respective rooms.  Also, if a link leaves a room and
-  returns to the same room, it's drawn as a small circle.  Thanks to Dan
-  Eble (eble@ticalc.org).
+  returns to the same room, it's drawn as a small circle.  Thanks to `Dan
+  Eble`_.
 
-* Hopefully, the Windoze port should work properly now.
+* Hopefully, the Windows port should work properly now.
 
 * Fixed weird bug with scaled arcs in PostScript output.  More thanks to
-  Dan Eble (eble@ticalc.org).
+  `Dan Eble`_.
 
 * Fixed bug in ``ifm2tex`` with converting strings to TeX format
   (specifically, ones with embedded zeros).
 
 * Fixed crash when using ``it`` in some circumstances.
+
+.. _Dan Eble: mailto:eble@ticalc.org
 
 Version 5.0 (23 Jan 2003)
 =========================
