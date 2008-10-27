@@ -536,6 +536,27 @@ Game solver variables
        what it's up to).
      - :ref:`text <text>` :ref:`rec <rec>`
 
+   * - ``finish_room``
+     - string
+     - 
+     - Comma-separated list of extra room tags which are assigned the
+       :keyword:`finish` attribute.
+     - :ref:`text <text>` :ref:`rec <rec>`
+
+   * - ``finish_item``
+     - string
+     - 
+     - Comma-separated list of extra item tags which are assigned the
+       :keyword:`finish` attribute.
+     - :ref:`text <text>` :ref:`rec <rec>`
+
+   * - ``finish_task``
+     - string
+     - 
+     - Comma-separated list of extra task tags which are assigned the
+       :keyword:`finish` attribute.
+     - :ref:`text <text>` :ref:`rec <rec>`
+
 Task dependency variables
 =========================
 

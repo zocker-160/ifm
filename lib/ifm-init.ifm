@@ -101,6 +101,9 @@ join_format = "number";
 keep_unused_items = true;
 all_tasks_safe = false;
 solver_messages = false;
+finish_room = "";
+finish_item = "";
+finish_task = "";
 
 # Task dependency variables
 task_graph_rooms = false;

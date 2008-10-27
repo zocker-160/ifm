@@ -55,6 +55,8 @@ static void filter_tasks(int print);
 static vhash *first_task(vhash *step);
 static void goto_room(vhash *task);
 static void invert_items(vhash *obj, char *attr);
+static void mark_finishing(char *action, char *otype, char *varname,
+                           vhash *table);
 static vhash *new_task(int type, vhash *data);
 static void order_tasks(vhash *before, vhash *after);
 static int task_status(vhash *room, vhash *step);
@@ -556,6 +558,31 @@ invert_items(vhash *obj, char *attr)
     vh_pstore(obj, attr, newlist);
 }
 
+/* Mark an object as finishing the game */
+static void
+mark_finishing(char *action, char *otype, char *varname, vhash *table)
+{
+    char *value, *tag;
+    vlist *tags;
+    vhash *obj;
+    viter i;
+
+    value = var_string(varname);
+    tags = vl_split(value, ",");
+
+    v_iterate(tags, i) {
+        tag = vl_iter_sval(i);
+        if ((obj = vh_pget(table, tag)) != NULL) {
+            solver_msg(2, "%s %s '%s'", action, otype, tag);
+            vh_istore(obj, "FINISH", 1);
+        } else {
+            err("%s tag '%s' not defined", otype, tag);
+        }
+    }
+
+    vl_destroy(tags);
+}
+
 /* Create and return a new task step */
 static vhash *
 new_task(int type, vhash *data)
@@ -686,6 +713,12 @@ setup_tasks(void)
     char *msg;
 
     solver_msg(0, "\nSetting up tasks...");
+
+    /* Flag any extra rooms/items/tasks as finishing things */
+    solver_msg(1, "Marking extra events that finish the game");
+    mark_finishing("entering", "room", "finish_room", roomtags);
+    mark_finishing("obtaining", "item", "finish_item", itemtags);
+    mark_finishing("doing", "task", "finish_task", tasktags);
 
     /* Create 'goto room' steps */
     v_iterate(rooms, i) {

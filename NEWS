@@ -4,15 +4,23 @@ Version 5.3 (27 Oct 2008)
 * New ``them`` keyword, which refers to the list of items mentioned in the
   current statement.
 
-* There are some new task graph options: ``task_graph_wrap``, which controls
+* New game-solver variables: ``finish_room``, ``finish_item`` and
+  ``finish_task``, which can be a comma-separated list of extra rooms,
+  items and tasks which get assigned the ``finish`` attribute (i.e., cause
+  the solver to exit).
+
+* New task graph variables: ``task_graph_wrap``, which controls
   word-wrapping when printing graph nodes, and ``task_graph_font``, which
   sets the text font.
 
 * The new keywords ``true`` and ``false`` can be used in place of 1 and 0,
   respectively, when setting variables.
 
-* The documentation is now much prettier, thanks to Sphinx_.  PDF
-  documentation is no longer distributed, but can be generated if required.
+* PostScript maps now conform properly to Adobe DSC_.  This stops
+  Ghostscript 8.x barfing on them.
+
+* Both versions of the personal initialization file (``.ifmrc`` and
+  ``ifm.ini``) are now read, if they exist.
 
 * There's a new Perl script ``ifm2web``, which converts IFM maps to image
   files suitable for the Interweb.
@@ -21,11 +29,8 @@ Version 5.3 (27 Oct 2008)
   improved: it can display task recording and debugging output, now has
   ``imenu`` and ``flymake`` support, and a minor bug fix.
 
-* PostScript maps now conform properly to Adobe DSC_.  This stops
-  Ghostscript 8.x barfing on them.
-
-* Both versions of the personal initialization file (``.ifmrc`` and
-  ``ifm.ini``) are now read, if they exist.
+* The documentation is now much prettier, thanks to Sphinx_.  PDF
+  documentation is no longer distributed, but can be generated if required.
 
 * Since ``asciimapper`` is now in the IF archive, it is no longer part of
   the ``contrib`` directory.
@@ -45,7 +50,7 @@ Version 5.2 (7 Sep 2006)
 
 * The GNU Emacs ``ifm-mode.el`` in the ``contrib`` directory has new
   commands to display maps, items and tasks and various other things.
-  Based on an initial version contributed by Lee Bigelow.
+  Based on an initial version contributed by `Lee Bigelow`_.
 
 * Several unused features which added needless complexity have been
   removed.  These are: preprocessing by ``gpp``, expressions for
@@ -61,6 +66,8 @@ Version 5.2 (7 Sep 2006)
 
 * A crash when trying to print an error message about cyclic task
   dependencies has been fixed.
+
+.. _Lee Bigelow: ligelowbee@yahoo.com
 
 Version 5.1 (30 Nov 2004)
 =========================
