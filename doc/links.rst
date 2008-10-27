@@ -31,9 +31,9 @@ Mapping programs and tools
   and converts them to IFM format.
 
 .. _Frobot: http://www.ifarchive.org/if-archive/mapping-tools/frobot12.zip
-.. _IFMapper: http://www.rubyforge.org/projects/ifmapper
+.. _IFMapper: http://rubyforge.org/projects/ifmapper
 .. _GUEmap: http://www.cjmweb.net/GUEmap
-.. _ifm2i7: http://code.wetash.com/ifm2i7
+.. _ifm2i7: http://ftp.giga.or.at/pub/ifarchive/mapping-tools/ifm2i7.tar.bz2
 .. _`Inform 7`: http://www.inform-fiction.org/I7/Inform%207.html
 .. _asciimapper: http://www.ifarchive.org/if-archive/mapping-tools/asciimapper
 
@@ -45,7 +45,7 @@ Existing IFM maps
 * There's a web page set up by Dave Chapeskie (dchapes@ddm.wox.org) which
   has many IFM maps in source and PostScript format, at
 
-      http://www.sentex.net/~dchapes/ifm
+      http://www.sentex.ca/~dchapes/ifm
 
   At the moment it contains maps of a few Infocom and Inform games.  Some
   are complete, others not quite.  A few have tasks set up so that a

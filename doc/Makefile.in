@@ -73,6 +73,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GREP = @GREP@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -104,9 +105,8 @@ VARS_LIBS = @VARS_LIBS@
 VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
+YFLAGS = @YFLAGS@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_RANLIB = @ac_ct_RANLIB@
-ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@
@@ -121,12 +121,16 @@ build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
+datarootdir = @datarootdir@
+docdir = $(prefix)/doc
+dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
+htmldir = $(builddir)/html
 ifm2dev = @ifm2dev@
 ifm2tex = @ifm2tex@
 ifm2web = @ifm2web@
@@ -135,12 +139,15 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
+psdir = @psdir@
 sbindir = @sbindir@
 scr2ifm = @scr2ifm@
 sharedstatedir = @sharedstatedir@
@@ -149,7 +156,6 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
 builddir = $(top_builddir)/doc
-htmldir = $(builddir)/html
 latexdir = $(builddir)/latex
 sphinxdir = $(builddir)/sphinx
 imagedir = $(srcdir)/images
@@ -179,7 +185,6 @@ TASKS = $(IFM2WEB) -g -s 70
 
 # Distribution stuff.
 EXTRA_DIST = $(DOCFILES) examples templates static
-docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
 # Show recent source changes.
@@ -346,7 +351,7 @@ uninstall-am: uninstall-info-am
 
 # User guide.
 
-.PHONY: html latex images
+.PHONY: html latex images examples
 
 guide: html
 
@@ -363,13 +368,15 @@ linkcheck: setup conf.py
 
 setup:
 	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir) $(imagedir)
-	@ $(MAKE) -s images
+	@ $(MAKE) -s images examples
 	@ for file in conf.py images/logo.png; do			\
 	    path=$(builddir)/$$file;					\
 	    test -f $$path || ln -s $(srcdir)/$$file $$path;		\
 	done
 
 images: $(PNG)
+
+examples:; cd examples; $(MAKE)
 
 $(imagedir)/%.png: $(exampledir)/%.ifm
 	@ echo creating $@

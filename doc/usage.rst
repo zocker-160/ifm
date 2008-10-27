@@ -256,8 +256,10 @@ Task dependencies (``dot``)
 .. versionadded:: 5.0
 
 This produces a graph of the dependencies of tasks on each other, in
-Graphviz (dot) format. You'll need to have `Graphviz
-<http://www.graphviz.org>`_ installed in order to display the graph.
+Graphviz (dot) format. You'll need to have Graphviz_ installed in order to
+display the graph.
+
+.. _Graphviz: http://www.graphviz.org
 
 .. _raw:
 

@@ -270,12 +270,12 @@ And this is what it looks like as rendered by IFM:
    :align: center
 
 .. index::
-   single: dir; Conflicts
+   single: dir; Mapping problems
 
-.. index:: Colossal Cave; Mapping conflicts
+.. index:: Colossal Cave; Mapping problems
 
-Conflicts
-=========
+Mapping problems
+================
 
 After creating a map from a real game and sending the results through IFM,
 you may get warnings which talk about things overlapping. This is due to

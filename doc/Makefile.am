@@ -21,7 +21,7 @@ OPTIONAL = $(top_srcdir)/etc/missing --run
 
 # User guide.
 
-.PHONY: html latex images
+.PHONY: html latex images examples
 
 guide: html
 
@@ -38,7 +38,7 @@ linkcheck: setup conf.py
 
 setup:
 	@ mkdir -p $(htmldir) $(latexdir) $(sphinxdir) $(imagedir)
-	@ $(MAKE) -s images
+	@ $(MAKE) -s images examples
 	@ for file in conf.py images/logo.png; do			\
 	    path=$(builddir)/$$file;					\
 	    test -f $$path || ln -s $(srcdir)/$$file $$path;		\
@@ -58,6 +58,8 @@ SMALL = $(IFM2WEB) -z 3 -s 14
 TASKS = $(IFM2WEB) -g -s 70
 
 images: $(PNG)
+
+examples:; cd examples; $(MAKE)
 
 $(imagedir)/%.png: $(exampledir)/%.ifm
 	@ echo creating $@

@@ -30,7 +30,7 @@ General variables
 =================
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -67,7 +67,7 @@ Page variables
 ==============
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -166,7 +166,7 @@ Map section variables
 =====================
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -213,15 +213,9 @@ Map section variables
 
    * - ``map_background_colour``
      - string
-     - ``white``
+     - ``white`` (ps, fig), ``wheat`` (tk)
      - Colour of the map background (if border is drawn).
-     - :ref:`ps <ps>` :ref:`fig <fig>`
-
-   * - ``tk.map_background_colour``
-     - string
-     - ``wheat``
-     - Colour of the map background (if border is drawn).
-     - :ref:`tk <tk>`
+     - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``map_section_spacing``
      - int
@@ -247,7 +241,7 @@ Room variables
 ==============
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -403,7 +397,7 @@ Link style variables
 ====================
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -457,20 +451,14 @@ Link style variables
 
    * - ``link_text_colour``
      - string
-     - ``black``
+     - ``black`` (ps, fig), ``red`` (tk)
      - Colour of text that's associated with link lines.
-     - :ref:`ps <ps>` :ref:`fig <fig>`
+     - :ref:`ps <ps>` :ref:`fig <fig>` :ref:`tk <tk>`
 
    * - ``link_text_fontdef``
      - string
      - ``Times 8 bold``
      - Font and font size size of text that's associated with link lines.
-     - :ref:`tk <tk>`
-
-   * - ``tk.link_text_colour``
-     - string
-     - ``red``
-     - Colour of text that's associated with link lines.
      - :ref:`tk <tk>`
 
    * - ``link_updown_string``
@@ -493,7 +481,7 @@ Join style variables
 ====================
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -519,7 +507,7 @@ Game solver variables
 =====================
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name
@@ -552,7 +540,7 @@ Task dependency variables
 =========================
 
 .. list-table::
-   :widths: 1 1 1 10 1
+   :widths: 1 1 3 10 1
    :header-rows: 1
    
    * - Name

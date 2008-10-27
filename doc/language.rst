@@ -134,7 +134,7 @@ Many of the attributes or objects accept a list of tags as arguments. All
 of these, if specified more than once in the same object, concatenate the
 lists together.
 
-Once an object as been declared with a tag name, its attributes can be
+Once an object has been declared with a tag name, its attributes can be
 modified by later commands referring to that tag, like this::
 
     <type> ID [attribute-list];
@@ -275,7 +275,7 @@ where ``STRING`` is a description of the room. Room attributes can be:
 :keyword:`length NUMBER`
        Indicate that the direction link to this room has the specified
        length (default 1). This only affects the calculation of the nearest
-       task_ when solving the game.
+       task_ when :ref:`solving the game <finding_solution>`.
 
 .. index:: start
 
@@ -382,8 +382,12 @@ where :keyword:`STRING` is the item description. Item attributes can be:
 
 :keyword:`given`
        Indicate that this item didn't have to be picked up when it entered
-       the inventory (no "get" task should be generated). This attribute is
-       obsolete---you should use the task_ :keyword:`give` clause instead.
+       the inventory (no "get" task should be generated).
+
+       .. warning:: 
+
+       	  This attribute is obsolete---you should use the task_
+       	  :keyword:`give` clause instead.
 
 .. index:: lost
 
@@ -486,8 +490,8 @@ and the following attributes may be specified:
 
 :keyword:`length NUMBER`
        Indicate that this link has the specified length (default 1). This
-       only affects the calculation of the nearest task_ when solving the
-       game.
+       only affects the calculation of the nearest task_ when :ref:`solving
+       the game <finding_solution>`.
 
 .. index:: need
 
@@ -580,8 +584,8 @@ The following attributes may be specified:
 
 :keyword:`length NUMBER`
        Indicate that this join has the specified length (default 1). This
-       only affects the calculation of the nearest task_ when solving the
-       game.
+       only affects the calculation of the nearest task_ when :ref:`solving
+       the game <finding_solution>`.
 
 .. index:: need
 

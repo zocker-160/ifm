@@ -125,8 +125,8 @@ indicate this is with the task :keyword:`get` clause::
 
     task "Put money in drinks machine" need coin get lemonade;
 
-This naturally implies that all tasks which supply an item (via the get
-clause) must be done before any task which needs that item.
+This naturally implies that all tasks which supply an item (via the
+:keyword:`get` clause) must be done before any task which needs that item.
 
 An alternate way to phrase this is with the item :keyword:`after` clause,
 which says that the item can't be picked up until a specified task is
@@ -233,8 +233,8 @@ needed. [2]_ At that point, it will be dropped.
 If the solver obtains a useless item (via a task :keyword:`get` or
 :keyword:`give` clause, or an item :keyword:`need` clause) it will never
 drop it. This is just a default; you can change it by setting the variable
-:keyword:`keep_unused_items` to zero. In that case, useless items will be
-dropped as soon as possible.
+:keyword:`keep_unused_items` to ``false``. In that case, useless items will
+be dropped as soon as possible.
 
 The reason for the default is that useless items obtained in this way
 probably do have a purpose---you just don't know what it is yet. This is
@@ -303,8 +303,8 @@ using the :keyword:`drop` clause::
 In this example, the spear is dropped in the same room that the task was
 done in. If you ever need the spear for anything else, it will be picked up
 again by the game solver. Note that an item will only be dropped if it is
-being carried---mentioning an item in a drop clause does not imply that
-it's needed to do the task.
+being carried---mentioning an item in a :keyword:`drop` clause does not
+imply that it's needed to do the task.
 
 Sometimes items must be dropped in a different room to the one you're
 in. You can use the :keyword:`in` clause to modify things::
@@ -494,6 +494,8 @@ extra things left to do will not be done, even if they score points.
    single: safe; Finding a solution
    single: inventory; Finding a solution
 
+.. _finding_solution:
+
 Finding a solution
 ==================
 
@@ -529,11 +531,15 @@ list, the following steps are performed:
    and dropping items in the current room is allowed, they are dropped. An
    item is wanted if at least one of the following is true:
 
-   (a) it's needed for movement,
-   (b) it's needed for a task that hasn't been done yet,
-   (c) it's being kept unconditionally,
-   (d) it's being kept with another item that's carried,
-   (e) it's being kept until a certain task is done.
+   * it's needed for movement,
+
+   * it's needed for a task that hasn't been done yet,
+
+   * it's being kept unconditionally,
+
+   * it's being kept with another item that's carried,
+
+   * it's being kept until a certain task is done.
 
 2. The map is traversed to find the distances of all rooms from the current
    room. Then the task list is sorted in order of ascending distance of the
@@ -608,6 +614,8 @@ considered safe.
 .. index::
    single: length; Changing path lengths
 
+.. _changing_lengths:
+
 Changing path lengths
 ---------------------
 
@@ -627,8 +635,8 @@ In this way, by choosing an appropriate number for the length, you make it
 appear to the solver that all the rooms in level *A* are closer to each
 other than any of the rooms in level *B*. This means that priority will be
 given to tasks in rooms in the same level as you are now, (hopefully)
-minimizing the number of level changes. Note that the length attribute
-doesn't affect map drawing at all.
+minimizing the number of level changes. Note that the :keyword:`length`
+attribute doesn't affect map drawing at all.
 
 .. index::
    single: nopath; Closing off paths

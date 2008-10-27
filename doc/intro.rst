@@ -16,12 +16,15 @@ as you explore the game. You type in the rooms you visit and the directions
 you move in to reach other rooms, and IFM calculates the position of each
 room in relation to the others. A map can consist of several independent
 sections, allowing you to divide up the map however you like. See
-:ref:`making-maps` for an example of how to make a map.
+:ref:`making-maps` for details of how to make a map.
 
 The IFM task commands, if used, allow you to specify the order in which
 game-solving tasks must be done. The IFM program can then calculate and
 print a high-level "walkthrough" of the game. See :ref:`solving` for
-examples of how to do this.
+details of how to do this.
+
+A more involved example of IFM in use throughout a complete game as it's
+being played is given in :ref:`example`.
 
 Several output formats are available, including PostScript, Fig and ASCII
 text---these are described in :ref:`usage`. Some of the output formats have
