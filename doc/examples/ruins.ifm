@@ -6,20 +6,13 @@ room "Dark Forest"			tag Dark_Forest;
   item "speckled mushroom"		tag mushroom;
   item "statuette"			tag statue hidden need mushroom;
 
-  task "Put statuette in case"		tag pack_statue need statue lose it
-					score 10;
+  task "Put statuette in case"		tag pack_statue need statue lose it score 10;
+  task "Put bangle in case"		tag pack_bangle need bangle lose it score 20;
+  task "Put ruby in case"		tag pack_ruby need ruby lose it score 30;
+  task "Put wax in case"		tag pack_wax need wax lose it score 40;
 
-  task "Put bangle in case"		tag pack_bangle need bangle lose it
-					score 20;
-
-  task "Put ruby in case"		tag pack_ruby need ruby lose it
-					score 30;
-
-  task "Put wax in case"		tag pack_wax need wax lose it
-					score 40;
-
-  task "Wait for helicopter"		after pack_statue pack_bangle
-					pack_ruby pack_wax cmd "WAIT" 2 finish;
+  task "Wait for helicopter"		after pack_statue pack_bangle pack_ruby pack_wax 
+       	     	 			cmd "WAIT" 2 finish;
 
 room "Square Chamber"			tag Chamber dir s go down exit s e;
   item "carvings";
