@@ -1,6 +1,6 @@
-===================================
- IFM -- Interactive Fiction Mapper
-===================================
+=================================
+ IFM: Interactive Fiction Mapper
+=================================
 
 About IFM
 =========
@@ -24,7 +24,7 @@ IFM can write hardcopy maps directly to PostScript, suitable for printing
 or viewing.  It can also write maps in Fig format, which can be viewed and
 edited using Xfig, or converted into many other formats.
 
-For detailed documentation, see the IFM user guide: ``doc/index.html``.
+For detailed documentation, see the `IFM user guide <doc/html/index.html>`_.
 
 Copyright
 =========
@@ -42,6 +42,11 @@ down to::
     ./configure
     make
     su -c 'make install'
+
+If you want to build IFM on Windows, you'll need to install Cygwin_ first.
+Then, use the same commands as above.
+
+.. _Cygwin: http://www.cygwin.com
 
 Finally...
 ==========

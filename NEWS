@@ -29,13 +29,16 @@ Version 5.3 (27 Oct 2008)
   improved: it can display task recording and debugging output, now has
   ``imenu`` and ``flymake`` support, and a minor bug fix.
 
-* The documentation is now much prettier, thanks to Sphinx_.  PDF
-  documentation is no longer distributed, but can be generated if required.
+* The documentation is now much prettier, thanks to Sphinx_ and Pygments_.
+  The ``contrib`` directory contains the Python_ module used to
+  syntax-highlight IFM code and IF transcripts.
 
 * Since ``asciimapper`` is now in the IF archive, it is no longer part of
   the ``contrib`` directory.
 
 .. _Sphinx: http://sphinx.pocoo.org
+.. _Pygments: http://pygments.org
+.. _Python: http://www.python.org
 .. _DSC: http://www-cdf.fnal.gov/offline/PostScript/AdobePS.html
 
 Version 5.2 (7 Sep 2006)
