@@ -11,7 +11,7 @@ MANPAGE = ifm.1
 
 man_MANS = $(MANPAGE)
 
-EXTRA_DIST = ifm.man
+EXTRA_DIST = ifm.man ifm.1
 
 TMP = /tmp/ifm.tmp
 
@@ -22,7 +22,7 @@ $(MANPAGE): ifm.man
 	chmod u+w $(TMP)
 	echo "[SEE ALSO]" >> $(TMP)
 	echo ".IP $(ifmdocdir)/index.html" >> $(TMP)
-	echo "Online documentation" >> $(TMP)
+	echo "IFM manual" >> $(TMP)
 	$(HELP2MAN) -o $@ -i $(TMP) $(IFM)
 	rm -f $(TMP)
 
