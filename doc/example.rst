@@ -15,7 +15,7 @@ it.  It serves as a good demo of IFM capabilities, since it doesn't give
 away any secrets from a "real" game.  The source code for *Ruins* can be
 found bundled with the `Inform 6 sources`_.
 
-.. _Inform 6 sources: http://www.ifarchive.org/indexes/if-archiveXinfocomXcompilersXinform6Xsource.html
+.. _Inform 6 sources: http://www.ifarchive.org/if-archive/infocom/compilers/inform6/source
 
 Mapping the game
 ================
