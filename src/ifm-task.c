@@ -562,7 +562,7 @@ invert_items(vhash *obj, char *attr)
 static void
 mark_finishing(char *action, char *otype, char *varname, vhash *table)
 {
-    char *value, *tag;
+    char *value, *tag, *name;
     vlist *tags;
     vhash *obj;
     viter i;
@@ -573,7 +573,8 @@ mark_finishing(char *action, char *otype, char *varname, vhash *table)
     v_iterate(tags, i) {
         tag = vl_iter_sval(i);
         if ((obj = vh_pget(table, tag)) != NULL) {
-            solver_msg(2, "%s %s '%s'", action, otype, tag);
+            name = vh_sgetref(obj, "DESC");
+            solver_msg(2, "%s %s '%s'", action, otype, name);
             vh_istore(obj, "FINISH", 1);
         } else {
             err("%s tag '%s' not defined", otype, tag);
