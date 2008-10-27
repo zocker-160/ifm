@@ -105,7 +105,12 @@ happen regardless, so nothing to do, map-wise.  Let's continue exploring:
 
     Carved inscriptions crowd the walls and ceiling.
 
-Here's the map for the new room::
+We went down to get here, and have to decide on a compass direction to
+represent this on the map; let's choose south.  This might clash with other
+rooms later, but we can always come back and change it if needed.
+
+We can also see some exits to other rooms, and can indicate those too, for
+later reference::
 
     room "Square Chamber" tag Chamber dir s go down exit s e;
     item "carvings";
@@ -205,7 +210,7 @@ surprise.  Let's do some mapping::
 
     room "Stooped Corridor" dir s;
     item "moss";
-    task "Search moss" 
+    task "Search moss";
     item "blood-red ruby" tag ruby hidden after last;
 
 OK, let's use that key!
@@ -436,8 +441,7 @@ stuff stashed!
 
     [Your score has just gone up by forty points.]
 
-OK, we've stashed all the loot we found.  Now, do we have a way out of
-here?  And what is that noise?
+OK, we've stashed all the loot we found.  But what's that noise?
 
 .. code-block:: transcript
 
@@ -476,15 +480,14 @@ the points for each one::
 After the treasure is stashed, we just waited for the helicopter and won
 the game::
 
-    task "Wait for helicopter" after pack_statue pack_bangle
-         pack_ruby pack_wax cmd "WAIT" 2 finish;
+    task "Wait for helicopter" after pack_statue pack_bangle pack_ruby pack_wax cmd "WAIT" 2 finish;
 
 The only thing remaining to do, map-wise, is to define the display style
 we've used for the dark rooms.  Let's just set the room background colour
-to be darker.  Note that you could also define the ``Dark`` style by
-putting it in a file called :file:`Dark.ifm`, and then putting that file in
-a directory which is searched by IFM.  That way, many maps could use the
-same style definition.  Here's the definition::
+to be darker.  Note that we could also define the ``Dark`` style by putting
+it in a file called :file:`Dark.ifm`, and then putting that file in a
+directory which is searched by IFM.  That way, many maps could use the same
+style definition.  Here's the definition::
 
     room_colour = "gray70" in style Dark;
 
