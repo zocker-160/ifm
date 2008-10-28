@@ -541,6 +541,9 @@ Game solver variables
      - 
      - Comma-separated list of extra room tags which are assigned the
        :keyword:`finish` attribute.
+
+       .. versionadded:: 5.3
+
      - :ref:`text <text>` :ref:`rec <rec>`
 
    * - ``finish_item``
@@ -548,6 +551,9 @@ Game solver variables
      - 
      - Comma-separated list of extra item tags which are assigned the
        :keyword:`finish` attribute.
+
+       .. versionadded:: 5.3
+
      - :ref:`text <text>` :ref:`rec <rec>`
 
    * - ``finish_task``
@@ -555,6 +561,9 @@ Game solver variables
      - 
      - Comma-separated list of extra task tags which are assigned the
        :keyword:`finish` attribute.
+
+       .. versionadded:: 5.3
+
      - :ref:`text <text>` :ref:`rec <rec>`
 
 Task dependency variables
@@ -607,10 +616,16 @@ Task dependency variables
      - int
      - 12
      - Word wrap length of nodes, in characters.
+
+       .. versionadded:: 5.3
+
      - :ref:`dot <dot>`
 
    * - ``task_graph_font``
      - string
      - ``Times-Roman``
      - Font name.
+
+       .. versionadded:: 5.3
+
      - :ref:`dot <dot>`
