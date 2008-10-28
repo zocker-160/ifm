@@ -4,6 +4,8 @@
  IFM text editor support
 =========================
 
+.. include:: refs.rst
+
 The :file:`contrib` directory of the IFM source distribution has a couple
 of files which support two popular text editors:
 
@@ -18,7 +20,3 @@ of files which support two popular text editors:
 
 :file:`ifm.vim`
     IFM syntax highlighting for VIM_ (Vi IMproved).
-
-.. _GNU Emacs: http://www.gnu.org/software/emacs
-.. _VIM: http://www.vim.org
-.. _Flymake: http://flymake.sourceforge.net

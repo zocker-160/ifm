@@ -4,6 +4,8 @@
  Using IFM
 ===========
 
+.. include:: refs.rst
+
 Running the program
 ===================
 
@@ -180,13 +182,12 @@ Fig maps (``fig``)
 
 .. versionadded:: 5.0
 
-This produces a map which can be read (and edited) by `Xfig
-<http://www.xfig.org>`_, and any other programs which understand Fig
-format. The map sections are packed to get a best fit automatically, in a
-similar manner to PostScript, but since Fig has no concept of pages, it is
-most useful when you're printing each map section individually.  There's a
-utility program called :ref:`ifm2dev <ifm2dev>` which automatically does
-this.
+This produces a map which can be read (and edited) by Xfig_, and any other
+programs which understand Fig format. The map sections are packed to get a
+best fit automatically, in a similar manner to PostScript, but since Fig
+has no concept of pages, it is most useful when you're printing each map
+section individually.  There's a utility program called :ref:`ifm2dev
+<ifm2dev>` which automatically does this.
 
 Fig format is also useful if you want to print poster-sized maps over
 several pages. The :option:`-M` option of :program:`fig2dev` (part of the
@@ -258,8 +259,6 @@ Task dependencies (``dot``)
 This produces a graph of the dependencies of tasks on each other, in
 Graphviz (dot) format. You'll need to have Graphviz_ installed in order to
 display the graph.
-
-.. _Graphviz: http://www.graphviz.org
 
 .. _raw:
 

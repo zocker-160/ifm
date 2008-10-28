@@ -4,6 +4,8 @@
  Mapping and solving example
 =============================
 
+.. include:: refs.rst
+
 .. highlight:: ifm
 
 Here's a more detailed example of how to use IFM, using the example game
@@ -14,8 +16,6 @@ Here's a more detailed example of how to use IFM, using the example game
 it.  It serves as a good demo of IFM capabilities, since it doesn't give
 away any secrets from a "real" game.  The source code for *Ruins* can be
 found bundled with the `Inform 6 sources`_.
-
-.. _Inform 6 sources: http://www.ifarchive.org/if-archive/infocom/compilers/inform6/source
 
 Mapping the game
 ================
@@ -543,8 +543,6 @@ similar, this doesn't really matter.  If we *did* want to, we'd have to fix
 this and create a recording file using::
 
     ifm -t -f rec ruins.ifm
-
-.. _Frotz: http://frotz.sourceforge.net
 
 This produces:
 

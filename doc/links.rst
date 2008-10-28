@@ -2,6 +2,8 @@
  IFM links
 ===========
 
+.. include:: refs.rst
+
 .. _mapping-programs:
 
 .. index:: 
@@ -30,13 +32,6 @@ Mapping programs and tools
 * asciimapper_ is a Perl script which takes ASCII representations of maps
   and converts them to IFM format.
 
-.. _Frobot: http://www.ifarchive.org/if-archive/mapping-tools/frobot12.zip
-.. _IFMapper: http://rubyforge.org/projects/ifmapper
-.. _GUEmap: http://www.cjmweb.net/GUEmap
-.. _ifm2i7: http://ftp.giga.or.at/pub/ifarchive/mapping-tools/ifm2i7.tar.bz2
-.. _`Inform 7`: http://www.inform-fiction.org/I7/Inform%207.html
-.. _asciimapper: http://www.ifarchive.org/if-archive/mapping-tools/asciimapper
-
 .. _ifm-maps:
 
 Existing IFM maps
@@ -60,5 +55,3 @@ Other links
 
 * The game-solving side of IFM touches on an area of research at McGill
   University called `Narrative Flow Graphs`_.
-
-.. _Narrative Flow Graphs: http://gram.cs.mcgill.ca/nfg.php

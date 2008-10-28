@@ -2,6 +2,8 @@
  Introduction
 ==============
 
+.. include:: refs.rst
+
 About IFM
 =========
 
@@ -14,13 +16,13 @@ need to perform in order to solve the game.
 The IFM mapping commands are designed so that you can easily add to the map
 as you explore the game. You type in the rooms you visit and the directions
 you move in to reach other rooms, and IFM calculates the position of each
-room in relation to the others. A map can consist of several independent
+room in relation to the others.  A map can consist of several independent
 sections, allowing you to divide up the map however you like. See
 :ref:`making-maps` for details of how to make a map.
 
 The IFM task commands, if used, allow you to specify the order in which
-game-solving tasks must be done. The IFM program can then calculate and
-print a high-level "walkthrough" of the game. See :ref:`solving` for
+game-solving tasks must be done.  The IFM program can then calculate and
+print a high-level *walkthrough* of the game.  See :ref:`solving` for
 details of how to do this.
 
 A more involved example of IFM in use throughout a complete game as it's
@@ -75,9 +77,9 @@ playing. [1]_
 Getting IFM
 ===========
 
-You can find IFM in the `IF archive`_, in the :file:`mapping-tools`
-subdirectory.  See the file :file:`INSTALL` that comes with the IFM source
-distribution for installation details.  But it basically boils down to::
+You can find IFM in the `mapping tools`_ directory of the `IF archive`_.
+See the file :file:`INSTALL` that comes with the IFM source distribution
+for installation details.  But it basically boils down to::
 
     ./configure
     make
@@ -85,10 +87,6 @@ distribution for installation details.  But it basically boils down to::
 
 If you want to build IFM on Windows, you'll need to install Cygwin_ first.
 Then, use the same commands as above.
-
-.. _groff: http://groff.ffii.org
-.. _IF archive: http://www.ifarchive.org
-.. _Cygwin: http://www.cygwin.com
 
 .. rubric:: Footnotes
 
