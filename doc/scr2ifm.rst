@@ -1,5 +1,7 @@
 .. _scr2ifm:
 
+.. include:: refs.rst
+
 ====================================================
  :program:`scr2ifm`: convert transcripts to IFM map
 ====================================================
@@ -12,9 +14,9 @@ carefree manner, without worrying about mapping anything, and after the
 session use :program:`scr2ifm` to get a map. Well, that's the theory
 anyway.
 
-:program:`scr2ifm` was inspired by :program:`Frobot`, another
-transcript-reading mapper.  But :program:`scr2ifm` in combination with IFM
-does a much better job.
+:program:`scr2ifm` was inspired by Frobot_, another transcript-reading
+mapper.  But :program:`scr2ifm` in combination with IFM does a much better
+job.
 
 :program:`scr2ifm` offers two basic ways of mapping: you can create an
 initial (incomplete) map from your first transcript and then add the rest
