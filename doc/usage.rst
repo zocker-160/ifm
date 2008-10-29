@@ -141,6 +141,9 @@ Finally, here are the information options:
 Types of output
 ===============
 
+.. include:: <isopub.txt>
+.. |X| replace:: |check|
+
 IFM has three different types of output (a map, a list of items, and a list
 of tasks) and several different output formats, which are described in the
 following sections. Not all types of output are produced by each output
@@ -149,9 +152,9 @@ format. The table below shows what's available for each format.
     ====== ========== === === ==== === === ===
     Output PostScript Fig Tk  Text Rec Dot Raw
     ====== ========== === === ==== === === ===
-    Map    Yes        Yes Yes
-    Items                     Yes          Yes
-    Tasks                     Yes  Yes Yes Yes
+    Map    |X|        |X| |X|
+    Items                     |X|          |X|
+    Tasks                     |X|  |X| |X| |X|
     ====== ========== === === ==== === === ===
 
 All the map output formats display map sections in the same way, so that
