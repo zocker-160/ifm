@@ -3953,7 +3953,7 @@ echo "$as_me: WARNING: perl not found -- not building perl scripts" >&2;}
    scr2ifm=
 fi
 
-                                                                                                    ac_config_files="$ac_config_files Makefile doc/Makefile doc/conf.py fig/Makefile lib/Makefile man/Makefile progs/Makefile src/Makefile tests/Makefile vars/Makefile"
+                                                                                                    ac_config_files="$ac_config_files Makefile doc/Makefile doc/conf.py lib/Makefile man/Makefile progs/Makefile src/Makefile src/libfig/Makefile src/libvars/Makefile tests/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4539,13 +4539,13 @@ do
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "doc/conf.py" ) CONFIG_FILES="$CONFIG_FILES doc/conf.py" ;;
-  "fig/Makefile" ) CONFIG_FILES="$CONFIG_FILES fig/Makefile" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "man/Makefile" ) CONFIG_FILES="$CONFIG_FILES man/Makefile" ;;
   "progs/Makefile" ) CONFIG_FILES="$CONFIG_FILES progs/Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+  "src/libfig/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libfig/Makefile" ;;
+  "src/libvars/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libvars/Makefile" ;;
   "tests/Makefile" ) CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
-  "vars/Makefile" ) CONFIG_FILES="$CONFIG_FILES vars/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

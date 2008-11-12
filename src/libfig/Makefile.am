@@ -12,10 +12,10 @@ EXTRA_DIST = fig-format.txt
 
 EXTRA_PROGRAMS = testfig
 
-INCLUDES = $(VARS_CFLAGS)
+INCLUDES = -I$(srcdir)/../libvars
 
 testfig_SOURCES = testfig.c
-testfig_LDFLAGS = -L$(top_srcdir)/vars
+testfig_LDFLAGS = -L$(srcdir)/../libvars
 testfig_LDADD = libfig.a -lvars -lm
 
 test: testfig

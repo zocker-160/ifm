@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = check-news no-dist-gzip dist-bzip2
 
 ACLOCAL_AMFLAGS = -I etc
 
-SUBDIRS = $(subdirs) fig vars src lib doc man progs tests
+SUBDIRS = $(subdirs) src lib doc man progs tests
 
 EXTRA_DIST = COPYING.DOC TO-DO
 
@@ -34,9 +34,7 @@ dist-touch:
 	done
 
 dist-cleanup:
-	find $(distdir) -type d -name CVS | xargs rm -rf
 	find $(distdir) -type f -name '*~' | xargs rm -f
-	find $(distdir) -type f -name .cvsignore | xargs rm -f
 	rm -f $(distdir)/etc/config.h
 	rm -f $(distdir)/etc/stamp-h*
 

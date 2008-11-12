@@ -10,4 +10,4 @@ DAYS = 7
 log:;	@ echo
 	@ echo Finding source changes in the last $(DAYS) days...
 	@ echo
-	@ cvslog $(DAYS)
+	@ hg log -d -$(DAYS) --style changelog

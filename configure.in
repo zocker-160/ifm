@@ -33,7 +33,7 @@ if test "$IFM_CYGWIN" != ""; then
 fi
 
 if test $CYGWIN = yes; then
-   AC_DEFINE(CYGWIN, 1, Whether building using Cygwin on Windoze)
+   AC_DEFINE(CYGWIN, 1, Whether building using Cygwin on Windows)
 fi
 
 AM_CONDITIONAL(CYGWIN, test $CYGWIN = yes)
@@ -77,11 +77,11 @@ AC_OUTPUT(
 Makefile
 doc/Makefile
 doc/conf.py
-fig/Makefile
 lib/Makefile
 man/Makefile
 progs/Makefile
 src/Makefile
+src/libfig/Makefile
+src/libvars/Makefile
 tests/Makefile
-vars/Makefile
 )

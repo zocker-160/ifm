@@ -1,5 +1,7 @@
 ## Automake template for ifm.
 
+SUBDIRS = libfig libvars
+
 bin_PROGRAMS = ifm
 
 SRCS = ifm-dot.c ifm-driver.c ifm-fig.c ifm-main.c ifm-map.c ifm-path.c	\
@@ -16,11 +18,11 @@ ifm_SOURCES = $(SRCS) $(NOLINT_SRCS) $(HDRS)
 
 EXTRA_DIST = ifm-parse.c ifm-scan.c
 
-FIG_SRC = $(top_srcdir)/fig
-FIG_BIN = $(top_builddir)/fig
+FIG_SRC = $(top_srcdir)/src/libfig
+FIG_BIN = $(top_builddir)/src/libfig
 
-VARS_SRC = $(top_srcdir)/vars
-VARS_BIN = $(top_builddir)/vars
+VARS_SRC = $(top_srcdir)/src/libvars
+VARS_BIN = $(top_builddir)/src/libvars
 
 ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
 ifm_LDADD   = -lfig -lvars -lm

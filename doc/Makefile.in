@@ -429,7 +429,7 @@ dist-hook: dist-doc check-doc
 log:;	@ echo
 	@ echo Finding source changes in the last $(DAYS) days...
 	@ echo
-	@ cvslog $(DAYS)
+	@ hg log -d -$(DAYS) --style changelog
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

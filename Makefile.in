@@ -170,7 +170,7 @@ target_alias = @target_alias@
 tkifm = @tkifm@
 AUTOMAKE_OPTIONS = check-news no-dist-gzip dist-bzip2
 ACLOCAL_AMFLAGS = -I etc
-SUBDIRS = $(subdirs) fig vars src lib doc man progs tests
+SUBDIRS = $(subdirs) src lib doc man progs tests
 EXTRA_DIST = COPYING.DOC TO-DO
 EXTRA_DIRS = etc contrib
 docdir = $(prefix)/doc
@@ -618,16 +618,14 @@ dist-touch:
 	done
 
 dist-cleanup:
-	find $(distdir) -type d -name CVS | xargs rm -rf
 	find $(distdir) -type f -name '*~' | xargs rm -f
-	find $(distdir) -type f -name .cvsignore | xargs rm -f
 	rm -f $(distdir)/etc/config.h
 	rm -f $(distdir)/etc/stamp-h*
 
 log:;	@ echo
 	@ echo Finding source changes in the last $(DAYS) days...
 	@ echo
-	@ cvslog $(DAYS)
+	@ hg log -d -$(DAYS) --style changelog
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
