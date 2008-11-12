@@ -41,11 +41,10 @@ div.body h6 {
     color: #0000a0;
 }
 
-div.sphinxsidebar h3 {
-    font-weight: bold;
-    color: #0000a0;
-}
-
+div.sphinxsidebar h1,
+div.sphinxsidebar h2,
+div.sphinxsidebar h3,
+div.sphinxsidebar h3 a,
 div.sphinxsidebar h4 {
     font-weight: bold;
     color: #0000a0;
