@@ -42,8 +42,7 @@ DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/etc/Makefile.common
 subdir = lib
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
-	$(top_srcdir)/etc/version.m4 $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/etc/mkinstalldirs
@@ -108,9 +107,6 @@ RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-VARS_CFLAGS = @VARS_CFLAGS@
-VARS_CONFIG = @VARS_CONFIG@
-VARS_LIBS = @VARS_LIBS@
 VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
@@ -154,16 +150,15 @@ program_transform_name = @program_transform_name@
 sbindir = @sbindir@
 scr2ifm = @scr2ifm@
 sharedstatedir = @sharedstatedir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
-STYLES = helvetica.ifm puzzle.ifm reckless.ifm special.ifm verbose.ifm
+STYLES = helvetica.ifm noshadow.ifm puzzle.ifm reckless.ifm special.ifm	\
+verbose.ifm
+
 LIBFILES = ifm-init.ifm ifm-pro.ps ifm-rgb.txt $(STYLES)
 pkgdata_DATA = $(LIBFILES)
 EXTRA_DIST = $(LIBFILES)
-IFM = $(top_srcdir)/src/ifm $(IFMOPTS)
-IFMOPTS = -I $(top_srcdir)/lib -s version="$(VERSION)" -S helvetica
 docdir = $(prefix)/doc
 ifmdocdir = $(docdir)/ifm
 
