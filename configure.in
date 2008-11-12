@@ -8,19 +8,6 @@ AC_CONFIG_AUX_DIR(etc)
 dnl Initialize automake.
 AM_INIT_AUTOMAKE(foreign)
 
-dnl Check for Vars library.
-if test -d $srcdir/vars; then
-    chmod u+w $srcdir/vars/etc
-    touch $srcdir/vars/etc/noinstall
-    AC_CONFIG_SUBDIRS(vars)
-    AC_SUBST(VARS_CFLAGS)
-    AC_SUBST(VARS_LIBS)
-    VARS_CFLAGS='-I$(top_srcdir)/vars/src'
-    VARS_LIBS='$(top_builddir)/vars/src/.libs/libvars.a -lm'
-else
-    AM_CONFIG_LIB(Vars, VARS, vars-config, 3.3)
-fi
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_YACC
@@ -96,4 +83,5 @@ man/Makefile
 progs/Makefile
 src/Makefile
 tests/Makefile
+vars/Makefile
 )

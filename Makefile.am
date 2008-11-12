@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = check-news no-dist-gzip dist-bzip2
 
 ACLOCAL_AMFLAGS = -I etc
 
-SUBDIRS = $(subdirs) fig src lib doc man progs tests
+SUBDIRS = $(subdirs) fig vars src lib doc man progs tests
 
 EXTRA_DIST = COPYING.DOC TO-DO
 

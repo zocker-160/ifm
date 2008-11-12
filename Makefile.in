@@ -41,11 +41,11 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
 	$(top_srcdir)/etc/Makefile.common COPYING COPYING.DOC INSTALL \
 	NEWS THANKS etc/config.guess etc/config.sub etc/depcomp \
-	etc/install-sh etc/ltmain.sh etc/missing etc/mkinstalldirs
+	etc/install-sh etc/ltmain.sh etc/missing etc/mkinstalldirs \
+	etc/ylwrap
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/etc/library.m4 \
-	$(top_srcdir)/etc/version.m4 $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -122,9 +122,6 @@ RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-VARS_CFLAGS = @VARS_CFLAGS@
-VARS_CONFIG = @VARS_CONFIG@
-VARS_LIBS = @VARS_LIBS@
 VERSION = @VERSION@
 WISH = @WISH@
 YACC = @YACC@
@@ -168,13 +165,12 @@ program_transform_name = @program_transform_name@
 sbindir = @sbindir@
 scr2ifm = @scr2ifm@
 sharedstatedir = @sharedstatedir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 tkifm = @tkifm@
 AUTOMAKE_OPTIONS = check-news no-dist-gzip dist-bzip2
 ACLOCAL_AMFLAGS = -I etc
-SUBDIRS = $(subdirs) fig src lib doc man progs tests
+SUBDIRS = $(subdirs) fig vars src lib doc man progs tests
 EXTRA_DIST = COPYING.DOC TO-DO
 EXTRA_DIRS = etc contrib
 docdir = $(prefix)/doc

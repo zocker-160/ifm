@@ -19,8 +19,11 @@ EXTRA_DIST = ifm-parse.c ifm-scan.c
 FIG_SRC = $(top_srcdir)/fig
 FIG_BIN = $(top_builddir)/fig
 
-ifm_LDFLAGS = -L$(FIG_BIN)
-ifm_LDADD   = -lfig $(VARS_LIBS) @LIBS@
+VARS_SRC = $(top_srcdir)/vars
+VARS_BIN = $(top_builddir)/vars
+
+ifm_LDFLAGS = -L$(FIG_BIN) -L$(VARS_BIN)
+ifm_LDADD   = -lfig -lvars -lm
 
 AM_YFLAGS = -d -v
 

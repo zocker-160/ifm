@@ -15,7 +15,7 @@ EXTRA_PROGRAMS = testfig
 INCLUDES = $(VARS_CFLAGS)
 
 testfig_SOURCES = testfig.c
-testfig_LDFLAGS = $(VARS_LIBS)
+testfig_LDFLAGS = -L$(top_srcdir)/vars
 testfig_LDADD = libfig.a -lvars -lm
 
 test: testfig
