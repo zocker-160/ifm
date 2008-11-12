@@ -1,4 +1,4 @@
-Version 5.3 (27 Oct 2008)
+Version 5.3 (12 Nov 2008)
 =========================
 
 * New ``them`` keyword, which refers to the list of items mentioned in the
@@ -16,9 +16,6 @@ Version 5.3 (27 Oct 2008)
 * The new keywords ``true`` and ``false`` can be used in place of 1 and 0,
   respectively, when setting variables.
 
-* PostScript maps now conform properly to Adobe DSC_.  This stops
-  Ghostscript 8.x barfing on them.
-
 * Both versions of the personal initialization file (``.ifmrc`` and
   ``ifm.ini``) are now read, if they exist.
 
@@ -35,6 +32,9 @@ Version 5.3 (27 Oct 2008)
 
 * Since ``asciimapper`` is now in the IF archive, it is no longer part of
   the ``contrib`` directory.
+
+* PostScript maps now conform properly to Adobe DSC_.  This stops
+  Ghostscript 8.x barfing on them.
 
 .. _Sphinx: http://sphinx.pocoo.org
 .. _Pygments: http://pygments.org
