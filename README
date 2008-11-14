@@ -55,6 +55,9 @@ some extra tools installed to build it:
 
 * The GNU autotools: ``autoconf``, ``automake``.
 * Parser generator tools: ``lex``, ``yacc`` (or ``bison``).
+* Sphinx_ to generate the IFM manual (and you'll need to install
+  ``pyifhilite`` from the ``contrib`` directory for syntax highlighting in
+  the manual).
 
 To get things started, run ``autogen.sh``.  Then build as normal.
 
@@ -70,6 +73,7 @@ Glenn Hutchings (zondo42@googlemail.com).
 Happy mapping!
 
 .. _Bitbucket: http://www.bitbucket.org/zondo/ifm
+.. _Sphinx: http://sphinx.pocoo.org
 .. _Cygwin: http://www.cygwin.com
 
 .. Local Variables:
