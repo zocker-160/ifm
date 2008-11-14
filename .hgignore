@@ -20,3 +20,5 @@ ifm.1
 
 tests/*.list
 tests/*.out
+
+*.output
