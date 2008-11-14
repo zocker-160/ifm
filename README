@@ -46,7 +46,20 @@ down to::
 If you want to build IFM on Windows, you'll need to install Cygwin_ first.
 Then, use the same commands as above.
 
-.. _Cygwin: http://www.cygwin.com
+Hacking
+=======
+
+IFM is hosted at Bitbucket_.  You're free to hack on it to your heart's
+content.  If you have just done a ``hg clone`` to get a copy, you'll need
+some extra tools installed to build it:
+
+* The GNU autotools: ``autoconf``, ``automake``.
+* Parser generator tools: ``lex``, ``yacc`` (or ``bison``).
+
+To get things started, run ``autogen.sh``.  Then build as normal.
+
+If you want to hack things on Windows, you'll need to install Cygwin_, as
+per installation.
 
 Finally...
 ==========
@@ -55,6 +68,9 @@ Feel free to send comments, bug reports, suggestions, etc. to me.  I am
 Glenn Hutchings (zondo42@googlemail.com).
 
 Happy mapping!
+
+.. _Bitbucket: http://www.bitbucket.org/zondo/ifm
+.. _Cygwin: http://www.cygwin.com
 
 .. Local Variables:
 .. mode: rst
