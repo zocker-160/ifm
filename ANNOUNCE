@@ -28,21 +28,17 @@ Changes
 
 So, what's new?
 
-.. INSERT CHANGES HERE
+INSERT CHANGES HERE
 
 Where do I find it?
 ===================
 
 You can find the IFM sources in the IF archive:
 
-   http://www.ifarchive.org/if-archive/mapping-tools/ifm-5.3.tar.bz2
+   http://www.ifarchive.org/if-archive/mapping-tools/ifm-5.3.tar.gz
 
 As a result of not having a Windows machine (or the inclination to get one)
 there currently isn't a Windows IFM v5.3 distribution.  If you want to use
 IFM on Windows, you must build it from sources using Cygwin:
 
    http://www.cygwin.com
-
-.. Local Variables:
-.. mode: rst
-.. End:
