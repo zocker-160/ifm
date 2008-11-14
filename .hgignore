@@ -1,6 +1,9 @@
 syntax: glob
 
 Makefile
+Makefile.in
+
+configure
 
 doc/conf.py
 doc/examples/ruins-*.txt
@@ -17,6 +20,12 @@ scr2ifm
 tkifm
 
 ifm.1
+
+src/ifm-parse.[ch]
+src/ifm-scan.c
+
+vars-*-lex.*
+vars-*-yacc.*
 
 tests/*.list
 tests/*.out
