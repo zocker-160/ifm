@@ -53,11 +53,12 @@ IFM is hosted at Bitbucket_.  You're free to hack on it to your heart's
 content.  If you have just done a ``hg clone`` to get a copy, you'll need
 some extra tools installed to build it:
 
+* GNU ``make``.
 * The GNU autotools: ``autoconf``, ``automake``.
 * Parser generator tools: ``lex``, ``yacc`` (or ``bison``).
-* Sphinx_ to generate the IFM manual (and you'll need to install
-  ``pyifhilite`` from the ``contrib`` directory for syntax highlighting in
-  the manual).
+* Sphinx_ to generate the IFM manual (and you'll need to install Pygments_
+  and ``pyifhilite`` from the ``contrib`` directory if you want syntax
+  highlighting).
 
 To get things started, run ``autogen.sh``.  Then build as normal.
 
@@ -74,6 +75,7 @@ Happy mapping!
 
 .. _Bitbucket: http://www.bitbucket.org/zondo/ifm
 .. _Sphinx: http://sphinx.pocoo.org
+.. _Pygments: http://pygments.org
 .. _Cygwin: http://www.cygwin.com
 
 .. Local Variables:
