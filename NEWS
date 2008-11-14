@@ -1,5 +1,7 @@
-Version 5.3 (12 Nov 2008)
+Version 5.3 (14 Nov 2008)
 =========================
+
+* IFM is now hosted at Bitbucket_.
 
 * New ``them`` keyword, which refers to the list of items mentioned in the
   current statement.
@@ -40,6 +42,7 @@ Version 5.3 (12 Nov 2008)
 .. _Pygments: http://pygments.org
 .. _Python: http://www.python.org
 .. _DSC: http://www-cdf.fnal.gov/offline/PostScript/AdobePS.html
+.. _Bitbucket: http://www.bitbucket.org/zondo/ifm
 
 Version 5.2 (7 Sep 2006)
 ========================
