@@ -99,7 +99,7 @@ $(ifmdocdir):
 
 EXTRA_DIST = $(DOCFILES) examples templates static
 
-dist-doc: $(EXTRA_DIST)
+dist-doc:
 	if test -d $(htmldir); then					\
 	   cp -rf $(htmldir) $(distdir);				\
 	fi
