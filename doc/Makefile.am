@@ -59,7 +59,7 @@ TASKS = $(IFM2WEB) -g -s 70
 
 images: $(PNG)
 
-examples:; cd examples; $(MAKE)
+examples:; cd $(srcdir)/examples; $(MAKE)
 
 $(imagedir)/%.png: $(exampledir)/%.ifm
 	@ echo creating $@
