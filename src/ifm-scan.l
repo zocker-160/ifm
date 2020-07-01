@@ -36,7 +36,7 @@ VAR             \${ID}
 [ \t\f\r]+ /* Strip whitespace */
 
 \n {
-    line_number++;
+    line_number_main++;
 }
 
 \" {
@@ -62,7 +62,7 @@ VAR             \${ID}
         } else if (c == '\n') {
             vb_putc(sbuf, ' ');
             eatspace = 1;
-            line_number++;
+            line_number_main++;
         } else if (!eatspace || !isspace(c)) {
             vb_putc(sbuf, c);
         }

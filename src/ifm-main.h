@@ -15,7 +15,7 @@ enum {
 #define debug(fmt, ...)   do_output(O_DEBUG,   fmt, ##__VA_ARGS__)
 
 /* External vars */
-extern int line_number;
+extern int line_number_main;
 extern char *ifm_format;
 extern vlist *ifm_search;
 extern vlist *ifm_styles;
