@@ -43,7 +43,7 @@
 #define OUTPUT (write_map || write_items || write_tasks)
 
 char *ifm_format = NULL;        /* Output format name */
-int line_number = 0;            /* Current line number */
+int line_number_main = 0;            /* Current line number */
 
 vlist *ifm_search = NULL;       /* Search path */
 vlist *ifm_styles = NULL;       /* Global styles */
@@ -288,7 +288,7 @@ initialize(void)
     init_parser();
 
     strcpy(infile, "");
-    line_number = 0;
+    line_number_main = 0;
     format_idx = -1;
 
     if (ifm_search != NULL)
@@ -384,7 +384,7 @@ read_input(char *file, int search, int required)
     extern FILE *yyin;
     char *path = file;
 
-    line_number = 0;
+    line_number_main = 0;
     strcpy(infile, "");
 
     if (file == NULL || V_STREQ(file, "-")) {
@@ -410,7 +410,7 @@ read_input(char *file, int search, int required)
 
     info("Reading '%s'", infile);
 
-    line_number = 1;
+    line_number_main = 1;
     errors = 0;
 
     if (path == NULL)
@@ -427,7 +427,7 @@ read_input(char *file, int search, int required)
     if (yyin != NULL)
         fclose(yyin);
 
-    line_number = 0;
+    line_number_main = 0;
     strcpy(infile, "");
 
     return (errors == 0);
@@ -527,8 +527,8 @@ do_output(int type, char *fmt, ...)
     if (type == O_ERROR || type == O_WARNING) {
         if (strlen(infile) > 0) {
             V_BUF_ADD(infile);
-            if (line_number > 0)
-                V_BUF_ADDF(", line %d", line_number);
+            if (line_number_main > 0)
+                V_BUF_ADDF(", line %d", line_number_main);
             V_BUF_ADD(": ");
         }
     }
@@ -559,7 +559,7 @@ do_output(int type, char *fmt, ...)
                 if (func == NULL)
                     fprintf(stderr, "%s\n", msg);
                 else
-                    func->warning(infile, line_number, msg);
+                    func->warning(infile, line_number_main, msg);
             }
 
             break;
@@ -571,7 +571,7 @@ do_output(int type, char *fmt, ...)
             if (func == NULL)
                 fprintf(stderr, "%s\n", msg);
             else
-                func->error(infile, line_number, msg);
+                func->error(infile, line_number_main, msg);
 
             break;
 
